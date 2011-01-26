@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<properties>
+	<entry key='Username:'>Username:</entry>
+	<entry key='Password:'>Password:</entry>
+	<entry key='Login'>Login</entry>
+	<entry key='Cancel'>Cancel</entry>
+	<entry key='Retrieve'>Retrieve</entry>
+	<entry key='Refresh'>Refresh</entry>
+	<entry key='Save'>Save</entry>
+	<entry key='Close'>Close</entry>
+</properties>

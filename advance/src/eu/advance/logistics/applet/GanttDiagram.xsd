@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="GanttData" type="GanttDataType">
+		<xs:annotation>
+			<xs:documentation>Gantt Diagram Data Model</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="GanttDataType">
+		<xs:sequence>
+			<xs:element name="Machine" type="MachineType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>The Machine element.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MachineType">
+		<xs:sequence>
+			<xs:element name="Tasks" type="TasksType">
+				<xs:annotation>
+					<xs:documentation>A list schedule of the machine</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Shifts" type="ShiftsType">
+				<xs:annotation><xs:documentation>A list of shifts on this machine</xs:documentation></xs:annotation>
+			</xs:element>
+			<xs:element name="KPIs" type="KPIsType">
+				<xs:annotation><xs:documentation>A list of key performance indicators</xs:documentation></xs:annotation>
+			</xs:element>
+			<xs:element name="Attributes" type="AttributesType">
+				<xs:annotation><xs:documentation>A list of optional attributes which will be shown on the tooltip</xs:documentation></xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Machine name to view</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="tooltip" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Optional text to show in tooltip</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="TasksType">
+		<xs:sequence>
+			<xs:element name="Task" type="TaskType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A particular schedule item.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TaskType">
+		<xs:sequence>
+			<xs:element name="JobID" type="JobIDType">
+				<xs:annotation>
+					<xs:documentation>The Job ID used to link together different tasks of the same job.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StartDate" type="xs:dateTime">
+				<xs:annotation>
+					<xs:documentation>The start datetime of the task</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EndDate" type="xs:dateTime">
+				<xs:annotation>
+					<xs:documentation>The end datetime of the tast</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Color" type="ColorType">
+				<xs:annotation>
+					<xs:documentation>The 24 bit RGB color in hexadecimal format (6 digits)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Pattern" type="PatternType">
+				<xs:annotation>
+					<xs:documentation>The pattern to fill the Task on screen</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Attributes" type="AttributesType">
+				<xs:annotation>
+					<xs:documentation>Contains a list of optional attributes which will be presented in the tooltip</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="JobIDType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="index" type="xs:int" use="optional">
+					<xs:annotation>
+						<xs:documentation>The optional index within the JobID</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="ColorType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-fA-F0-9]{6}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PatternType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="NONE"/>
+			<xs:enumeration value="SOLID"/>
+			<xs:enumeration value="DASH"/>
+			<xs:enumeration value="PIPE"/>
+			<xs:enumeration value="SLASH"/>
+			<xs:enumeration value="BACKSLASH"/>
+			<xs:enumeration value="PLUS"/>
+			<xs:enumeration value="CROSS"/>
+			<xs:enumeration value="DOTTED"/>
+			<xs:enumeration value="SQUARE"/>
+			<xs:enumeration value="DIAMOND"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AttributesType">
+		<xs:sequence>
+			<xs:element name="Attribute" type="AttributeType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>An attribute key and value.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AttributeType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="name" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>The name of the attribute.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="ShiftsType">
+		<xs:sequence>
+			<xs:element name="Shift" type="ShiftType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation><xs:documentation>A  particular shift entry</xs:documentation></xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ShiftType">
+		<xs:sequence>
+			<xs:element name="StartDate" type="xs:dateTime">
+				<xs:annotation><xs:documentation>The shift start date time</xs:documentation></xs:annotation>
+			</xs:element>
+			<xs:element name="EndDate" type="xs:dateTime">
+				<xs:annotation><xs:documentation>The shift end date time</xs:documentation></xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="KPIsType">
+		<xs:sequence>
+			<xs:element name="KPI" type="KPIType">
+				<xs:annotation><xs:documentation>A key performace indicator</xs:documentation></xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="KPIType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="name" type="xs:string" use="required">
+					<xs:annotation><xs:documentation>The name of the key performance indicator</xs:documentation></xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="tooltip" type="xs:string" use="optional">
+					<xs:annotation><xs:documentation>The optional tooltip to the key performance indicator</xs:documentation></xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>

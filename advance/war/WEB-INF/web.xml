@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  
+  <!-- Servlets -->
+ 	<servlet>
+		<servlet-name>AdvanceProjectService</servlet-name>
+		<servlet-class>eu.advance.logistics.web.server.AdvanceProjectServiceImpl</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>DemoDiagramServlet</servlet-name>
+		<servlet-class>eu.advance.logistics.web.server.DemoDiagramServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>DemoCrossDiagramServlet</servlet-name>
+		<servlet-class>eu.advance.logistics.web.server.DemoCrossDiagramServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>AdvanceProjectService</servlet-name>
+		<url-pattern>/advance_project/AdvanceProjectService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AdvanceProjectService</servlet-name>
+		<url-pattern>/AdvanceProjectService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DemoDiagramServlet</servlet-name>
+		<url-pattern>/advance_project/DemoDiagramServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DemoDiagramServlet</servlet-name>
+		<url-pattern>/DemoDiagramServlet</url-pattern>
+	</servlet-mapping>
+ 	<servlet-mapping>
+		<servlet-name>DemoCrossDiagramServlet</servlet-name>
+		<url-pattern>/advance_project/DemoCrossDiagramServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DemoCrossDiagramServlet</servlet-name>
+		<url-pattern>/DemoCrossDiagramServlet</url-pattern>
+	</servlet-mapping>
+  
+  	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>Advance_Project.html</welcome-file>
+	</welcome-file-list>
+</web-app>
