@@ -7,6 +7,9 @@
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <web-module-libraries>
                 <library dirs="200">
+                    <file>${libs.Tomcat_6.0.classpath}</file>
+                </library>
+                <library dirs="200">
                     <file>${file.reference.slf4j-log4j-jcl-jul-1.6.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
@@ -55,10 +58,6 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.gwt-dev.jar}</file>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.gwt-servlet.jar-1}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
