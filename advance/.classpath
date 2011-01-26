@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/annotations.jar" sourcepath="war/WEB-INF/lib/annotations.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r07.jar" sourcepath="war/WEB-INF/lib/guava-r07.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jxl5.jar" sourcepath="war/WEB-INF/lib/jxl5.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/log4j-1.2.16.jar" sourcepath="war/WEB-INF/lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/joda-time-1.6.2.jar" sourcepath="war/WEB-INF/lib/joda-time-1.6.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jsr166y.jar" sourcepath="war/WEB-INF/lib/jsr166y.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/monetdb-1.17-jdbc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="war/WEB-INF/lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/extra166y.jar" sourcepath="war/WEB-INF/lib/extra166y.jar"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
