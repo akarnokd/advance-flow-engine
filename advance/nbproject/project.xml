@@ -46,10 +46,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${file.reference.gwt-servlet.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.guava-r07.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
@@ -58,6 +54,10 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.gwt-dev.jar}</file>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.gwt-servlet.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
