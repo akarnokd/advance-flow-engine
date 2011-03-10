@@ -104,6 +104,25 @@ public class XType implements XComparable<XType> {
 	}
 	@Override
 	public String toString() {
-		return "XType " + capabilities + " ";
+		StringBuilder b = new StringBuilder();
+		toStringPretty("", b);
+		return b.toString();
+	}
+	/**
+	 * Pretty print the contents of this XType.
+	 * @param indent the current indentation
+	 * @param out the output buffer
+	 */
+	void toStringPretty(String indent, StringBuilder out) {
+		out.append(indent).append("XType [").append(String.format("%n"));
+		if (capabilities.size() > 0) {
+			for (XCapability c : capabilities) {
+				c.toStringPretty(indent + "  ", out);
+			}
+			out.append(indent).append("]");
+		} else {
+			out.append(" ]");
+		}
+		out.append(String.format("%n"));
 	}
 }

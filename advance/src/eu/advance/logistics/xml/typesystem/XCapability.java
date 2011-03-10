@@ -123,4 +123,22 @@ public class XCapability implements XComparable<XCapability> {
 		return "XCapability { name = " + name + ", numericity = " + numericity + ", "
 		+ (valueType != null ? ("valueType = " + valueType) : ("complexType = " + complexType)) + " } ";
 	}
+	/**
+	 * Pretty print the contents of this XCapability.
+	 * @param indent the current indentation
+	 * @param out the output buffer
+	 */
+	void toStringPretty(String indent, StringBuilder out) {
+		out.append(indent).append("XCapability {").append(String.format("%n"));
+		out.append(indent).append("  name = ").append(name).append(String.format(",%n"));
+		out.append(indent).append("  numericity = ").append(numericity).append(String.format(",%n"));
+		if (valueType != null) {
+			out.append(indent).append("  valueType = ").append(valueType).append(String.format("%n"));
+		}
+		if (complexType != null) {
+			out.append(indent).append("  complexType = ").append(String.format("%n"));
+			complexType.toStringPretty(indent + "    ", out);
+		}
+		out.append(indent).append("}").append(String.format("%n"));
+	}
 }
