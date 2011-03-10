@@ -120,8 +120,9 @@ public class XCapability implements XComparable<XCapability> {
 	}
 	@Override
 	public String toString() {
-		return "XCapability { name = " + name + ", numericity = " + numericity + ", "
-		+ (valueType != null ? ("valueType = " + valueType) : ("complexType = " + complexType)) + " } ";
+		StringBuilder b = new StringBuilder();
+		toStringPretty("", b);
+		return b.toString();
 	}
 	/**
 	 * Pretty print the contents of this XCapability.
