@@ -39,8 +39,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import eu.advance.logistics.xml.XML;
-
 /**
  * A simplified XML element model.
  * @author karnokd
@@ -377,7 +375,7 @@ public class XElement implements Iterable<XElement> {
 			nss.put(namespace, prefix != null && prefix.length() > 0 ? prefix : "");
 			
 			out.append(" xmlns").append(prefix != null && prefix.length() > 0 ? ":" : "")
-			.append(prefix != null && prefix.length() > 0 ? prefix : "").append("='").append(XML.toHTML(namespace)).append("'");
+			.append(prefix != null && prefix.length() > 0 ? prefix : "").append("='").append(sanitize(namespace)).append("'");
 		}
 		if (attributes.size() > 0) {
 			for (XAttributeName an : attributes.keySet()) {
@@ -385,13 +383,14 @@ public class XElement implements Iterable<XElement> {
 					nss.put(an.namespace, an.prefix != null && an.prefix.length() > 0 ? an.prefix : "");
 					
 					out.append(" xmlns").append(an.prefix != null && an.prefix.length() > 0 ? ":" : "")
-					.append(an.prefix != null && an.prefix.length() > 0 ? an.prefix : "").append("='").append(XML.toHTML(an.namespace)).append("'");
+					.append(an.prefix != null && an.prefix.length() > 0 ? an.prefix : "").append("='")
+					.append(sanitize(an.namespace)).append("'");
 				}
 				out.append(" ");
 				if (an.prefix != null && an.prefix.length() > 0) {
 					out.append(an.prefix).append(":");
 				}
-				out.append(an.name).append("='").append(XML.toHTML(attributes.get(an))).append("'");
+				out.append(an.name).append("='").append(sanitize(attributes.get(an))).append("'");
 			}
 		}
 		
@@ -399,7 +398,7 @@ public class XElement implements Iterable<XElement> {
 			if (content == null) {
 				out.append("/>");
 			} else {
-				out.append(XML.toHTML(content));
+				out.append(sanitize(content));
 				out.append(indent).append("</");
 				if (prefix != null && prefix.length() > 0) {
 					out.append(prefix).append(":");
@@ -412,7 +411,7 @@ public class XElement implements Iterable<XElement> {
 				out.append(String.format(">%n"));
 			} else {
 				out.append(">");
-				out.append(XML.toHTML(content));
+				out.append(sanitize(content));
 				out.append(String.format("%n"));
 			}
 			for (XElement e : children) {
@@ -426,5 +425,39 @@ public class XElement implements Iterable<XElement> {
 			out.append(">");
 		}
 		out.append(String.format("%n"));
+	}
+	/**
+	 * Connverts all sensitive characters to its HTML entity equivalent.
+	 * @param s the string to convert, can be null
+	 * @return the converted string, or an empty string
+	 */
+	public static String sanitize(String s) {
+		if (s != null) {
+			StringBuilder b = new StringBuilder(s.length());
+			for (int i = 0, count = s.length(); i < count; i++) {
+				char c = s.charAt(i);
+				switch (c) {
+				case '<':
+					b.append("&lt;");
+					break;
+				case '>':
+					b.append("&gt;");
+					break;
+				case '\'':
+					b.append("&#39;");
+					break;
+				case '"':
+					b.append("&quot;");
+					break;
+				case '&':
+					b.append("&amp;");
+					break;
+				default:
+					b.append(c);
+				}
+			}
+			return b.toString();
+		}
+		return "";
 	}
 }

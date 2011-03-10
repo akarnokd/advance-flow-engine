@@ -38,6 +38,14 @@ public class XType implements XComparable<XType> {
 		return compareTo(o, new HashSet<XType>());
 	}
 	/**
+	 * @return Create a copy of this XType object.
+	 */
+	public XType copy() {
+		XType result = new XType();
+		result.capabilities.addAll(capabilities);
+		return result;
+	}
+	/**
 	 * Perform the type comparison by using the given memory to avoid infinite recursion.
 	 * @param o the type to check against
 	 * @param memory the memory to keep track the traversed types
