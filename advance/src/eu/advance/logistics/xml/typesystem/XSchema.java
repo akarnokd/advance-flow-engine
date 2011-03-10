@@ -57,6 +57,7 @@ public final class XSchema {
 	public static void main(String[] args) throws Exception {
 		XElement schema1 = XElement.parseXML("test/type1.xsd");
 		XElement schema2 = XElement.parseXML("test/type2.xsd");
+		XElement schema3 = XElement.parseXML("test/type3.xsd");
 		
 		System.out.println(schema1);
 		XType t1 = parse(schema1);
@@ -67,6 +68,11 @@ public final class XSchema {
 		System.out.println(t1.compareTo(t2));
 		System.out.println(t2.compareTo(t1));
 		System.out.println(t1.compareTo(t1));
+		
+		System.out.println();
+		XType t3 = parse(schema3);
+		System.out.println(t1.compareTo(t3));
+		System.out.println(compare(t1, t3));
 	}
 	/**
 	 * Create the XML type by parsing the given schema document.
@@ -542,5 +548,32 @@ public final class XSchema {
 			return XValueType.STRING;
 		}
 		return null;
+	}
+	/**
+	 * Convenience method to compare two XTypes through its first capabilty only.
+	 * XSDs are typically parsed into XTypes where the outer XType has only the
+	 * root node as a capability. But most of the time, root node capability naming
+	 * has nothing to do with its contents and would just cause false comparisons.
+	 * @param t1 the first type
+	 * @param t2 the second type
+	 * @return the relation
+	 */
+	public static XRelation compare(XType t1, XType t2) {
+		if (t1.capabilities.size() != 1) {
+			throw new IllegalArgumentException("t1 should have only one capability, instead, it has " + t1.capabilities.size());
+		}
+		if (t2.capabilities.size() != 1) {
+			throw new IllegalArgumentException("t2 should have only one capability, instead, it has " + t2.capabilities.size());
+		}
+		if ((t1.capabilities.get(0).complexType == null) != (t2.capabilities.get(0).complexType == null)) {
+			return XRelation.NONE;
+		} else
+		if (t1.capabilities.get(0).complexType != null && t2.capabilities.get(0).complexType != null) {
+			return t1.capabilities.get(0).complexType.compareTo(t2.capabilities.get(0).complexType);
+		}
+		if (t1.capabilities.get(0).valueType == t2.capabilities.get(0).valueType) {
+			return XRelation.EQUAL;
+		}
+		return XRelation.NONE;
 	}
 }
