@@ -105,19 +105,20 @@ public class XType implements XComparable<XType> {
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		toStringPretty("", b);
+		toStringPretty("", b, new HashSet<XType>());
 		return b.toString();
 	}
 	/**
 	 * Pretty print the contents of this XType.
 	 * @param indent the current indentation
 	 * @param out the output buffer
+	 * @param memory the memory to avoid infinite type display
 	 */
-	void toStringPretty(String indent, StringBuilder out) {
+	void toStringPretty(String indent, StringBuilder out, Set<XType> memory) {
 		out.append(indent).append("XType [").append(String.format("%n"));
 		if (capabilities.size() > 0) {
 			for (XCapability c : capabilities) {
-				c.toStringPretty(indent + "  ", out);
+				c.toStringPretty(indent + "  ", out, memory);
 			}
 			out.append(indent).append("]");
 		} else {
