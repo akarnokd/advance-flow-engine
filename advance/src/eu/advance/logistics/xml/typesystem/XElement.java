@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class XElement implements Iterable<XElement> {
 	/** The parent element. */
 	public XElement parent;
 	/** The attribute map. */
-	protected final Map<XAttributeName, String> attributes = new HashMap<XAttributeName, String>();
+	protected final Map<XAttributeName, String> attributes = new LinkedHashMap<XAttributeName, String>();
 	/** The child elements. */
 	protected final List<XElement> children = new ArrayList<XElement>();
 	/**
