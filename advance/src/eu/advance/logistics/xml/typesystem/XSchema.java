@@ -106,7 +106,7 @@ public final class XSchema {
 		c.name = new XName();
 		c.name.name = root.get("name");
 		// FIXME set semantic token and aliases
-		c.numericity = getNumericity(root);
+		c.cardinality = getNumericity(root);
 		result.capabilities.add(c);
 		
 		String rootType = root.get("type");
@@ -187,7 +187,7 @@ public final class XSchema {
 						XCapability cap = new XCapability();
 						// FIXME interpretation?!
 						cap.name = c.name;
-						cap.numericity = XNumericity.ONE;
+						cap.cardinality = XCardinality.ONE;
 						c.complexType.capabilities.add(cap);
 						setSimpleRestriction(cap, sequence, types, restriction);
 					} else {
@@ -200,7 +200,7 @@ public final class XSchema {
 								XCapability cap = new XCapability();
 								// FIXME interpretation?!
 								cap.name = c.name;
-								cap.numericity = XNumericity.ONE;
+								cap.cardinality = XCardinality.ONE;
 								setSimpleType(cap, simpleBase, types);
 								c.complexType.capabilities.add(cap);
 								setAttributes(c, extension, types, memory);
@@ -224,7 +224,7 @@ public final class XSchema {
 						XCapability cap = new XCapability();
 						// FIXME interpretation?!
 						cap.name = c.name;
-						cap.numericity = XNumericity.ONE;
+						cap.cardinality = XCardinality.ONE;
 						c.complexType.capabilities.add(cap);
 						setSimpleRestriction(cap, sequence, types, restriction);
 						setComplexType(c, restriction, types, memory);
@@ -237,7 +237,7 @@ public final class XSchema {
 								XCapability cap = new XCapability();
 								// FIXME interpretation?!
 								cap.name = c.name;
-								cap.numericity = XNumericity.ONE;
+								cap.cardinality = XCardinality.ONE;
 								setSimpleType(cap, simpleBase, types);
 								setComplexType(c, extension, types, memory);
 								c.complexType = c.complexType.copy();
@@ -276,12 +276,12 @@ public final class XSchema {
 			XCapability cap = setElement(attr, types, c.complexType, memory);
 			String use = attr.get("use");
 			if ("optional".equals(use)) {
-				cap.numericity = XNumericity.ZERO_OR_ONE;
+				cap.cardinality = XCardinality.ZERO_OR_ONE;
 			} else
 			if ("required".equals(use)) {
-				cap.numericity = XNumericity.ONE;
+				cap.cardinality = XCardinality.ONE;
 			} else {
-				cap.numericity = XNumericity.ZERO;
+				cap.cardinality = XCardinality.ZERO;
 			}
 		}
 		LinkedList<XElement> attrgr = new LinkedList<XElement>();
@@ -300,12 +300,12 @@ public final class XSchema {
 				XCapability cap = setElement(attr, types, c.complexType, memory);
 				String use = attr.get("use");
 				if ("optional".equals(use)) {
-					cap.numericity = XNumericity.ZERO_OR_ONE;
+					cap.cardinality = XCardinality.ZERO_OR_ONE;
 				} else
 				if ("required".equals(use)) {
-					cap.numericity = XNumericity.ONE;
+					cap.cardinality = XCardinality.ONE;
 				} else {
-					cap.numericity = XNumericity.ZERO;
+					cap.cardinality = XCardinality.ZERO;
 				}
 			}
 			attrgr.addAll(ag.childrenWithName("attributeGroup", XSD));
@@ -334,7 +334,7 @@ public final class XSchema {
 					XCapability c1 = new XCapability();
 					c1.name = new XName();
 					c1.valueType = primitiveType;
-					c1.numericity = XNumericity.ZERO_OR_MANY; // FIXME list numericity unknown
+					c1.cardinality = XCardinality.ZERO_OR_MANY; // FIXME list numericity unknown
 					c.complexType.capabilities.add(c1);
 				} else {
 					// find among children
@@ -446,7 +446,7 @@ public final class XSchema {
 	 * @param e the element definition
 	 * @return the numericity
 	 */
-	static XNumericity getNumericity(XElement e) {
+	static XCardinality getNumericity(XElement e) {
 		String mino = e.get("minOccurs");
 		String maxo = e.get("maxOccurs");
 		if (mino == null) {
@@ -457,19 +457,19 @@ public final class XSchema {
 		}
 		if (mino.equals("0")) {
 			if (maxo.equals("0")) {
-				return XNumericity.ZERO;
+				return XCardinality.ZERO;
 			} else
 			if (maxo.equals("1")) {
-				return XNumericity.ZERO_OR_ONE;
+				return XCardinality.ZERO_OR_ONE;
 			} else 
 			if (maxo.equals("unbounded")) {
-				return XNumericity.ZERO_OR_MANY;
+				return XCardinality.ZERO_OR_MANY;
 			}
 			throw new AssertionError("0 to Max numericity not supported: " + maxo);
 		} else
 		if (mino.equals("1")) {
 			if (maxo.equals("1")) {
-				return XNumericity.ONE;
+				return XCardinality.ONE;
 			} else
 			if (maxo.equals("unbounded")) {
 				throw new AssertionError("1 to Max numericity not supported: " + maxo);

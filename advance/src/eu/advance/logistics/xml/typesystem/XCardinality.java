@@ -24,7 +24,7 @@ package eu.advance.logistics.xml.typesystem;
  * The numericity enum for an element.
  * @author karnokd
  */
-public enum XNumericity {
+public enum XCardinality {
 	/** Not occurring (e.g., explicitely forbidden). */
 	ZERO,
 	/** Zero or one occurrence. */
@@ -52,7 +52,7 @@ public enum XNumericity {
 	 * @param n2 the second numericity value
 	 * @return the relation
 	 */
-	public static XRelation compare(XNumericity n1, XNumericity n2) {
+	public static XRelation compare(XCardinality n1, XCardinality n2) {
 		if (n1 == n2) {
 			return XRelation.EQUAL;
 		} else
