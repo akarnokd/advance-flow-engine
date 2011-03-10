@@ -34,7 +34,7 @@ public class XCapability implements XComparable<XCapability> {
 	/** The element name. */
 	public XName name;
 	/** The element numericity. */
-	public XNumericity numericity;
+	public XCardinality cardinality;
 	/** The element's simple type if non null. */
 	public XValueType valueType;
 	/** The element's complex type if non null. */
@@ -90,7 +90,7 @@ public class XCapability implements XComparable<XCapability> {
 		if (valueType != null && valueType == o.valueType) {
 			equal++;
 		}
-		switch (XNumericity.compare(numericity, o.numericity)) {
+		switch (XCardinality.compare(cardinality, o.cardinality)) {
 		case EQUAL:
 			equal++;
 			break;
@@ -132,7 +132,7 @@ public class XCapability implements XComparable<XCapability> {
 	void toStringPretty(String indent, StringBuilder out) {
 		out.append(indent).append("XCapability {").append(String.format("%n"));
 		out.append(indent).append("  name = ").append(name).append(String.format(",%n"));
-		out.append(indent).append("  numericity = ").append(numericity).append(String.format(",%n"));
+		out.append(indent).append("  numericity = ").append(cardinality).append(String.format(",%n"));
 		if (valueType != null) {
 			out.append(indent).append("  valueType = ").append(valueType).append(String.format("%n"));
 		}
