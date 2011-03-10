@@ -121,15 +121,16 @@ public class XCapability implements XComparable<XCapability> {
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		toStringPretty("", b);
+		toStringPretty("", b, new HashSet<XType>());
 		return b.toString();
 	}
 	/**
 	 * Pretty print the contents of this XCapability.
 	 * @param indent the current indentation
 	 * @param out the output buffer
+	 * @param memory the types already expressed won't be detailed again
 	 */
-	void toStringPretty(String indent, StringBuilder out) {
+	void toStringPretty(String indent, StringBuilder out, Set<XType> memory) {
 		out.append(indent).append("XCapability {").append(String.format("%n"));
 		out.append(indent).append("  name = ").append(name).append(String.format(",%n"));
 		out.append(indent).append("  numericity = ").append(cardinality).append(String.format(",%n"));
@@ -137,8 +138,14 @@ public class XCapability implements XComparable<XCapability> {
 			out.append(indent).append("  valueType = ").append(valueType).append(String.format("%n"));
 		}
 		if (complexType != null) {
-			out.append(indent).append("  complexType = ").append(String.format("%n"));
-			complexType.toStringPretty(indent + "    ", out);
+			if (!memory.contains(complexType)) {
+				memory.add(complexType);
+				out.append(indent).append("  complexType = ").append(String.format("%n"));
+				complexType.toStringPretty(indent + "    ", out, memory);
+				memory.remove(complexType);
+			} else {
+				out.append(indent).append("  complexType = XType ...").append(String.format("%n"));
+			}
 		}
 		out.append(indent).append("}").append(String.format("%n"));
 	}
