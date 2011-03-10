@@ -239,12 +239,15 @@ public final class XSchema {
 								cap.name = c.name;
 								cap.numericity = XNumericity.ONE;
 								setSimpleType(cap, simpleBase, types);
-								c.complexType.capabilities.add(cap);
 								setComplexType(c, extension, types, memory);
+								c.complexType = c.complexType.copy();
+								c.complexType.capabilities.add(cap);
+
 							} else {
 								XElement complexType = findType(base, "complexType", types);
 								if (complexType != null) {
 									setComplexType(c, complexType, types, memory);
+									c.complexType = c.complexType.copy();
 									setComplexType(c, extension, types, memory);
 								} else {
 									throw new AssertionError("Unknown extension base type " + base);
