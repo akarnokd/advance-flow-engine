@@ -461,4 +461,24 @@ public class XElement implements Iterable<XElement> {
 		}
 		return "";
 	}
+	/**
+	 * @return Creates a deep copy of this element.
+	 */
+	public XElement copy() {
+		XElement e = new XElement(name);
+		e.namespace = namespace;
+		e.content = content;
+		e.prefix = prefix;
+		
+		for (Map.Entry<XAttributeName, String> me : attributes.entrySet()) {
+			XAttributeName an = new XAttributeName(me.getKey().name, me.getKey().namespace, me.getKey().prefix);
+			e.attributes.put(an, me.getValue());
+		}
+		for (XElement c : children) {
+			XElement c0 = c.copy();
+			c0.parent = e;
+			e.children.add(c0);
+		}
+		return e;
+	}
 }

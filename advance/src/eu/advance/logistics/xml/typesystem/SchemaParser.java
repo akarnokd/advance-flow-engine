@@ -41,13 +41,13 @@ import javax.xml.stream.XMLStreamException;
  * A XML type description.
  * @author karnokd
  */
-public final class XSchema {
+public final class SchemaParser {
 	/** The XSD namespace. */
 	public static final String XSD = "http://www.w3.org/2001/XMLSchema";
 	/** The XSD instance URI. */
 	public static final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
 	/** Utility class. */
-	private XSchema() {
+	private SchemaParser() {
 		// utility class
 	}
 	/**
