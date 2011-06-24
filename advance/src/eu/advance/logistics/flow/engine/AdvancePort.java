@@ -21,31 +21,19 @@
 
 package eu.advance.logistics.flow.engine;
 
-import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.reactive4java.reactive.Observable;
 import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.xml.typesystem.XType;
 
 /**
- * The diagnostic port for advance regular ports.
- * @author karnokd, 2011.06.22.
+ * Generic interface to describe ports.
+ * @author karnokd, 2011.06.24.
  */
-public final class AdvanceParameterDiagnostic {
-	/** The affected block. */
-	public final AdvanceBlock block;
-	/** The affected port. */
-	public final AdvancePort port;
-	/** The possible copy of the value within the port. */
-	public final Option<XElement> value;
-	/** The timestamp when the port received this value. */
-	public final long timestamp = System.currentTimeMillis();
-	/**
-	 * Constructor.
-	 * @param block the affected block
-	 * @param port the affected port
-	 * @param value the value
-	 */
-	public AdvanceParameterDiagnostic(AdvanceBlock block, AdvancePort port, Option<XElement> value) {
-		this.block = block;
-		this.port = port;
-		this.value = value;
-	}
+public interface AdvancePort extends Observable<XElement> {
+	/** @return the port name. */
+	String name();
+	/** @return the parent advance block. */
+	AdvanceBlock parent();
+	/** @return the value type of the port. */
+	XType type();
 }

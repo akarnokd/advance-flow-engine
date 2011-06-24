@@ -249,7 +249,6 @@ public class XElement implements Iterable<XElement> {
 	private static XElement parseXML(XMLStreamReader in) throws XMLStreamException {
 		XElement node = null;
 		XElement root = null;
-		int depth = 0;
 		final StringBuilder emptyBuilder = new StringBuilder();
 		StringBuilder b = null;
 		Deque<StringBuilder> stack = new LinkedList<StringBuilder>();
@@ -318,7 +317,6 @@ public class XElement implements Iterable<XElement> {
 				if (b == emptyBuilder) {
 					b = null;
 				}
-				depth--;
 				break;
 			default:
 				// ignore others.
@@ -480,5 +478,9 @@ public class XElement implements Iterable<XElement> {
 			e.children.add(c0);
 		}
 		return e;
+	}
+	/** @return the iterable for all children. */
+	public Iterable<XElement> children() {
+		return children;
 	}
 }

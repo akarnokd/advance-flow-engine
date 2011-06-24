@@ -27,6 +27,8 @@ import hu.akarnokd.reactive4java.reactive.DefaultObservable;
 import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Observer;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +40,7 @@ import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.model.AdvanceBlockDescription;
 import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.model.AdvanceConstantBlock;
 import eu.advance.logistics.flow.model.AdvanceResolver;
 import eu.advance.logistics.util.ReactiveEx;
 import eu.advance.logistics.xml.typesystem.XElement;
@@ -52,13 +55,15 @@ public class AdvanceBlock {
 	/** The global identifier of this block. */ 
 	private final int gid;
 	/** The input ports. */
-	public final List<AdvanceBlockPort> inputs;
+	public final List<AdvancePort> inputs;
 	/** The output ports. */
 	public final List<AdvanceBlockPort> outputs;
 	/** The original description of this block. */
 	private AdvanceBlockDescription description;
 	/** The block diagnostic observable. */
 	private DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
+	/** The close the observer of the inputs. */
+	private Closeable functionClose;
 	/**
 	 * Constructor.  
 	 * @param gid The global identifier of this block. 
@@ -71,16 +76,26 @@ public class AdvanceBlock {
 	/** 
 	 * Initialize the block with the given definition and body function.
 	 * @param desc the description of the block
+	 * @param constantParams the map of those parameters who have a constant input instead of other output ports
 	 * @param func the function to invoke when all inputs are available
 	 */
 	public void init(
 			AdvanceBlockDescription desc, 
+			final Map<String, AdvanceConstantBlock> constantParams,
 			final Func2<AdvanceBlock, Map<String, XElement>, Map<String, XElement>> func) {
 		this.description = desc;
 		for (AdvanceBlockParameterDescription in : desc.inputs.values()) {
-			AdvanceBlockPort p = new AdvanceBlockPort(this, in.id);
-			p.type = AdvanceResolver.resolveSchema(in.type);
-			inputs.add(p);
+			AdvanceConstantBlock cb = constantParams.get(in.id); 
+			if (cb == null) {
+				AdvanceBlockPort p = new AdvanceBlockPort(this, in.id);
+				p.type = AdvanceResolver.resolveSchema(in.type);
+				inputs.add(p);
+			} else {
+				AdvanceConstantPort p = new AdvanceConstantPort(this, in.id);
+				p.value = cb.value;
+				p.type = AdvanceResolver.resolveSchema(in.type);
+				inputs.add(p);
+			}
 		}
 		for (AdvanceBlockParameterDescription out : desc.outputs.values()) {
 			AdvanceBlockPort p = new AdvanceBlockPort(this, out.id);
@@ -88,7 +103,7 @@ public class AdvanceBlock {
 			outputs.add(p);
 		}
 		diagnostic = new DefaultObservable<AdvanceBlockDiagnostic>(false, false);
-		ReactiveEx.combine(inputs).register(new Observer<List<XElement>>() {
+		functionClose = ReactiveEx.combine(inputs).register(new Observer<List<XElement>>() {
 
 			@Override
 			public void next(List<XElement> value) {
@@ -96,8 +111,8 @@ public class AdvanceBlock {
 				try {
 					Map<String, XElement> funcIn = Maps.newHashMap();
 					for (int i = 0; i < inputs.size(); i++) {
-						AdvanceBlockPort p = inputs.get(i);
-						funcIn.put(p.name, value.get(i));
+						AdvancePort p = inputs.get(i);
+						funcIn.put(p.name(), value.get(i));
 					}
 					
 					Map<String, XElement> funcOut = func.invoke(AdvanceBlock.this, funcIn);
@@ -133,6 +148,15 @@ public class AdvanceBlock {
 			}
 			
 		});
+	}
+	/** Terminate the block. */
+	public void done() {
+		try {
+			functionClose.close();
+		} catch (IOException ex) {
+			LOG.info("", ex);
+		}
+		diagnostic.finish();
 	}
 	/** @return the block global id. */
 	public int getGid() {

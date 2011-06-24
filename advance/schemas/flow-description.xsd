@@ -106,6 +106,52 @@
 					</xs:attribute>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="constant" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A constant block containing configuration or other direct values.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:any>
+							<xs:annotation>
+								<xs:documentation>
+								An arbitrary XML content. However, some primitive types should use a predefined structure: 
+								&lt;int&gt;&lt;/int&gt; 
+								&lt;string&gt;&lt;/string&gt;
+								</xs:documentation>
+							</xs:annotation>
+						</xs:any>
+					</xs:sequence>
+					<xs:attribute name="id" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>The constant identifier used by the bindings.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="type" type="xs:anyURI" use="required">
+						<xs:annotation>
+							<xs:documentation>The schema describing the constant output</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="displayname" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>The optional display name</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="documentation" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>The user-entered documentation of this parameter.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="keywords" use="optional">
+						<xs:annotation>
+							<xs:documentation>The user-entered keywords for easier finding of this parameter.</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:list itemType="xs:string"/>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="id" type="xs:string" use="required">
 			<xs:annotation>
