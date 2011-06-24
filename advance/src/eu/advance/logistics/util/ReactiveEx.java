@@ -42,7 +42,6 @@ public final class ReactiveEx {
 	 * Utility class.
 	 */
 	private ReactiveEx() {
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * Combine the incoming Ts of the various observables into a single list of Ts like
@@ -53,7 +52,7 @@ public final class ReactiveEx {
 	 */
 	public static <T> Observable<List<T>> combine(final List<? extends Observable<? extends T>> srcs) {
 		if (srcs.size() < 1) {
-			throw new IllegalArgumentException("srcs.size() < 1");
+			return Reactive.never();
 		} else
 		if (srcs.size() == 1) {
 			return Reactive.select(srcs.get(0), new Func1<T, List<T>>() {
@@ -89,5 +88,41 @@ public final class ReactiveEx {
 				return res0.register(observer);
 			}
 		};
+	}
+	/**
+	 * Combine a stream of Ts with a constant T whenever the src fires.
+	 * @param <T> the element type
+	 * @param src the source of Ts
+	 * @param constant the constant T to combine with
+	 * @return the new observer
+	 */
+	public static <T> Observable<List<T>> combine(Observable<? extends T> src, final T constant) {
+		return Reactive.select(src, new Func1<T, List<T>>() {
+			@Override
+			public List<T> invoke(T param1) {
+				List<T> result = new ArrayList<T>();
+				result.add(param1);
+				result.add(constant);
+				return result;
+			};
+		});
+	}
+	/**
+	 * Combine a constant T with a stream of Ts whenever the src fires.
+	 * @param <T> the element type
+	 * @param constant the constant T to combine with
+	 * @param src the source of Ts
+	 * @return the new observer
+	 */
+	public static <T> Observable<List<T>> combine(final T constant, Observable<? extends T> src) {
+		return Reactive.select(src, new Func1<T, List<T>>() {
+			@Override
+			public List<T> invoke(T param1) {
+				List<T> result = new ArrayList<T>();
+				result.add(constant);
+				result.add(param1);
+				return result;
+			};
+		});
 	}
 }

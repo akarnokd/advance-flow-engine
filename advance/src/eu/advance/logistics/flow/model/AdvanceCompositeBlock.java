@@ -51,8 +51,10 @@ public class AdvanceCompositeBlock {
 	public final Map<String, AdvanceCompositeBlockParameterDescription> outputs = Maps.newLinkedHashMap();
 	/** The optional sub-elements of this block. */
 	public final Map<String, AdvanceBlockReference> blocks = Maps.newLinkedHashMap();
-	/** An optional composite inner block. */
+	/** Optional composite inner block. */
 	public final Map<String, AdvanceCompositeBlock> composites = Maps.newLinkedHashMap();
+	/** Optional constant inner block. */
+	public final Map<String, AdvanceConstantBlock> constants = Maps.newLinkedHashMap();
 	/** The binding definition of internal blocks and/or boundary parameters. You may bind the output of the blocks to many input parameters. */
 	public final List<AdvanceBlockBind> bindings = Lists.newArrayList();
 	/**
@@ -66,30 +68,37 @@ public class AdvanceCompositeBlock {
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
-		for (XElement e : root.childElement("input")) {
-			AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
-			p.load(e);
-			inputs.put(p.displayName, p);
-		}
-		for (XElement e : root.childElement("output")) {
-			AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
-			p.load(e);
-			outputs.put(p.displayName, p);
-		}
-		for (XElement e : root.childrenWithName("block")) {
-			AdvanceBlockReference p = new AdvanceBlockReference();
-			p.load(e);
-			blocks.put(p.id, p);
-		}
-		for (XElement e : root.childrenWithName("composite-block")) {
-			AdvanceCompositeBlock p = new AdvanceCompositeBlock();
-			p.load(e);
-			composites.put(p.id, p);
-		}
-		for (XElement e : root.childrenWithName("bind")) {
-			AdvanceBlockBind p = new AdvanceBlockBind();
-			p.load(e);
-			bindings.add(p);
+		for (XElement e : root.children()) {
+			if (e.name.equals("input")) {
+				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
+				p.load(e);
+				inputs.put(p.displayName, p);
+			} else
+			if (e.name.equals("output")) {
+				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
+				p.load(e);
+				outputs.put(p.displayName, p);
+			} else
+			if (e.name.equals("block")) {
+				AdvanceBlockReference p = new AdvanceBlockReference();
+				p.load(e);
+				blocks.put(p.id, p);
+			} else
+			if (e.name.equals("composite-block")) {
+				AdvanceCompositeBlock p = new AdvanceCompositeBlock();
+				p.load(e);
+				composites.put(p.id, p);
+			} else
+			if (e.name.equals("constant")) {
+				AdvanceConstantBlock p = new AdvanceConstantBlock();
+				p.load(e);
+				constants.put(p.id, p);
+			} else
+			if (e.name.equals("bind")) {
+				AdvanceBlockBind p = new AdvanceBlockBind();
+				p.load(e);
+				bindings.add(p);
+			}
 		}
 	}
 }

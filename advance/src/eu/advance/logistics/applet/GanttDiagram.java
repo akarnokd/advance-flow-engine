@@ -277,7 +277,6 @@ public class GanttDiagram extends JComponent {
 				if (showTasks) {
 					Paint paintSave = g2.getPaint();
 					//Stroke wide = new BasicStroke(5);
-					int idx = 0;
 					for (Task s : m.taskMap.tailMap(timeOffset - displaceTime, true).values()) {
 						if (s.startDate > endTime) {
 							break;
@@ -324,7 +323,6 @@ public class GanttDiagram extends JComponent {
 							s.x2 = 0;
 							//s.y2 = 0;
 						}
-						idx++;
 					}
 					g2.setPaint(paintSave);
 				}
@@ -360,7 +358,6 @@ public class GanttDiagram extends JComponent {
 			}
 		}
 		if (showWorkDays) {
-			int idx = 0;
 			cal.setTimeInMillis(model.startDate);
 			long date = model.startDate;
 			while (date < model.endDate + 24L * 60 * 60 * 1000) {
@@ -378,7 +375,6 @@ public class GanttDiagram extends JComponent {
 					g2.setColor(Color.BLACK);
 					g2.drawLine(ix, 0, ix, getHeight() - 1);
 					//g2.drawLine(ix+iw+1, 0, ix+iw+1, getHeight()-1);
-					idx++;
 				}
 				cal.add(GregorianCalendar.DATE, 1);
 				date = cal.getTimeInMillis();
