@@ -43,6 +43,8 @@ public class AdvanceCompositeBlock {
 	/** The user-entered documentation of this composite block. */
 	@Nullable
 	public String documentation;
+	/** The parent block of this composite block. */
+	public AdvanceCompositeBlock parent;
 	/** The user-entered keywords for easier finding of this block. */
 	public final List<String> keywords = Lists.newArrayList();
 	/** The optional boundary-parameter of this composite block which lets other internal or external blocks bind to this block. */
@@ -82,11 +84,13 @@ public class AdvanceCompositeBlock {
 			if (e.name.equals("block")) {
 				AdvanceBlockReference p = new AdvanceBlockReference();
 				p.load(e);
+				p.parent = this;
 				blocks.put(p.id, p);
 			} else
 			if (e.name.equals("composite-block")) {
 				AdvanceCompositeBlock p = new AdvanceCompositeBlock();
 				p.load(e);
+				p.parent = this;
 				composites.put(p.id, p);
 			} else
 			if (e.name.equals("constant")) {
@@ -100,5 +104,25 @@ public class AdvanceCompositeBlock {
 				bindings.add(p);
 			}
 		}
+	}
+	/**
+	 * Check if the given binding exists.
+	 * @param srcBlock the source block or "" if it is the composite
+	 * @param srcParam the source parameter
+	 * @param dstBlock the destination block or "" if it is the composite
+	 * @param dstParam the destination parameter.
+	 * @return true if the binding is present
+	 */
+	public boolean hasBinding(String srcBlock, String srcParam, String dstBlock, String dstParam) {
+		for (AdvanceBlockBind bb : bindings) {
+			if (bb.sourceBlock.equals(srcBlock) 
+					&& bb.sourceParameter.equals(srcParam)
+					&& bb.destinationBlock.equals(dstBlock)
+					&& bb.destinationParameter.equals(dstParam)
+			) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

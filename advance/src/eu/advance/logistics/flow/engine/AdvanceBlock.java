@@ -21,8 +21,9 @@
 
 package eu.advance.logistics.flow.engine;
 
-import hu.akarnokd.reactive4java.base.Func2;
+import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.reactive.DefaultObservable;
 import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Observer;
@@ -49,7 +50,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * The generic ADVANCE block.
  * @author karnokd, 2011.06.22.
  */
-public class AdvanceBlock {
+public abstract class AdvanceBlock {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlock.class);
 	/** The global identifier of this block. */ 
@@ -77,12 +78,10 @@ public class AdvanceBlock {
 	 * Initialize the block with the given definition and body function.
 	 * @param desc the description of the block
 	 * @param constantParams the map of those parameters who have a constant input instead of other output ports
-	 * @param func the function to invoke when all inputs are available
 	 */
 	public void init(
 			AdvanceBlockDescription desc, 
-			final Map<String, AdvanceConstantBlock> constantParams,
-			final Func2<AdvanceBlock, Map<String, XElement>, Map<String, XElement>> func) {
+			final Map<String, AdvanceConstantBlock> constantParams) {
 		this.description = desc;
 		for (AdvanceBlockParameterDescription in : desc.inputs.values()) {
 			AdvanceConstantBlock cb = constantParams.get(in.id); 
@@ -103,38 +102,72 @@ public class AdvanceBlock {
 			outputs.add(p);
 		}
 		diagnostic = new DefaultObservable<AdvanceBlockDiagnostic>(false, false);
-		functionClose = ReactiveEx.combine(inputs).register(new Observer<List<XElement>>() {
+	}
+	/** 
+	 * Schedule the execution of the body function. 
+	 * @return the observer to trigger in the run phase
+	 */
+	public Observer<Void> run() {
+		List<AdvancePort> reactivePorts = Lists.newArrayList(Interactive.where(inputs, new Func1<AdvancePort, Boolean>() {
+			@Override
+			public Boolean invoke(AdvancePort param1) {
+				return !(param1 instanceof AdvanceConstantPort);
+			}
+		}));
+		
+		if (inputs.size() == 0 || reactivePorts.size() == 0) {
+			return new Observer<Void>() {
 
+				@Override
+				public void next(Void value) {
+					if (inputs.size() == 0) {
+						invokeBody(Lists.<XElement>newArrayList());
+					} else {
+						invokeBody(Lists.newArrayList(Interactive.select(
+								inputs,
+								new Func1<AdvancePort, XElement>() {
+									@Override
+									public XElement invoke(AdvancePort param1) {
+										return ((AdvanceConstantPort)param1).value;
+									}
+								}
+						)));
+					}
+					
+				}
+
+				@Override
+				public void error(Throwable ex) {
+					diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
+				}
+
+				@Override
+				public void finish() {
+					LOG.info("Finish? " + description.id);
+				}
+				
+			};
+		}
+		functionClose = ReactiveEx.combine(reactivePorts).register(new Observer<List<XElement>>() {
 			@Override
 			public void next(List<XElement> value) {
-				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.START)));
-				try {
-					Map<String, XElement> funcIn = Maps.newHashMap();
-					for (int i = 0; i < inputs.size(); i++) {
-						AdvancePort p = inputs.get(i);
-						funcIn.put(p.name(), value.get(i));
-					}
-					
-					Map<String, XElement> funcOut = func.invoke(AdvanceBlock.this, funcIn);
-					
-					boolean valid = true;
-					for (int i = 0; i < outputs.size(); i++) {
-						if (!funcOut.containsKey(outputs.get(i).name)) {
-							diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
-							LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
-							valid = false;
-						}
-					}
-					if (valid) {
-						for (int i = 0; i < outputs.size(); i++) {
-							AdvanceBlockPort p = outputs.get(i);
-							p.next(funcOut.get(p.name));
-						}						
-						diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.FINISH)));
-					}
-				} catch (Throwable t) {
-					diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(t)));
-				}
+				invokeBody(value);
+			}
+
+			@Override
+			public void error(Throwable ex) {
+				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
+			}
+
+			@Override
+			public void finish() {
+				LOG.info("Finish? " + description.id);
+			}
+		});
+		return new Observer<Void>() {
+			@Override
+			public void next(Void value) {
+				// no operation in this case
 			}
 
 			@Override
@@ -147,14 +180,60 @@ public class AdvanceBlock {
 				LOG.info("Finish? " + description.id);
 			}
 			
-		});
+		};
 	}
+	/**
+	 * Invoke the body function when all elements are available.
+	 * @param value the list of input parameters
+	 */
+	void invokeBody(List<XElement> value) {
+		diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.START)));
+		try {
+			Map<String, XElement> funcIn = Maps.newHashMap();
+			for (int i = 0; i < inputs.size(); i++) {
+				AdvancePort p = inputs.get(i);
+				if (p instanceof AdvanceConstantPort) {
+					funcIn.put(p.name(), ((AdvanceConstantPort) p).value);
+				} else {
+					funcIn.put(p.name(), value.get(i));
+				}
+			}
+			
+			Map<String, XElement> funcOut = invoke(funcIn);
+			
+			boolean valid = true;
+			for (int i = 0; i < outputs.size(); i++) {
+				if (!funcOut.containsKey(outputs.get(i).name)) {
+					diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
+					LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
+					valid = false;
+				}
+			}
+			if (valid) {
+				for (int i = 0; i < outputs.size(); i++) {
+					AdvanceBlockPort p = outputs.get(i);
+					p.next(funcOut.get(p.name));
+				}						
+				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.FINISH)));
+			}
+		} catch (Throwable t) {
+			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(t)));
+		}
+	}
+	/**
+	 * The body function to invoke.
+	 * @param params the parameters
+	 * @return the result
+	 */
+	protected abstract Map<String, XElement> invoke(Map<String, XElement> params);
 	/** Terminate the block. */
 	public void done() {
-		try {
-			functionClose.close();
-		} catch (IOException ex) {
-			LOG.info("", ex);
+		if (functionClose != null) {
+			try {
+				functionClose.close();
+			} catch (IOException ex) {
+				LOG.info("", ex);
+			}
 		}
 		diagnostic.finish();
 	}

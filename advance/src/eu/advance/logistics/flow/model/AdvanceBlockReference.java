@@ -44,6 +44,8 @@ public class AdvanceBlockReference {
 	/** The user-entered documentation of this composite block. */
 	@Nullable
 	public String documentation;
+	/** The parent block of this composite block. */
+	public AdvanceCompositeBlock parent;
 	/** The user-entered keywords for easier finding of this block. */
 	public final List<String> keywords = Lists.newArrayList();
 	/**
