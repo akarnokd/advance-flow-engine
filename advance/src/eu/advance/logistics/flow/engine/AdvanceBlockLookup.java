@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.model.AdvanceBlockDescription;
+import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
 
 /**
  * Utility class to look up various blocks.
@@ -46,9 +47,11 @@ public final class AdvanceBlockLookup {
 	/**
 	 * Create a concrete block by using the given settings.
 	 * @param gid the global block id
+	 * @param parent the parent composite block
+	 * @param name the level block identifier
 	 * @return the new block instance 
 	 */
-	public static AdvanceBlock create(int gid) {
+	public static AdvanceBlock create(int gid, AdvanceCompositeBlock parent, String name) {
 		// TODO implement
 		return null;
 	}

@@ -39,8 +39,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.model.AdvanceBlockDescription;
 import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.model.AdvanceConstantBlock;
 import eu.advance.logistics.flow.model.AdvanceResolver;
 import eu.advance.logistics.util.ReactiveEx;
@@ -55,10 +57,14 @@ public abstract class AdvanceBlock {
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlock.class);
 	/** The global identifier of this block. */ 
 	private final int gid;
+	/** The block identifier within the current composite level. */
+	public final String name;
 	/** The input ports. */
 	public final List<AdvancePort> inputs;
 	/** The output ports. */
 	public final List<AdvanceBlockPort> outputs;
+	/** The parent composite block. */
+	public final AdvanceCompositeBlock parent;
 	/** The original description of this block. */
 	private AdvanceBlockDescription description;
 	/** The block diagnostic observable. */
@@ -68,9 +74,13 @@ public abstract class AdvanceBlock {
 	/**
 	 * Constructor.  
 	 * @param gid The global identifier of this block. 
+	 * @param parent the parent composite block.
+	 * @param name the level identifier
 	 */
-	public AdvanceBlock(int gid) {
+	public AdvanceBlock(int gid, AdvanceCompositeBlock parent, String name) {
 		this.gid = gid;
+		this.parent = parent;
+		this.name = name;
 		inputs = Lists.newArrayList();
 		outputs = Lists.newArrayList();
 	}
@@ -235,6 +245,11 @@ public abstract class AdvanceBlock {
 				LOG.info("", ex);
 			}
 		}
+		for (AdvancePort ap : inputs) {
+			if (ap instanceof AdvanceBlockPort) {
+				((AdvanceBlockPort) ap).disconnect();
+			}
+		}
 		diagnostic.finish();
 	}
 	/** @return the block global id. */
@@ -250,5 +265,18 @@ public abstract class AdvanceBlock {
 	 */
 	public Observable<AdvanceBlockDiagnostic> getDiagnosticPort() {
 		return diagnostic;
+	}
+	/** 
+	 * Get the given output port by name.
+	 * @param name the port name
+	 * @return the block port
+	 */
+	public AdvanceBlockPort getOutput(@NonNull String name) {
+		for (AdvanceBlockPort p : outputs) {
+			if (p.name().equals(name)) {
+				return p;
+			}
+		}
+		return null;
 	}
 }
