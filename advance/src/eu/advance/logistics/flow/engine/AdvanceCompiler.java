@@ -21,9 +21,12 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.reactive4java.reactive.Observer;
+
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.model.AdvanceBlockBind;
@@ -59,15 +62,67 @@ public final class AdvanceCompiler {
 			Map<String, AdvanceConstantBlock> consts = Maps.newHashMap();
 			AdvanceBlockDescription bd = AdvanceBlockLookup.lookup(br.type);
 			for (AdvanceBlockParameterDescription bdp : bd.inputs.values()) {
-				AdvanceConstantBlock cb = walkBinding(root, br.id, bdp.id);
-				if (cb != null) {
-					consts.put(bdp.id, cb);
+				ConstantOrBlock cb = walkBinding(root, br.id, bdp.id);
+				if (cb != null && cb.constant != null) {
+					consts.put(bdp.id, cb.constant);
 				}
 			}
-			AdvanceBlock ab = AdvanceBlockLookup.create(flow.size());
+			AdvanceBlock ab = AdvanceBlockLookup.create(flow.size(), root, br.id);
 			ab.init(bd, consts);
 			flow.add(ab);
 		}
+		// bind
+		if (root.parent == null) {
+			for (AdvanceBlock ab : flow) {
+				for (AdvancePort p : ab.inputs) {
+					if (p instanceof AdvanceBlockPort) {
+						ConstantOrBlock cb = walkBinding(ab.parent, ab.getDescription().id, p.name());
+						for  (AdvanceBlock ab2 : flow) {
+							if (ab2.parent == cb.composite && ab2.name.equals(cb.block)) {
+								((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	/**
+	 * Run the flow graph.
+	 * @param flow the list of blocks
+	 */
+	public static void run(List<AdvanceBlock> flow) {
+		// arm
+		List<Observer<Void>> notifycations = Lists.newLinkedList();
+		for (AdvanceBlock ab : flow) {
+			notifycations.add(ab.run());
+		}
+		// notify
+		for (Observer<Void> n : notifycations) {
+			n.next(null);
+		}
+	}
+	/**
+	 * Terminate the blocks' connections and observations.
+	 * @param flow the flow
+	 */
+	public static void done(List<AdvanceBlock> flow) {
+		for (AdvanceBlock ab : flow) {
+			ab.done();
+		}
+	}
+	/** Composite for the walk binding. */
+	static class ConstantOrBlock {
+		/** The composite block where the constant or block has been found. */
+		AdvanceCompositeBlock composite;
+		/** Found a constant block. */
+		AdvanceConstantBlock constant;
+		/** Found a regular block. */
+		String block;
+		/** The regular block parameter id. */
+		String param;
 	}
 	/**
 	 * Walk the binding graph to locate a root constant block or return null if no such block was found.
@@ -76,13 +131,16 @@ public final class AdvanceCompiler {
 	 * @param param the starting parameter
 	 * @return the constant block or null
 	 */
-	static AdvanceConstantBlock walkBinding(AdvanceCompositeBlock start, String block, String param) {
+	static ConstantOrBlock walkBinding(AdvanceCompositeBlock start, String block, String param) {
 		while (!Thread.currentThread().isInterrupted()) {
 			for (AdvanceBlockBind bb : start.bindings) {
 				if (bb.destinationBlock.equals(block) && bb.destinationParameter.equals(param)) {
 					if (start.constants.containsKey(bb.sourceBlock)) {
 						// constant found in the current level
-						return start.constants.get(bb.sourceBlock);
+						ConstantOrBlock result = new ConstantOrBlock();
+						result.constant = start.constants.get(bb.sourceBlock);
+						result.composite = start;
+						return result;
 					} else
 					if (bb.sourceBlock.isEmpty() && start.inputs.containsKey(bb.sourceParameter)) {
 						// if binding is to an input parameter, trace that
@@ -98,8 +156,15 @@ public final class AdvanceCompiler {
 						start = q.composites.get(bb.sourceBlock);
 						block = "";
 						param = bb.sourceParameter;
+					} else
+					if (start.blocks.containsKey(bb.sourceBlock)) {
+						// otherwise, its a regular block
+						ConstantOrBlock result = new ConstantOrBlock();
+						result.composite = start;
+						result.block = bb.sourceBlock;
+						result.param = bb.sourceParameter;
+						return result;
 					}
-					// otherwise, its a regular block
 					return null;
 				}
 			}
