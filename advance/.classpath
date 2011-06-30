@@ -13,8 +13,8 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r09-gwt.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r09.jar" sourcepath="war/WEB-INF/lib/guava-r09.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.16-bin.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/reactive4java-0.92.jar" sourcepath="war/WEB-INF/lib/reactive4java-0.92.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/reactive4java-gwt-0.92.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/reactive4java-0.93.jar" sourcepath="war/WEB-INF/lib/reactive4java-0.93.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/reactive4java-gwt-0.93.jar"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

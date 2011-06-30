@@ -23,10 +23,12 @@ package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.reactive.DefaultObservable;
 import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -71,16 +73,25 @@ public abstract class AdvanceBlock {
 	private DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
 	/** The close the observer of the inputs. */
 	private Closeable functionClose;
+	/** The preferred scheduler type. Filled in by the AdvanceBlockLookup.create(). */
+	public final SchedulerPreference schedulerPreference;
+//	/** The scheduler instance to use. Filled in by the AdvanceCompiler.run(). */
+//	public Scheduler scheduler;
 	/**
 	 * Constructor.  
 	 * @param gid The global identifier of this block. 
 	 * @param parent the parent composite block.
 	 * @param name the level identifier
+	 * @param schedulerPreference the scheduler preference
 	 */
-	public AdvanceBlock(int gid, AdvanceCompositeBlock parent, String name) {
+	public AdvanceBlock(int gid, 
+			AdvanceCompositeBlock parent, 
+			String name, 
+			SchedulerPreference schedulerPreference) {
 		this.gid = gid;
 		this.parent = parent;
 		this.name = name;
+		this.schedulerPreference = schedulerPreference;
 		inputs = Lists.newArrayList();
 		outputs = Lists.newArrayList();
 	}
@@ -114,10 +125,11 @@ public abstract class AdvanceBlock {
 		diagnostic = new DefaultObservable<AdvanceBlockDiagnostic>(false, false);
 	}
 	/** 
-	 * Schedule the execution of the body function. 
+	 * Schedule the execution of the body function.
+	 * @param scheduler the scheduler based on the block's preference 
 	 * @return the observer to trigger in the run phase
 	 */
-	public Observer<Void> run() {
+	public Observer<Void> run(final Scheduler scheduler) {
 		List<AdvancePort> reactivePorts = Lists.newArrayList(Interactive.where(inputs, new Func1<AdvancePort, Boolean>() {
 			@Override
 			public Boolean invoke(AdvancePort param1) {
@@ -131,17 +143,27 @@ public abstract class AdvanceBlock {
 				@Override
 				public void next(Void value) {
 					if (inputs.size() == 0) {
-						invokeBody(Lists.<XElement>newArrayList());
+						scheduler.schedule(new Runnable() {
+							@Override
+							public void run() {
+								invokeBody(Lists.<XElement>newArrayList(), scheduler);
+							}
+						});
 					} else {
-						invokeBody(Lists.newArrayList(Interactive.select(
-								inputs,
-								new Func1<AdvancePort, XElement>() {
-									@Override
-									public XElement invoke(AdvancePort param1) {
-										return ((AdvanceConstantPort)param1).value;
-									}
-								}
-						)));
+						scheduler.schedule(new Runnable() {
+							@Override
+							public void run() {
+								invokeBody(Lists.newArrayList(Interactive.select(
+										inputs,
+										new Func1<AdvancePort, XElement>() {
+											@Override
+											public XElement invoke(AdvancePort param1) {
+												return ((AdvanceConstantPort)param1).value;
+											}
+										}
+								)), scheduler);
+							}
+						});
 					}
 					
 				}
@@ -158,10 +180,10 @@ public abstract class AdvanceBlock {
 				
 			};
 		}
-		functionClose = ReactiveEx.combine(reactivePorts).register(new Observer<List<XElement>>() {
+		functionClose = Reactive.observeOn(ReactiveEx.combine(reactivePorts), scheduler).register(new Observer<List<XElement>>() {
 			@Override
 			public void next(List<XElement> value) {
-				invokeBody(value);
+				invokeBody(value, scheduler);
 			}
 
 			@Override
@@ -195,10 +217,12 @@ public abstract class AdvanceBlock {
 	/**
 	 * Invoke the body function when all elements are available.
 	 * @param value the list of input parameters
+	 * @param scheduler the scheduler
 	 */
-	void invokeBody(List<XElement> value) {
+	void invokeBody(List<XElement> value, Scheduler scheduler) {
 		diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.START)));
 		try {
+			// prepare input parameters
 			Map<String, XElement> funcIn = Maps.newHashMap();
 			for (int i = 0; i < inputs.size(); i++) {
 				AdvancePort p = inputs.get(i);
@@ -209,33 +233,40 @@ public abstract class AdvanceBlock {
 				}
 			}
 			
-			Map<String, XElement> funcOut = invoke(funcIn);
+			invoke(funcIn);
 			
-			boolean valid = true;
-			for (int i = 0; i < outputs.size(); i++) {
-				if (!funcOut.containsKey(outputs.get(i).name)) {
-					diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
-					LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
-					valid = false;
-				}
-			}
-			if (valid) {
-				for (int i = 0; i < outputs.size(); i++) {
-					AdvanceBlockPort p = outputs.get(i);
-					p.next(funcOut.get(p.name));
-				}						
-				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.FINISH)));
-			}
 		} catch (Throwable t) {
 			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(t)));
 		}
 	}
 	/**
-	 * The body function to invoke.
-	 * @param params the parameters
-	 * @return the result
+	 * Dispatches the given map of output values to various ports.
+	 * @param funcOut the function output
 	 */
-	protected abstract Map<String, XElement> invoke(Map<String, XElement> params);
+	protected void dispatchOutput(Map<String, XElement> funcOut) {
+		boolean valid = true;
+		for (int i = 0; i < outputs.size(); i++) {
+			if (!funcOut.containsKey(outputs.get(i).name)) {
+				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
+				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
+				valid = false;
+			}
+		}
+		if (valid) {
+			for (int i = 0; i < outputs.size(); i++) {
+				AdvanceBlockPort p = outputs.get(i);
+				p.next(funcOut.get(p.name));
+			}						
+			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.FINISH)));
+		}
+
+	}
+	/**
+	 * The body function to invoke. Implementation should should invoke the {@link #dispatchOutput(Map)} method
+	 * when the computation is over. This may happen synchronously (or asynchronously)
+	 * @param params the parameters
+	 */
+	protected abstract void invoke(Map<String, XElement> params);
 	/** Terminate the block. */
 	public void done() {
 		if (functionClose != null) {
