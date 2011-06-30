@@ -92,12 +92,13 @@ public final class AdvanceCompiler {
 	/**
 	 * Run the flow graph.
 	 * @param flow the list of blocks
+	 * @param schedulers the available set of schedulers
 	 */
-	public static void run(List<AdvanceBlock> flow) {
+	public static void run(List<AdvanceBlock> flow, Schedulers schedulers) {
 		// arm
 		List<Observer<Void>> notifycations = Lists.newLinkedList();
 		for (AdvanceBlock ab : flow) {
-			notifycations.add(ab.run());
+			notifycations.add(ab.run(schedulers.get(ab.schedulerPreference)));
 		}
 		// notify
 		for (Observer<Void> n : notifycations) {

@@ -28,6 +28,7 @@ import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,5 +125,16 @@ public final class ReactiveEx {
 				return result;
 			};
 		});
+	}
+	/** An empty closeable. */
+	private static final Closeable EMPTY_CLOSEABLE = new Closeable() {
+		@Override
+		public void close() throws IOException {
+			// NO OP
+		}
+	};
+	/** @return an empty, no-op closeable instance. */
+	public static Closeable emptyCloseable() {
+		return EMPTY_CLOSEABLE;
 	}
 }
