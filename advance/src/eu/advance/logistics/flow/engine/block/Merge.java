@@ -21,7 +21,9 @@
 
 package eu.advance.logistics.flow.engine.block;
 
+import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Scheduler;
+import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceConstantPort;
 import eu.advance.logistics.flow.engine.AdvancePort;
 import eu.advance.logistics.flow.engine.SchedulerPreference;
 import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
@@ -61,13 +64,42 @@ public class Merge extends AdvanceBlock {
 	@Override
 	protected Observer<Void> runReactiveBlock(Scheduler scheduler,
 			List<AdvancePort> reactivePorts) {
-		functionClose = Reactive.observeOn(
+		functionClose.add(Reactive.observeOn(
 				Reactive.merge(reactivePorts), scheduler).register(new InvokeObserver<XElement>() {
 			@Override
 			public void next(XElement value) {
 				dispatchOutput(Collections.singletonMap("out", value));
 			}
-		});
-		return new RunObserver();
+		}));
+		return dispatchConstants(scheduler);
+	}
+	@Override
+	protected Observer<Void> runConstantBlock(Scheduler scheduler) {
+		return dispatchConstants(scheduler);
+	}
+	/**
+	 * Dispatch the constant parameter values immediately.
+	 * @param scheduler the scheduler to use for the dispatch
+	 * @return the observer to initiate the dispatch
+	 */
+	protected Observer<Void> dispatchConstants(final Scheduler scheduler) {
+		return new RunObserver() {
+			@Override
+			public void next(Void value) {
+				functionClose.add(scheduler.schedule(new Runnable() {
+					@Override
+					public void run() {
+						for (XElement e : Interactive.select(getConstantPorts(), new Func1<AdvancePort, XElement>() {
+							@Override
+							public XElement invoke(AdvancePort param1) {
+								return ((AdvanceConstantPort)param1).value;
+							}
+						})) {
+							dispatchOutput(Collections.singletonMap("out", e));
+						}
+					}
+				}));
+			}
+		};
 	}
 }

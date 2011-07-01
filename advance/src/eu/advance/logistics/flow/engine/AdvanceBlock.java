@@ -32,6 +32,7 @@ import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +71,8 @@ public abstract class AdvanceBlock {
 	protected AdvanceBlockDescription description;
 	/** The block diagnostic observable. */
 	protected DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
-	/** The close the observer of the inputs. */
-	protected Closeable functionClose;
+	/** List of functions to close when the block is terminated via done(). */
+	protected final List<Closeable> functionClose;
 	/** The preferred scheduler type. Filled in by the AdvanceBlockLookup.create(). */
 	public final SchedulerPreference schedulerPreference;
 //	/** The scheduler instance to use. Filled in by the AdvanceCompiler.run(). */
@@ -91,8 +92,9 @@ public abstract class AdvanceBlock {
 		this.parent = parent;
 		this.name = name;
 		this.schedulerPreference = schedulerPreference;
-		inputs = Lists.newArrayList();
-		outputs = Lists.newArrayList();
+		this.inputs = Lists.newArrayList();
+		this.outputs = Lists.newArrayList();
+		this.functionClose = Collections.synchronizedList(Lists.<Closeable>newArrayList());
 	}
 	/** 
 	 * Initialize the block with the given definition and body function.
@@ -134,6 +136,17 @@ public abstract class AdvanceBlock {
 			}
 		}));
 	}
+	/**
+	 * @return Retrieves a list of ports which are of reactive nature, e.g., they are not constants.
+	 */
+	public List<AdvancePort> getConstantPorts() {
+		return Lists.newArrayList(Interactive.where(inputs, new Func1<AdvancePort, Boolean>() {
+			@Override
+			public Boolean invoke(AdvancePort param1) {
+				return (param1 instanceof AdvanceConstantPort);
+			}
+		}));
+	}
 	/** 
 	 * Schedule the execution of the body function.
 	 * @param scheduler the scheduler based on the block's preference 
@@ -157,13 +170,13 @@ public abstract class AdvanceBlock {
 	 */
 	protected Observer<Void> runReactiveBlock(final Scheduler scheduler,
 			List<AdvancePort> reactivePorts) {
-		functionClose = Reactive.observeOn(
+		functionClose.add(Reactive.observeOn(
 				ReactiveEx.combine(reactivePorts), scheduler).register(new InvokeObserver<List<XElement>>() {
 			@Override
 			public void next(List<XElement> value) {
 				invokeBody(value, scheduler);
 			}
-		});
+		}));
 		return new RunObserver();
 	}
 	/**
@@ -214,13 +227,13 @@ public abstract class AdvanceBlock {
 		return new RunObserver() {
 			@Override
 			public void next(Void value) {
-				functionClose = scheduler.schedule(new Runnable() {
+				functionClose.add(scheduler.schedule(new Runnable() {
 					@Override
 					public void run() {
 						// no reactive parameters
 						invokeBody(Lists.<XElement>newArrayList(), scheduler);
 					}
-				});
+				}));
 			}
 		};
 	}
@@ -281,9 +294,9 @@ public abstract class AdvanceBlock {
 	protected abstract void invoke(Map<String, XElement> params);
 	/** Terminate the block. */
 	public void done() {
-		if (functionClose != null) {
+		for (Closeable c : functionClose) {
 			try {
-				functionClose.close();
+				c.close();
 			} catch (IOException ex) {
 				LOG.info("", ex);
 			}
