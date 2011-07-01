@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.xml.typesystem;
 
+import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.interactive.Interactive;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -150,14 +153,13 @@ public class XElement implements Iterable<XElement> {
 	 * @param name the name of the children to select
 	 * @return the iterator
 	 */
-	public List<XElement> childrenWithName(String name) {
-		List<XElement> result = new ArrayList<XElement>(children.size() + 1);
-		for (XElement e : children) {
-			if (e.name.equals(name)) {
-				result.add(e);
+	public Iterable<XElement> childrenWithName(final String name) {
+		return Interactive.where(children, new Func1<XElement, Boolean>() {
+			@Override
+			public Boolean invoke(XElement param1) {
+				return Objects.equals(param1.name, name);
 			}
-		}
-		return result;
+		});
 	}
 	/**
 	 * Returns an iterator which enumerates all children with the given name.
@@ -165,14 +167,13 @@ public class XElement implements Iterable<XElement> {
 	 * @param namespace the namespace URI
 	 * @return the iterator
 	 */
-	public List<XElement> childrenWithName(String name, String namespace) {
-		List<XElement> result = new ArrayList<XElement>(children.size() + 1);
-		for (XElement e : children) {
-			if (Objects.equals(e.name, name) && Objects.equals(e.namespace, namespace)) {
-				result.add(e);
+	public Iterable<XElement> childrenWithName(final String name, final String namespace) {
+		return Interactive.where(children, new Func1<XElement, Boolean>() {
+			@Override
+			public Boolean invoke(XElement param1) {
+				return Objects.equals(param1.name, name) && Objects.equals(param1.namespace, namespace);
 			}
-		}
-		return result;
+		});
 	}
 	/**
 	 * Returns the content of the first child which has the given name.
@@ -480,7 +481,7 @@ public class XElement implements Iterable<XElement> {
 		return e;
 	}
 	/** @return the iterable for all children. */
-	public Iterable<XElement> children() {
+	public List<XElement> children() {
 		return children;
 	}
 }

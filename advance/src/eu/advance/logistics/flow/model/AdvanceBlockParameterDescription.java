@@ -32,38 +32,38 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * An input or output parameter description of an ADVANCE block.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceBlockParameterDescription {
+public class AdvanceBlockParameterDescription extends AdvanceType {
 	/** The unique (among other inputs or outputs of this block) identifier of the input parameter. This ID will be used by the block wiring within the flow description. */
 	@NonNull
 	public String id;
 	/** Optional display text for this attribute. Can be used as a key into a translation table. */
 	@Nullable
 	public String displayName;
-	/** The URI defining the ADVANCE (annotated) XML schema for this parameter. Use res:// to define a Java package-local definition on the classpath. */
-	@NonNull
-	public URI type;
 	/** The variance definition of this input parameter, required for the block bindings to check for compatibility, e.g., allow extension, restriction or exact type matches to be wired in. */
 	@NonNull
 	public TypeVariance variance = TypeVariance.NONVARIANT;
+	/** The URI pointing to the documentation describing this parameter. */
+	public URI documentation;
 	/**
 	 * Load a parameter description from an XML element which conforms the {@code block-description.xsd}.
 	 * @param root the root element of an input/output node.
 	 */
+	@Override
 	public void load(XElement root) {
+		super.load(root);
 		id = root.get("id");
 		displayName = root.get("displayname");
-		String t = root.get("type");
-		if (t != null) {
-			try {
-				type = new URI(t);
-			} catch (URISyntaxException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
 		String v = root.get("variance");
 		if (v != null) {
 			variance = TypeVariance.of(v);
 		}
-		
+		String u = root.get("documentation");
+		if (u != null) {
+			try {
+				documentation = new URI(u);
+			} catch (URISyntaxException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
 	}
 }

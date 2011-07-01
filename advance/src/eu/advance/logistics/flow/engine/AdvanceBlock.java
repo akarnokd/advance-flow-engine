@@ -46,7 +46,6 @@ import eu.advance.logistics.flow.model.AdvanceBlockDescription;
 import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.model.AdvanceConstantBlock;
-import eu.advance.logistics.flow.model.AdvanceResolver;
 import eu.advance.logistics.util.ReactiveEx;
 import eu.advance.logistics.xml.typesystem.XElement;
 
@@ -58,7 +57,7 @@ public abstract class AdvanceBlock {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlock.class);
 	/** The global identifier of this block. */ 
-	private final int gid;
+	protected final int gid;
 	/** The block identifier within the current composite level. */
 	public final String name;
 	/** The input ports. */
@@ -68,11 +67,11 @@ public abstract class AdvanceBlock {
 	/** The parent composite block. */
 	public final AdvanceCompositeBlock parent;
 	/** The original description of this block. */
-	private AdvanceBlockDescription description;
+	protected AdvanceBlockDescription description;
 	/** The block diagnostic observable. */
-	private DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
+	protected DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
 	/** The close the observer of the inputs. */
-	private Closeable functionClose;
+	protected Closeable functionClose;
 	/** The preferred scheduler type. Filled in by the AdvanceBlockLookup.create(). */
 	public final SchedulerPreference schedulerPreference;
 //	/** The scheduler instance to use. Filled in by the AdvanceCompiler.run(). */
@@ -108,21 +107,32 @@ public abstract class AdvanceBlock {
 			AdvanceConstantBlock cb = constantParams.get(in.id); 
 			if (cb == null) {
 				AdvanceBlockPort p = new AdvanceBlockPort(this, in.id);
-				p.type = AdvanceResolver.resolveSchema(in.type);
+//				p.type = AdvanceResolver.resolveSchema(in.type);
 				inputs.add(p);
 			} else {
 				AdvanceConstantPort p = new AdvanceConstantPort(this, in.id);
 				p.value = cb.value;
-				p.type = AdvanceResolver.resolveSchema(in.type);
+//				p.type = AdvanceResolver.resolveSchema(in.type);
 				inputs.add(p);
 			}
 		}
 		for (AdvanceBlockParameterDescription out : desc.outputs.values()) {
 			AdvanceBlockPort p = new AdvanceBlockPort(this, out.id);
-			p.type = AdvanceResolver.resolveSchema(out.type);
+//			p.type = AdvanceResolver.resolveSchema(out.type);
 			outputs.add(p);
 		}
 		diagnostic = new DefaultObservable<AdvanceBlockDiagnostic>(false, false);
+	}
+	/**
+	 * @return Retrieves a list of ports which are of reactive nature, e.g., they are not constants.
+	 */
+	public List<AdvancePort> getReactivePorts() {
+		return Lists.newArrayList(Interactive.where(inputs, new Func1<AdvancePort, Boolean>() {
+			@Override
+			public Boolean invoke(AdvancePort param1) {
+				return !(param1 instanceof AdvanceConstantPort);
+			}
+		}));
 	}
 	/** 
 	 * Schedule the execution of the body function.
@@ -130,93 +140,94 @@ public abstract class AdvanceBlock {
 	 * @return the observer to trigger in the run phase
 	 */
 	public Observer<Void> run(final Scheduler scheduler) {
-		List<AdvancePort> reactivePorts = Lists.newArrayList(Interactive.where(inputs, new Func1<AdvancePort, Boolean>() {
-			@Override
-			public Boolean invoke(AdvancePort param1) {
-				return !(param1 instanceof AdvanceConstantPort);
-			}
-		}));
+		List<AdvancePort> reactivePorts = getReactivePorts(); 
 		
 		if (inputs.size() == 0 || reactivePorts.size() == 0) {
-			return new Observer<Void>() {
-
-				@Override
-				public void next(Void value) {
-					if (inputs.size() == 0) {
-						scheduler.schedule(new Runnable() {
-							@Override
-							public void run() {
-								invokeBody(Lists.<XElement>newArrayList(), scheduler);
-							}
-						});
-					} else {
-						scheduler.schedule(new Runnable() {
-							@Override
-							public void run() {
-								invokeBody(Lists.newArrayList(Interactive.select(
-										inputs,
-										new Func1<AdvancePort, XElement>() {
-											@Override
-											public XElement invoke(AdvancePort param1) {
-												return ((AdvanceConstantPort)param1).value;
-											}
-										}
-								)), scheduler);
-							}
-						});
-					}
-					
-				}
-
-				@Override
-				public void error(Throwable ex) {
-					diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
-				}
-
-				@Override
-				public void finish() {
-					LOG.info("Finish? " + description.id);
-				}
-				
-			};
+			return runConstantBlock(scheduler);
 		}
-		functionClose = Reactive.observeOn(ReactiveEx.combine(reactivePorts), scheduler).register(new Observer<List<XElement>>() {
+		return runReactiveBlock(scheduler, reactivePorts);
+	}
+	/**
+	 * <p>By default bind the reactive ports of the block with a combiner function which will
+	 * execute the body function if all of the inputs are available.</p>
+	 * <p>Override this method if you want different input-parameter reaction.</p>
+	 * @param scheduler the scheduler to be used by the body function
+	 * @param reactivePorts the list of the reactive ports to use.
+	 * @return the observer to trigger the execution in the run phase but it is empty
+	 */
+	protected Observer<Void> runReactiveBlock(final Scheduler scheduler,
+			List<AdvancePort> reactivePorts) {
+		functionClose = Reactive.observeOn(
+				ReactiveEx.combine(reactivePorts), scheduler).register(new InvokeObserver<List<XElement>>() {
 			@Override
 			public void next(List<XElement> value) {
 				invokeBody(value, scheduler);
 			}
-
-			@Override
-			public void error(Throwable ex) {
-				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
-			}
-
-			@Override
-			public void finish() {
-				LOG.info("Finish? " + description.id);
-			}
 		});
-		return new Observer<Void>() {
-			@Override
-			public void next(Void value) {
-				// no operation in this case
-			}
-
-			@Override
-			public void error(Throwable ex) {
-				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
-			}
-
-			@Override
-			public void finish() {
-				LOG.info("Finish? " + description.id);
-			}
-			
-		};
+		return new RunObserver();
 	}
 	/**
+	 * The observer to invoke in the body function.
+	 * Contains the default implementations for error() and finish() to perform a diagnostic report.
+	 * @author karnokd, 2011.07.01.
+	 * @param <T> the observed value type 
+	 */
+	public abstract class InvokeObserver<T> implements Observer<T> {
+		
+		@Override
+		public void error(Throwable ex) {
+			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
+		}
+
+		@Override
+		public void finish() {
+			LOG.info("Finish? " + description.id);
+		}
+	}
+	/** 
+	 * The observer returned by the run functions. 
+	 * Contains the default implementations for error() and finish() to perform a diagnostic report. 
+	 */
+	public class RunObserver implements Observer<Void> {
+		@Override
+		public void next(Void value) {
+			// no operation in this case
+		}
+
+		@Override
+		public void error(Throwable ex) {
+			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
+		}
+
+		@Override
+		public void finish() {
+			LOG.info("Finish? " + description.id);
+		}
+	}
+	/**
+	 * Wraps the body function into a callback-style invocation scheme for constant or no-input blocks
+	 * to execute them immediately when the flow begins to execute.
+	 * @param scheduler the scheduler to use for the invocation
+	 * @return the observer to trigger the execution
+	 */
+	protected Observer<Void> runConstantBlock(final Scheduler scheduler) {
+		return new RunObserver() {
+			@Override
+			public void next(Void value) {
+				functionClose = scheduler.schedule(new Runnable() {
+					@Override
+					public void run() {
+						// no reactive parameters
+						invokeBody(Lists.<XElement>newArrayList(), scheduler);
+					}
+				});
+			}
+		};
+	}
+	
+	/**
 	 * Invoke the body function when all elements are available.
-	 * @param value the list of input parameters
+	 * @param value the list of reactive parameters in the same order as defined by the block-description.
 	 * @param scheduler the scheduler
 	 */
 	void invokeBody(List<XElement> value, Scheduler scheduler) {
@@ -224,12 +235,13 @@ public abstract class AdvanceBlock {
 		try {
 			// prepare input parameters
 			Map<String, XElement> funcIn = Maps.newHashMap();
+			int j = 0;
 			for (int i = 0; i < inputs.size(); i++) {
 				AdvancePort p = inputs.get(i);
 				if (p instanceof AdvanceConstantPort) {
 					funcIn.put(p.name(), ((AdvanceConstantPort) p).value);
 				} else {
-					funcIn.put(p.name(), value.get(i));
+					funcIn.put(p.name(), value.get(j++));
 				}
 			}
 			

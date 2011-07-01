@@ -36,6 +36,9 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 
 /**
  * A XML type description.
@@ -80,7 +83,7 @@ public final class SchemaParser {
 	 * @return the XML type representing the schema
 	 */
 	public static XType parse(XElement schema) {
-		List<XElement> roots = schema.childrenWithName("element", XSD);
+		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XSD));
 		if (roots.size() != 1) {
 			throw new IllegalArgumentException("Zero or multi-rooted schema not supported");
 		}
@@ -112,7 +115,9 @@ public final class SchemaParser {
 		c.name = new XName();
 		c.name.name = root.get("name");
 		// FIXME set semantic token and aliases
-		c.cardinality = getNumericity(root);
+		c.cardinality = getCardinality(root);
+		c.genericType = getGenericType(root);
+		
 		result.capabilities.add(c);
 		
 		String rootType = root.get("type");
@@ -291,7 +296,7 @@ public final class SchemaParser {
 			}
 		}
 		LinkedList<XElement> attrgr = new LinkedList<XElement>();
-		attrgr.addAll(typedef.childrenWithName("attributeGroup", XSD));
+		Iterables.addAll(attrgr, typedef.childrenWithName("attributeGroup", XSD));
 		while (attrgr.size() > 0) {
 			XElement ag = attrgr.removeFirst();
 			String ref = ag.get("ref");
@@ -314,7 +319,7 @@ public final class SchemaParser {
 					cap.cardinality = XCardinality.ZERO;
 				}
 			}
-			attrgr.addAll(ag.childrenWithName("attributeGroup", XSD));
+			Iterables.addAll(attrgr, ag.childrenWithName("attributeGroup", XSD));
 		}
 	}
 	/**
@@ -399,7 +404,7 @@ public final class SchemaParser {
 	 */
 	static void searchTypes(XElement root, List<XElement> typedefs, 
 			Set<String> memory) {
-		List<XElement> includes = root.childrenWithName("include", XSD);
+		Iterable<XElement> includes = root.childrenWithName("include", XSD);
 		for (XElement inc : includes) {
 			String loc = inc.get("schemaLocation");
 			if (loc != null && memory.add(loc)) {
@@ -426,9 +431,9 @@ public final class SchemaParser {
 				}
 			}
 		}
-		typedefs.addAll(root.childrenWithName("simpleType", XSD));
-		typedefs.addAll(root.childrenWithName("complexType", XSD));
-		typedefs.addAll(root.childrenWithName("attributeGroup", XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("complexType", XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XSD));
 	}
 	
 
@@ -439,7 +444,7 @@ public final class SchemaParser {
 	 * @param types the list of types
 	 * @return the target type definition or null if not found
 	 */
-	static XElement findType(String name, String type, List<XElement> types) {
+	static XElement findType(String name, String type, Iterable<XElement> types) {
 		for (XElement e : types) {
 			if (Objects.equals(e.get("name"), name) && e.name.equals(type)) {
 				return e;
@@ -452,7 +457,7 @@ public final class SchemaParser {
 	 * @param e the element definition
 	 * @return the numericity
 	 */
-	static XCardinality getNumericity(XElement e) {
+	static XCardinality getCardinality(XElement e) {
 		String mino = e.get("minOccurs");
 		String maxo = e.get("maxOccurs");
 		if (mino == null) {
@@ -575,5 +580,24 @@ public final class SchemaParser {
 			return XRelation.EQUAL;
 		}
 		return XRelation.NONE;
+	}
+	/**
+	 * Find the custom application node which defines the generic type information of this type.
+	 * @param elementDef the &lt;element> entry
+	 * @return the generics definition or null if no such present
+	 */
+	static XGenerics getGenericType(XElement elementDef) {
+		// TODO think about this a bit more
+		XElement annot = elementDef.childElement("annotation", XSD);
+		if (annot != null) {
+			XElement gt = annot.childElement("advance-type-variable");
+			if (gt != null) {
+				String paramName = gt.get("name");
+				XGenerics xg = new XGenerics();
+				xg.name = paramName;
+				return xg;
+			}
+		}
+		return null;
 	}
 }
