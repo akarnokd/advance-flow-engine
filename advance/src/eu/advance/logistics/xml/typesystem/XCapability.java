@@ -39,6 +39,8 @@ public class XCapability implements XComparable<XCapability> {
 	public XValueType valueType;
 	/** The element's complex type if non null. */
 	public XType complexType;
+	/** The element's generic typeif non null. */
+	public XGenerics genericType;
 	@Override
 	public XRelation compareTo(XCapability o) {
 		return compareTo(o, new HashSet<XType>());

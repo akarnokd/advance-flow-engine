@@ -57,6 +57,8 @@ public class AdvanceBlockDescription {
 	public final Map<String, AdvanceBlockParameterDescription> inputs = Maps.newLinkedHashMap();
 	/** The definition of an output parameter. Consumer blocks may not have any output parameters. */
 	public final Map<String, AdvanceBlockParameterDescription> outputs = Maps.newLinkedHashMap();
+	/** The definitions of various generic type parameters. */
+	public final Map<String, AdvanceTypeVariable> typeVariables = Maps.newLinkedHashMap();
 	/**
 	 * Load the contents from an XML element with a schema of <code>block-description.xsd</code>.
 	 * @param root the root element
@@ -77,6 +79,12 @@ public class AdvanceBlockDescription {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
 		category = root.get("category");
+		
+		for (XElement tp : root.childrenWithName("type-variable")) {
+			AdvanceTypeVariable bpd = new AdvanceTypeVariable();
+			bpd.load(tp);
+			typeVariables.put(bpd.name, bpd);
+		}
 		for (XElement inp : root.childrenWithName("input")) {
 			AdvanceBlockParameterDescription bpd = new AdvanceBlockParameterDescription();
 			bpd.load(inp);
