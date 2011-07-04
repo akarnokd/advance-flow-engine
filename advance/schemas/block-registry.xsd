@@ -7,7 +7,7 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="block" type="block" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="block-description" type="block" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>A block definition.</xs:documentation>
 					</xs:annotation>
@@ -27,20 +27,30 @@
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="scheduler" use="optional" default="CPU">
-					<xs:annotation><xs:documentation>Defines the scheduler preference of this block. The enumeration values are named exactly as in the Java enum eu.advance.logistics.flow.engine.SchedulerPreference.java</xs:documentation></xs:annotation>
+					<xs:annotation>
+						<xs:documentation>Defines the scheduler preference of this block. The enumeration values are named exactly as in the Java enum eu.advance.logistics.flow.engine.SchedulerPreference.java</xs:documentation>
+					</xs:annotation>
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="CPU">
-								<xs:annotation><xs:documentation>The block uses computation-intensive body and should use the n-CPU based scheduler.</xs:documentation></xs:annotation>
+								<xs:annotation>
+									<xs:documentation>The block uses computation-intensive body and should use the n-CPU based scheduler.</xs:documentation>
+								</xs:annotation>
 							</xs:enumeration>
 							<xs:enumeration value="IO">
-								<xs:annotation><xs:documentation>The block uses an I/O intensive (e.g., database access, running external programs, web requests, etc.) body and should use a larger thread pool.</xs:documentation></xs:annotation>
+								<xs:annotation>
+									<xs:documentation>The block uses an I/O intensive (e.g., database access, running external programs, web requests, etc.) body and should use a larger thread pool.</xs:documentation>
+								</xs:annotation>
 							</xs:enumeration>
 							<xs:enumeration value="SEQUENTIAL">
-								<xs:annotation><xs:documentation>The block should be run on a single threaded scheduler.</xs:documentation></xs:annotation>
+								<xs:annotation>
+									<xs:documentation>The block should be run on a single threaded scheduler.</xs:documentation>
+								</xs:annotation>
 							</xs:enumeration>
 							<xs:enumeration value="NOW">
-								<xs:annotation><xs:documentation>The now thread scheduler, which means the schedule() methods will simply execute in the current thread immediately. Useful for blocks which route/filter/project their input without any actual concurrency.</xs:documentation></xs:annotation>
+								<xs:annotation>
+									<xs:documentation>The now thread scheduler, which means the schedule() methods will simply execute in the current thread immediately. Useful for blocks which route/filter/project their input without any actual concurrency.</xs:documentation>
+								</xs:annotation>
 							</xs:enumeration>
 						</xs:restriction>
 					</xs:simpleType>
