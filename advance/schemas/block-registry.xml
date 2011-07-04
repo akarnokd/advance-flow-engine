@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <block-registry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="block-registry.xsd">
 	<!-- Block to reverse the elements of the input collection. -->
-	<block class="eu.advance.logistics.flow.engine.block.Reverse" id="Reverse" scheduler="NOW">
+	<block-description class="eu.advance.logistics.flow.engine.block.Reverse" id="Reverse" scheduler="NOW">
 		<type-variable name="T"/>
 		<input id="in" type="advance:collection">
 			<type-argument type-variable="T"/>
@@ -9,21 +9,21 @@
 		<output id="out" type="advance:collection">
 			<type-argument type-variable="T"/>
 		</output>
-	</block>
+	</block-description>
 	<!-- Block to retrieve a specific item from the input collection. -->
-	<block class="eu.advance.logistics.flow.engine.block.GetItem" id="GetItem" scheduler="NOW">
+	<block-description class="eu.advance.logistics.flow.engine.block.GetItem" id="GetItem" scheduler="NOW">
 		<type-variable name="T"/>
 		<input id="in" type="advance:collection">
 			<type-argument type-variable="T"/>
 		</input>
 		<input id="index" type="advance:integer"/>
 		<output id="out" type-variable="T"/>
-	</block>
+	</block-description>
 	<!-- Block to merge two streams of the same type. This block does not wait for all of its inputs to be ready. -->
-	<block class="eu.advance.logistics.flow.engine.block.Merge" id="Merge" scheduler="NOW">
+	<block-description class="eu.advance.logistics.flow.engine.block.Merge" id="Merge" scheduler="NOW">
 		<type-variable name="T"/>
 		<input id="1" type-variable="T"/>
 		<input id="2" type-variable="T"/>
 		<output id="out" type-variable="T"/>
-	</block>
+	</block-description>
 </block-registry>
