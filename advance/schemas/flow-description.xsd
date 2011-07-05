@@ -84,6 +84,9 @@
 					<xs:documentation>The binding definition of internal blocks and/or boundary parameters. You may bind the output of the blocks to many input parameters.</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
+					<xs:attribute name="id" type="xs:string" use='required'>
+						<xs:annotation><xs:documentation>The globally unique identifier of this wire to mediate between the flow editor and the verifier/compiler to report broken wires due type mismatch.</xs:documentation></xs:documentation></xs:annotation>
+					</xs:attribute>
 					<xs:attribute name="source-block" type="xs:string" use="optional">
 						<xs:annotation>
 							<xs:documentation>The source block identifier for the binding. If omitted, the source-parameter refers to the enclosing composite-block's input parameter.</xs:documentation>

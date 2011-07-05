@@ -38,7 +38,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * The ADVANCE block description record.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceBlockDescription {
+public class AdvanceBlockDescription implements XSerializable {
 	/** The unique block identifier or name. */
 	@NonNull
 	public String id;
@@ -63,6 +63,7 @@ public class AdvanceBlockDescription {
 	 * Load the contents from an XML element with a schema of <code>block-description.xsd</code>.
 	 * @param root the root element
 	 */
+	@Override
 	public void load(XElement root) {
 		id = root.get("id");
 		displayName = root.get("displayname");
@@ -93,7 +94,28 @@ public class AdvanceBlockDescription {
 		for (XElement outp : root.childrenWithName("output")) {
 			AdvanceBlockParameterDescription bpd = new AdvanceBlockParameterDescription();
 			bpd.load(outp);
-			inputs.put(bpd.id, bpd);
+			outputs.put(bpd.id, bpd);
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("displayname", displayName);
+		destination.set("documentation", documentation);
+		if (keywords.size() > 0) {
+			destination.set("keywords", Strings.join(keywords, ","));
+		} else {
+			destination.set("keywords", null);
+		}
+		destination.set("category", category);
+		for (AdvanceTypeVariable item : typeVariables.values()) {
+			item.save(destination.add("type-variable"));
+		}
+		for (AdvanceBlockParameterDescription item : inputs.values()) {
+			item.save(destination.add("input"));
+		}
+		for (AdvanceBlockParameterDescription item : outputs.values()) {
+			item.save(destination.add("output"));
 		}
 	}
 	/**

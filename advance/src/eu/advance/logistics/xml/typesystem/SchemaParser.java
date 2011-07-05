@@ -319,7 +319,12 @@ public final class SchemaParser {
 			if ("required".equals(use)) {
 				cap.cardinality = XCardinality.ONE;
 			} else {
-				cap.cardinality = XCardinality.ZERO_OR_ONE;
+				// if default is given, then the attribute counts as one
+				if (attr.get("default") == null) {
+					cap.cardinality = XCardinality.ZERO_OR_ONE;
+				} else {
+					cap.cardinality = XCardinality.ONE;
+				}
 			}
 		}
 		LinkedList<XElement> attrgr = new LinkedList<XElement>();
@@ -432,6 +437,9 @@ public final class SchemaParser {
 	 */
 	static void searchTypes(XElement root, List<XElement> typedefs, 
 			Set<String> memory, String path) {
+		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("complexType", XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XSD));
 		Iterable<XElement> includes = root.childrenWithName("include", XSD);
 		for (XElement inc : includes) {
 			String loc = inc.get("schemaLocation");
@@ -464,9 +472,6 @@ public final class SchemaParser {
 				}
 			}
 		}
-		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XSD));
-		Iterables.addAll(typedefs, root.childrenWithName("complexType", XSD));
-		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XSD));
 	}
 	
 

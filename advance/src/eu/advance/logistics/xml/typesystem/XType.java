@@ -59,17 +59,18 @@ public class XType implements XComparable<XType> {
 		for (XCapability c0 : capabilities) {
 			// FIXME recursive type check terrible
 			if (c0.complexType == null || !memory.contains(c0.complexType)) {
+				inner:
 				for (XCapability c1 : o.capabilities) {
 					switch (c0.compareTo(c1, memory)) {
 					case EQUAL:
 						equal++;
-						break;
+						break inner;
 					case EXTENDS:
 						ext++;
-						break;
+						break inner;
 					case SUPER:
 						sup++;
-						break;
+						break inner;
 					default:
 					}
 				}

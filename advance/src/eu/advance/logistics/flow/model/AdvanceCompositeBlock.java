@@ -36,7 +36,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * The composite block description for the flow description of {@code flow-description.xsd}.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceCompositeBlock {
+public class AdvanceCompositeBlock implements XSerializable {
 	/** The unique identifier of this block among the current level of blocks. */
 	@NonNull
 	public String id;
@@ -63,6 +63,7 @@ public class AdvanceCompositeBlock {
 	 * Load the contents from an XML element with a schema of <code>flow-description.xsd</code>.
 	 * @param root the root element
 	 */
+	@Override
 	public void load(XElement root) {
 		id = root.get("id");
 		documentation = root.get("documentation");
@@ -74,12 +75,12 @@ public class AdvanceCompositeBlock {
 			if (e.name.equals("input")) {
 				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
 				p.load(e);
-				inputs.put(p.displayName, p);
+				inputs.put(p.id, p);
 			} else
 			if (e.name.equals("output")) {
 				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
 				p.load(e);
-				outputs.put(p.displayName, p);
+				outputs.put(p.id, p);
 			} else
 			if (e.name.equals("block")) {
 				AdvanceBlockReference p = new AdvanceBlockReference();
@@ -103,6 +104,34 @@ public class AdvanceCompositeBlock {
 				p.load(e);
 				bindings.add(p);
 			}
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("documentation", documentation);
+		if (keywords.size() > 0) {
+			destination.set("keywords", Strings.join(keywords, ","));
+		} else {
+			destination.set("keywords", null);
+		}
+		for (AdvanceCompositeBlockParameterDescription item : inputs.values()) {
+			item.save(destination.add("input"));
+		}
+		for (AdvanceCompositeBlockParameterDescription item : outputs.values()) {
+			item.save(destination.add("output"));
+		}
+		for (AdvanceBlockReference item : blocks.values()) {
+			item.save(destination.add("block"));
+		}
+		for (AdvanceCompositeBlock item : composites.values()) {
+			item.save(destination.add("composite-block"));
+		}
+		for (AdvanceConstantBlock item : constants.values()) {
+			item.save(destination.add("constant"));
+		}
+		for (AdvanceBlockBind item : bindings) {
+			item.save(destination.add("bind"));
 		}
 	}
 	/**

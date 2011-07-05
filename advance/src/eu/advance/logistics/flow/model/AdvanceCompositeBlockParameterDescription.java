@@ -34,7 +34,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * @author karnokd, 2011.06.21.
  */
 public class AdvanceCompositeBlockParameterDescription extends
-		AdvanceBlockParameterDescription {
+		AdvanceBlockParameterDescription implements XSerializable {
 	/** The user-entered documentation of this parameter. */
 	@Nullable
 	public String documentation;
@@ -52,6 +52,16 @@ public class AdvanceCompositeBlockParameterDescription extends
 		String kw = root.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		super.save(destination);
+		destination.set("documentation", documentation);
+		if (keywords.size() > 0) {
+			destination.set("keywords", Strings.join(keywords, ","));
+		} else {
+			destination.set("keywords", null);
 		}
 	}
 }

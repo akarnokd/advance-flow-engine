@@ -32,7 +32,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * An input or output parameter description of an ADVANCE block.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceBlockParameterDescription extends AdvanceType {
+public class AdvanceBlockParameterDescription extends AdvanceType implements XSerializable {
 	/** The unique (among other inputs or outputs of this block) identifier of the input parameter. This ID will be used by the block wiring within the flow description. */
 	@NonNull
 	public String id;
@@ -41,7 +41,7 @@ public class AdvanceBlockParameterDescription extends AdvanceType {
 	public String displayName;
 	/** The variance definition of this input parameter, required for the block bindings to check for compatibility, e.g., allow extension, restriction or exact type matches to be wired in. */
 	@NonNull
-	public TypeVariance variance = TypeVariance.NONVARIANT;
+	public TypeVariance variance;
 	/** The URI pointing to the documentation describing this parameter. */
 	public URI documentation;
 	/**
@@ -56,6 +56,8 @@ public class AdvanceBlockParameterDescription extends AdvanceType {
 		String v = root.get("variance");
 		if (v != null) {
 			variance = TypeVariance.of(v);
+		} else {
+			variance = TypeVariance.NONVARIANT;
 		}
 		String u = root.get("documentation");
 		if (u != null) {
@@ -65,5 +67,13 @@ public class AdvanceBlockParameterDescription extends AdvanceType {
 				throw new RuntimeException(ex);
 			}
 		}
+	}
+	@Override
+	public void save(XElement destination) {
+		super.save(destination);
+		destination.set("id", id);
+		destination.set("displayname", displayName);
+		destination.set("variance", variance.asXML);
+		destination.set("documentation", documentation);
 	}
 }

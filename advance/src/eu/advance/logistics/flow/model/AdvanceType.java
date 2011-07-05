@@ -33,7 +33,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * The type parameter bound definition for a generic type parameter.
  * @author karnokd, 2011.07.01.
  */
-public class AdvanceType {
+public class AdvanceType implements XSerializable {
 	/** Reference to another type parameter within the same set of declarations. */
 	public String typeVariableName;
 	/** The actual type variable object. */
@@ -63,6 +63,14 @@ public class AdvanceType {
 			AdvanceType at = new AdvanceType();
 			at.load(ta);
 			typeArguments.add(at);
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("type-variable", typeVariableName);
+		destination.set("type", type);
+		for (AdvanceType at : typeArguments) {
+			at.save(destination.add("type-argument"));
 		}
 	}
 
