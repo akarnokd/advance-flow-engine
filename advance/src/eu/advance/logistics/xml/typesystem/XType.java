@@ -82,13 +82,13 @@ public class XType implements XComparable<XType> {
 				&& all < o.capabilities.size()) {
 			return XRelation.NONE;
 		}
-		int diff = o.capabilities.size() - capabilities.size();
+		int diff = capabilities.size() - o.capabilities.size();
 		
 		if (all == equal) {
-			if (diff < 0) {
+			if (diff > 0) {
 				return XRelation.EXTENDS;
 			} else
-			if (diff > 0) {
+			if (diff < 0) {
 				return XRelation.SUPER;
 			}
 			return XRelation.EQUAL;

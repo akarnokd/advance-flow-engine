@@ -39,11 +39,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -284,8 +284,9 @@ public final class SchemaParser {
 								XElement complexType = findType(base, "complexType", types);
 								if (complexType != null) {
 									setComplexType(c, complexType, types, memory);
-									c.complexType = c.complexType.copy();
+									XType baseCopy = c.complexType.copy();
 									setComplexType(c, extension, types, memory);
+									c.complexType.capabilities.addAll(0, baseCopy.capabilities);
 								} else {
 									throw new AssertionError("Unknown extension base type " + base);
 								}
@@ -312,13 +313,13 @@ public final class SchemaParser {
 		for (XElement attr : typedef.childrenWithName("attribute", XSD)) {
 			XCapability cap = setElement(attr, types, c.complexType, memory);
 			String use = attr.get("use");
-			if ("optional".equals(use)) {
-				cap.cardinality = XCardinality.ZERO_OR_ONE;
+			if ("forbidden".equals(use)) {
+				cap.cardinality = XCardinality.ZERO;
 			} else
 			if ("required".equals(use)) {
 				cap.cardinality = XCardinality.ONE;
 			} else {
-				cap.cardinality = XCardinality.ZERO;
+				cap.cardinality = XCardinality.ZERO_OR_ONE;
 			}
 		}
 		LinkedList<XElement> attrgr = new LinkedList<XElement>();
@@ -478,7 +479,7 @@ public final class SchemaParser {
 	 */
 	static XElement findType(String name, String type, Iterable<XElement> types) {
 		for (XElement e : types) {
-			if (Objects.equals(e.get("name"), name) && e.name.equals(type)) {
+			if (Objects.equal(e.get("name"), name) && e.name.equals(type)) {
 				return e;
 			}
 		}

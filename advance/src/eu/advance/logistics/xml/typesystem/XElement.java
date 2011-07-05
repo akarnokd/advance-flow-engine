@@ -36,12 +36,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
+import com.google.common.base.Objects;
 
 /**
  * A simplified XML element model.
@@ -73,14 +74,14 @@ public class XElement implements Iterable<XElement> {
 		public boolean equals(Object obj) {
 			if (obj instanceof XAttributeName) {
 				XAttributeName that = (XAttributeName)obj;
-				return Objects.equals(this.name, that.name) && Objects.equals(this.namespace, that.namespace);
+				return Objects.equal(this.name, that.name) && Objects.equal(this.namespace, that.namespace);
 			}
 			return false;
 		}
 		@Override
 		public int hashCode() {
 			if (hash == 0) {
-				hash = Objects.hash(name, namespace);
+				hash = Objects.hashCode(name, namespace);
 			}
 			return hash;
 		}
@@ -121,7 +122,7 @@ public class XElement implements Iterable<XElement> {
 		if (attr == null) {
 			// find any namespaced attribute
 			for (XAttributeName n : attributes.keySet()) {
-				if (Objects.equals(n.name, attributeName)) {
+				if (Objects.equal(n.name, attributeName)) {
 					return attributes.get(n);
 				}
 			}
@@ -157,7 +158,7 @@ public class XElement implements Iterable<XElement> {
 		return Interactive.where(children, new Func1<XElement, Boolean>() {
 			@Override
 			public Boolean invoke(XElement param1) {
-				return Objects.equals(param1.name, name);
+				return Objects.equal(param1.name, name);
 			}
 		});
 	}
@@ -171,7 +172,7 @@ public class XElement implements Iterable<XElement> {
 		return Interactive.where(children, new Func1<XElement, Boolean>() {
 			@Override
 			public Boolean invoke(XElement param1) {
-				return Objects.equals(param1.name, name) && Objects.equals(param1.namespace, namespace);
+				return Objects.equal(param1.name, name) && Objects.equal(param1.namespace, namespace);
 			}
 		});
 	}
@@ -196,7 +197,7 @@ public class XElement implements Iterable<XElement> {
 	 */
 	public String childValue(String name, String namespace) {
 		for (XElement e : children) {
-			if (Objects.equals(e.name, name) && Objects.equals(e.namespace, namespace)) {
+			if (Objects.equal(e.name, name) && Objects.equal(e.namespace, namespace)) {
 				return e.content;
 			}
 		}
@@ -223,7 +224,7 @@ public class XElement implements Iterable<XElement> {
 	 */
 	public XElement childElement(String name, String namespace) {
 		for (XElement e : children) {
-			if (Objects.equals(e.name, name) && Objects.equals(e.namespace, namespace)) {
+			if (Objects.equal(e.name, name) && Objects.equal(e.namespace, namespace)) {
 				return e;
 			}
 		}

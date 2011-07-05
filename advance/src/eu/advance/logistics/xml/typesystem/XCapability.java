@@ -135,7 +135,7 @@ public class XCapability implements XComparable<XCapability> {
 	void toStringPretty(String indent, StringBuilder out, Set<XType> memory) {
 		out.append(indent).append("XCapability {").append(String.format("%n"));
 		out.append(indent).append("  name = ").append(name).append(String.format(",%n"));
-		out.append(indent).append("  numericity = ").append(cardinality).append(String.format(",%n"));
+		out.append(indent).append("  cardinality = ").append(cardinality).append(String.format(",%n"));
 		if (valueType != null) {
 			out.append(indent).append("  valueType = ").append(valueType).append(String.format("%n"));
 		}
