@@ -20,11 +20,19 @@
  */
 package eu.advance.logistics.xml.typesystem;
 
+import hu.akarnokd.reactive4java.base.Pair;
+
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,8 +44,14 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Sets;
+
+import eu.advance.logistics.xml.typesystem.XElement.XAttributeName;
 
 
 /**
@@ -58,31 +72,38 @@ public final class SchemaParser {
 	 * @throws Exception ignored
 	 */
 	public static void main(String[] args) throws Exception {
-		XElement schema1 = XElement.parseXML("test/type1.xsd");
-		XElement schema2 = XElement.parseXML("test/type2.xsd");
-		XElement schema3 = XElement.parseXML("test/type3.xsd");
+//		XElement schema1 = XElement.parseXML("test/type1.xsd");
+//		XElement schema2 = XElement.parseXML("test/type2.xsd");
+//		XElement schema3 = XElement.parseXML("test/type3.xsd");
+//		
+//		System.out.println(schema1);
+//		XType t1 = parse(schema1);
+//		System.out.println(t1);
+//		System.out.println(schema2);
+//		XType t2 = parse(schema2);
+//		System.out.println(t2);
+//		System.out.println(t1.compareTo(t2));
+//		System.out.println(t2.compareTo(t1));
+//		System.out.println(t1.compareTo(t1));
+//		
+//		System.out.println();
+//		XType t3 = parse(schema3);
+//		System.out.println(t1.compareTo(t3));
+//		System.out.println(compare(t1, t3));
 		
-		System.out.println(schema1);
-		XType t1 = parse(schema1);
-		System.out.println(t1);
-		System.out.println(schema2);
-		XType t2 = parse(schema2);
-		System.out.println(t2);
-		System.out.println(t1.compareTo(t2));
-		System.out.println(t2.compareTo(t1));
-		System.out.println(t1.compareTo(t1));
-		
-		System.out.println();
-		XType t3 = parse(schema3);
-		System.out.println(t1.compareTo(t3));
-		System.out.println(compare(t1, t3));
+		XType t4 = fromInstance(XElement.parseXML("schemas/block-registry.xml"));
+		System.out.println(t4);
+		XType t5 = parse(XElement.parseXML("schemas/block-registry.xsd"), "schemas");
+		System.out.println(t5);
+		System.out.println(compare(t4, t5));
 	}
 	/**
 	 * Create the XML type by parsing the given schema document.
 	 * @param schema the schema tree.
+	 * @param path the location to look for local schemas
 	 * @return the XML type representing the schema
 	 */
-	public static XType parse(XElement schema) {
+	public static XType parse(XElement schema, String path) {
 		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XSD));
 		if (roots.size() != 1) {
 			throw new IllegalArgumentException("Zero or multi-rooted schema not supported");
@@ -92,7 +113,7 @@ public final class SchemaParser {
 		
 		List<XElement> typedefs = new ArrayList<XElement>();
 
-		searchTypes(schema, typedefs, new HashSet<String>());
+		searchTypes(schema, typedefs, new HashSet<String>(), path);
 		
 		XType result = new XType();
 		Map<String, XType> memory = new HashMap<String, XType>();
@@ -126,28 +147,33 @@ public final class SchemaParser {
 			XValueType rootSimpleType = getSimpleType(root.prefix, rootType);
 			if (rootSimpleType != null) {
 				c.valueType = rootSimpleType;
+			} else {
+				XElement simpleType = findType(rootType, "simpleType", typedefs);
+				if (simpleType != null) {
+					setSimpleType(c, simpleType, typedefs);
+				} else {
+					XElement complexType = findType(rootType, "complexType", typedefs);
+					if (complexType != null) {
+						 setComplexType(c, complexType, typedefs, memory);
+					} else {
+						throw new AssertionError("Missing referenced type for element " + root.get("name") + " type " + rootType);
+					}
+				}
 			}
 		} else {
 			rootType = root.get("ref");
-			XElement simpleType = findType(rootType, "simpleType", typedefs);
-			if (simpleType != null) {
-				setSimpleType(c, simpleType, typedefs);
-			} else {
-				XElement complexType = findType(rootType, "complexType", typedefs);
-				if (complexType != null) {
-					 setComplexType(c, complexType, typedefs, memory);
+			// TODO implement reference mode! 
+			if (rootType == null) {
+				// check for local definitions
+				XElement simpleType = root.childElement("simpleType", XSD);
+				if (simpleType != null) {
+					setSimpleType(c, simpleType, typedefs);
 				} else {
-					// check for local definitions
-					simpleType = root.childElement("simpleType", XSD);
-					if (simpleType != null) {
-						setSimpleType(c, simpleType, typedefs);
+					XElement complexType = root.childElement("complexType", XSD);
+					if (complexType != null) {
+						setComplexType(c, complexType, typedefs, memory);
 					} else {
-						complexType = root.childElement("complexType", XSD);
-						if (complexType != null) {
-							setComplexType(c, complexType, typedefs, memory);
-						} else {
-							throw new AssertionError("Strange element: " + root.get("name") + ", " + rootType);
-						}
+						throw new AssertionError("Strange element: " + root.get("name") + ", " + rootType);
 					}
 				}
 			}
@@ -401,9 +427,10 @@ public final class SchemaParser {
 	 * @param root the current schema object
 	 * @param typedefs the simple types, complex types and attribute groups
 	 * @param memory the memory for already visited resources
+	 * @param path the path to local schema directory
 	 */
 	static void searchTypes(XElement root, List<XElement> typedefs, 
-			Set<String> memory) {
+			Set<String> memory, String path) {
 		Iterable<XElement> includes = root.childrenWithName("include", XSD);
 		for (XElement inc : includes) {
 			String loc = inc.get("schemaLocation");
@@ -411,17 +438,22 @@ public final class SchemaParser {
 				InputStream in = null;
 				try {
 					try {
-						in = new URI(loc).toURL().openStream();
-					} catch (IOException ex) {
-						throw new RuntimeException(ex);
-					} catch (URISyntaxException ex) {
 						try {
+							URI uri = new URI(loc);
+							if (uri.isAbsolute()) {
+								in = uri.toURL().openStream();
+							} else {
+								in = new FileInputStream(loc);
+							}
+						} catch (URISyntaxException ex) {
 							in = new FileInputStream(loc);
-						} catch (IOException exc) {
-							throw new RuntimeException(ex);
 						}
+					} catch (FileNotFoundException ex) {
+						in = new FileInputStream(new File(path, loc));
 					}
-					searchTypes(XElement.parseXML(in), typedefs, memory);
+					searchTypes(XElement.parseXML(in), typedefs, memory, path);
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
 				} catch (XMLStreamException ex) {
 					throw new RuntimeException(ex);
 				} finally {
@@ -599,5 +631,269 @@ public final class SchemaParser {
 			}
 		}
 		return null;
+	}
+	/**
+	 * Infer and generate an xml type from the given XML instance based on its structure.
+	 * @param xmlRoot the XML instance root
+	 * @return the associated type
+	 */
+	public static XType fromInstance(XElement xmlRoot) {
+		XType result = new XType();
+		
+		XCapability rcap = new XCapability();
+		rcap.name = new XName();
+		rcap.name.name = xmlRoot.name;
+		rcap.name.semantics = new UriSemantics(xmlRoot.namespace);
+		rcap.cardinality = XCardinality.ONE;
+		
+		result.capabilities.add(rcap);
+		
+		if (!xmlRoot.hasAttributes() && !xmlRoot.hasChildren()) {
+			rcap.valueType = inferValueType(xmlRoot.content);			
+		} else {
+			XType rootType = new XType();
+			rcap.complexType = rootType;
+			// add attributes as capabilities
+			for (XAttributeName an : xmlRoot.getAttributeNames()) {
+				// except XSI attributes
+				if (!XSI.equals(an.namespace)) {
+					XCapability c = new XCapability();
+					c.name = new XName();
+					c.name.name = an.name;
+					c.name.semantics = new UriSemantics(an.namespace);
+					c.valueType = inferValueType(xmlRoot.get(an.name, an.namespace));
+					c.cardinality = XCardinality.ONE;
+					rootType.capabilities.add(c);
+				}
+			}
+			if (xmlRoot.hasChildren()) {
+				analizeChildren(xmlRoot, rootType);
+			}
+		}
+		return result;
+	}
+	/**
+	 * Analize the children of the given element.
+	 * @param element the element to analize
+	 * @param elementType the element type to fill in with capabilities
+	 */
+	static void analizeChildren(XElement element, XType elementType) {
+		// group all elements
+		Map<Pair<String, String>, List<XElement>> elementGroups = Maps.newHashMap();
+		for (XElement e : element.children) {
+			Pair<String, String> name = Pair.of(e.name, e.namespace);
+			List<XElement> elements = elementGroups.get(name);
+			if (elements == null) {
+				elements = Lists.newArrayList();
+				elementGroups.put(name, elements);
+			}
+			elements.add(e);
+		}
+		// check availability and type of attributes on each element
+		for (Pair<String, String> eg : elementGroups.keySet()) {
+			
+			XCapability elementCapability = new XCapability();
+			elementCapability.name = new XName();
+			elementCapability.name.name = eg.first;
+			elementCapability.name.semantics = new UriSemantics(eg.second);
+			if (elementGroups.get(eg).size() > 1) {
+				elementCapability.cardinality = XCardinality.ONE_OR_MANY;
+			} else {
+				elementCapability.cardinality = XCardinality.ONE;
+			}
+			elementType.capabilities.add(elementCapability);
+			
+			// aggregate individual element settins
+			Map<XAttributeName, Set<XValueType>> valueTypes = Maps.newHashMap();
+			Multiset<XAttributeName> attributeCounts = HashMultiset.create();
+			XValueType contentSimpleType = null;
+			boolean childrenPresent = false;
+			List<XType> childTypes = Lists.newArrayList();
+			for (XElement e : elementGroups.get(eg)) {
+				childrenPresent |= e.hasChildren();
+				
+				if (e.hasChildren()) {
+					// analize the complex element's structure
+					XType childType = new XType();
+					analizeChildren(e, childType);
+					childTypes.add(childType);
+				}
+				
+				for (XAttributeName an : e.getAttributeNames()) {
+					Set<XValueType> vt = valueTypes.get(an);
+					if (vt == null) {
+						vt = Sets.newHashSet();
+						valueTypes.put(an, vt);
+					}
+					vt.add(inferValueType(e.get(an.name, an.namespace)));
+					attributeCounts.add(an);
+				}
+				// check if has content
+				if (e.content != null) {
+					XValueType c = inferValueType(e.content);
+					// check if the type is consistent
+					if (contentSimpleType == null) {
+						contentSimpleType = c;
+					} else
+					if (contentSimpleType != c) {
+						contentSimpleType = XValueType.STRING;
+					}
+				}
+			}
+			// check if the element represents a complex type
+			if (childrenPresent || attributeCounts.size() > 0) {
+				XType complexType = new XType();
+				elementCapability.complexType = complexType;
+				// add attributes
+				for (Map.Entry<XAttributeName, Set<XValueType>> ans : valueTypes.entrySet()) {
+					XCapability c = new XCapability();
+					c.name = new XName();
+					c.name.name = ans.getKey().name;
+					c.name.semantics = new UriSemantics(ans.getKey().namespace);
+					// there are more than one type inference?
+					if (ans.getValue().size() > 1) {
+						c.valueType = XValueType.STRING;
+					} else {
+						c.valueType = ans.getValue().iterator().next();
+					}
+					// check if there are as many attributes of this as there are elements
+					if (elementGroups.get(eg).size() == attributeCounts.count(ans.getKey())) {
+						c.cardinality = XCardinality.ONE;
+					} else {
+						c.cardinality = XCardinality.ZERO_OR_ONE;
+					}
+					complexType.capabilities.add(c);
+				}
+				if (contentSimpleType != null) {
+					XCapability c = new XCapability();
+					c.name = new XName();
+					c.valueType = contentSimpleType;
+					c.cardinality = XCardinality.ONE;
+					complexType.capabilities.add(c);
+				}
+				joinChildTypes(childTypes, complexType);
+				
+			} else {
+				elementCapability.valueType = contentSimpleType;
+			}
+			
+		}
+	}
+	/**
+	 * Join the child capabilities.
+	 * @param childTypes the types of the current element's children
+	 * @param complexType the current element's type
+	 */
+	static void joinChildTypes(List<XType> childTypes, XType complexType) {
+		Map<XName, List<XCapability>> childCapabilities = Maps.newHashMap(); 
+		for (XType childType : childTypes) {
+			for (XCapability cap : childType.capabilities) {
+				List<XCapability> cl = childCapabilities.get(cap.name);
+				if (cl == null) {
+					cl = Lists.newArrayList();
+					childCapabilities.put(cap.name, cl);
+				}
+				cl.add(cap);
+			}
+		}
+		for (Map.Entry<XName, List<XCapability>> ce : childCapabilities.entrySet()) {
+			// cardinality join
+			boolean zeroOrX = false;
+			if (ce.getValue().size() < childTypes.size()) {
+				zeroOrX = true;
+			}
+			boolean xOrMany = false;
+			List<XType> subtypes = Lists.newArrayList();
+			XValueType commonValueType = null;
+			for (XCapability c : ce.getValue()) {
+				if (c.cardinality == XCardinality.ONE_OR_MANY || c.cardinality == XCardinality.ZERO_OR_MANY) {
+					xOrMany = true;
+				}
+				if (c.cardinality == XCardinality.ZERO_OR_MANY || c.cardinality == XCardinality.ZERO_OR_ONE) {
+					zeroOrX = true;
+				}
+				if (c.complexType != null) {
+					subtypes.add(c.complexType);
+				}
+				if (c.valueType != null) {
+					if (commonValueType == null) {
+						commonValueType = c.valueType;
+					} else
+					if (commonValueType != c.valueType) {
+						commonValueType = XValueType.STRING;
+					}
+				}
+			}
+			XCardinality car = null;
+			if (zeroOrX) {
+				if (xOrMany) {
+					car = XCardinality.ZERO_OR_MANY;
+				} else {
+					car = XCardinality.ZERO_OR_ONE;
+				}
+			} else {
+				if (xOrMany) {
+					car = XCardinality.ONE_OR_MANY;
+				} else {
+					car = XCardinality.ONE;
+				}
+			}
+			XCapability cnew = new XCapability();
+			cnew.name = ce.getKey();
+			cnew.cardinality = car;
+			
+			if (subtypes.isEmpty()) {
+				cnew.valueType = commonValueType;
+			} else {
+				XType tnew = new XType();
+				if (commonValueType != null) {
+					XCapability c = new XCapability();
+					c.name = new XName();
+					c.cardinality = XCardinality.ONE;
+					c.valueType = commonValueType;
+					tnew.capabilities.add(c);
+				}
+				cnew.complexType = tnew;
+				
+				joinChildTypes(subtypes, tnew);
+			}
+			
+			
+			complexType.capabilities.add(cnew);
+		}
+	}
+	/** 
+	 * Try to infer the value type from the supplied string.
+	 * @param s the content string
+	 * @return the value type
+	 */
+	static XValueType inferValueType(String s) {
+		if (s != null) {
+			if ("true".equals(s) || "false".equals(s)) {
+				return XValueType.BOOLEAN;
+			}
+			try {
+				new BigInteger(s);
+				return XValueType.INTEGER;
+			} catch (NumberFormatException ex) {
+				// not a integer
+			}
+			try {
+				new BigDecimal(s);
+				return XValueType.REAL;
+			} catch (NumberFormatException ex) {
+				// not a real
+			}
+			if (s.length() >= 19) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				try {
+					sdf.parse(s.substring(0, 19));
+					return XValueType.STRING;
+				} catch (ParseException ex) {
+					// not a date
+				}
+			}
+		}
+		return XValueType.STRING;
 	}
 }

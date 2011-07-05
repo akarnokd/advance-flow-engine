@@ -71,7 +71,7 @@ public class XCapability implements XComparable<XCapability> {
 		default:
 		}
 		if (complexType != null && o.complexType != null) {
-			switch (complexType.compareTo(o.complexType)) {
+			switch (complexType.compareTo(o.complexType, memory)) {
 			case EQUAL:
 				equal++;
 				break;
@@ -148,6 +148,9 @@ public class XCapability implements XComparable<XCapability> {
 			} else {
 				out.append(indent).append("  complexType = XType ...").append(String.format("%n"));
 			}
+		}
+		if (complexType == null && valueType == null) {
+			out.append(indent).append("  type could not be determined").append(String.format("%n"));
 		}
 		out.append(indent).append("}").append(String.format("%n"));
 	}

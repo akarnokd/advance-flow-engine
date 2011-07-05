@@ -21,15 +21,46 @@
 
 package eu.advance.logistics.flow.engine;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
+import javax.xml.stream.XMLStreamException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.model.AdvanceBlockDescription;
+import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
+import eu.advance.logistics.xml.typesystem.XElement;
 
 /**
  * Utility class to look up various blocks.
  * @author karnokd, 2011.06.27.
  */
 public final class AdvanceBlockLookup {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlockLookup.class);
+	/** The block descriptions. */
+	static final Map<String, AdvanceBlockRegistryEntry> BLOCKS;
+	static {
+		BLOCKS = Maps.newHashMap();
+		try {
+			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(XElement.parseXML("schemas/block-registry.xml"))) {
+				BLOCKS.put(e.id, e);
+			}
+			
+		} catch (XMLStreamException ex) {
+			LOG.error(ex.toString(), ex);
+		} catch (IOException ex) {
+			LOG.error(ex.toString(), ex);
+		}
+	}
 	/**
 	 * Utility class.
 	 */
@@ -41,8 +72,7 @@ public final class AdvanceBlockLookup {
 	 * @return the block
 	 */
 	public static AdvanceBlockDescription lookup(@NonNull String id) {
-		// TODO implement
-		return null;
+		return BLOCKS.get(id);
 	}
 	/**
 	 * Create a concrete block by using the given settings.
@@ -52,7 +82,36 @@ public final class AdvanceBlockLookup {
 	 * @return the new block instance 
 	 */
 	public static AdvanceBlock create(int gid, AdvanceCompositeBlock parent, String name) {
-		// TODO implement
+		AdvanceBlockRegistryEntry e = BLOCKS.get(name);
+		try {
+			Class<?> clazz = Class.forName(e.clazz);
+			if (AdvanceBlock.class.isInstance(clazz)) {
+				try {
+					Constructor<?> c = clazz.getConstructor(
+							Integer.TYPE, 
+							AdvanceCompositeBlock.class, 
+							String.class, 
+							SchedulerPreference.class);
+					return AdvanceBlock.class.cast(c.newInstance(gid, parent, name, e.scheduler));
+				} catch (NoSuchMethodException ex) {
+					LOG.error("Missing constructor of {int, AdvanceCompositeBlock, String, SchedulerPreference}", ex);
+				} catch (SecurityException ex) {
+					LOG.error(ex.toString(), ex);
+				} catch (InstantiationException ex) {
+					LOG.error(ex.toString(), ex);
+				} catch (IllegalAccessException ex) {
+					LOG.error(ex.toString(), ex);
+				} catch (IllegalArgumentException ex) {
+					LOG.error(ex.toString(), ex);
+				} catch (InvocationTargetException ex) {
+					LOG.error(ex.toString(), ex);
+				}
+			} else {
+				LOG.error("Block " + name + " of class " + e.clazz + " is not an AdvanceBlock");
+			}
+		} catch (ClassNotFoundException ex) {
+			LOG.error(ex.toString(), ex);
+		}
 		return null;
 	}
 }

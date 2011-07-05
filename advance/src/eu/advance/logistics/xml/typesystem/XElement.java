@@ -398,6 +398,7 @@ public class XElement implements Iterable<XElement> {
 			if (content == null) {
 				out.append("/>");
 			} else {
+				out.append(">");
 				out.append(sanitize(content));
 				out.append(indent).append("</");
 				if (prefix != null && prefix.length() > 0) {
@@ -483,5 +484,13 @@ public class XElement implements Iterable<XElement> {
 	/** @return the iterable for all children. */
 	public List<XElement> children() {
 		return children;
+	}
+	/** @return if this node has children or not. */
+	public boolean hasChildren() {
+		return !children.isEmpty();
+	}
+	/** @return if this node has attributes or not. */
+	public boolean hasAttributes() {
+		return !attributes.isEmpty();
 	}
 }
