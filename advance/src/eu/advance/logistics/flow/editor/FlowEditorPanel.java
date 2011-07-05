@@ -21,21 +21,23 @@
 
 package eu.advance.logistics.flow.editor;
 
+import hu.akarnokd.reactive4java.interactive.Interactive;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Comparator;
 
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -44,6 +46,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 import javax.xml.stream.XMLStreamException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -62,6 +69,10 @@ public class FlowEditorPanel extends JPanel {
 	protected MainWindowCallback mainWindow;
 	/** The block renderer. */
 	protected BlockRenderer blockRenderer;
+	/** Block template panel. */
+	private AdvanceBlockTemplatePanel blockTemplatePanel;
+	/** Block tree panel. */
+	private AdvanceBlockTreePanel blockTreePanel;
 	/**
 	 * Constructor.
 	 * @param mainWindow 
@@ -74,33 +85,125 @@ public class FlowEditorPanel extends JPanel {
 	void createGUI() {
 		setLayout(new BorderLayout());
 		
-		URL logo = getClass().getResource("advlogo_192x128.png");
-		add(new JLabel(new ImageIcon(logo)), BorderLayout.SOUTH);
-
 		blockRenderer = new BlockRenderer();
 
-		AdvanceBlockTemplatePanel blockTemplatePanel = new AdvanceBlockTemplatePanel();
+		blockTemplatePanel = new AdvanceBlockTemplatePanel();
+		blockTreePanel = new AdvanceBlockTreePanel();
 		
 		JSplitPane split0 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		split0.setOneTouchExpandable(true);
-		JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		split1.setOneTouchExpandable(true);
 
-		split0.setLeftComponent(blockTemplatePanel);
-		split0.setRightComponent(split1);
+		final JSplitPane templateAndTree = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		
-		split1.setLeftComponent(blockRenderer);
+		split0.setLeftComponent(templateAndTree);
+		split0.setRightComponent(blockRenderer);
+		templateAndTree.setTopComponent(blockTemplatePanel);
+		templateAndTree.setBottomComponent(blockTreePanel);
+		
 		
 		add(split0, BorderLayout.CENTER);
 		
 		buildMenu();
 		createBlocks();
+		blockTemplatePanel.refreshTemplates();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				templateAndTree.setDividerLocation(0.5);
+			}
+		});
 	}
-	
+	/**
+	 * The block tree view panel. 
+	 */
+	class AdvanceBlockTreePanel extends JPanel {
+		/** */
+		private static final long serialVersionUID = 1130320800613221782L;
+		/** The root node. */
+		DefaultMutableTreeNode root;
+		/** The tree. */
+		JTree tree;
+		/**
+		 * Constructs the panel GUI. 
+		 */
+		public AdvanceBlockTreePanel() {
+			GroupLayout gl = new GroupLayout(this);
+			setLayout(gl);
+			
+			JTextField filterBox = new JTextField();
+			JButton clearFilter = new JButton("X");
+			filterBox.setPreferredSize(new Dimension(150, 25));
+			
+			root = new DefaultMutableTreeNode("Flow");
+			tree = new JTree(root);
+			tree.setEditable(false);
+			tree.setRootVisible(false);
+
+			DefaultTreeCellRenderer treeRender = new DefaultTreeCellRenderer();
+			
+			treeRender.setLeafIcon(new ImageIcon(getImageResource("res/SimpleBlock.png")));
+			treeRender.setOpenIcon(new ImageIcon(getImageResource("res/CompositeBlock.png")));
+			treeRender.setClosedIcon(new ImageIcon(getImageResource("res/CompositeBlock.png")));
+			
+			tree.setCellRenderer(treeRender);
+			
+			JScrollPane treeScroll = new JScrollPane(tree);
+			
+			gl.setHorizontalGroup(
+				gl.createSequentialGroup()
+				.addGap(3)
+				.addGroup(
+					gl.createParallelGroup()
+					.addGroup(
+						gl.createSequentialGroup()
+						.addComponent(filterBox)
+						.addComponent(clearFilter, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+					)
+					.addComponent(treeScroll)
+				)
+				.addGap(3)
+			);
+			gl.setVerticalGroup(
+				gl.createSequentialGroup()
+				.addGap(3)
+				.addGroup(
+					gl.createParallelGroup(Alignment.BASELINE)
+					.addComponent(filterBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addComponent(clearFilter, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+				)
+				.addComponent(treeScroll)
+				.addGap(3)
+			);
+			
+		}
+	}
+	/**
+	 * Load an image resource.
+	 * @param name the image name and path
+	 * @return the buffered image
+	 */
+	BufferedImage getImageResource(String name) {
+		try {
+			URL u = getClass().getResource(name);
+			if (u != null) {
+				return ImageIO.read(u);
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
 	/** The block template panel. */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	class AdvanceBlockTemplatePanel extends JPanel {
 		/** */
 		private static final long serialVersionUID = -6921023975304659151L;
+		/** The text filter box. */
+		JTextField filterBox;
+		/** The clear button. */
+		JButton clearFilter;
+		/** The list of templates. */
+		JList templates;
 		/**
 		 * Constructs the panel GUI. 
 		 */
@@ -108,16 +211,54 @@ public class FlowEditorPanel extends JPanel {
 			GroupLayout gl = new GroupLayout(this);
 			setLayout(gl);
 			
-			JTextField filterBox = new JTextField();
-			JButton clearFilter = new JButton("X");
+			filterBox = new JTextField();
+			clearFilter = new JButton("X");
 			filterBox.setPreferredSize(new Dimension(150, 25));
-			clearFilter.setPreferredSize(new Dimension(25, 25));
 
-			DefaultListModel dlm = new DefaultListModel();
-			JList templates = new JList(dlm);
+			templates = new JList();
 			JScrollPane templatesScroll = new JScrollPane(templates);
+
+			gl.setHorizontalGroup(
+				gl.createSequentialGroup()
+				.addGap(3)
+				.addGroup(
+					gl.createParallelGroup()
+					.addGroup(
+						gl.createSequentialGroup()
+						.addComponent(filterBox)
+						.addComponent(clearFilter, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+					)
+					.addComponent(templatesScroll)
+				)
+				.addGap(3)
+			);
+			gl.setVerticalGroup(
+				gl.createSequentialGroup()
+				.addGap(3)
+				.addGroup(
+					gl.createParallelGroup(Alignment.BASELINE)
+					.addComponent(filterBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addComponent(clearFilter, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+				)
+				.addComponent(templatesScroll)
+				.addGap(3)
+			);
+		}
+		/** Refresh templates. */
+		void refreshTemplates() {
+			DefaultListModel dlm = new DefaultListModel();
 			try {
-				for (AdvanceBlockDescription bd : AdvanceBlockDescription.parse(XElement.parseXML("schemas/block-registry.xml"))) {
+				for (AdvanceBlockDescription bd 
+						: Interactive.orderBy(
+							AdvanceBlockDescription.parse(XElement.parseXML("schemas/block-registry.xml")),
+							new Comparator<AdvanceBlockDescription>() {
+								@Override
+								public int compare(AdvanceBlockDescription o1,
+										AdvanceBlockDescription o2) {
+									return o1.id.compareToIgnoreCase(o2.id);
+								}
+							}
+					)) {
 					dlm.addElement(bd.id);
 				}
 			} catch (IOException ex) {
@@ -125,25 +266,7 @@ public class FlowEditorPanel extends JPanel {
 			} catch (XMLStreamException ex) {
 				ex.printStackTrace();
 			}
-
-			gl.setHorizontalGroup(
-				gl.createParallelGroup()
-				.addGroup(
-					gl.createSequentialGroup()
-					.addComponent(filterBox)
-					.addComponent(clearFilter, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-				)
-				.addComponent(templatesScroll)
-			);
-			gl.setVerticalGroup(
-				gl.createSequentialGroup()
-				.addGroup(
-					gl.createParallelGroup(Alignment.BASELINE)
-					.addComponent(filterBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addComponent(clearFilter, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-				)
-				.addComponent(templatesScroll)
-			);
+			templates.setModel(dlm);
 		}
 	}
 	/** Build the menu structure. */
@@ -208,5 +331,13 @@ public class FlowEditorPanel extends JPanel {
 		blockRenderer.wires.add(w3);
 		
 		blockRenderer.autoHorizontalLayout();
+		
+		blockTreePanel.root.add(new DefaultMutableTreeNode(b1.name));
+		blockTreePanel.root.add(new DefaultMutableTreeNode(b2.name));
+		blockTreePanel.root.add(new DefaultMutableTreeNode(b3.name));
+		blockTreePanel.root.add(new DefaultMutableTreeNode(b4.name));
+		
+		blockTreePanel.tree.expandPath(new TreePath(blockTreePanel.root));
+
 	}
 }

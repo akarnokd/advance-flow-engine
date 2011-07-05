@@ -21,7 +21,9 @@
 
 package eu.advance.logistics.flow.editor;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -33,11 +35,14 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.CubicCurve2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -76,8 +81,17 @@ public class BlockRenderer extends JComponent {
 	double selectedBlockX;
 	/** The exact block location for dragging. */
 	double selectedBlockY;
+	/** The water logo. */
+	BufferedImage logowater;
 	/** Initialize event handlers. */
 	public BlockRenderer() {
+		URL logo = getClass().getResource("res/advlogo_192x128.png");
+		try {
+			logowater = ImageIO.read(logo);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		
 		MouseAdapter ma = new MouseAdapter() {
 			/** The last mouse event coordinate. */
 			int lastx;
@@ -222,6 +236,15 @@ public class BlockRenderer extends JComponent {
 		
 		g2.setColor(Color.WHITE);
 		g2.fillRect(0, 0, getWidth(), getHeight());
+		
+		if (logowater != null) {
+			Composite save3 = g2.getComposite();
+			g2.setComposite(AlphaComposite.SrcOver.derive(0.5f));
+			g2.drawImage(logowater, 
+					(getWidth() - logowater.getWidth()) / 2, 
+					(getHeight() - logowater.getHeight()) / 2, null);
+			g2.setComposite(save3);
+		}
 		
 		AffineTransform save0 = g2.getTransform();
 		

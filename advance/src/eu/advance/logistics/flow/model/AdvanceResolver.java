@@ -80,7 +80,7 @@ public final class AdvanceResolver {
 		try {
 			BufferedInputStream bin = new BufferedInputStream(url.openStream());
 			try {
-				return SchemaParser.parse(XElement.parseXML(bin));
+				return SchemaParser.parse(XElement.parseXML(bin), "schemas");
 			} finally {
 				bin.close();
 			}

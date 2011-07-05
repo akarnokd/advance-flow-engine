@@ -22,6 +22,8 @@ package eu.advance.logistics.xml.typesystem;
 
 import java.util.Set;
 
+import com.google.common.base.Objects;
+
 /**
  * The XML naming record.
  * @author karnokd
@@ -49,5 +51,17 @@ public class XName implements XComparable<XName> {
 	@Override
 	public String toString() {
 		return "XName { name = " + name + ", semantics = " + semantics + ", aliases = " + aliases + " } ";
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof XName) {
+			XName other = (XName) obj;
+			return (Objects.equal(name, other.name) && Objects.equal(semantics, other.semantics));
+		}
+		return false;
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(name, semantics);
 	}
 }
