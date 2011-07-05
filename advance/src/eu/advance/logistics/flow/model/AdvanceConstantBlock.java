@@ -35,7 +35,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
 /**
  * @author karnokd, 2011.06.24.
  */
-public class AdvanceConstantBlock {
+public class AdvanceConstantBlock implements XSerializable {
 	/** The unique identifier of this block among the current level of blocks. */
 	@NonNull
 	public String id;
@@ -57,6 +57,7 @@ public class AdvanceConstantBlock {
 	 * Load a parameter description from an XML element which conforms the {@code block-description.xsd}.
 	 * @param root the root element of an input/output node.
 	 */
+	@Override
 	public void load(XElement root) {
 		id = root.get("id");
 		displayName = root.get("displayname");
@@ -74,5 +75,17 @@ public class AdvanceConstantBlock {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
 		value = root.children().iterator().next();
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("type", type);
+		destination.set("documentation", documentation);
+		if (keywords.size() > 0) {
+			destination.set("keywords", Strings.join(keywords, ","));
+		} else {
+			destination.set("keywords", null);
+		}
+		destination.add(value.copy());
 	}
 }

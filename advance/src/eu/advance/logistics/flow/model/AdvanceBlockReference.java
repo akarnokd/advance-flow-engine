@@ -34,7 +34,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * The block reference for the {@code flow-description.xsd} used within composite blocks.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceBlockReference {
+public class AdvanceBlockReference implements XSerializable {
 	/** The unique identifier of this block among the current level of blocks. */
 	@NonNull
 	public String id;
@@ -52,6 +52,7 @@ public class AdvanceBlockReference {
 	 * Load a block reference from an XML element which conforms the {@code flow-description.xsd}.
 	 * @param root the element of a input or output
 	 */
+	@Override
 	public void load(XElement root) {
 		id = root.get("id");
 		type = root.get("type");
@@ -59,6 +60,17 @@ public class AdvanceBlockReference {
 		String kw = root.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("type", type);
+		destination.set("documentation", documentation);
+		if (keywords.size() > 0) {
+			destination.set("keywords", Strings.join(keywords, ","));
+		} else {
+			destination.set("keywords", null);
 		}
 	}
 }

@@ -32,7 +32,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * The block registry entry of the block-registry.xml and xsd.
  * @author karnokd, 2011.07.05.
  */
-public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription {
+public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription implements XSerializable {
 	/** The implementation class. */
 	public String clazz;
 	/** The preferred scheduler. */
@@ -48,6 +48,12 @@ public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription {
 			scheduler = SchedulerPreference.CPU;
 		}
 	}
+	@Override
+	public void save(XElement destination) {
+		super.save(destination);
+		destination.set("class", clazz);
+		destination.set("scheduler", scheduler.name());
+	}
 	/**
 	 * Parse an XML tree which contains block registry descriptions as a list.
 	 * @param root the root element conforming the {@code block-registry.xsd}.
@@ -62,6 +68,18 @@ public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription {
 			result.add(abd);
 		}
 		
+		return result;
+	}
+	/**
+	 * Serialize the given source of registry entries.
+	 * @param entries the source of registry entries
+	 * @return the XElement representation of the block registry
+	 */
+	public static XElement serializeRegistry(Iterable<AdvanceBlockRegistryEntry> entries) {
+		XElement result = new XElement("block-registry");
+		for (AdvanceBlockRegistryEntry e : entries) {
+			e.save(result.add("block-description"));
+		}
 		return result;
 	}
 }

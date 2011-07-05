@@ -34,7 +34,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * It allows
  * @author karnokd, 2011.07.01.
  */
-public class AdvanceTypeVariable {
+public class AdvanceTypeVariable implements XSerializable {
 	/** The type parameter name. */
 	public String name;
 	/** The upper bounds of this type parameter, e.g., T super SomeObject1 &amp; SomeObject2. */
@@ -47,6 +47,7 @@ public class AdvanceTypeVariable {
 	 * Load the contents from an XML element with a schema of <code>block-description.xsd</code>.
 	 * @param root the root element
 	 */
+	@Override
 	public void load(XElement root) {
 		name = root.get("name");
 		for (XElement ub : root.childrenWithName("upper-bound")) {
@@ -71,5 +72,13 @@ public class AdvanceTypeVariable {
 				throw new RuntimeException(ex);
 			}
 		}
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("name", name);
+		for (AdvanceType t : bounds) {
+			t.save(destination.add(isUpperBound ? "upper-bound" : "lower-bound"));
+		}
+		destination.set("documentation", documentation);
 	}
 }

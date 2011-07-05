@@ -34,7 +34,7 @@ public enum TypeVariance {
 	CONTRAVARIANT("contravariant")
 	;
 	/** The value in xml. */
-	private final String asXML;
+	public final String asXML;
 	/** 
 	 * Constructor. Set the XML representation of the variance.
 	 * @param asXML the variance name in {@code block-description.xsd} 

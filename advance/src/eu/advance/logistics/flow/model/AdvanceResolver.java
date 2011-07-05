@@ -50,6 +50,11 @@ public final class AdvanceResolver {
 	 */
 	public static XType resolveSchema(URI schemaURI) {
 		String s = schemaURI.getScheme(); 
+		if ("advance".equals(s)) {
+			String u = schemaURI.getSchemeSpecificPart();
+			URL url = AdvanceResolver.class.getResource("schemas/" + u + ".xsd");
+			return resolveSchemaLoad(url, schemaURI);
+		}
 		if ("res".equals(s)) {
 			String u = schemaURI.getSchemeSpecificPart();
 			if (!u.startsWith("/")) {

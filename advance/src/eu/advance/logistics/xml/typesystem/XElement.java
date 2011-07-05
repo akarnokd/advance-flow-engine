@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,6 +44,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import com.google.common.base.Objects;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.xml.XsdDateTime;
 
 /**
  * A simplified XML element model.
@@ -483,6 +487,7 @@ public class XElement implements Iterable<XElement> {
 		return e;
 	}
 	/** @return the iterable for all children. */
+	@NonNull 
 	public List<XElement> children() {
 		return children;
 	}
@@ -493,5 +498,68 @@ public class XElement implements Iterable<XElement> {
 	/** @return if this node has attributes or not. */
 	public boolean hasAttributes() {
 		return !attributes.isEmpty();
+	}
+	/**
+	 * Add a new XElement with the given local name and no namespace.
+	 * @param name the name of the new element
+	 * @return the created XElement child
+	 */
+	public XElement add(@NonNull String name) {
+		XElement e = new XElement(name);
+		e.parent = this;
+		children.add(e);
+		return e;
+	}
+	/**
+	 * Add the given existing child to this element.
+	 * @param child the child element
+	 * @return the child element
+	 */
+	public XElement add(@NonNull XElement child) {
+		child.parent = this;
+		children.add(child);
+		return child;
+	}
+	/**
+	 * Add a new XElement with the given local name and namespace.
+	 * @param name the name of the new element
+	 * @param namespace the namespace of the new element
+	 * @return the created XElement child
+	 */
+	public XElement add(@NonNull String name, @NonNull String namespace) {
+		XElement e = new XElement(name);
+		e.namespace = namespace;
+		e.parent = this;
+		children.add(e);
+		return e;
+	}
+	/**
+	 * Set an attribute value identified by a local name and no namespace.
+	 * @param name the attribute name
+	 * @param value the value, if null, the attribute will be removed
+	 */
+	public void set(@NonNull String name, Object value) {
+		if (value != null) {
+			if (value instanceof Date) {
+				attributes.put(new XAttributeName(name, null, null), XsdDateTime.format((Date)value));
+			} else {
+				attributes.put(new XAttributeName(name, null, null), value.toString());
+			}
+		} else {
+			attributes.remove(new XAttributeName(name, null, null));
+		}
+	}
+	/**
+	 * Set an attribute value identified by a local name and namespace.
+	 * @param name the attribute name
+	 * @param namespace the attribute namespace
+	 * @param value the value, if null, the attribute will be removed
+	 */
+	public void set(@NonNull String name, String namespace, String value) {
+		if (value != null) {
+			attributes.put(new XAttributeName(name, namespace, null), value);
+		} else {
+			attributes.remove(new XAttributeName(name, namespace, null));
+		}
 	}
 }

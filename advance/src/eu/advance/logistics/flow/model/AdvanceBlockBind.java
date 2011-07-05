@@ -29,7 +29,10 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * Definition for binding parameters of blocks in the {@code flow-description.xsd}.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceBlockBind {
+public class AdvanceBlockBind implements XSerializable {
+	/** Identifier of this binding. May be used to communicate problematic bindings for the Flow Editor / Compiler. */
+	// TODO @NonNull
+	public String id;
 	/** The source block identifier for the binding. If {@code null}, the source-parameter refers to the enclosing composite-block's input parameter. */
 	@Nullable
 	public String sourceBlock;
@@ -46,10 +49,20 @@ public class AdvanceBlockBind {
 	 * Load a binding definition from an XML element which conforms the {@code flow-description.xsd}.
 	 * @param root the element
 	 */
+	@Override
 	public void load(XElement root) {
+		id = root.get("id");
 		sourceBlock = root.get("source-block");
 		sourceParameter = root.get("source-parameter");
 		destinationBlock = root.get("destination-block");
 		destinationParameter = root.get("destination-parameter");
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("source-block", sourceBlock);
+		destination.set("source-parameter", sourceParameter);
+		destination.set("destination-block", destinationBlock);
+		destination.set("destination-parameter", destinationParameter);
 	}
 }
