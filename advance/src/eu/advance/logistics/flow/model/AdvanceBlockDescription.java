@@ -134,4 +134,16 @@ public class AdvanceBlockDescription implements XSerializable {
 		
 		return result;
 	}
+	/**
+	 * Serialize the list of block descriptions into an XElement.
+	 * @param list the list of block descriptions
+	 * @return the XElement
+	 */
+	public XElement serialize(Iterable<AdvanceBlockDescription> list) {
+		XElement result = new XElement("block-description-list");
+		for (AdvanceBlockDescription item : list) {
+			item.save(result.add("block-description"));
+		}
+		return result;
+	}
 }
