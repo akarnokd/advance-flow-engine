@@ -33,6 +33,9 @@ public class AdvanceBlockBind implements XSerializable {
 	/** Identifier of this binding. May be used to communicate problematic bindings for the Flow Editor / Compiler. */
 	// TODO @NonNull
 	public String id;
+	/** The parent composite block. */
+	@NonNull
+	public AdvanceCompositeBlock parent;
 	/** The source block identifier for the binding. If {@code null}, the source-parameter refers to the enclosing composite-block's input parameter. */
 	@Nullable
 	public String sourceBlock;
@@ -64,5 +67,17 @@ public class AdvanceBlockBind implements XSerializable {
 		destination.set("source-parameter", sourceParameter);
 		destination.set("destination-block", destinationBlock);
 		destination.set("destination-parameter", destinationParameter);
+	}
+	/**
+	 * @return Test if a source block is given or this binding refers to a parameter of the enclosing composite block
+	 */
+	public boolean hasSourceBlock() {
+		return sourceBlock != null && !sourceBlock.isEmpty();
+	}
+	/**
+	 * @return Test if a source block is given or this binding refers to a parameter of the enclosing composite block
+	 */
+	public boolean hasDestinationBlock() {
+		return destinationBlock != null && !destinationBlock.isEmpty();
 	}
 }

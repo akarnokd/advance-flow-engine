@@ -28,6 +28,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.xml.typesystem.XType;
 
 /**
  * The type parameter bound definition for a generic type parameter.
@@ -39,13 +40,16 @@ public class AdvanceType implements XSerializable {
 	/** The actual type variable object. */
 	public AdvanceTypeVariable typeVariable;
 	/** An existing concrete type definition schema. */
-	public URI type;
+	public URI typeURI;
+	/** The concrete XML type of the target schema. */
+	public XType type;
 	/** The type arguments used by the concrete type. */
 	public final List<AdvanceType> typeArguments = Lists.newArrayList();
 	/**
 	 * Load a type description from an XML element which conforms the {@code block-description.xsd}.
 	 * @param root the root element of an input/output node.
 	 */
+	@Override
 	public void load(XElement root) {
 		typeVariableName = root.get("type-variable");
 		String tu = root.get("type");
@@ -54,7 +58,8 @@ public class AdvanceType implements XSerializable {
 		}
 		if (tu != null) {
 			try {
-				type = new URI(tu);
+				typeURI = new URI(tu);
+				type = AdvanceResolver.resolveSchema(typeURI);
 			} catch (URISyntaxException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -68,10 +73,19 @@ public class AdvanceType implements XSerializable {
 	@Override
 	public void save(XElement destination) {
 		destination.set("type-variable", typeVariableName);
-		destination.set("type", type);
+		destination.set("type", typeURI);
 		for (AdvanceType at : typeArguments) {
 			at.save(destination.add("type-argument"));
 		}
 	}
-
+	/** @return the kind of this type. */
+	public AdvanceTypeKind getKind() {
+		if (typeURI != null) {
+			if (typeArguments.isEmpty()) {
+				return AdvanceTypeKind.CONCRETE_TYPE;
+			}
+			return AdvanceTypeKind.PARAMETRIC_TYPE;
+		}
+		return AdvanceTypeKind.VARIABLE_TYPE;
+	}
 }
