@@ -23,9 +23,11 @@ package eu.advance.logistics.flow.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -71,36 +73,48 @@ public class AdvanceCompositeBlock implements XSerializable {
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
+		Set<String> ids = Sets.newHashSet();
 		for (XElement e : root.children()) {
 			if (e.name.equals("input")) {
 				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
 				p.load(e);
-				inputs.put(p.id, p);
+				if (inputs.put(p.id, p) != null) {
+					throw new DuplicateIdentifierException(e.getXPath(), p.id);
+				}
 			} else
 			if (e.name.equals("output")) {
 				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
 				p.load(e);
-				outputs.put(p.id, p);
+				if (outputs.put(p.id, p) != null) {
+					throw new DuplicateIdentifierException(e.getXPath(), p.id);
+				}
 			} else
 			if (e.name.equals("block")) {
 				AdvanceBlockReference p = new AdvanceBlockReference();
 				p.load(e);
 				p.parent = this;
-				blocks.put(p.id, p);
+				if (blocks.put(p.id, p) != null || !ids.add(p.id)) {
+					throw new DuplicateIdentifierException(e.getXPath(), p.id);
+				}
 			} else
 			if (e.name.equals("composite-block")) {
 				AdvanceCompositeBlock p = new AdvanceCompositeBlock();
 				p.load(e);
 				p.parent = this;
-				composites.put(p.id, p);
+				if (composites.put(p.id, p) != null || !ids.add(p.id)) {
+					throw new DuplicateIdentifierException(e.getXPath(), p.id);
+				}
 			} else
 			if (e.name.equals("constant")) {
 				AdvanceConstantBlock p = new AdvanceConstantBlock();
 				p.load(e);
-				constants.put(p.id, p);
+				if (constants.put(p.id, p) != null || !ids.add(p.id)) {
+					throw new DuplicateIdentifierException(e.getXPath(), p.id);
+				}
 			} else
 			if (e.name.equals("bind")) {
 				AdvanceBlockBind p = new AdvanceBlockBind();
+				p.parent = this;
 				p.load(e);
 				bindings.add(p);
 			}

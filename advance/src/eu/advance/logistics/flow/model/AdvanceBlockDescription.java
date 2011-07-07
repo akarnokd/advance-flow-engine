@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.model;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -84,18 +85,39 @@ public class AdvanceBlockDescription implements XSerializable {
 		for (XElement tp : root.childrenWithName("type-variable")) {
 			AdvanceTypeVariable bpd = new AdvanceTypeVariable();
 			bpd.load(tp);
-			typeVariables.put(bpd.name, bpd);
+			if (typeVariables.put(bpd.name, bpd) != null) {
+				throw new DuplicateIdentifierException(tp.getXPath(), bpd.name);
+			}
 		}
+		LinkedList<AdvanceType> typeParams = Lists.newLinkedList();
+		
 		for (XElement inp : root.childrenWithName("input")) {
 			AdvanceBlockParameterDescription bpd = new AdvanceBlockParameterDescription();
 			bpd.load(inp);
-			inputs.put(bpd.id, bpd);
+			if (inputs.put(bpd.id, bpd) != null) {
+				throw new DuplicateIdentifierException(inp.getXPath(), bpd.id);
+			}
+			typeParams.add(bpd);
 		}
 		for (XElement outp : root.childrenWithName("output")) {
 			AdvanceBlockParameterDescription bpd = new AdvanceBlockParameterDescription();
 			bpd.load(outp);
-			outputs.put(bpd.id, bpd);
+			if (outputs.put(bpd.id, bpd) != null) {
+				throw new DuplicateIdentifierException(outp.getXPath(), bpd.id);
+			}
+			typeParams.add(bpd);
 		}
+		
+		while (!typeParams.isEmpty()) {
+			AdvanceType at = typeParams.removeFirst();
+			if (at.getKind() == AdvanceTypeKind.VARIABLE_TYPE && at.typeVariable == null) {
+				at.typeVariable = typeVariables.get(at.typeVariableName);
+			} else
+			if (at.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+				typeParams.addAll(at.typeArguments);
+			}
+		}
+		
 	}
 	@Override
 	public void save(XElement destination) {

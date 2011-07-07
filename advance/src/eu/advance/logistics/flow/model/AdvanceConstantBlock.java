@@ -31,6 +31,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.util.Strings;
 import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.xml.typesystem.XType;
 
 /**
  * @author karnokd, 2011.06.24.
@@ -41,7 +42,10 @@ public class AdvanceConstantBlock implements XSerializable {
 	public String id;
 	/** The content type of this block. */
 	@NonNull
-	public URI type;
+	public URI typeURI;
+	/** The type. */
+	@NonNull
+	public XType type;
 	/** Optional display text for this attribute. Can be used as a key into a translation table. */
 	@Nullable
 	public String displayName;
@@ -64,7 +68,8 @@ public class AdvanceConstantBlock implements XSerializable {
 		String t = root.get("type");
 		if (t != null) {
 			try {
-				type = new URI(t);
+				typeURI = new URI(t);
+				type = AdvanceResolver.resolveSchema(typeURI);
 			} catch (URISyntaxException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -79,7 +84,7 @@ public class AdvanceConstantBlock implements XSerializable {
 	@Override
 	public void save(XElement destination) {
 		destination.set("id", id);
-		destination.set("type", type);
+		destination.set("type", typeURI);
 		destination.set("documentation", documentation);
 		if (keywords.size() > 0) {
 			destination.set("keywords", Strings.join(keywords, ","));

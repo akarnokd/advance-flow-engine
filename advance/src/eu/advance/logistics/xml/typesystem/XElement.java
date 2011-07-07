@@ -562,4 +562,47 @@ public class XElement implements Iterable<XElement> {
 			attributes.remove(new XAttributeName(name, namespace, null));
 		}
 	}
+	/**
+	 * @return Construct the XPath expression to locate this element. 
+	 */
+	public String getXPath() {
+		StringBuilder r = new StringBuilder();
+		if (parent != null) {
+			XElement q = this;
+			XElement p = parent;
+			while (p != null) {
+				if (p.children.size() > 1) {
+					int count = 0;
+					int idx = 0;
+					for (XElement c : p.children) {
+						if (q.name.equals(c.name) && Objects.equal(q.namespace, c.namespace)) {
+							if (c == q) {
+								idx = count;
+								break;
+							}
+							count++;
+						}
+					}
+					if (idx > 0) {
+						r.insert(0, ']');
+						r.insert(0, idx);
+						r.insert(0, '[');
+						r.insert(0, p.name);
+						r.insert(0, '/');
+					} else {
+						r.insert(0, p.name);
+						r.insert(0, '/');
+					}
+				} else {
+					r.insert(0, p.name);
+					r.insert(0, '/');
+				}
+				
+				q = p;
+				p = p.parent;
+			}
+		}
+		r.append('/').append(name);
+		return r.toString();
+	}
 }

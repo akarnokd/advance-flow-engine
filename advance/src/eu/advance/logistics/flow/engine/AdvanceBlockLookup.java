@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
 import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
 import eu.advance.logistics.xml.typesystem.XElement;
@@ -51,7 +50,8 @@ public final class AdvanceBlockLookup {
 	static {
 		BLOCKS = Maps.newHashMap();
 		try {
-			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(XElement.parseXML("schemas/block-registry.xml"))) {
+			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
+					XElement.parseXML("schemas/block-registry.xml"))) {
 				BLOCKS.put(e.id, e);
 			}
 			
@@ -67,11 +67,11 @@ public final class AdvanceBlockLookup {
 	private AdvanceBlockLookup() {
 	}
 	/**
-	 * Locate the block description in the repository (e.g., block-description-list.xml).
+	 * Locate the block description in the repository (e.g., block-repository.xml).
 	 * @param id the block identifier
 	 * @return the block
 	 */
-	public static AdvanceBlockDescription lookup(@NonNull String id) {
+	public static AdvanceBlockRegistryEntry lookup(@NonNull String id) {
 		return BLOCKS.get(id);
 	}
 	/**

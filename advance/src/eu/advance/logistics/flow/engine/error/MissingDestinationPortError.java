@@ -19,17 +19,23 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.error;
 
-import hu.akarnokd.reactive4java.reactive.Observer;
+import eu.advance.logistics.flow.model.AdvanceBlockBind;
 
 /**
- * The block runtime record to remember blocks.
- * @author karnokd, 2011.06.27.
+ * The destination port of the destination object cannot be found.
+ * @author karnokd, 2011.07.07.
  */
-public class AdvanceBlockRuntime {
-	/** The constructed block. */
-	public AdvanceBlock block;
-	/** The signal to run a block. */
-	public Observer<Void> run;
+public class MissingDestinationPortError implements AdvanceCompilationError {
+	/** The wire identifier. */
+	public final AdvanceBlockBind binding;
+	/**
+	 * Constructor.
+	 * @param binding the actual binding causing the problem
+	 */
+	public MissingDestinationPortError(AdvanceBlockBind binding) {
+		this.binding = binding;
+	}
+
 }
