@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flow-description.xsd">
+    <composite-block id="flow-diagram-1">
+        
+        <!--input-->
+        <input id="in1" displayname="Input 1" variance="covariant" type="int">
+        </input>        
+        <input id="in2" displayname="Input 2" variance="covariant" type="int">
+        </input> 
+        
+        <!--output-->
+        <output id="out" displayname="Result" variance="covariant" type="int">
+        </output>
+        
+        <!--block-->
+        <block id="r1" type="Reverse"/>
+        <block id="r2" type="Reverse"/>
+        <block id="m1" type="Merge"/>
+        <block id="g1" type="GetItem"/>
+        
+        <!--composite-block-->
+        
+        <!--bind-->
+        <bind id="bind1" source-block="g1" source-parameter="out" destination-block="r1" destination-parameter="in"/>
+        <bind id="bind2" source-block="r1" source-parameter="out" destination-block="m1" destination-parameter="1"/>
+        <bind id="bind3" source-block="r2" source-parameter="out" destination-block="m1" destination-parameter="2"/>
+        
+        <!--constant-->
+        
+    </composite-block>
+
+</flow-description>
