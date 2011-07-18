@@ -168,4 +168,24 @@ public class AdvanceCompositeBlock implements XSerializable {
 		}
 		return false;
 	}
+	/**
+	 * Parse a {@code flow-descriptor.xsd} based XML.
+	 * @param flow the flow XML tree
+	 * @return the composite block
+	 */
+	public static AdvanceCompositeBlock parseFlow(XElement flow) {
+		AdvanceCompositeBlock result = new AdvanceCompositeBlock();
+		result.load(flow.childElement("composite-block"));
+		return result;
+	}
+	/**
+	 * Serialize the given composite block into a full {@code flow-descriptor.xsd} based XML.
+	 * @param root the root composite block.
+	 * @return the serialized XML
+	 */
+	public static XElement serializeFlow(AdvanceCompositeBlock root) {
+		XElement result = new XElement("flow-descriptor");
+		root.save(result.add("composite-block"));
+		return result;
+	}
 }
