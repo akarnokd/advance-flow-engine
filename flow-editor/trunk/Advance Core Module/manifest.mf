@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: eu.advance.logistics.core
+OpenIDE-Module-Localizing-Bundle: eu/advance/logistics/core/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

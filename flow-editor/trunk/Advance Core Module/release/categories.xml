@@ -1,0 +1,17 @@
+<categories>
+	<category id="data-transformations" displayName="Data transformations" icon="data_transformations.png"/>
+	<category id="data-filtering" displayName="Data filtering" icon="data_filtering.png"/>
+	<category id="data-normalizing" displayName="Data normalizing" icon="data_normalization.png"/>
+	<category id="data-generation" displayName="Data generation" icon="data_generation.png"/>
+	<category id="arithmetic" displayName="Arithmetic" icon="arithmetic.png"/>
+	<category id="classification" displayName="Classification" icon="classification.png"/>
+	<category id="statistics" displayName="Statistics" icon="statistics.png"/>
+	<category id="projection" displayName="Projection" icon="projection.png"/>
+	<category id="aggregation" displayName="Aggregation" icon="aggregation.png"/>
+	<category id="optimisation" displayName="Optimisation" icon="optimization.png"/>
+	<category id="simulation" displayName="Simulation" icon="simulation.png"/>
+	<category id="self-learning" displayName="Self Learning" icon="self_learning.png"/>
+	<category id="user-interface" displayName="User Interface" icon="user_interface.png"/>
+	<category id="combinatorial-optimisation" displayName="Combinatorial optimisation" icon="combinatorial_optimisation.png"/>
+	<category id="travel-cost" displayName="Travel cost matrix / interface" icon="travel_cost.png"/>
+</categories>
