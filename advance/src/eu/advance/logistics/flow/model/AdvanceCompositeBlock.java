@@ -62,7 +62,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 	/** The binding definition of internal blocks and/or boundary parameters. You may bind the output of the blocks to many input parameters. */
 	public final List<AdvanceBlockBind> bindings = Lists.newArrayList();
 	/**
-	 * Load the contents from an XML element with a schema of <code>flow-description.xsd</code>.
+	 * Load the contents from an XML element with a schema of <code>flow-description.xsd</code> and typed as {@code composite-block}.
 	 * @param root the root element
 	 */
 	@Override
