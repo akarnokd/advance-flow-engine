@@ -35,6 +35,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -43,7 +44,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jaxen.BaseXPath;
 import org.jaxen.FunctionCallException;
-import org.jaxen.JaxenRuntimeException;
+import org.jaxen.JaxenConstants;
 import org.jaxen.Navigator;
 import org.jaxen.UnsupportedAxisException;
 import org.jaxen.XPath;
@@ -66,8 +67,7 @@ public class XNavigator implements Navigator {
 	private static final long serialVersionUID = 7493682578566309878L;
 
 	@Override
-	public Iterator<?> getChildAxisIterator(Object contextNode)
-			throws UnsupportedAxisException {
+	public Iterator<?> getChildAxisIterator(Object contextNode) {
 		if (contextNode instanceof XElement) {
 			final XElement e = (XElement) contextNode;
 			if (e.content != null) {
@@ -76,12 +76,11 @@ public class XNavigator implements Navigator {
 			}
 			return e.children.iterator();
 		}
-		return Collections.emptyIterator();
+		return JaxenConstants.EMPTY_ITERATOR;
 	}
 
 	@Override
-	public Iterator<?> getDescendantAxisIterator(Object contextNode)
-			throws UnsupportedAxisException {
+	public Iterator<?> getDescendantAxisIterator(Object contextNode) {
 		if (contextNode instanceof XElement) {
 			final XElement e = (XElement) contextNode;
 			return new Iterator<Object>() {
@@ -103,11 +102,7 @@ public class XNavigator implements Navigator {
 					if (hasNext()) {
 						Object o = current.next();
 						stack.push(current);
-						try {
-							current = getChildAxisIterator(o);
-						} catch (UnsupportedAxisException ex) {
-							throw new JaxenRuntimeException(ex);
-						}
+						current = getChildAxisIterator(o);
 						return o;
 					}
 					throw new NoSuchElementException();
@@ -118,7 +113,7 @@ public class XNavigator implements Navigator {
 				}
 			};
 		}		
-		return Collections.emptyIterator();
+		return JaxenConstants.EMPTY_ITERATOR;
 	}
 
 	@Override
@@ -128,7 +123,7 @@ public class XNavigator implements Navigator {
 		if (parent != null) {
 			return Iterators.singletonIterator(parent);
 		}
-		return Collections.emptyIterator();
+		return JaxenConstants.EMPTY_ITERATOR;
 	}
 
 	@Override
@@ -144,16 +139,12 @@ public class XNavigator implements Navigator {
 			}
 			@Override
 			public Object next() {
-				try {
-					if (hasNext()) {
-						Object result = current;
-						current = getParentNode(current);
-						return result;
-					}
-					throw new NoSuchElementException();
-				} catch (UnsupportedAxisException ex) {
-					throw new JaxenRuntimeException(ex);
+				if (hasNext()) {
+					Object result = current;
+					current = getParentNode(current);
+					return result;
 				}
+				throw new NoSuchElementException();
 			}
 			@Override
 			public void remove() {
@@ -163,11 +154,10 @@ public class XNavigator implements Navigator {
 	}
 
 	@Override
-	public Iterator<?> getFollowingSiblingAxisIterator(final Object contextNode)
-			throws UnsupportedAxisException {
+	public Iterator<?> getFollowingSiblingAxisIterator(final Object contextNode) {
 		Object parent = getParentNode(contextNode);
 		if (parent == null) {
-			return Collections.emptyIterator();
+			return JaxenConstants.EMPTY_ITERATOR;
 		}
 		return Iterators.filter(getChildAxisIterator(parent), new Predicate<Object>() {
 			/** Indicator that the first occurrence of the context node has been found. */
@@ -183,11 +173,10 @@ public class XNavigator implements Navigator {
 	}
 
 	@Override
-	public Iterator<?> getPrecedingSiblingAxisIterator(final Object contextNode)
-			throws UnsupportedAxisException {
+	public Iterator<?> getPrecedingSiblingAxisIterator(final Object contextNode) {
 		Object parent = getParentNode(contextNode);
 		if (parent == null) {
-			return Collections.emptyIterator();
+			return JaxenConstants.EMPTY_ITERATOR;
 		}
 		Iterator<?> children = getChildAxisIterator(parent);
 		List<Object> backwards = new ArrayList<Object>();
@@ -204,32 +193,182 @@ public class XNavigator implements Navigator {
 	}
 
 	@Override
-	public Iterator<?> getFollowingAxisIterator(final Object contextNode)
+	public Iterator<?> getFollowingAxisIterator(final Object contextNode0)
 			throws UnsupportedAxisException {
 		// depth first iteration of all following nodes
 		return new Iterator<Object>() {
-			@Override
-			public boolean hasNext() {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			@Override
-			public Object next() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
+			private Object contextNode = contextNode0;
+			/** The siblings iterator. */
+		    private Iterator<?> siblings = getFollowingSiblingAxisIterator(contextNode);
+		    /** The current sibling's content. */
+		    private Iterator<?> currentSibling = JaxenConstants.EMPTY_ITERATOR;
+		    /** Go forward with the siblings and their content. */
+		    private boolean goForward() {
+		        while (!siblings.hasNext()) {
+		            if (!goUp()) {
+		                return false;
+		            }
+		        }
+		        Object nextSibling = siblings.next();
+		        this.currentSibling = getDescendantOrSelfAxisIterator(nextSibling);
+		        return true;
+		    }
+		    /** 
+		     * Go up one level. 
+		     * @return true if it was able to go up one level.
+		     */
+		    private boolean goUp() {
+		        if (isDocument(contextNode)) {
+		            return false;
+		        }
+	            contextNode = getParentNode(contextNode);
+
+	            if (contextNode != null && isDocument(contextNode)) {
+	                siblings = getFollowingSiblingAxisIterator(contextNode);
+	                return true;
+	            }
+	            return false;
+		    }
+
+		    /**
+		     * Returns true if there are any following nodes remaining; 
+		     * false otherwise.
+		     * 
+		     * @return true if any following nodes remain
+		     * 
+		     * @see java.util.Iterator#hasNext()
+		     */
+		    @Override
+		    public boolean hasNext() {
+		        while (!currentSibling.hasNext()) {
+		            if (!goForward()) {
+		                return false;
+		            }
+		        }
+
+		        return true;
+		    }
+
+		    /**
+		     * Returns the next following node.
+		     * 
+		     * @return the next following node
+		     * 
+		     * @throws NoSuchElementException if no following nodes remain
+		     * 
+		     * @see java.util.Iterator#next()
+		     */
+		    @Override
+		    public Object next() {
+		        if (!hasNext()) {
+		            throw new NoSuchElementException();
+		        }
+		        return currentSibling.next();
+		    }
+
+		    /**
+		     * This operation is not supported.
+		     * 
+		     * @throws UnsupportedOperationException always
+		     */
+		    @Override
+		    public void remove() {
+		        throw new UnsupportedOperationException();
+		    }
 		};
 	}
 
 	@Override
-	public Iterator<?> getPrecedingAxisIterator(Object contextNode)
+	public Iterator<?> getPrecedingAxisIterator(final Object contextNode)
 			throws UnsupportedAxisException {
-		// TODO Auto-generated method stub
-		return null;
+		return new Iterator<Object>() {
+			/** Ancestor or self direction. */
+		    private Iterator<?> ancestorOrSelf = getAncestorOrSelfAxisIterator(contextNode);
+		    /** Preceding sibling direction on the current level. */
+		    private Iterator<?> precedingSibling = JaxenConstants.EMPTY_ITERATOR;
+		    /** Children or self direction. */
+		    private ListIterator<?> childrenOrSelf = JaxenConstants.EMPTY_LIST_ITERATOR;
+		    /** The stack to keep track of levels. */
+		    private Deque<ListIterator<?>> stack = new LinkedList<ListIterator<?>>();
+
+		    /**
+		     * Returns true if there are any preceding nodes remaining; false otherwise.
+		     * 
+		     * @return true if any preceding nodes remain; false otherwise
+		     * 
+		     * @see java.util.Iterator#hasNext()
+		     */
+		    @Override
+		    public boolean hasNext() {
+	            while (!childrenOrSelf.hasPrevious()) {
+	                if (stack.isEmpty()) {
+	                    while (!precedingSibling.hasNext()) {
+	                        if (!ancestorOrSelf.hasNext()) {
+	                            return false;
+	                        }
+	                        Object contextNode = ancestorOrSelf.next();
+	                        precedingSibling = getPrecedingSiblingAxisIterator(contextNode);
+	                    }
+	                    Object node = precedingSibling.next();
+	                    childrenOrSelf = childrenOrSelf(node);
+	                } else {
+	                    childrenOrSelf = stack.pop();
+	                }
+	            }
+	            return true;
+		    }
+		    /**
+		     * Children and self list iterator.
+		     * @param node the target node
+		     * @return the list iterator
+		     */
+		    private ListIterator<?> childrenOrSelf(Object node) {
+	            ArrayList<Object> reversed = new ArrayList<Object>();
+	            reversed.add(node);
+	            Iterator<?> childAxisIterator = getChildAxisIterator(node);
+	            if (childAxisIterator != null) {
+	                while (childAxisIterator.hasNext()) {
+	                    reversed.add(childAxisIterator.next());
+	                }
+	            }
+	            return reversed.listIterator(reversed.size());
+		    }
+
+		    /**
+		     * Returns the next preceding node.
+		     * 
+		     * @return the next preceding node
+		     * 
+		     * @throws NoSuchElementException if no preceding nodes remain
+		     * 
+		     * @see java.util.Iterator#next()
+		     */
+		    @Override
+		    public Object next() {
+		        if (!hasNext()) {
+		            throw new NoSuchElementException();
+		        }
+		        while (true) {
+		            Object result = childrenOrSelf.previous();
+		            if (childrenOrSelf.hasPrevious()) {
+		                // if this isn't 'self' construct 'descendant-or-self'
+		                stack.add(childrenOrSelf);
+		                childrenOrSelf = childrenOrSelf(result);
+		                continue;
+		            }
+		            return result;
+		        }
+		    }
+		    /**
+		     * This operation is not supported.
+		     * 
+		     * @throws UnsupportedOperationException always
+		     */
+		    @Override
+		    public void remove() {
+		        throw new UnsupportedOperationException();
+		    }
+		};
 	}
 
 	@Override
@@ -256,7 +395,7 @@ public class XNavigator implements Navigator {
 				}
 			).iterator();
 		}
-		return Collections.emptyIterator();
+		return JaxenConstants.EMPTY_ITERATOR;
 	}
 
 	@Override
@@ -286,7 +425,7 @@ public class XNavigator implements Navigator {
 			}
 			e = e.parent;
 		}
-		return namespaces.entrySet().iterator(); // FIXME usage of the resulting values???
+		return namespaces.entrySet().iterator();
 	}
 
 	@Override
@@ -296,8 +435,7 @@ public class XNavigator implements Navigator {
 	}
 
 	@Override
-	public Iterator<?> getDescendantOrSelfAxisIterator(Object contextNode)
-			throws UnsupportedAxisException {
+	public Iterator<?> getDescendantOrSelfAxisIterator(Object contextNode) {
 		return Iterators.concat(Iterators.singletonIterator(contextNode), getDescendantAxisIterator(contextNode));
 	}
 
@@ -328,7 +466,6 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public Object getDocumentNode(Object contextNode) {
-		// FIXME document node is the outermost element?!
 		XElement e = null;
 		if (contextNode instanceof Pair<?, ?>) {
 			e = (XElement)(((Pair<?, ?>)contextNode).first);
@@ -346,8 +483,7 @@ public class XNavigator implements Navigator {
 	}
 
 	@Override
-	public Object getParentNode(Object contextNode)
-			throws UnsupportedAxisException {
+	public Object getParentNode(Object contextNode) {
 		if (contextNode instanceof Triplet<?, ?, ?>) {
 			Triplet<?, ?, ?> triplet = (Triplet<?, ?, ?>) contextNode;
 			return triplet.first;
