@@ -95,8 +95,10 @@
 						<xs:documentation>The variance definition of this input parameter, required for the block bindings to check for compatibility, e.g., allow extension, restriction or exact type matches to be wired in.</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
-				<xs:attribute name="documentation" type="xs:anyURI">
-					<xs:annotation><xs:documentation>The documentation link to explain this parameter.</xs:documentation></xs:annotation>
+				<xs:attribute name="documentation" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The documentation link or text to explain this parameter.</xs:documentation>
+					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
 		</xs:complexContent>
@@ -123,7 +125,9 @@
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="documentation" type="xs:anyURI">
-					<xs:annotation><xs:documentation>The documentation link to explain this parameter.</xs:documentation></xs:annotation>
+					<xs:annotation>
+						<xs:documentation>The documentation link to explain this parameter.</xs:documentation>
+					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
 		</xs:complexContent>
@@ -150,7 +154,9 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="documentation" type="xs:anyURI">
-			<xs:annotation><xs:documentation>The documentation link to explain this type.</xs:documentation></xs:annotation>
+			<xs:annotation>
+				<xs:documentation>The documentation link to explain this type.</xs:documentation>
+			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="type">

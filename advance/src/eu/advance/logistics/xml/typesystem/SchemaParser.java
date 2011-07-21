@@ -156,7 +156,11 @@ public final class SchemaParser {
 					if (complexType != null) {
 						 setComplexType(c, complexType, typedefs, memory);
 					} else {
-						throw new AssertionError("Missing referenced type for element " + root.get("name") + " type " + rootType);
+						if (rootType.equals(root.prefix + ":anyType")) {
+							c.complexType = new XType(); // empty type
+						} else {
+							throw new AssertionError("Missing referenced type for element " + root.get("name") + " type " + rootType);
+						}
 					}
 				}
 			}
@@ -173,7 +177,12 @@ public final class SchemaParser {
 					if (complexType != null) {
 						setComplexType(c, complexType, typedefs, memory);
 					} else {
-						throw new AssertionError("Strange element: " + root.get("name") + ", " + rootType);
+						if (c.genericType != null) {
+							c.complexType = new XType(); // empty type
+						} else {
+							throw new AssertionError("Strange element: " + root.get("name") + ", " + rootType);
+						}
+							
 					}
 				}
 			}
@@ -628,12 +637,15 @@ public final class SchemaParser {
 		// TODO think about this a bit more
 		XElement annot = elementDef.childElement("annotation", XSD);
 		if (annot != null) {
-			XElement gt = annot.childElement("advance-type-variable");
-			if (gt != null) {
-				String paramName = gt.get("name");
-				XGenerics xg = new XGenerics();
-				xg.name = paramName;
-				return xg;
+			XElement appinfo = annot.childElement("appinfo", XSD);
+			if (appinfo != null) {
+				XElement gt = appinfo.childElement("advance-type-variable");
+				if (gt != null) {
+					String paramName = gt.get("name");
+					XGenerics xg = new XGenerics();
+					xg.name = paramName;
+					return xg;
+				}
 			}
 		}
 		return null;

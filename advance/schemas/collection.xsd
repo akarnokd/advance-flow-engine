@@ -7,7 +7,7 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="item" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="item" minOccurs="0" maxOccurs="unbounded" type="xs:anyType">
 					<xs:annotation>
 						<xs:appinfo>
 							<advance-type-variable name="T"/>

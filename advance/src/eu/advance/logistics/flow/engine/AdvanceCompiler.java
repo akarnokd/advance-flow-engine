@@ -21,14 +21,21 @@
 
 package eu.advance.logistics.flow.engine;
 
-import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.reactive.Observer;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -47,6 +54,7 @@ import eu.advance.logistics.flow.engine.error.MultiInputBindingError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
+import eu.advance.logistics.flow.engine.error.TypeMismatchError;
 import eu.advance.logistics.flow.model.AdvanceBlockBind;
 import eu.advance.logistics.flow.model.AdvanceBlockDescription;
 import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
@@ -54,15 +62,22 @@ import eu.advance.logistics.flow.model.AdvanceBlockReference;
 import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.model.AdvanceConstantBlock;
+import eu.advance.logistics.flow.model.AdvanceResolver;
 import eu.advance.logistics.flow.model.AdvanceType;
+import eu.advance.logistics.flow.model.AdvanceTypeKind;
 import eu.advance.logistics.flow.model.AdvanceTypeVariable;
 import eu.advance.logistics.util.Triplet;
+import eu.advance.logistics.xml.typesystem.SchemaParser;
+import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.xml.typesystem.XRelation;
 
 /**
  * The ADVANCE block compiler which turns the the flow description into runnable advance blocks.
  * @author karnokd, 2011.06.27.
  */
 public final class AdvanceCompiler {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** Utility class. */
 	private AdvanceCompiler() {
 		
@@ -211,23 +226,43 @@ public final class AdvanceCompiler {
 		/** The connected inputs. */
 		final List<InputParameter> inputs = Lists.newArrayList();
 	}
-	/** A block object, also may represent a constant (output only). */
-	static class Node {
-		/** The type variables available. */
-		final Map<String, AdvanceTypeVariable> typeVariables = Maps.newHashMap();
-		/** The input parameters. */
-		final Map<String, InputParameter> inputs = Maps.newHashMap();
-		/** Output parameters. */
-		final Map<String, OutputParameter> outputs = Maps.newHashMap();
-	}
 	/** Definition of a type relation. */
 	static class TypeRelation {
 		/** The left type. */
 		public AdvanceType left;
 		/** The right type. */
 		public AdvanceType right;
-		/** The rigth type if it is substituted. */
-		public TypeRelation rightSubstituted;
+		/** The binding wire. */
+		public AdvanceBlockBind wire;
+		/** Construct an empty type relation. */
+		public TypeRelation() {
+			
+		}
+		/**
+		 * Construct a type relation with the initial values.
+		 * @param left the left type
+		 * @param right the right type
+		 * @param wire the original wire
+		 */
+		public TypeRelation(AdvanceType left, AdvanceType right, AdvanceBlockBind wire) {
+			this.left = left;
+			this.right = right;
+			this.wire = wire;
+		}
+		/**
+		 * Copy-construct a type relation with the initial values.
+		 * @param other the other type relation
+		 */
+		public TypeRelation(TypeRelation other) {
+			this.left = other.left;
+			this.right = other.right;
+			this.wire = other.wire;
+		}
+		@Override
+		public String toString() {
+//			return String.format("%s(%s):%s >= %s(%s):%s (%s)", wire.sourceBlock, wire.sourceParameter, left, wire.destinationBlock, wire.destinationParameter, right, wire.id);
+			return String.format("%s[%08X] >= %s[%08X] (%s)", left, System.identityHashCode(left), right, System.identityHashCode(right), wire.id);
+		}
 	}
 	/**
 	 * Verify the types along the bindings of this composite block.
@@ -237,7 +272,7 @@ public final class AdvanceCompiler {
 	public static List<AdvanceCompilationError> verify(AdvanceCompositeBlock enclosingBlock) {
 		List<AdvanceCompilationError> result = Lists.newArrayList();
 		
-		List<TypeRelation> relations = Lists.newArrayList();
+		LinkedList<TypeRelation> relations = Lists.newLinkedList();
 		
 		LinkedList<AdvanceCompositeBlock> blockRecursion = Lists.newLinkedList();
 		blockRecursion.add(enclosingBlock);
@@ -252,35 +287,41 @@ public final class AdvanceCompiler {
 			List<AdvanceBlockBind> validBindings = Lists.newArrayList();
 			verifyBindings(result, cb, validBindings);
 			
-			
+			// for each individual block, have an individual type variable mapping per ports
+			Map<String, Map<String, AdvanceType>> typeMemory = Maps.newHashMap();
+
 			// build type relations
-			Map<Pair<String, String>, AdvanceType> typeMemory = Maps.newHashMap();
-			
 			for (AdvanceBlockBind bb : validBindings) {
 				TypeRelation tr = new TypeRelation();
+				tr.wire = bb;
 				// evaluate source
 				if (cb.constants.containsKey(bb.sourceBlock)) {
-					Pair<String, String> typePort = Pair.of(bb.sourceBlock, "");
-					AdvanceType at = typeMemory.get(typePort);
+					Map<String, AdvanceType> at = typeMemory.get(bb.sourceBlock);
 					if (at == null) {
-						at = new AdvanceType();
+						AdvanceType at2 = new AdvanceType();
 						AdvanceConstantBlock constblock = cb.constants.get(bb.sourceBlock);
-						at.typeURI = constblock.typeURI;
-						at.type = constblock.type;
-						typeMemory.put(typePort, at);
+						at2.typeURI = constblock.typeURI;
+						at2.type = constblock.type;
+						typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
+						tr.left = at2;
+					} else {
+						tr.left = at.get("");
 					}
-					tr.left = at;
 				} else
 				if (cb.blocks.containsKey(bb.sourceBlock)) {
-					Pair<String, String> typePort = Pair.of(bb.sourceBlock, bb.sourceParameter);
-					AdvanceType at = typeMemory.get(typePort);
+					Map<String, AdvanceType> at = typeMemory.get(bb.sourceBlock);
 					if (at == null) {
-						AdvanceBlockRegistryEntry lookup = AdvanceBlockLookup.lookup(cb.blocks.get(bb.sourceBlock).type);
-						AdvanceBlockParameterDescription bpd = lookup.outputs.get(bb.sourceParameter);
-						typeMemory.put(typePort, bpd);
-						at = bpd;
+						AdvanceBlockDescription lookup = AdvanceBlockLookup.lookup(cb.blocks.get(bb.sourceBlock).type).copy();
+						at = Maps.newHashMap();
+						for (AdvanceBlockParameterDescription bpd : lookup.inputs.values()) {
+							at.put(bpd.id, bpd.type);
+						}
+						for (AdvanceBlockParameterDescription bpd : lookup.outputs.values()) {
+							at.put(bpd.id, bpd.type);
+						}
+						typeMemory.put(bb.sourceBlock, at);
 					}
-					tr.left = at;
+					tr.left = at.get(bb.sourceParameter);
 				} else
 				if (cb.composites.containsKey(bb.sourceBlock)) {
 					AdvanceCompositeBlock cb1 = cb.composites.get(bb.sourceBlock);
@@ -311,16 +352,19 @@ public final class AdvanceCompiler {
 				}
 				// evaluate destination
 				if (cb.blocks.containsKey(bb.destinationBlock)) {
-					Pair<String, String> typePort = Pair.of(bb.destinationBlock, bb.destinationParameter);
-					AdvanceType at = typeMemory.get(typePort);
+					Map<String, AdvanceType> at = typeMemory.get(bb.destinationBlock);
 					if (at == null) {
-						AdvanceBlockRegistryEntry lookup = AdvanceBlockLookup.lookup(cb.blocks.get(bb.sourceBlock).type);
-						AdvanceBlockParameterDescription bpd = lookup.inputs.get(bb.destinationParameter);
-						typeMemory.put(typePort, bpd);
-						at = bpd;
+						AdvanceBlockDescription lookup = AdvanceBlockLookup.lookup(cb.blocks.get(bb.destinationBlock).type).copy();
+						at = Maps.newHashMap();
+						for (AdvanceBlockParameterDescription bpd : lookup.inputs.values()) {
+							at.put(bpd.id, bpd.type);
+						}
+						for (AdvanceBlockParameterDescription bpd : lookup.outputs.values()) {
+							at.put(bpd.id, bpd.type);
+						}
+						typeMemory.put(bb.destinationBlock, at);
 					}
-					tr.right = at;
-					
+					tr.right = at.get(bb.destinationParameter);
 				} else
 				if (cb.composites.containsKey(bb.destinationBlock)) {
 					AdvanceCompositeBlock cb1 = cb.composites.get(bb.destinationBlock);
@@ -358,6 +402,7 @@ public final class AdvanceCompiler {
 		// ---------------------------------------------------------------------------------
 		// TODO perform the type resolution
 		
+		infer(relations, result);
 		
 		return result;
 	}
@@ -480,5 +525,158 @@ public final class AdvanceCompiler {
 			}
 
 		}
+	}
+	/** 
+	 * Test the compiler.
+	 * @param args ignored
+	 * @throws Exception ignored 
+	 */
+	public static void main(String[] args) throws Exception {
+		XElement flow = XElement.parseXML("test/flow1.xml");
+		AdvanceCompositeBlock cb = AdvanceCompositeBlock.parseFlow(flow);
+		System.out.println(verify(cb));
+	}
+	/**
+	 * Run the type inference algorithm.
+	 * @param relations the set of relations.
+	 * @param error the output for errors
+	 * @return the substitution relations
+	 */
+	static List<TypeRelation> infer(Deque<TypeRelation> relations, List<AdvanceCompilationError> error) {
+		// the most common supertype
+		final AdvanceType object = new AdvanceType();
+		try {
+			object.typeURI = new URI("advance:object");
+			object.type = AdvanceResolver.resolveSchema(object.typeURI);
+		} catch (URISyntaxException ex) {
+			throw new AssertionError(ex);
+		}
+		
+		List<TypeRelation> substitution = Lists.newArrayList();
+		while (!relations.isEmpty()) {
+			LOG.debug("RELATIONS: " + relations.toString());
+			TypeRelation rel = relations.pop();
+			LOG.debug(rel.toString());
+			// Type relation is X >= Y
+			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE 
+					&& rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+				// do nothing
+				LOG.debug("Left & Right are identifiers");
+			} else
+			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+				// replace X by Y on the stack and in existing substitution
+				AdvanceType left = rel.left;
+				LOG.debug("Left identifier, Right something else");
+				for (TypeRelation tr : relations) {
+					if (tr.left == left) {
+						tr.left = rel.right;
+					}
+					if (tr.right == left) {
+						tr.right = rel.right;
+					}
+				}
+				for (TypeRelation tr : substitution) {
+					if (tr.left == left) {
+						tr.left = rel.right;
+					}
+					if (tr.right == left) {
+						tr.right = rel.right;
+					}
+				}
+				substitution.add(new TypeRelation(left, rel.right, rel.wire));
+			} else
+			if (rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+				// replace Y by X on the stack and in existing substitution
+				AdvanceType right = rel.right;
+				LOG.debug("Left something else, Right identifier");
+				
+				for (TypeRelation tr : relations) {
+					if (tr.right == right) {
+						tr.right = rel.left;
+					}
+					if (tr.left == right) {
+						tr.left = rel.left;
+					}
+				}
+				for (TypeRelation tr : substitution) {
+					if (tr.right == right) {
+						tr.right = rel.left;
+					}
+					if (tr.left == right) {
+						tr.left = rel.left;
+					}
+				}
+				substitution.add(new TypeRelation(rel.left, right, rel.wire));
+			} else
+			if (rel.left.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE 
+				&& rel.right.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE
+				&& rel.left.typeArguments.size() == rel.right.typeArguments.size()
+			) {
+				// type constructors are basically parametric types
+				// compare base type
+				XRelation xr = rel.left.type.compareTo(rel.right.type);
+				if (xr == XRelation.EQUAL || xr == XRelation.EXTENDS) {
+					Iterator<AdvanceType> leftIt = rel.left.typeArguments.iterator();
+					Iterator<AdvanceType> rightIt = rel.right.typeArguments.iterator();
+					while (leftIt.hasNext() && rightIt.hasNext()) {
+						AdvanceType t1 = leftIt.next();
+						AdvanceType t2 = rightIt.next();
+						TypeRelation cr = new TypeRelation(t1, t2, rel.wire);
+						relations.push(cr);
+						LOG.debug("Adding new relation " + cr);
+					}
+				} else {
+					LOG.debug("Base type mismatch in " + rel);
+					error.add(new TypeMismatchError(rel.wire)); // todo the wire
+				}
+			} else {
+				XRelation xr = SchemaParser.compare(rel.left.type, rel.right.type); // FIXME not sure
+				if (xr == XRelation.EQUAL || xr == XRelation.EXTENDS) {
+					LOG.debug("Left extends|equals right " + rel);
+				} else {
+//					if (rel.left != object && rel.right != object) {
+//						// fix instances by replacing them with object, since we may not know any common subtype in ADVANCE
+//						AdvanceType left = rel.left;
+//						AdvanceType right = rel.right;
+//						
+//						for (TypeRelation tr : relations) {
+//							if (tr.left == left) {
+//								tr.left = object;
+//							}
+//							if (tr.right == left) {
+//								tr.right = object;
+//							}
+//							if (tr.left == right) {
+//								tr.left = object;
+//							}
+//							if (tr.right == right) {
+//								tr.right = object;
+//							}
+//						}
+//						for (TypeRelation tr : substitution) {
+//							if (tr.left == left) {
+//								tr.left = object;
+//							}
+//							if (tr.right == left) {
+//								tr.right = object;
+//							}
+//							if (tr.left == right) {
+//								tr.left = object;
+//							}
+//							if (tr.right == right) {
+//								tr.right = object;
+//							}
+//						}
+//						
+//					} else {
+						LOG.debug("Type mismatch in " + rel);
+						error.add(new TypeMismatchError(rel.wire)); // todo the wire
+						break;
+//					}
+				}
+			}
+			LOG.debug("SUBS: " + substitution.toString());
+		}
+		return substitution;
 	}
 }

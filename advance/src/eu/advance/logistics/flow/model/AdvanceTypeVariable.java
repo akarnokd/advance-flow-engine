@@ -43,6 +43,39 @@ public class AdvanceTypeVariable implements XSerializable {
 	public boolean isUpperBound;
 	/** The documentation explaining this type variable. */
 	public URI documentation;
+	/** @return Create a deep copy of this type variable. */
+	public AdvanceTypeVariable copy() {
+		AdvanceTypeVariable result = new AdvanceTypeVariable();
+		result.name = name;
+		result.isUpperBound = isUpperBound;
+		result.documentation = documentation;
+		for (AdvanceType b : bounds) {
+			result.bounds.add(b.copy());
+		}
+		return result;
+	}
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		
+		b.append(name);
+		if (bounds.size() > 0) {
+			if (isUpperBound) {
+				b.append(" super ");
+			} else {
+				b.append(" extends ");
+			}
+			int i = 0;
+			for (AdvanceType bound : bounds) {
+				if (i > 0) {
+					b.append(" & ");
+				}
+				b.append(bound);
+			}
+		}
+		
+		return b.toString();
+	}
 	/**
 	 * Load the contents from an XML element with a schema of <code>block-description.xsd</code>.
 	 * @param root the root element

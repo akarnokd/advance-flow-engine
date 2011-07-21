@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.model;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -53,7 +54,14 @@ public final class AdvanceResolver {
 		if ("advance".equals(s)) {
 			String u = schemaURI.getSchemeSpecificPart();
 			URL url = AdvanceResolver.class.getResource("schemas/" + u + ".xsd");
-			return resolveSchemaLoad(url, schemaURI);
+			if (url != null) {
+				return resolveSchemaLoad(url, schemaURI);
+			}
+			try {
+				return resolveSchemaLoad(new File("schemas/" + u + ".xsd").toURI().toURL(), schemaURI);
+			} catch (MalformedURLException ex) {
+				throw new UnresolvableSchemaURIException(schemaURI, ex);
+			}
 		}
 		if ("res".equals(s)) {
 			String u = schemaURI.getSchemeSpecificPart();

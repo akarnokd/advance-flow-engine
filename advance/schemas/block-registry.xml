@@ -26,4 +26,31 @@
 		<input id="2" type-variable="T"/>
 		<output id="out" type-variable="T"/>
 	</block-description>
+	<!-- Testing composite parametric types. -->
+	<block-description class="eu.advance.logistics.flow.engine.block.Merge" id="Merge2" scheduler="NOW">
+		<type-variable name="T"/>
+		<type-variable name="U"> <!-- U extends Collection<T> -->
+			<lower-bound type="advance:collection">
+				<type-argument type-variable="T"/>
+			</lower-bound>
+		</type-variable>
+		<input id="1" type-variable="U"/>
+	</block-description>
+	<!-- Testing end-to-end type inference with generic parameter. -->
+	<block-description class="" id="Sink">
+		<type-variable name="T"/>
+		<input id="1" type-variable="T"/>
+	</block-description>
+	<!-- Testing end-to-end type inference with explicite parameter. -->
+	<block-description class="" id="IntSink">
+		<input id="1" type="advance:integer"/>
+	</block-description>
+	<!-- Testing wrapping into collection. -->
+	<block-description class="" id="Singleton">
+		<type-variable name="T"/>
+		<input id="in" type-variable="T"/>
+		<output id="out" type="advance:collection">
+			<type-argument type-variable="T"/>
+		</output>
+	</block-description>
 </block-registry>
