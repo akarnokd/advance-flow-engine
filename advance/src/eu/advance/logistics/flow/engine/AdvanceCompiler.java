@@ -536,13 +536,46 @@ public final class AdvanceCompiler {
 		AdvanceCompositeBlock cb = AdvanceCompositeBlock.parseFlow(flow);
 		System.out.println(verify(cb));
 	}
+	/** The type substitution record. */
+	public static class TypeSubstitution {
+		/** The variable to substitute. */
+		public AdvanceType left;
+		/** The substitution value. */
+		public AdvanceType right;
+		/** Is this substitution from left to right, e.g left >= right. */
+		public boolean isLeftToRight;
+		/** The original wire. */
+		public AdvanceBlockBind wire;
+		/**
+		 * Constructor.
+		 * @param left the variable
+		 * @param right the substitution
+		 * @param isLeftToRight is left >= right
+		 * @param wire the original wire
+		 */
+		public TypeSubstitution(AdvanceType left, AdvanceType right,
+				boolean isLeftToRight, AdvanceBlockBind wire) {
+			this.left = left;
+			this.right = right;
+			this.isLeftToRight = isLeftToRight;
+			this.wire = wire;
+		}
+		@Override
+		public String toString() {
+			return String.format("%s(%08X) |-> %s(%08X) (%s, %s) ",
+					left, System.identityHashCode(left),
+					right, System.identityHashCode(right),
+					isLeftToRight, wire.id
+			);
+		}
+	}
 	/**
 	 * Run the type inference algorithm.
 	 * @param relations the set of relations.
 	 * @param error the output for errors
 	 * @return the substitution relations
 	 */
-	static List<TypeRelation> infer(Deque<TypeRelation> relations, List<AdvanceCompilationError> error) {
+	static List<TypeSubstitution> infer(Deque<TypeRelation> relations, List<AdvanceCompilationError> error) {
 		// the most common supertype
 		final AdvanceType object = new AdvanceType();
 		try {
@@ -552,61 +585,31 @@ public final class AdvanceCompiler {
 			throw new AssertionError(ex);
 		}
 		
-		List<TypeRelation> substitution = Lists.newArrayList();
+		List<TypeSubstitution> substitution = Lists.newArrayList();
 		while (!relations.isEmpty()) {
-			LOG.debug("RELATIONS: " + relations.toString());
+			LOG.debug("RELS: " + relations.toString());
 			TypeRelation rel = relations.pop();
-			LOG.debug(rel.toString());
+			LOG.debug("CURR: " + rel.toString());
 			// Type relation is X >= Y
 			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE 
 					&& rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
 				// do nothing
-				LOG.debug("Left & Right are identifiers");
+				LOG.debug("Step 1: Left & Right are identifiers");
 			} else
 			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
 				// replace X by Y on the stack and in existing substitution
 				AdvanceType left = rel.left;
-				LOG.debug("Left identifier, Right something else");
-				for (TypeRelation tr : relations) {
-					if (tr.left == left) {
-						tr.left = rel.right;
-					}
-					if (tr.right == left) {
-						tr.right = rel.right;
-					}
-				}
-				for (TypeRelation tr : substitution) {
-					if (tr.left == left) {
-						tr.left = rel.right;
-					}
-					if (tr.right == left) {
-						tr.right = rel.right;
-					}
-				}
-				substitution.add(new TypeRelation(left, rel.right, rel.wire));
+				LOG.debug("Step 2: Left identifier, Right something else");
+				replaceTypes(relations, substitution, left, rel.right);
+				substitution.add(new TypeSubstitution(left, rel.right, true, rel.wire));
 			} else
 			if (rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
 				// replace Y by X on the stack and in existing substitution
 				AdvanceType right = rel.right;
-				LOG.debug("Left something else, Right identifier");
+				LOG.debug("Step 3: Left something else, Right identifier");
 				
-				for (TypeRelation tr : relations) {
-					if (tr.right == right) {
-						tr.right = rel.left;
-					}
-					if (tr.left == right) {
-						tr.left = rel.left;
-					}
-				}
-				for (TypeRelation tr : substitution) {
-					if (tr.right == right) {
-						tr.right = rel.left;
-					}
-					if (tr.left == right) {
-						tr.left = rel.left;
-					}
-				}
-				substitution.add(new TypeRelation(rel.left, right, rel.wire));
+				replaceTypes(relations, substitution, right, rel.left);
+				substitution.add(new TypeSubstitution(right, rel.left, false, rel.wire));
 			} else
 			if (rel.left.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE 
 				&& rel.right.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE
@@ -616,6 +619,7 @@ public final class AdvanceCompiler {
 				// compare base type
 				XRelation xr = rel.left.type.compareTo(rel.right.type);
 				if (xr == XRelation.EQUAL || xr == XRelation.EXTENDS) {
+					LOG.debug("Step 5: Type constructors");
 					Iterator<AdvanceType> leftIt = rel.left.typeArguments.iterator();
 					Iterator<AdvanceType> rightIt = rel.right.typeArguments.iterator();
 					while (leftIt.hasNext() && rightIt.hasNext()) {
@@ -678,5 +682,58 @@ public final class AdvanceCompiler {
 			LOG.debug("SUBS: " + substitution.toString());
 		}
 		return substitution;
+	}
+	/**
+	 * Replace types in the relations and substitutions recursively.
+	 * @param relations the available relations
+	 * @param substitution the available substitutions
+	 * @param oldType the type to replace
+	 * @param newType the new type to assign
+	 */
+	private static void replaceTypes(Deque<TypeRelation> relations,
+			List<TypeSubstitution> substitution, AdvanceType oldType,
+			AdvanceType newType) {
+		for (TypeRelation tr : relations) {
+			if (tr.left == oldType) {
+				tr.left = newType;
+			} else {
+				replaceInnerType(tr.left, oldType, newType);
+			}
+			if (tr.right == oldType) {
+				tr.right = newType;
+			} else {
+				replaceInnerType(tr.left, oldType, newType);
+			}
+		}
+		for (TypeSubstitution ts : substitution) {
+			if (ts.right == oldType) {
+				ts.right = newType;
+			} else {
+				replaceInnerType(ts.right, oldType, newType);
+			}
+		}
+	}
+	/**
+	 * Replace an inner type reference recursively if exists.
+	 * @param left the target type to check for the type arguments
+	 * @param oldType the old type to replace
+	 * @param newType the new type
+	 */
+	private static void replaceInnerType(AdvanceType left, AdvanceType oldType,
+			AdvanceType newType) {
+		Deque<AdvanceType> stack = Lists.newLinkedList();
+		stack.add(left);
+		while (!stack.isEmpty()) {
+			AdvanceType t = stack.pop();
+			int i = 0;
+			for (AdvanceType ta : Lists.newArrayList(t.typeArguments)) {
+				if (ta == oldType) {
+					t.typeArguments.set(i, newType);
+				} else {
+					stack.addAll(ta.typeArguments);
+				}
+				i++;
+			}
+		}
 	}
 }
