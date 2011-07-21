@@ -80,4 +80,10 @@ public class AdvanceBlockBind implements XSerializable {
 	public boolean hasDestinationBlock() {
 		return destinationBlock != null && !destinationBlock.isEmpty();
 	}
+	@Override
+	public String toString() {
+		return String.format("{ id = %s, source-block = %s, source-parameter = %s, destination-block = %s, destination-parameter = %s }",
+				id, sourceBlock, sourceParameter, destinationBlock, destinationParameter
+				);
+	}
 }

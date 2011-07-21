@@ -19,22 +19,34 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.error;
-
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
+package eu.advance.logistics.flow.model;
 
 /**
- * The destination port of the destination object cannot be found.
+ * A missing type variable identifier was found in the descriptions. 
  * @author karnokd, 2011.07.07.
  */
-public class MissingDestinationPortError implements AdvanceCompilationError {
-	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+public class MissingTypeVariableException extends RuntimeException {
+	/** */
+	private static final long serialVersionUID = 4323213617722459290L;
+	/** The path to the identifier. */
+	public final String path;
+	/** The identifier value. */
+	public final String identifier;
 	/**
 	 * Constructor.
-	 * @param binding the actual binding causing the problem
+	 * @param path the path to the identifier
+	 * @param identifier the identifier
 	 */
-	public MissingDestinationPortError(AdvanceBlockBind binding) {
-		this.binding = binding;
+	public MissingTypeVariableException(String path, String identifier) {
+		this.path = path;
+		this.identifier = identifier;
+	}
+	@Override
+	public String toString() {
+		return path + " " + identifier;
+	}
+	@Override
+	public String getMessage() {
+		return toString();
 	}
 }

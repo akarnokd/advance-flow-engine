@@ -24,17 +24,22 @@ package eu.advance.logistics.flow.engine.error;
 import eu.advance.logistics.flow.model.AdvanceBlockBind;
 
 /**
- * The destination port of the destination object cannot be found.
- * @author karnokd, 2011.07.07.
+ * Type inference error on the given wire.
+ * @author karnokd, 2011.07.21.
  */
-public class MissingDestinationPortError implements AdvanceCompilationError {
+public class TypeMismatchError implements AdvanceCompilationError {
 	/** The wire identifier. */
 	public final AdvanceBlockBind binding;
 	/**
 	 * Constructor.
+	 * <p>Type inference error on the given wire.</p>
 	 * @param binding the actual binding causing the problem
 	 */
-	public MissingDestinationPortError(AdvanceBlockBind binding) {
+	public TypeMismatchError(AdvanceBlockBind binding) {
 		this.binding = binding;
+	}
+	@Override
+	public String toString() {
+		return "Wire type mismatch " + binding;
 	}
 }

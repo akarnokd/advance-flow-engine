@@ -21,9 +21,6 @@
 
 package eu.advance.logistics.flow.model;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.xml.typesystem.XElement;
@@ -32,7 +29,7 @@ import eu.advance.logistics.xml.typesystem.XElement;
  * An input or output parameter description of an ADVANCE block.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceBlockParameterDescription extends AdvanceType implements XSerializable {
+public class AdvanceBlockParameterDescription implements XSerializable {
 	/** The unique (among other inputs or outputs of this block) identifier of the input parameter. This ID will be used by the block wiring within the flow description. */
 	@NonNull
 	public String id;
@@ -43,14 +40,15 @@ public class AdvanceBlockParameterDescription extends AdvanceType implements XSe
 	@NonNull
 	public TypeVariance variance;
 	/** The URI pointing to the documentation describing this parameter. */
-	public URI documentation;
+	public String documentation;
+	/** The type variable. */
+	public AdvanceType type;
 	/**
 	 * Load a parameter description from an XML element which conforms the {@code block-description.xsd}.
 	 * @param root the root element of an input/output node.
 	 */
 	@Override
 	public void load(XElement root) {
-		super.load(root);
 		id = root.get("id");
 		displayName = root.get("displayname");
 		String v = root.get("variance");
@@ -59,21 +57,16 @@ public class AdvanceBlockParameterDescription extends AdvanceType implements XSe
 		} else {
 			variance = TypeVariance.NONVARIANT;
 		}
-		String u = root.get("documentation");
-		if (u != null) {
-			try {
-				documentation = new URI(u);
-			} catch (URISyntaxException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
+		documentation = root.get("documentation");
+		type = new AdvanceType();
+		type.load(root);
 	}
 	@Override
 	public void save(XElement destination) {
-		super.save(destination);
 		destination.set("id", id);
 		destination.set("displayname", displayName);
 		destination.set("variance", variance.asXML);
 		destination.set("documentation", documentation);
+		type.save(destination);
 	}
 }

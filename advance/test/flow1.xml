@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow-description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../schemas/flow-description.xsd">
+	<composite-block id="1">
+	<!-- 
+		Compatible case, validation should let this pass. 
+		<block id="b1" type="Merge"></block>
+		<constant type="advance:string" id="c1"><string>S1</string></constant>
+		<constant type="advance:string" id="c2"><string>1</string></constant>
+		<bind source-block='c1' source-parameter="" destination-block='b1' destination-parameter="1" id="w1"/>
+		<bind source-block='c2' source-parameter="" destination-block='b1' destination-parameter="2" id="w2"/>
+	-->
+		
+	<!-- 
+		Common supertype case, validation should let this pass. 
+		<block id="b2" type="Merge"></block>
+		<block type="IntSink" id="b3"/>
+		<constant type="advance:string" id="c3"><string>S1</string></constant>
+		<constant type="advance:integer" id="c4"><integer>1</integer></constant>
+		<bind source-block='c3' source-parameter="" destination-block='b2' destination-parameter="1" id="w3"/>
+		<bind source-block='c4' source-parameter="" destination-block='b2' destination-parameter="2" id="w4"/>
+		<bind source-block='b2' source-parameter="out" destination-block="b3" destination-parameter="1" id="w5"/>
+    -->
+		<!-- Test generic type passing -->
+    
+		<block type="Singleton" id="b4"/>
+		<block type="GetItem" id="b5"/>
+		<block type="Sink" id="b6"/>
+		<constant type="advance:integer" id="c5"><integer>1</integer></constant>
+		<bind source-block='c5' source-parameter="" destination-block="b4" destination-parameter="in" id="w6"/>
+		<bind source-block='b4' source-parameter="out" destination-block="b5" destination-parameter="in" id="w7"/>
+		<bind source-block='c5' source-parameter="" destination-block="b5" destination-parameter="index" id="w8"/>
+		<bind source-block='b5' source-parameter="out" destination-block="b6" destination-parameter="1" id="w9"/>
+		
+	</composite-block>
+</flow-description>

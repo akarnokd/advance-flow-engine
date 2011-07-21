@@ -45,6 +45,40 @@ public class AdvanceType implements XSerializable {
 	public XType type;
 	/** The type arguments used by the concrete type. */
 	public final List<AdvanceType> typeArguments = Lists.newArrayList();
+	@Override
+	public String toString() {
+		if (typeURI != null) {
+			if (typeArguments.isEmpty()) {
+				return typeURI.toString();
+			}
+			StringBuilder b = new StringBuilder(typeURI.toString());
+			b.append("<");
+			int i = 0;
+			for (AdvanceType ta : typeArguments) {
+				if (i > 0) {
+					b.append(", ");
+				}
+				b.append(ta);
+				i++;
+			}
+			b.append(">");
+			return b.toString();
+		}
+		return typeVariableName;
+		
+	}
+	/** @return create a new instance of this type declaration. */
+	public AdvanceType copy() {
+		AdvanceType result = new AdvanceType();
+		result.typeVariableName = typeVariableName;
+		result.typeURI = typeURI;
+		result.type = type;
+		result.typeVariable = typeVariable.copy();
+		for (AdvanceType ta : typeArguments) {
+			result.typeArguments.add(ta.copy());
+		}
+		return result;
+	}
 	/**
 	 * Load a type description from an XML element which conforms the {@code block-description.xsd}.
 	 * @param root the root element of an input/output node.
