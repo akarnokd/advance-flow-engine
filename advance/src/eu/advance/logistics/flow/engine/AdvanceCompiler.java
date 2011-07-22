@@ -584,7 +584,10 @@ public final class AdvanceCompiler {
 		} catch (URISyntaxException ex) {
 			throw new AssertionError(ex);
 		}
-		
+
+		Map<AdvanceType, Closure> closures = buildClosures(relations);
+		LOG.debug(closures.values().toString());
+
 		return inferHindleyMilner(relations, error);
 
 //		Map<AdvanceType, Closure> closures = buildClosures(relations);
@@ -727,19 +730,76 @@ public final class AdvanceCompiler {
 				LOG.debug("Step 1: Left & Right are identifiers");
 			} else
 			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE && !containsType(rel.left, rel.right)) {
-				// replace X by Y on the stack and in existing substitution
-				AdvanceType left = rel.left;
-				LOG.debug("Step 2: Left identifier, Right something else");
-				replaceTypes(relations, substitution, left, rel.right);
-				substitution.add(new TypeSubstitution(left, rel.right, true, rel.wire));
+				// alpha <: C<t1, ..., tn>
+				if (rel.right.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+					// create fresh types for each type argument
+					LOG.debug("Expand-L");
+					int i = 1;
+					AdvanceType cp = new AdvanceType();
+					cp.type = rel.right.type;
+					cp.typeURI = rel.right.typeURI;
+					
+					for (AdvanceType at : rel.right.typeArguments) {
+						// create fresh type
+						AdvanceType lt = new AdvanceType();
+						lt.typeVariableName = "T" + i;
+						lt.typeVariable = new AdvanceTypeVariable();
+						lt.typeVariable.name = lt.typeVariableName;
+						
+						cp.typeArguments.add(lt);
+						
+						relations.push(new TypeRelation(lt, at, rel.wire));
+						
+						i++;
+					}
+					// replace all alpha with the new composite type
+					replaceTypes(relations, substitution, rel.left, cp);
+					// add alpha -> C(t1,...,tn) as substitution
+					substitution.add(new TypeSubstitution(rel.left, cp, true, rel.wire));
+				} else {
+					// replace X by Y on the stack and in existing substitution
+					AdvanceType left = rel.left;
+					LOG.debug("Step 2: Left identifier, Right something else");
+					replaceTypes(relations, substitution, left, rel.right);
+					substitution.add(new TypeSubstitution(left, rel.right, true, rel.wire));
+				}
 			} else
 			if (rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE && !containsType(rel.right, rel.left)) {
-				// replace Y by X on the stack and in existing substitution
-				AdvanceType right = rel.right;
-				LOG.debug("Step 3: Left something else, Right identifier");
-				
-				replaceTypes(relations, substitution, right, rel.left);
-				substitution.add(new TypeSubstitution(right, rel.left, false, rel.wire));
+				if (rel.left.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+					LOG.debug("Expand-R");
+					// left is C(u1,...,un)
+					int i = 1;
+					AdvanceType cp = new AdvanceType();
+					cp.type = rel.left.type;
+					cp.typeURI = rel.left.typeURI;
+					
+					for (AdvanceType at : rel.left.typeArguments) {
+						// create fresh type ti
+						AdvanceType rt = new AdvanceType();
+						rt.typeVariableName = "T" + i;
+						rt.typeVariable = new AdvanceTypeVariable();
+						rt.typeVariable.name = rt.typeVariableName;
+						
+						cp.typeArguments.add(rt);
+						
+						// add u1 >= t1 
+						relations.push(new TypeRelation(at, rt, rel.wire));
+						
+						i++;
+					}
+					// replace all alpha with the new composite type
+					replaceTypes(relations, substitution, rel.right, cp);
+					// add alpha -> C(t1,...,tn) as substitution
+					substitution.add(new TypeSubstitution(rel.right, cp, true, rel.wire));
+					
+				} else {
+					// replace Y by X on the stack and in existing substitution
+					AdvanceType right = rel.right;
+					LOG.debug("Step 3: Left something else, Right identifier");
+					
+					replaceTypes(relations, substitution, right, rel.left);
+					substitution.add(new TypeSubstitution(right, rel.left, false, rel.wire));
+				}
 			} else
 			if (rel.left.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE 
 				&& rel.right.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE
