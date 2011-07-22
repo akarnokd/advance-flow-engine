@@ -585,6 +585,136 @@ public final class AdvanceCompiler {
 			throw new AssertionError(ex);
 		}
 		
+		return inferHindleyMilner(relations, error);
+
+//		Map<AdvanceType, Closure> closures = buildClosures(relations);
+//		LOG.debug(closures.values().toString());
+//		
+//		// find fixed points, e.g., the closure.type which does not occur in anyone else's bounds.
+//		
+//		List<AdvanceType> fp = fixPoints(closures.values());
+//		
+//		LOG.debug(fp.toString());
+//		
+//		return Lists.newArrayList();
+	}
+	/** 
+	 * Locate fixed points, e.g., closure.type elements which do not occur in anyone else's bounds.
+	 * @param closures the closure definitions
+	 * @return the list of types which do not constrain any other types
+	 */
+	static List<AdvanceType> fixPoints(Iterable<Closure> closures) {
+		List<AdvanceType> result = Lists.newArrayList();
+		return result;
+	}
+	/**
+	 * Checks if the in type contains any sign of the what type by
+	 * traversing the type definition recursively.
+	 * @param what the type to look for
+	 * @param in the type to test
+	 * @return true if present
+	 */
+	static boolean containsType(AdvanceType what, AdvanceType in) {
+		Deque<AdvanceType> stack = Lists.newLinkedList();
+		stack.add(in);
+		while (!stack.isEmpty()) {
+			AdvanceType t = stack.pop();
+			if (t == what) {
+				return true;
+			}
+			stack.addAll(t.typeArguments);
+		}
+		return false;
+	}
+	/**
+	 * Build the closures from the type relations.
+	 * @param relations the type relations
+	 * @return the closure map
+	 */
+	static Map<AdvanceType, Closure> buildClosures(Iterable<TypeRelation> relations) {
+		Map<AdvanceType, Closure> result = Maps.newHashMap();
+		for (TypeRelation tr : relations) {
+			Closure c = result.get(tr.left);
+			if (c == null) {
+				c = new Closure();
+				c.type = tr.left;
+				result.put(c.type, c);
+			}
+			c.lowerBounds.add(tr.right);
+			
+			c = result.get(tr.right);
+			if (c == null) {
+				c = new Closure();
+				c.type = tr.right;
+				result.put(c.type, c);
+			}
+			c.upperBounds.add(tr.left);
+			
+		}
+		return result;
+	}
+	/** A closure by grouping lower and upper bounds for a given type. */
+	public static class Closure {
+		/** The type in question. */
+		public AdvanceType type;
+		/** The list of lower bound types, e.g., type >= A, B, C . */
+		public final List<AdvanceType> lowerBounds = Lists.newArrayList();
+		/** The list of upper bound types, e.g., A, B, C >= type .*/
+		public final List<AdvanceType> upperBounds = Lists.newArrayList();
+		@Override
+		public String toString() {
+			StringBuilder b = new StringBuilder();
+			int i = 0;
+			for (AdvanceType ub : upperBounds) {
+				if (i > 0) {
+					b.append(", ");
+				}
+				b.append(ub).append(":").append(getTypeIndex(ub));
+				i++;
+			}
+			if (upperBounds.size() > 0) {
+				b.append(" >= ");
+			}
+			b.append("[").append(type).append("]").append(":").append(getTypeIndex(type));
+			if (lowerBounds.size() > 0) {
+				b.append(" >= ");
+			}
+			i = 0;
+			for (AdvanceType lb : lowerBounds) {
+				if (i > 0) {
+					b.append(", ");
+				}
+				b.append(lb).append(":").append(getTypeIndex(lb));
+				i++;
+			}
+			
+			return b.toString();
+		}
+	}
+	/** The type index map. */
+	static final Map<AdvanceType, Integer> TMI = Maps.newHashMap();
+	/**
+	 * Assign an index to the given type.
+	 * @param at the type
+	 * @return the index
+	 */
+	static int getTypeIndex(AdvanceType at) {
+		Integer i = TMI.get(at);
+		if (i == null) {
+			i = TMI.size() + 1;
+			TMI.put(at, i);
+		}
+		return i;
+	}
+	/**
+	 * A type inference algorithm using the simple Hindley-Milner algorithm with
+	 * allowed T >= U on concrete type pairs.
+	 * @param relations the type relations to process
+	 * @param error the encountered errors
+	 * @return the substitution table
+	 */
+	static List<TypeSubstitution> inferHindleyMilner(
+			Deque<TypeRelation> relations, List<AdvanceCompilationError> error) {
 		List<TypeSubstitution> substitution = Lists.newArrayList();
 		while (!relations.isEmpty()) {
 			LOG.debug("RELS: " + relations.toString());
@@ -596,14 +726,14 @@ public final class AdvanceCompiler {
 				// do nothing
 				LOG.debug("Step 1: Left & Right are identifiers");
 			} else
-			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE && !containsType(rel.left, rel.right)) {
 				// replace X by Y on the stack and in existing substitution
 				AdvanceType left = rel.left;
 				LOG.debug("Step 2: Left identifier, Right something else");
 				replaceTypes(relations, substitution, left, rel.right);
 				substitution.add(new TypeSubstitution(left, rel.right, true, rel.wire));
 			} else
-			if (rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+			if (rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE && !containsType(rel.right, rel.left)) {
 				// replace Y by X on the stack and in existing substitution
 				AdvanceType right = rel.right;
 				LOG.debug("Step 3: Left something else, Right identifier");
@@ -638,45 +768,9 @@ public final class AdvanceCompiler {
 				if (xr == XRelation.EQUAL || xr == XRelation.EXTENDS) {
 					LOG.debug("Left extends|equals right " + rel);
 				} else {
-//					if (rel.left != object && rel.right != object) {
-//						// fix instances by replacing them with object, since we may not know any common subtype in ADVANCE
-//						AdvanceType left = rel.left;
-//						AdvanceType right = rel.right;
-//						
-//						for (TypeRelation tr : relations) {
-//							if (tr.left == left) {
-//								tr.left = object;
-//							}
-//							if (tr.right == left) {
-//								tr.right = object;
-//							}
-//							if (tr.left == right) {
-//								tr.left = object;
-//							}
-//							if (tr.right == right) {
-//								tr.right = object;
-//							}
-//						}
-//						for (TypeRelation tr : substitution) {
-//							if (tr.left == left) {
-//								tr.left = object;
-//							}
-//							if (tr.right == left) {
-//								tr.right = object;
-//							}
-//							if (tr.left == right) {
-//								tr.left = object;
-//							}
-//							if (tr.right == right) {
-//								tr.right = object;
-//							}
-//						}
-//						
-//					} else {
-						LOG.debug("Type mismatch in " + rel);
-						error.add(new TypeMismatchError(rel.wire)); // todo the wire
-						break;
-//					}
+					LOG.debug("Type mismatch in " + rel);
+					error.add(new TypeMismatchError(rel.wire)); // todo the wire
+					break;
 				}
 			}
 			LOG.debug("SUBS: " + substitution.toString());
