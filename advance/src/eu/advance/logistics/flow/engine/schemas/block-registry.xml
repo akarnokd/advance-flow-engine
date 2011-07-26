@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<block-registry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="block-registry.xsd">
+	<!-- Block to reverse the elements of the input collection. -->
+	<block-description class="eu.advance.logistics.flow.engine.block.Reverse" id="Reverse" scheduler="NOW">
+		<type-variable name="T"/>
+		<input id="in" type="advance:collection">
+			<type-argument type-variable="T"/>
+		</input>
+		<output id="out" type="advance:collection">
+			<type-argument type-variable="T"/>
+		</output>
+	</block-description>
+	<!-- Block to retrieve a specific item from the input collection. -->
+	<block-description class="eu.advance.logistics.flow.engine.block.GetItem" id="GetItem" scheduler="NOW">
+		<type-variable name="T"/>
+		<input id="in" type="advance:collection">
+			<type-argument type-variable="T"/>
+		</input>
+		<input id="index" type="advance:integer"/>
+		<output id="out" type-variable="T"/>
+	</block-description>
+	<!-- Block to merge two streams of the same type. This block does not wait for all of its inputs to be ready. -->
+	<block-description class="eu.advance.logistics.flow.engine.block.Merge" id="Merge" scheduler="NOW">
+		<type-variable name="T"/>
+		<input id="1" type-variable="T"/>
+		<input id="2" type-variable="T"/>
+		<output id="out" type-variable="T"/>
+	</block-description>
+	<!-- Testing composite parametric types. -->
+	<block-description class="eu.advance.logistics.flow.engine.block.Merge" id="Merge2" scheduler="NOW">
+		<type-variable name="T"/>
+		<type-variable name="U"> <!-- U extends Collection<T> -->
+			<lower-bound type="advance:collection">
+				<type-argument type-variable="T"/>
+			</lower-bound>
+		</type-variable>
+		<input id="1" type-variable="U"/>
+	</block-description>
+	<!-- Testing end-to-end type inference with generic parameter. -->
+	<block-description class="" id="Sink">
+		<type-variable name="T"/>
+		<input id="1" type-variable="T"/>
+	</block-description>
+	<!-- Testing end-to-end type inference with explicite parameter. -->
+	<block-description class="" id="IntSink">
+		<input id="1" type="advance:integer"/>
+	</block-description>
+	<!-- Testing wrapping into collection. -->
+	<block-description class="" id="Singleton">
+		<type-variable name="T"/>
+		<input id="in" type-variable="T"/>
+		<output id="out" type="advance:collection">
+			<type-argument type-variable="T"/>
+		</output>
+	</block-description>
+</block-registry>
