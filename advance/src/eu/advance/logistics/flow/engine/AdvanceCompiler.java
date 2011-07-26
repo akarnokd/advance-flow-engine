@@ -802,5 +802,219 @@ public final class AdvanceCompiler {
 			}
 		}
 	}
-	
+	/**
+	 * <p>Type inference using the algorithm described by</p>
+	 * <p>Francois Pottier: Type inference in presence of subtyping: from theory to practice</p>.
+	 * @param relations the available type relations as extracted from the program.
+	 * @param error the errors discovered.
+	 */
+	public static void pottierInference(Deque<TypeRelation> relations, List<AdvanceCompilationError> error) {
+		// C up typevar -> term
+		// keeps track of the current upper bound (lower bound in Java type terms) for a type variable
+		Map<AdvanceType, AdvanceType> upperBounds = Maps.newHashMap();
+		// keeps track of the current lower bound (upper bound in Java type terms) for a type variable
+		// C down typevar -> term
+		Map<AdvanceType, AdvanceType> lowerBounds = Maps.newHashMap();
+		// keeps track of the boundary relations of type variables
+		List<TypeRelation> reflexiveRelations = Lists.newArrayList();
+		
+		while (!relations.isEmpty()) {
+			TypeRelation tr = relations.pop();
+			// if both sides are type variables
+			if (tr.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE && tr.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+				// if left <= right is in reflexiveRelations, do nothing
+				if (!containsRelation(reflexiveRelations, tr.left, tr.right)) {
+					
+					AdvanceType alphaDown = lowerBounds.get(tr.left);
+					AdvanceType betaUp = upperBounds.get(tr.right);
+					
+					// e.g., (alpha', beta') = reflexiveRelations 
+					for (TypeRelation refl : Lists.newArrayList(reflexiveRelations)) {
+						// add clauses for each  (x <= left) as (x <= right) | (alpha' <= alpha) -> (alpha' <= beta)
+						if (refl.right == tr.left) {
+							reflexiveRelations.add(new TypeRelation(refl.left, tr.right, tr.wire));
+							
+							// adjust alpha's upper bound to the union with its current bound
+							AdvanceType alpha2Upper = upperBounds.get(refl.left);
+							AdvanceType betaUpper = upperBounds.get(tr.right);
+							if (alpha2Upper != null && betaUpper != null) {
+								AdvanceType u = union(alpha2Upper, betaUpper);
+								if (u != null) {
+									upperBounds.put(refl.left, u);
+								} else {
+									// no union is possible this is a type error
+									error.add(new TypeMismatchError(tr.wire));
+									break;
+								}
+							}
+							
+						}
+						// add clauses for each  (right <= y) as (left <= y) | (beta <= beta') -> (alpha <= beta')
+						if (refl.left == tr.right) {
+							reflexiveRelations.add(new TypeRelation(tr.left, refl.right, tr.wire));
+							
+							// adjust beta' lower bound to the intersection with its current bound if present
+							
+							AdvanceType beta2Lower = lowerBounds.get(refl.right); // type or bottom
+							AdvanceType alphaLower = lowerBounds.get(tr.left); // type or bottom
+							if (beta2Lower != null && alphaLower != null) {
+								lowerBounds.put(refl.right, intersection(beta2Lower, alphaLower));
+							}
+						}
+					}
+					subc(alphaDown, betaUp, tr.wire, relations);
+				}
+			} else
+			if (tr.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+				// alpha <= tau
+				AdvanceType alphaUp = upperBounds.get(tr.left);
+				AdvanceType alphaDown = lowerBounds.get(tr.left);
+				if (alphaUp == null || !containsType(alphaUp, tr.right)) {
+					for (TypeRelation refl : Lists.newArrayList(reflexiveRelations)) {
+						// add clauses for each  (x <= left) as (x <= right) | (alpha' <= alpha) -> (alpha' <= beta)
+						if (refl.right == tr.left) {
+							// adjust alpha's upper bound to the union with its current bound
+							AdvanceType alpha2Upper = upperBounds.get(refl.left);
+							AdvanceType betaUpper = upperBounds.get(tr.right);
+							if (alpha2Upper != null && betaUpper != null) {
+								AdvanceType u = union(alpha2Upper, betaUpper);
+								if (u != null) {
+									upperBounds.put(refl.left, u);
+								} else {
+									// no union is possible this is a type error
+									error.add(new TypeMismatchError(tr.wire));
+									break;
+								}
+							}
+							
+						}
+					}					
+				}
+				subc(alphaDown, tr.right, tr.wire, relations);
+			} else
+			if (tr.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+				// tau <= beta
+				AdvanceType betaDown = lowerBounds.get(tr.right);
+				AdvanceType betaUp = upperBounds.get(tr.right);
+				if (betaDown == null || !containsType(betaDown, tr.left)) {
+					// e.g., (alpha', beta') = reflexiveRelations 
+					for (TypeRelation refl : Lists.newArrayList(reflexiveRelations)) {
+						// add clauses for each  (right <= y) as (left <= y) | (beta <= beta') -> (alpha <= beta')
+						if (refl.left == tr.right) {
+							reflexiveRelations.add(new TypeRelation(tr.left, refl.right, tr.wire));
+							
+							// adjust beta' lower bound to the intersection with its current bound if present
+							
+							AdvanceType beta2Lower = lowerBounds.get(refl.right); // type or bottom
+							AdvanceType alphaLower = lowerBounds.get(tr.left); // type or bottom
+							if (beta2Lower != null && alphaLower != null) {
+								lowerBounds.put(refl.right, intersection(beta2Lower, alphaLower));
+							}
+						}
+					}				
+				}
+				subc(tr.left, betaUp, tr.wire, relations);
+			}
+		}
+	}
+	/**
+	 * Compute a substitution for the constraint based on its structure.
+	 * @param left the left type
+	 * @param right the right type
+	 * @param wire the original wire
+	 * @param relations the relations to add new constraints
+	 */
+	static void subc(AdvanceType left, AdvanceType right, AdvanceBlockBind wire, Deque<TypeRelation> relations) {
+		if (left != null && right != null) {
+			if (left.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE && right.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE) {
+				relations.add(new TypeRelation(left, right, wire));
+			} else
+			if (left.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE && right.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE) {
+				for (AdvanceType at : left.typeArguments) {
+					AdvanceType fresh = new AdvanceType();
+					fresh.typeVariableName = "T";
+					fresh.typeVariable = new AdvanceTypeVariable();
+					fresh.typeVariable.name = "T";
+					subc(at, fresh, wire, relations);
+				}
+			} else
+			if (right.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE && left.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE) {
+				for (AdvanceType at : left.typeArguments) {
+					AdvanceType fresh = new AdvanceType();
+					fresh.typeVariableName = "T";
+					fresh.typeVariable = new AdvanceTypeVariable();
+					fresh.typeVariable.name = "T";
+					subc(fresh, at, wire, relations);
+				}
+			} else {
+				if (left.typeArguments.size() == right.typeArguments.size()) {
+					XRelation xr = SchemaParser.compare(left.type, right.type);
+					if (xr == XRelation.EQUAL || xr == XRelation.EXTENDS) {
+						Iterator<AdvanceType> ta1 = left.typeArguments.iterator();
+						Iterator<AdvanceType> ta2 = right.typeArguments.iterator();
+						while (ta1.hasNext() && ta2.hasNext()) {
+							AdvanceType t1 = ta1.next();
+							AdvanceType t2 = ta2.next();
+							subc(t1, t2, wire, relations);
+						}
+					} else {
+						// TODO signal base type error
+					}
+				} else {
+					// TODO signal error on mismatching base types
+				}
+			}
+			
+		}
+	}
+	/**
+	 * Computes the intersection of two Advance types if they are concrete.
+	 * @param t1 the first type
+	 * @param t2 the second type
+	 * @return the intersection type
+	 */
+	static AdvanceType intersection(AdvanceType t1, AdvanceType t2) {
+		AdvanceType t = new AdvanceType();
+		try {
+			t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
+		} catch (URISyntaxException ex) {
+			LOG.debug(ex.toString(), ex);
+		}
+		t.type = SchemaParser.intersection(t1.type, t2.type);
+		return t;
+	}
+	/**
+	 * Computes the new union type of two advance types if they are concrete or returns null if the types can't be unioned together.
+	 * @param t1 the first type
+	 * @param t2 the second type
+	 * @return the union type or null
+	 */
+	static AdvanceType union(AdvanceType t1, AdvanceType t2) {
+		AdvanceType t = new AdvanceType();
+		try {
+			t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
+		} catch (URISyntaxException ex) {
+			LOG.debug(ex.toString(), ex);
+		}
+		t.type = SchemaParser.union(t1.type, t2.type);
+		if (t.type != null) {
+			return t;
+		}
+		return null;
+	}
+	/**
+	 * Test if the given relations list contains a relation where the left and right are the given values.
+	 * @param relations the iterable of the relations
+	 * @param left the left type
+	 * @param right the right type
+	 * @return true if present
+	 */
+	static boolean containsRelation(Iterable<TypeRelation> relations, AdvanceType left, AdvanceType right) {
+		for (TypeRelation t : relations) {
+			if (t.left == left && t.right == right) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

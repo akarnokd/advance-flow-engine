@@ -21,7 +21,13 @@
 
 package eu.advance.logistics.flow.model;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+
+import javax.xml.stream.XMLStreamException;
+
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -81,5 +87,23 @@ public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription implement
 			e.save(result.add("block-description"));
 		}
 		return result;
+	}
+	/**
+	 * @return Parse the default block registry under {@code eu.advance.logistics.flow.engine.schemas/block-registry.xml}.
+	 */
+	public static List<AdvanceBlockRegistryEntry> parseDefaultRegistry() {
+		try {
+			InputStream in = AdvanceBlockRegistryEntry.class.getResourceAsStream("/eu/advance/logistics/flow/engine/schemas/block-registry.xml");
+			try {
+				return parseRegistry(XElement.parseXML(in));
+			} finally {
+				in.close();
+			}
+		} catch (IOException ex) {
+			LoggerFactory.getLogger(AdvanceBlockRegistryEntry.class).error(ex.toString(), ex);
+		} catch (XMLStreamException ex) {
+			LoggerFactory.getLogger(AdvanceBlockRegistryEntry.class).error(ex.toString(), ex);
+		}
+		return Lists.newArrayList();
 	}
 }

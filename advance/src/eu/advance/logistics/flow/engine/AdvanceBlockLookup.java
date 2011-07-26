@@ -21,12 +21,9 @@
 
 package eu.advance.logistics.flow.engine;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +33,6 @@ import com.google.common.collect.Maps;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
-import eu.advance.logistics.xml.typesystem.XElement;
 
 /**
  * Utility class to look up various blocks.
@@ -49,16 +45,8 @@ public final class AdvanceBlockLookup {
 	static final Map<String, AdvanceBlockRegistryEntry> BLOCKS;
 	static {
 		BLOCKS = Maps.newHashMap();
-		try {
-			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
-					XElement.parseXML("schemas/block-registry.xml"))) {
-				BLOCKS.put(e.id, e);
-			}
-			
-		} catch (XMLStreamException ex) {
-			LOG.error(ex.toString(), ex);
-		} catch (IOException ex) {
-			LOG.error(ex.toString(), ex);
+		for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
+			BLOCKS.put(e.id, e);
 		}
 	}
 	/**

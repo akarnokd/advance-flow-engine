@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="collection">
+		<xs:annotation>
+			<xs:documentation>A basic ADVANCE type which represents a generic list-type container with a type parameter. You may reference this as advance:collection from the block or flow description.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" minOccurs="0" maxOccurs="unbounded" type="xs:anyType">
+					<xs:annotation>
+						<xs:appinfo>
+							<advance-type-variable name="T"/>
+						</xs:appinfo>
+						<xs:documentation>The item with a generic type. Note that these elements must not contain any type definition.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
