@@ -72,22 +72,22 @@ public final class SchemaParser {
 	 * @throws Exception ignored
 	 */
 	public static void main(String[] args) throws Exception {
-//		XElement schema1 = XElement.parseXML("test/type1.xsd");
-//		XElement schema2 = XElement.parseXML("test/type2.xsd");
-//		XElement schema3 = XElement.parseXML("test/type3.xsd");
+		XElement schema1 = XElement.parseXML("test/type1.xsd");
+		XElement schema2 = XElement.parseXML("test/type2.xsd");
+		XElement schema3 = XElement.parseXML("test/type3.xsd");
 //		
 //		System.out.println(schema1);
-//		XType t1 = parse(schema1);
+		XType t1 = parse(schema1, "schemas");
 //		System.out.println(t1);
 //		System.out.println(schema2);
-//		XType t2 = parse(schema2);
+		XType t2 = parse(schema2, "schemas");
 //		System.out.println(t2);
 //		System.out.println(t1.compareTo(t2));
 //		System.out.println(t2.compareTo(t1));
 //		System.out.println(t1.compareTo(t1));
 //		
 //		System.out.println();
-//		XType t3 = parse(schema3);
+		XType t3 = parse(schema3, "schemas");
 //		System.out.println(t1.compareTo(t3));
 //		System.out.println(compare(t1, t3));
 		
@@ -96,6 +96,16 @@ public final class SchemaParser {
 		XType t5 = parse(XElement.parseXML("schemas/block-registry.xsd"), "schemas");
 		System.out.println(t5);
 		System.out.println(compare(t4, t5));
+		
+		System.out.println(t1.intersection(t2));
+		System.out.println(t2.intersection(t3).compareTo(t3));
+		System.out.println(t2.union(t3));
+		
+		XType stringType = parse(XElement.parseXML("schemas/string.xsd"), "schemas");
+		XType intType = parse(XElement.parseXML("schemas/integer.xsd"), "schemas");
+
+		System.out.println(intersection(stringType, intType));
+		System.out.println(union(stringType, intType));
 	}
 	/**
 	 * Create the XML type by parsing the given schema document.
@@ -611,12 +621,21 @@ public final class SchemaParser {
 	 * @return the relation
 	 */
 	public static XRelation compare(XType t1, XType t2) {
-		if (t1.capabilities.size() != 1) {
+		if (t1.capabilities.size() > 1) {
 			throw new IllegalArgumentException("t1 should have only one capability, instead, it has " + t1.capabilities.size());
 		}
-		if (t2.capabilities.size() != 1) {
+		if (t2.capabilities.size() > 1) {
 			throw new IllegalArgumentException("t2 should have only one capability, instead, it has " + t2.capabilities.size());
 		}
+		if (t1.capabilities.size() == 0 && t2.capabilities.size() == 0) {
+			return XRelation.EQUAL;
+		} else
+		if (t1.capabilities.size() == 0) {
+			return XRelation.SUPER;
+		} else
+		if (t2.capabilities.size() == 0) {
+			return XRelation.EXTENDS;
+		} else
 		if ((t1.capabilities.get(0).complexType == null) != (t2.capabilities.get(0).complexType == null)) {
 			return XRelation.NONE;
 		} else
@@ -913,5 +932,83 @@ public final class SchemaParser {
 			}
 		}
 		return XValueType.STRING;
+	}
+	/**
+	 * Computes the intersection of two types by ignoring the single capabilities of both t1 and t2 and using
+	 * capabilities below that. Can be used to compute intersection on types whose root node name was different.
+	 * The intersection type, if t1 and t2 are not relatedvia compare(), will receive the single capability with name from t1.
+	 * @param t1 the first type
+	 * @param t2 the second type
+	 * @return the intersection type
+	 */
+	public static XType intersection(XType t1, XType t2) {
+		XRelation rel = compare(t1, t2);
+		if (rel == XRelation.EQUAL || rel == XRelation.SUPER) {
+			return t1;
+		} else
+		if (rel == XRelation.EXTENDS) {
+			return t2;
+		}
+		XCapability c0 = t1.capabilities.get(0);
+		XCapability c1 = t2.capabilities.get(0);
+
+		XType is = new XType();
+		XCapability c = new XCapability();
+		c.name = c0.name;
+		c.cardinality = XCardinality.ONE;
+
+		if ((c0.complexType != null) && (c1.complexType != null)) {
+			c.complexType = c0.complexType.intersection(c1.complexType); 
+			is.capabilities.add(c);
+		} else {
+			if (c0.valueType == c1.valueType) {
+				c.valueType = c0.valueType;
+				is.capabilities.add(c);
+			}
+			// otherwise, is will just remain empty
+		}
+		return is;
+	}
+	/**
+	 * Computes the union of two types by ignoring the single capabilities of both t1 and t2 and using
+	 * capabilities below that. Can be used to compute union on types whose root node name was different.
+	 * The union type, if t1 and t2 are not related via compare(), will receive the single capability with name from t1.
+	 * If the union can not be constructed due conflicting primitive types, null is returned
+	 * @param t1 the first type
+	 * @param t2 the second type
+	 * @return the union type
+	 */
+	public static XType union(XType t1, XType t2) {
+		XRelation rel = compare(t1, t2);
+		if (rel == XRelation.EQUAL || rel == XRelation.EXTENDS) {
+			return t1;
+		} else
+		if (rel == XRelation.SUPER) {
+			return t2;
+		}
+		XCapability c0 = t1.capabilities.get(0);
+		XCapability c1 = t2.capabilities.get(0);
+
+		XType is = new XType();
+		XCapability c = new XCapability();
+		c.name = c0.name;
+		c.cardinality = XCardinality.ONE;
+
+		if ((c0.complexType != null) && (c1.complexType != null)) {
+			c.complexType = c0.complexType.intersection(c1.complexType);
+			if (c.complexType == null) {
+				return null;
+			}
+			is.capabilities.add(c);
+		} else {
+			if (c0.valueType == c1.valueType) {
+				c.valueType = c0.valueType;
+				is.capabilities.add(c);
+			} else {
+				return null; // conflicting primitive types
+			}
+		}
+		return is;
+		
 	}
 }
