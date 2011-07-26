@@ -585,30 +585,7 @@ public final class AdvanceCompiler {
 			throw new AssertionError(ex);
 		}
 
-		Map<AdvanceType, Closure> closures = buildClosures(relations);
-		LOG.debug(closures.values().toString());
-
 		return inferHindleyMilner(relations, error);
-
-//		Map<AdvanceType, Closure> closures = buildClosures(relations);
-//		LOG.debug(closures.values().toString());
-//		
-//		// find fixed points, e.g., the closure.type which does not occur in anyone else's bounds.
-//		
-//		List<AdvanceType> fp = fixPoints(closures.values());
-//		
-//		LOG.debug(fp.toString());
-//		
-//		return Lists.newArrayList();
-	}
-	/** 
-	 * Locate fixed points, e.g., closure.type elements which do not occur in anyone else's bounds.
-	 * @param closures the closure definitions
-	 * @return the list of types which do not constrain any other types
-	 */
-	static List<AdvanceType> fixPoints(Iterable<Closure> closures) {
-		List<AdvanceType> result = Lists.newArrayList();
-		return result;
 	}
 	/**
 	 * Checks if the in type contains any sign of the what type by
@@ -628,71 +605,6 @@ public final class AdvanceCompiler {
 			stack.addAll(t.typeArguments);
 		}
 		return false;
-	}
-	/**
-	 * Build the closures from the type relations.
-	 * @param relations the type relations
-	 * @return the closure map
-	 */
-	static Map<AdvanceType, Closure> buildClosures(Iterable<TypeRelation> relations) {
-		Map<AdvanceType, Closure> result = Maps.newHashMap();
-		for (TypeRelation tr : relations) {
-			Closure c = result.get(tr.left);
-			if (c == null) {
-				c = new Closure();
-				c.type = tr.left;
-				result.put(c.type, c);
-			}
-			c.lowerBounds.add(tr.right);
-			
-			c = result.get(tr.right);
-			if (c == null) {
-				c = new Closure();
-				c.type = tr.right;
-				result.put(c.type, c);
-			}
-			c.upperBounds.add(tr.left);
-			
-		}
-		return result;
-	}
-	/** A closure by grouping lower and upper bounds for a given type. */
-	public static class Closure {
-		/** The type in question. */
-		public AdvanceType type;
-		/** The list of lower bound types, e.g., type >= A, B, C . */
-		public final List<AdvanceType> lowerBounds = Lists.newArrayList();
-		/** The list of upper bound types, e.g., A, B, C >= type .*/
-		public final List<AdvanceType> upperBounds = Lists.newArrayList();
-		@Override
-		public String toString() {
-			StringBuilder b = new StringBuilder();
-			int i = 0;
-			for (AdvanceType ub : upperBounds) {
-				if (i > 0) {
-					b.append(", ");
-				}
-				b.append(ub).append(":").append(getTypeIndex(ub));
-				i++;
-			}
-			if (upperBounds.size() > 0) {
-				b.append(" >= ");
-			}
-			b.append("[").append(type).append("]").append(":").append(getTypeIndex(type));
-			if (lowerBounds.size() > 0) {
-				b.append(" >= ");
-			}
-			i = 0;
-			for (AdvanceType lb : lowerBounds) {
-				if (i > 0) {
-					b.append(", ");
-				}
-				b.append(lb).append(":").append(getTypeIndex(lb));
-				i++;
-			}
-			
-			return b.toString();
-		}
 	}
 	/** The type index map. */
 	static final Map<AdvanceType, Integer> TMI = Maps.newHashMap();
@@ -890,4 +802,5 @@ public final class AdvanceCompiler {
 			}
 		}
 	}
+	
 }
