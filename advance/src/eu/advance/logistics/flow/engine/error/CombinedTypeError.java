@@ -25,10 +25,10 @@ import eu.advance.logistics.flow.model.AdvanceBlockBind;
 import eu.advance.logistics.flow.model.AdvanceType;
 
 /**
- * Type inference error on the given wire.
- * @author karnokd, 2011.07.21.
+ * The combination (e.g., union) of two types could not be created.
+ * @author karnokd, 2011.07.27.
  */
-public class TypeMismatchError implements AdvanceCompilationError {
+public class CombinedTypeError implements AdvanceCompilationError {
 	/** The wire identifier. */
 	public final AdvanceBlockBind binding;
 	/** The left side of the binding. */
@@ -37,18 +37,18 @@ public class TypeMismatchError implements AdvanceCompilationError {
 	public final AdvanceType right;
 	/**
 	 * Constructor.
-	 * <p>Type inference error on the given wire.</p>
+	 * <p>The union of two types could not be created.</p>
 	 * @param binding the actual binding causing the problem
 	 * @param left the left side of the binding
 	 * @param right the right side of the binding
 	 */
-	public TypeMismatchError(AdvanceBlockBind binding, AdvanceType left, AdvanceType right) {
+	public CombinedTypeError(AdvanceBlockBind binding, AdvanceType left, AdvanceType right) {
 		this.binding = binding;
 		this.left = left;
 		this.right = right;
 	}
 	@Override
 	public String toString() {
-		return "Type mismatch on wire " + binding.id + ": " + left + " vs. " + right;
+		return "Combined type could not be created for wire " + binding.id + ": " + left + " vs. " + right;
 	}
 }

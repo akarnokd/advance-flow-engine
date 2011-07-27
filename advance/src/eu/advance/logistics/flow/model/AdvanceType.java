@@ -80,6 +80,16 @@ public class AdvanceType implements XSerializable {
 		return result;
 	}
 	/**
+	 * @return Construct a fresh type variable with name T.
+	 */
+	public static AdvanceType fresh() {
+		AdvanceType result = new AdvanceType();
+		result.typeVariableName = "T";
+		result.typeVariable = new AdvanceTypeVariable();
+		result.typeVariable.name = "T";
+		return result;
+	}
+	/**
 	 * Load a type description from an XML element which conforms the {@code block-description.xsd}.
 	 * @param root the root element of an input/output node.
 	 */
