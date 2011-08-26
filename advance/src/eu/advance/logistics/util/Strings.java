@@ -49,11 +49,13 @@ public final class Strings {
 		int idx = 0;
 		do {
 			int idx2 = s.indexOf(idx);
-			if (idx >= 0) {
+			if (idx2 >= 0) {
 				result.add(s.substring(idx, idx2));
 				idx = idx2 + 1;
+			} else {
+				break;
 			}
-		} while (idx >= 0);
+		} while (true);
 		return result;
 	}
 	/**
