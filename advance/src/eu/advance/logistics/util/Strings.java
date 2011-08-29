@@ -39,6 +39,7 @@ public final class Strings {
 	}
 	/**
 	 * Split the given string based on the supplied separator.
+	 * Empty string will produce an empty list.
 	 * @param s the string to split
 	 * @param separator the separator character
 	 * @return the list of string pieces
@@ -46,13 +47,17 @@ public final class Strings {
 	@NonNull
 	public static List<String> split(@NonNull String s, char separator) {
 		List<String> result = Lists.newArrayList();
+		if (s.isEmpty()) {
+			return result;
+		}
 		int idx = 0;
 		do {
-			int idx2 = s.indexOf(idx);
+			int idx2 = s.indexOf(separator, idx);
 			if (idx2 >= 0) {
 				result.add(s.substring(idx, idx2));
 				idx = idx2 + 1;
 			} else {
+				result.add(s.substring(idx));
 				break;
 			}
 		} while (true);
