@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.editor.diagram;
 
 import eu.advance.logistics.flow.editor.model.BlockParameter;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
 import java.awt.Point;
 import java.util.List;
 import org.netbeans.api.visual.action.ConnectProvider;
@@ -35,10 +36,12 @@ import org.netbeans.api.visual.widget.Widget;
  */
 class BlockConnectionProvider implements ConnectProvider {
 
-    private final FlowDiagramScene scene;
+    private final FlowScene scene;
+    private FlowDescription flowDescription;
 
-    BlockConnectionProvider(FlowDiagramScene scene) {
+    BlockConnectionProvider(FlowScene scene, FlowDescription flowDescription) {
         this.scene = scene;
+        this.flowDescription = flowDescription;
     }
 
     @Override
@@ -47,7 +50,7 @@ class BlockConnectionProvider implements ConnectProvider {
             final Object obj = scene.findObject((PinWidget) widget);
             if (obj instanceof BlockParameter) {
                 final BlockParameter param = (BlockParameter) obj;
-                return param.type == BlockParameter.Type.OUTPUT;
+                return getParamType((PinWidget)widget, param) == BlockParameter.Type.OUTPUT;
             }
         }
 
@@ -60,15 +63,15 @@ class BlockConnectionProvider implements ConnectProvider {
             final Object destObj = scene.findObject((PinWidget) dest);
             if (destObj instanceof BlockParameter) {
                 final BlockParameter destParam = (BlockParameter) destObj;
-                if (destParam.type == BlockParameter.Type.INPUT) {
+                if (getParamType((PinWidget) dest, destParam) == BlockParameter.Type.INPUT) {
                     //controllo il source
                     if (src instanceof PinWidget) {
                         final Object srcObj = scene.findObject((PinWidget) src);
                         if (srcObj instanceof BlockParameter) {
                             final BlockParameter srcParam = (BlockParameter) srcObj;
-                            if (srcParam.type == BlockParameter.Type.OUTPUT) {
-                                //vedo se non c'è duplicato
-                                if (scene.getController().find(srcParam, destParam) == null) {
+                            if (getParamType((PinWidget) src, srcParam) == BlockParameter.Type.OUTPUT) {
+                                //vedo se non c'è duplicato                                
+                                if (flowDescription.getActiveBlock().find(srcParam, destParam) == null) {
                                     return ConnectorState.ACCEPT;
                                 }
                             }
@@ -79,6 +82,13 @@ class BlockConnectionProvider implements ConnectProvider {
         }
 
         return ConnectorState.REJECT;
+    }
+
+    static BlockParameter.Type getParamType(PinWidget w, BlockParameter p) {
+        if (w.isInverted()) {
+            return p.type == BlockParameter.Type.INPUT ? BlockParameter.Type.OUTPUT : BlockParameter.Type.INPUT;
+        }
+        return p.type;
     }
 
     @Override
@@ -102,7 +112,6 @@ class BlockConnectionProvider implements ConnectProvider {
     public void createConnection(Widget src, Widget dest) {
         final BlockParameter input = (BlockParameter) scene.findObject(src);
         final BlockParameter output = (BlockParameter) scene.findObject(dest);
-
-        scene.getController().createBind(null, input, output);
+        flowDescription.getActiveBlock().createBind(input, output);
     }
 }

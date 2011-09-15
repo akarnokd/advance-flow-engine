@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
+import com.google.common.base.Objects;
 import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
 
 /**
@@ -31,7 +32,7 @@ public class BlockParameter implements Comparable<BlockParameter> {
 
     public final AbstractBlock owner;
     public final Type type;
-    public final AdvanceBlockParameterDescription description;
+    public AdvanceBlockParameterDescription description;
 
     public BlockParameter(AbstractBlock parent, AdvanceBlockParameterDescription desc, Type type) {
         this.owner = parent;
@@ -39,8 +40,26 @@ public class BlockParameter implements Comparable<BlockParameter> {
         this.type = type;
     }
 
+    public void setId(String id) {
+        owner.updateId(this, id);
+        description.id = id;
+        owner.getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_CHANGED, this);
+    }
+
     public String getId() {
+        return description.id;
+    }
+
+    public String getPath() {
         return owner.id + "." + description.id;
+    }
+
+    public String getDisplayName() {
+        if (description.displayName != null) {
+            return description.displayName;
+        } else {
+            return description.id;
+        }
     }
 
     @Override
@@ -52,17 +71,22 @@ public class BlockParameter implements Comparable<BlockParameter> {
             return false;
         }
         final BlockParameter other = (BlockParameter) obj;
-        return getId().equals(other.getId());
+        return Objects.equal(description.id, other.description.id)
+                && Objects.equal(owner, other.owner);
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return getPath().hashCode();
     }
 
     @Override
     public int compareTo(BlockParameter o) {
         return description.id.compareTo(o.description.id);
+    }
+
+    public void destroy() {
+        owner.removeParameter(this);
     }
 
     public enum Type {

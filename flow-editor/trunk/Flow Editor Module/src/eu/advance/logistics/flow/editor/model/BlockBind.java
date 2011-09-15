@@ -27,12 +27,17 @@ import com.google.common.base.Objects;
  *
  * @author TTS
  */
-public class BlockBind {
+public class BlockBind implements Comparable<BlockBind> {
 
+    private CompositeBlock parent;
+    public String id;
     public final BlockParameter source;
     public final BlockParameter destination;
+    private String errorMessage;
 
-    public BlockBind(BlockParameter src, BlockParameter dst) {
+    public BlockBind(CompositeBlock parent, String id, BlockParameter src, BlockParameter dst) {
+        this.parent = parent;
+        this.id = id;
         this.source = src;
         this.destination = dst;
     }
@@ -56,7 +61,22 @@ public class BlockBind {
         return Objects.hashCode(source, destination);
     }
 
-    public static String createId(BlockParameter input, BlockParameter output) {
-        return input.owner.id + "." + input.getId() + "->" + output.owner.id + "." + output.getId();
+    @Override
+    public int compareTo(BlockBind other) {
+        return id.compareTo(other.id);
     }
+
+    public void destroy() {
+        parent.removeBind(this);
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+        parent.getFlowDiagram().fire(FlowDescriptionChange.BIND_ERROR_MESSAGE, this);
+    }
+    
 }

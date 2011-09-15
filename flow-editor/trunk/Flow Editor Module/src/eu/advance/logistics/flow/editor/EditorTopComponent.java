@@ -20,6 +20,9 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import java.awt.BorderLayout;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import javax.swing.JComponent;
@@ -30,7 +33,6 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.util.ImageUtilities;
-import org.openide.util.lookup.Lookups;
 
 /**
  * Visual flow editor.
@@ -45,23 +47,29 @@ public final class EditorTopComponent extends TopComponent {
 
     private final static String ICON_PATH = "eu/advance/logistics/flow/editor/palette/images/block.png";
     private JComponent viewportView;
-    private FlowDiagramController flowDiagramController;
+    private FlowDescriptionDataObject dataObject;
+    private BreadcrumbView breadcrumbView = new BreadcrumbView();
 
-    public EditorTopComponent(FlowDiagramController controller) {
-        this.flowDiagramController = controller;
+    public EditorTopComponent(FlowDescriptionDataObject dataObject) {
+        this.dataObject = dataObject;
 
         initComponents();
         //setName(NbBundle.getMessage(EditorTopComponent.class, "CTL_EditorTopComponent"));
-        setName(controller.getDisplayName());
+        setName(dataObject.getName());
         setToolTipText(NbBundle.getMessage(EditorTopComponent.class, "HINT_EditorTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, false));
 
-        viewportView = controller.getScene().createView();
+        FlowScene scene = dataObject.getLookup().lookup(FlowScene.class);
+        viewportView = scene.createView();
 
         scrollpane.setViewportView(viewportView);
-        //add(scene.createSatelliteView(), BorderLayout.WEST);
+        
+        add(breadcrumbView.getControl(), BorderLayout.NORTH);
+        FlowDescription fd = dataObject.getLookup().lookup(FlowDescription.class);
+        breadcrumbView.populate(fd.getActiveBlock());
+        fd.addListener(breadcrumbView);
 
-        associateLookup(Lookups.fixed(new Object[]{flowDiagramController}));
+        //associateLookup(Lookups.fixed(new Object[]{flowDiagramController}));
     }
 
     /** This method is called from within the constructor to
@@ -81,21 +89,33 @@ public final class EditorTopComponent extends TopComponent {
     private javax.swing.JScrollPane scrollpane;
     // End of variables declaration//GEN-END:variables
 
+    private FlowScene getScene() {
+        return dataObject.getLookup().lookup(FlowScene.class);
+    }
     @Override
     public void componentOpened() {
-        flowDiagramController.getScene().layoutScene();
     }
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
+        //dataObject.getLookup().lookup(FlowDescription.class).close();
+    }
+
+    @Override
+    protected void componentActivated() {
+        getScene().getView().requestFocus();
+    }
+
+    @Override
+    protected void componentShowing() {
+        getScene().getView().requestFocus();
     }
 
     private boolean checkSave() {
         SaveCookie saveCookie = getActivatedNodes()[0].getLookup().lookup(SaveCookie.class);
         if (saveCookie != null) {
-            NotifyDescriptor nd = new NotifyDescriptor.Confirmation("Save changes?",
-                    flowDiagramController.getDisplayName(),
+            NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getBundle(EditorTopComponent.class).getString("SAVE_CHANGES"),
+                    dataObject.getName(),
                     NotifyDescriptor.YES_NO_CANCEL_OPTION);
             Object res = DialogDisplayer.getDefault().notify(nd);
             if (NotifyDescriptor.OK_OPTION.equals(res)) {
@@ -122,7 +142,7 @@ public final class EditorTopComponent extends TopComponent {
     public boolean canClose() {
         if (checkSave()) {
             try {
-                flowDiagramController.close();
+                dataObject.setValid(false);
                 return true;
             } catch (PropertyVetoException ex) {
                 Exceptions.printStackTrace(ex);

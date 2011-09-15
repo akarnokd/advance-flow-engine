@@ -18,15 +18,22 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
 package eu.advance.logistics.flow.editor.palette;
 
+import eu.advance.logistics.flow.editor.BlockRegistry;
+import eu.advance.logistics.flow.editor.diagram.SceneDropAction;
+import eu.advance.logistics.flow.editor.model.BlockCategory;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.model.AdvanceBlockDescription;
+import java.awt.Image;
+import java.awt.Point;
 import java.awt.datatransfer.Transferable;
 import java.io.IOException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.NodeTransfer;
+import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -35,11 +42,8 @@ import org.openide.util.lookup.Lookups;
  */
 public class BlockNode extends AbstractNode {
 
-    private AdvanceBlockDescription blockDescription;
-
     public BlockNode(AdvanceBlockDescription block) {
-        super(Children.LEAF, Lookups.fixed(new Object[]{block}));
-        this.blockDescription = block;
+        super(Children.LEAF, Lookups.fixed(new Object[]{new DropAction(block)}));
         setIconBaseWithExtension("eu/advance/logistics/flow/editor/palette/images/block.png");
         setDisplayName(block.displayName);
     }
@@ -47,5 +51,34 @@ public class BlockNode extends AbstractNode {
     @Override
     public Transferable drag() throws IOException {
         return NodeTransfer.transferable(this, NodeTransfer.DND_COPY_OR_MOVE);
+    }
+
+    private static class DropAction implements SceneDropAction {
+
+        private AdvanceBlockDescription desc;
+        private Image image;
+
+        private DropAction(AdvanceBlockDescription desc) {
+            this.desc = desc;
+        }
+
+        @Override
+        public void accept(FlowDescription flowDescription, Point location) {
+            SimpleBlock block = flowDescription.getActiveBlock().createBlock(desc);
+            block.setLocation(location);
+        }
+
+        @Override
+        public Image getImage() {
+            if (image == null) {
+                BlockCategory category = BlockRegistry.getInstance().findByType(desc);
+                if (category != null) {
+                    String url = category.getImage();
+                    url = url.substring(0, url.length() - 4) + "24.png";
+                    image = ImageUtilities.loadImage("eu/advance/logistics/flow/editor/palette/images/" + url);
+                }
+            }
+            return image;
+        }
     }
 }

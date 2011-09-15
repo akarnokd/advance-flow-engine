@@ -70,7 +70,7 @@
                     </file>
                 </folder>
             </folder>
-            <folder name="flow-description+xml">
+            <folder name="flow-descriptor+xml">
                 <folder name="Actions">
                     <file name="org-openide-actions-CopyAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
@@ -133,7 +133,7 @@
                     <file name="FlowDescriptionDataLoader.instance">
                         <attr name="dataObjectClass" stringvalue="eu.advance.logistics.flow.editor.FlowDescriptionDataObject"/>
                         <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
-                        <attr name="mimeType" stringvalue="text/flow-description+xml"/>
+                        <attr name="mimeType" stringvalue="text/flow-descriptor+xml"/>
                     </file>
                 </folder>
             </folder>

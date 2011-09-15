@@ -21,12 +21,17 @@
 package eu.advance.logistics.flow.editor;
 
 import com.google.common.io.Closeables;
+import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
 import eu.advance.logistics.xml.typesystem.XElement;
 import java.awt.EventQueue;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
@@ -44,28 +49,40 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.ProxyLookup;
 
 public class FlowDescriptionDataObject extends MultiDataObject {
 
-    private FlowDiagramController controller = new FlowDiagramController(this);
+    private InstanceContent instanceContent = new InstanceContent();
+    private Lookup lookup;
 
     public FlowDescriptionDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        CookieSet cookies = getCookieSet();
+        final CookieSet cookies = getCookieSet();
         //cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
         cookies.add(new OpenSupport());
+
+
+        lookup = new ProxyLookup(cookies.getLookup(), new AbstractLookup(instanceContent));
+    }
+
+    public InstanceContent getInstanceContent() {
+        return instanceContent;
     }
 
     @Override
     protected Node createNodeDelegate() {
         DataNode node = new DataNode(this, Children.LEAF, getLookup());
-        node.setDisplayName(controller.getDisplayName());
+        node.setDisplayName(getName());
         return node;
     }
 
     @Override
     public Lookup getLookup() {
-        return getCookieSet().getLookup();
+        return lookup;
     }
 
     @Override
@@ -84,15 +101,21 @@ public class FlowDescriptionDataObject extends MultiDataObject {
     }
 
     void save() throws IOException {
-        ProgressHandle ph = ProgressHandleFactory.createHandle("Loading...");
+        ProgressHandle ph = ProgressHandleFactory.createHandle(NbBundle.getBundle(FlowDescriptionDataObject.class).getString("LOADING"));
         ph.start();
         try {
-            AdvanceCompositeBlock compositeBlock = controller.get();
-            XElement root = new XElement("flow-description");
-            compositeBlock.save(root);
-            OutputStream out = null;
+            FlowDescription fd = getLookup().lookup(FlowDescription.class);
+            fd.fire(FlowDescriptionChange.SAVING, fd);
+            AdvanceCompositeBlock compositeBlock = FlowDescriptionIO.save(fd);
+            XElement root = AdvanceCompositeBlock.serializeFlow(compositeBlock);
+            BufferedWriter out = null;
             try {
-                //out = getPrimaryFile().getOutputStream();
+                out = new BufferedWriter(new OutputStreamWriter(getPrimaryFile().getOutputStream()));
+                // temporary header fix
+                String header = "<?xml version='1.0' encoding='UTF-8'?>\n<flow-descriptor xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"flow-description.xsd\">";
+                out.write(root.toString().replace("<flow-descriptor>", header));
+                //
+                out.flush();
                 setModified(false);
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
@@ -116,7 +139,13 @@ public class FlowDescriptionDataObject extends MultiDataObject {
 
         @Override
         public void open() {
-            ProgressHandle ph = ProgressHandleFactory.createHandle("Loading...");
+            EditorTopComponent tc = getLookup().lookup(EditorTopComponent.class);
+            if (tc != null) {
+                tc.open();
+                tc.requestActive();
+                return;
+            }
+            ProgressHandle ph = ProgressHandleFactory.createHandle(NbBundle.getBundle(FlowDescriptionDataObject.class).getString("LOADING"));
             ph.start();
             try {
                 XElement root = null;
@@ -130,27 +159,40 @@ public class FlowDescriptionDataObject extends MultiDataObject {
                     Closeables.closeQuietly(in);
                 }
 
-                if (root != null) {
-                    AdvanceCompositeBlock compositeBlock = new AdvanceCompositeBlock();
-                    compositeBlock.load(root);
-                    controller.set(compositeBlock);
+                AdvanceCompositeBlock compositeBlock = (root != null) ? AdvanceCompositeBlock.parseFlow(root) : null;
+                if (compositeBlock != null) {
+                    compositeBlock.id = getPrimaryFile().getName();
+                    final FlowDescription flowDesc = FlowDescriptionIO.create(compositeBlock);
+                    flowDesc.setActiveBlock(flowDesc);
+                    flowDesc.addListener(new FlowDescriptionListener() {
+
+                        @Override
+                        public void flowDescriptionChanged(FlowDescriptionChange event, Object... params) {
+                            if (!(event == FlowDescriptionChange.ACTIVE_COMPOSITE_BLOCK_CHANGED
+                                    || event == FlowDescriptionChange.CLOSED)) {
+                                setModified(true);
+                            }
+                        }
+                    });
+                    getInstanceContent().add(flowDesc);
                     setModified(false);
+                    EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            getInstanceContent().add(FlowScene.create(flowDesc));
+                            EditorTopComponent tc = new EditorTopComponent(FlowDescriptionDataObject.this);
+                            getInstanceContent().add(tc);
+                            tc.setActivatedNodes(new Node[]{getNodeDelegate()});
+                            tc.open();
+                            tc.requestActive();
+                        }
+                    });
                 } else {
-                    String msg = "<html>Error loading flow diagram:<br>" + FileUtil.getFileDisplayName(getPrimaryFile()) + "</html>";
+                    final String msg = "<html>" + NbBundle.getBundle(FlowDescriptionDataObject.class).getString("ERROR_LOADING_HTML") + "<br>" + FileUtil.getFileDisplayName(getPrimaryFile()) + "</html>";
                     NotifyDescriptor nd = new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notify(nd);
                 }
-
-                EventQueue.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        EditorTopComponent tc = new EditorTopComponent(controller);
-                        tc.setActivatedNodes(new Node[]{getNodeDelegate()});
-                        tc.open();
-                        tc.requestActive();
-                    }
-                });
 
             } finally {
                 ph.finish();

@@ -44,4 +44,10 @@ public class SimpleBlock extends AbstractBlock {
         }
     }
 
+    @Override
+    public void destroy() {
+        if (parent != null) {
+            parent.removeBlock(this);            
+        }
+    }
 }

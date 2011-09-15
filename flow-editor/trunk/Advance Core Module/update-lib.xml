@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="eu.advance.logistics.core" default="update-lib" basedir=".">    
+    <target name="update-lib">
+        <property name="advance.core.dir" location="../../advance-project-svn"/>
+        <property name="dest.dir" location="release/modules/ext"/>
+        <mkdir dir="${dest.dir}"/>
+        <delete dir="temp" failonerror="true"/>
+        <mkdir dir="temp"/>
+        <unzip src="${advance.core.dir}/dist/advance.war" dest="temp">
+            <patternset>
+                <include name="WEB-INF/classes/**"/>
+            </patternset>
+        </unzip>
+        <!--copy todir="temp/WEB-INF/classes/eu/advance/logistics/flow/model/schemas">
+            <fileset dir="${advance.core.dir}/schemas" includes="*.xsd"/>
+        </copy-->
+        <delete file="${dest.dir}/advance-core.jar" failonerror="true"/>
+        <jar file="${dest.dir}/advance-core.jar" basedir="temp/WEB-INF/classes" 
+        excludes="eu/advance/logistics/flow/editor/**"/>
+        <delete dir="temp"/>
+        <copy todir="${dest.dir}">
+            <filelist dir="${advance.core.dir}/war/WEB-INF/lib" 
+                files="annotations.jar guava-r09.jar reactive4java-0.94.jar"/>                
+        </copy>
+    </target>
+</project>
