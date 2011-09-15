@@ -39,20 +39,30 @@ public class PinWidget extends Widget {
     private ImageWidget iconWidget;
     private LabelWidget nameWidget;
     private BlockAnchor anchor;
+    private boolean inverted;
 
     /**
      * Creates a pin widget with a specific color scheme.
      * @param scene the scene
      * @param scheme the color scheme
      */
-    public PinWidget(Scene scene, ColorScheme scheme) {
+    public PinWidget(Scene scene, ColorScheme scheme, boolean invertType, boolean invertIcon) {
         super(scene);
         assert scheme != null;
         this.scheme = scheme;
-        
-        setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.CENTER, 8));
-        addChild(iconWidget = new ImageWidget(scene));
-        addChild(nameWidget = new LabelWidget(scene));
+        this.inverted = invertType;
+
+        setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.CENTER, 4));
+        if (invertIcon) {
+            addChild(nameWidget = new LabelWidget(scene));
+            Widget separator = new Widget(scene);
+            separator.setOpaque(false);
+            addChild(separator, 1000);
+            addChild(iconWidget = new ImageWidget(scene));
+        } else {
+            addChild(iconWidget = new ImageWidget(scene));
+            addChild(nameWidget = new LabelWidget(scene));
+        }
 
         scheme.installUI(this);
         notifyStateChanged(ObjectState.createNormal(), ObjectState.createNormal());
@@ -104,5 +114,9 @@ public class PinWidget extends Widget {
             anchor = new BlockAnchor(this, false, scheme);
         }
         return anchor;
+    }
+
+    public boolean isInverted() {
+        return inverted;
     }
 }

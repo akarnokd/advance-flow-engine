@@ -23,10 +23,17 @@ package eu.advance.logistics.flow.editor;
 import com.google.common.collect.Maps;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.model.AdvanceBlockDescription;
+import eu.advance.logistics.flow.model.AdvanceResolver;
+import eu.advance.logistics.flow.model.AdvanceType;
+import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.xml.typesystem.XType;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
@@ -51,6 +58,7 @@ public class BlockRegistry {
     private Map<String, BlockCategory> categories = Maps.newHashMap();
     private Map<AdvanceBlockDescription, BlockCategory> descriptions = Maps.newHashMap();
     private Map<String, AdvanceBlockDescription> types = Maps.newHashMap();
+    private Map<String, XType> xtypes = Maps.newHashMap();
 
     private BlockRegistry() {
     }
@@ -175,13 +183,48 @@ public class BlockRegistry {
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }
+
+        xtypes.clear();
+        try {
+            xtypes.put("collection", AdvanceResolver.resolveSchema(new URI("advance:collection")));
+            xtypes.put("boolean", AdvanceResolver.resolveSchema(new URI("advance:boolean")));
+            xtypes.put("integer", AdvanceResolver.resolveSchema(new URI("advance:integer")));
+            xtypes.put("object", AdvanceResolver.resolveSchema(new URI("advance:object")));
+            xtypes.put("real", AdvanceResolver.resolveSchema(new URI("advance:real")));
+            xtypes.put("string", AdvanceResolver.resolveSchema(new URI("advance:string")));
+            xtypes.put("timestamp", AdvanceResolver.resolveSchema(new URI("advance:timestamp")));
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
-    
+
     public int getCategoryCount() {
         return categories.size();
     }
-    
+
     public int getBlockDescriptionCount() {
         return descriptions.size();
+    }
+
+    public Map<String, XType> getXTypes() {
+        return xtypes;
+    }
+
+    public AdvanceType getDefaultAdvanceType() {
+        AdvanceType a2 = new AdvanceType();
+        a2.type = null;
+        a2.typeURI = null;
+        a2.typeVariableName = "T";
+
+        AdvanceType a1 = new AdvanceType();
+        a1.type = BlockRegistry.getInstance().getXTypes().get("collection");
+        try {
+            a1.typeURI = new URI("advance:collection");
+        } catch (URISyntaxException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        a1.typeVariableName = null;
+        a1.typeArguments.add(a2);
+        return a1;
     }
 }

@@ -32,11 +32,8 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
-import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 
 /**
@@ -44,10 +41,12 @@ import org.openide.util.Exceptions;
  * @author TTS
  */
 @ActionID(id = "eu.advance.logistics.flow.editor.NewFlowAction", category = "File")
-@ActionRegistration(iconInMenu = true, displayName = "#CTL_NewFlowAction")
+@ActionRegistration(iconInMenu = true, displayName = "#CTL_NewFlowAction",
+        iconBase="eu/advance/logistics/flow/editor/images/newProject.png")
 @ActionReferences(value = {
     @ActionReference(path = "Shortcuts", name = "D-N"),
-    @ActionReference(path = "Menu/File", position = 300)
+    @ActionReference(path = "Menu/File", position = 300),
+    @ActionReference(path = "Toolbars/File", position=350)
 })
 public final class NewFlowAction implements ActionListener {
 
@@ -58,7 +57,7 @@ public final class NewFlowAction implements ActionListener {
             File workspace = OpenFlowAction.getWorkspaceDir();
 
             for (int i = 1; i < Integer.MAX_VALUE; i++) {
-                dest = new File(workspace, "flow-diagram-" + i + ".xml");
+                dest = new File(workspace, "flow-description-" + i + ".xml");
                 if (!dest.exists()) {
                     break;
                 }

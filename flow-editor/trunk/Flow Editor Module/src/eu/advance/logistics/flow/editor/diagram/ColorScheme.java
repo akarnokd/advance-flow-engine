@@ -18,20 +18,18 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
 package eu.advance.logistics.flow.editor.diagram;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Image;
+import java.awt.Stroke;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.anchor.PointShapeFactory;
 import org.netbeans.api.visual.border.Border;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.model.ObjectState;
-import org.netbeans.api.visual.widget.LabelWidget;
-import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.util.ImageUtilities;
 
@@ -42,27 +40,47 @@ import org.openide.util.ImageUtilities;
 public class ColorScheme {
 
     static final Color COLOR_NORMAL = new Color(0x56B230); // connections
+    static final Color COLOR_NORMAL_ERROR = new Color(0xE61717); // connections
     private static final Color COLOR_HOVERED = Color.BLACK;
     private static final Color COLOR_SELECTED = new Color(0xA0EC80);
+    private static final Color COLOR_SELECTED_ERROR = new Color(0xF66262);
     static final Color COLOR_HIGHLIGHTED = new Color(0xC4ECB4);
+    static final Color COLOR_HIGHLIGHTED_ERROR = new Color(0xFF7373);
     static final Color COLOR_BORDER = new Color(0x56B230);
     static final Color COLOR1 = new Color(0xFFFFFF);
     static final Color COLOR2 = new Color(0xEDFFE6);
-    public static final Border BORDER_NODE = new BlockBorder(COLOR_BORDER, 1, 
+    static final Border BORDER_PARAM = new ParamBorder(Color.WHITE, 4, new Color(0xC0C0C0));
+    static final Border BORDER_BLOCK = new BlockBorder(COLOR_BORDER, 1,
             COLOR1, COLOR2);
+    static final Color CONST_COLOR_SELECTED = new Color(0x7D9C9F);
+    static final Border CONST_BORDER_BLOCK = new BlockBorder(CONST_COLOR_SELECTED, 1,
+            new Color(0xDFEFF0), new Color(0xBDD8DA));
     static final Color BORDER_CATEGORY_BACKGROUND = new Color(0x56B230);
     static final Border BORDER_MINIMIZE =
             BorderFactory.createRoundedBorder(2, 2, null, COLOR_NORMAL);
-    static final Border BORDER_PIN = BorderFactory.createOpaqueBorder(2, 8, 2, 8);
+    static final Border BORDER_PIN = BorderFactory.createOpaqueBorder(2, 4, 2, 4);
     private static final Border BORDER_PIN_HOVERED =
-            BorderFactory.createLineBorder(2, 8, 2, 8, Color.BLACK);
+            BorderFactory.createLineBorder(2, 4, 2, 4, Color.BLACK);
+    public static javax.swing.border.Border PAGE_BORDER;
     static final PointShape POINT_SHAPE_IMAGE = PointShapeFactory.createImagePointShape(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/pin.png")); // NOI18N
+    static final Stroke connectionStroke = new BasicStroke(2);
+
+    {
+        javax.swing.border.Border outer = javax.swing.BorderFactory.createEmptyBorder(4, 4, 4, 4);
+        javax.swing.border.Border inner = javax.swing.BorderFactory.createLineBorder(Color.LIGHT_GRAY);
+        PAGE_BORDER = javax.swing.BorderFactory.createCompoundBorder(outer, inner);
+    }
 
     public ColorScheme() {
     }
 
-    public void installUI(BlockWidget widget) {
-        widget.setBorder(BORDER_NODE);
+    void installUI(ParamWidget widget) {
+        widget.setBorder(PAGE_BORDER);
+        widget.setOpaque(true);
+    }
+
+    void installUI(BlockWidget widget) {
+        widget.setBorder(BORDER_BLOCK);
         widget.setOpaque(false);
 
         Widget header = widget.getHeader();
@@ -77,7 +95,7 @@ public class ColorScheme {
         pinsSeparator.setForeground(BORDER_CATEGORY_BACKGROUND);
     }
 
-    public void updateUI(BlockWidget widget, ObjectState previousState, ObjectState state) {
+    void updateUI(BlockWidget widget, ObjectState previousState, ObjectState state) {
         if (!previousState.isSelected() && state.isSelected()) {
             widget.bringToFront();
         } else if (!previousState.isHovered() && state.isHovered()) {
@@ -89,37 +107,56 @@ public class ColorScheme {
         header.setBorder(state.isFocused() || state.isHovered() ? BORDER_PIN_HOVERED : BORDER_PIN);
     }
 
-    public boolean isNodeMinimizeButtonOnRight(BlockWidget widget) {
+    void installUI(ConstantBlockWidget widget) {
+        widget.setBorder(CONST_BORDER_BLOCK);
+        widget.setOpaque(false);
+
+        Widget header = widget.getHeader();
+        header.setBorder(BORDER_PIN);
+        header.setBackground(CONST_COLOR_SELECTED);
+        header.setOpaque(false);
+    }
+
+    void updateUI(ConstantBlockWidget widget, ObjectState previousState, ObjectState state) {
+        if (!previousState.isSelected() && state.isSelected()) {
+            widget.bringToFront();
+        } else if (!previousState.isHovered() && state.isHovered()) {
+            widget.bringToFront();
+        }
+
+        Widget header = widget.getHeader();
+        header.setOpaque(state.isSelected());
+        header.setBorder(state.isFocused() || state.isHovered() ? BORDER_PIN_HOVERED : BORDER_PIN);
+    }
+
+    boolean isNodeMinimizeButtonOnRight(BlockWidget widget) {
         return false;
     }
 
-    public Image getMinimizeWidgetImage(BlockWidget widget) {
+    Image getMinimizeWidgetImage(BlockWidget widget) {
         return widget.isMinimized()
                 ? ImageUtilities.loadImage("org/netbeans/modules/visual/resources/vmd-expand.png") // NOI18N
                 : ImageUtilities.loadImage("org/netbeans/modules/visual/resources/vmd-collapse.png"); // NOI18N
     }
 
-    public Widget createPinCategoryWidget(BlockWidget widget, String categoryDisplayName) {
-        return createPinCategoryWidgetCore(widget, categoryDisplayName, true);
-    }
-
-    public void installUI(BlockConnectionWidget widget) {
+    void installUI(BlockConnectionWidget widget) {
+        widget.setStroke(connectionStroke);
         widget.setSourceAnchorShape(AnchorShape.NONE);
         widget.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
         widget.setPaintControlPoints(true);
     }
 
-    public void updateUI(BlockConnectionWidget widget, ObjectState previousState, ObjectState state) {
+    void updateUI(BlockConnectionWidget widget, ObjectState previousState, ObjectState state) {
         if (state.isHovered()) {
             widget.setForeground(COLOR_HOVERED);
         } else if (state.isSelected()) {
-            widget.setForeground(COLOR_SELECTED);
+            widget.setForeground(widget.isError() ? COLOR_SELECTED_ERROR : COLOR_SELECTED);
         } else if (state.isHighlighted()) {
-            widget.setForeground(COLOR_HIGHLIGHTED);
+            widget.setForeground(widget.isError() ? COLOR_HIGHLIGHTED_ERROR : COLOR_HIGHLIGHTED);
         } else if (state.isFocused()) {
             widget.setForeground(COLOR_HOVERED);
         } else {
-            widget.setForeground(COLOR_NORMAL);
+            widget.setForeground(widget.isError() ? COLOR_NORMAL_ERROR : COLOR_NORMAL);
         }
 
         if (state.isSelected()) {
@@ -131,33 +168,18 @@ public class ColorScheme {
         }
     }
 
-    public void installUI(PinWidget widget) {
+    void installUI(PinWidget widget) {
         widget.setBorder(BORDER_PIN);
         widget.setBackground(COLOR_SELECTED);
         widget.setOpaque(false);
     }
 
-    public void updateUI(PinWidget widget, ObjectState previousState, ObjectState state) {
+    void updateUI(PinWidget widget, ObjectState previousState, ObjectState state) {
         widget.setOpaque(state.isSelected());
         widget.setBorder(state.isFocused() || state.isHovered() ? BORDER_PIN_HOVERED : BORDER_PIN);
     }
 
     int getNodeAnchorGap(BlockAnchor anchor) {
         return 8;
-    }
-
-    private static Widget createPinCategoryWidgetCore(BlockWidget widget, String categoryDisplayName, boolean changeFont) {
-        Scene scene = widget.getScene();
-        LabelWidget label = new LabelWidget(scene, categoryDisplayName);
-        label.setOpaque(true);
-        label.setBackground(BORDER_CATEGORY_BACKGROUND);
-        label.setForeground(Color.GRAY);
-        if (changeFont) {
-            Font fontPinCategory = scene.getDefaultFont().deriveFont(10.0f);
-            label.setFont(fontPinCategory);
-        }
-        label.setAlignment(LabelWidget.Alignment.CENTER);
-        label.setCheckClipping(true);
-        return label;
     }
 }

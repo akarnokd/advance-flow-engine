@@ -17,48 +17,56 @@
  * License along with Advance.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
- */
+ */package eu.advance.logistics.flow.editor;
 
-package eu.advance.logistics.flow.editor;
-
-import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
+import javax.swing.JTree;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.Node;
 import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
 
 /**
- * Navigator panel.
- * 
  * @author TTS
  */
-@ConvertAsProperties(dtd = "-//eu.advance.logistics.flow.editor//Navigator//EN",
+@ConvertAsProperties(dtd = "-//eu.advance.logistics.flow.editor//TreeBrowser//EN",
 autostore = false)
-@TopComponent.Description(preferredID = "NavigatorTopComponent",
+@TopComponent.Description(preferredID = "TreeBrowserTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "properties", openAtStartup = true)
-@ActionID(category = "Window", id = "eu.advance.logistics.flow.editor.NavigatorTopComponent")
+@TopComponent.Registration(mode = "explorer", openAtStartup = true)
+@ActionID(category = "Window", id = "eu.advance.logistics.flow.editor.TreeBrowserTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_NavigatorAction",
-preferredID = "NavigatorTopComponent")
-public final class NavigatorTopComponent extends TopComponent
-        implements PropertyChangeListener {
+@TopComponent.OpenActionRegistration(displayName = "#CTL_TreeBrowserAction",
+preferredID = "TreeBrowserTopComponent")
+public final class TreeBrowserTopComponent extends TopComponent
+        implements ExplorerManager.Provider, PropertyChangeListener {
 
     private WeakReference<TopComponent> tcReference;
+    private ExplorerManager explorerManager = new ExplorerManager();
+    private BeanTreeView treeView = new BeanTreeView();
 
-    public NavigatorTopComponent() {
+    public TreeBrowserTopComponent() {
         initComponents();
-        setLayout(new BorderLayout());
-        setName(NbBundle.getMessage(NavigatorTopComponent.class, "CTL_NavigatorTopComponent"));
-        setToolTipText(NbBundle.getMessage(NavigatorTopComponent.class, "HINT_NavigatorTopComponent"));
+        setName(NbBundle.getMessage(TreeBrowserTopComponent.class, "CTL_TreeBrowserTopComponent"));
+        setToolTipText(NbBundle.getMessage(TreeBrowserTopComponent.class, "HINT_TreeBrowserTopComponent"));
+        putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
+
+        associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
+        //explorerManager.setRootContext(new AbstractNode(new PaletteRootChildren()));
+        //treeView.setRootVisible(false);
+        add(treeView, BorderLayout.CENTER);
+
     }
 
     /** This method is called from within the constructor to
@@ -69,16 +77,7 @@ public final class NavigatorTopComponent extends TopComponent
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -91,6 +90,7 @@ public final class NavigatorTopComponent extends TopComponent
     @Override
     public void componentClosed() {
         WindowManager.getDefault().getRegistry().removePropertyChangeListener(this);
+        setDataObject(null);
     }
 
     void writeProperties(java.util.Properties p) {
@@ -105,29 +105,59 @@ public final class NavigatorTopComponent extends TopComponent
         // TODO read your settings according to their version
     }
 
+    private void setDataObject(FlowDescriptionDataObject dataObject) {
+        if (dataObject != null) {
+            setDisplayName(dataObject.getName());
+            explorerManager.setRootContext(dataObject.getNodeDelegate());
+            JTree t = (JTree) treeView.getViewport().getView();
+            for (int i = 0; i < t.getRowCount(); i++) {
+                t.expandRow(i);
+            }
+        } else {
+            setDisplayName(NbBundle.getMessage(getClass(), "CTL_TreeBrowserTopComponent"));
+            explorerManager.setRootContext(Node.EMPTY);
+        }
+    }
+
+    private FlowDescriptionDataObject getDataObject() {
+        if (tcReference != null) {
+            TopComponent tc = tcReference.get();
+            if (tc != null) {
+                return tc.getLookup().lookup(FlowDescriptionDataObject.class);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public ExplorerManager getExplorerManager() {
+        return explorerManager;
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String pname = evt.getPropertyName();
         if (Registry.PROP_ACTIVATED.equals(pname)) {
+            FlowDescriptionDataObject current = getDataObject();
             TopComponent tc = (TopComponent) evt.getNewValue();
             Mode mode = WindowManager.getDefault().findMode(tc);
             if (mode != null && mode.getName().equals("editor")) {
-                FlowScene doc = tc.getLookup().lookup(FlowScene.class);
-                removeAll();
-                if (doc != null) {
+                FlowDescriptionDataObject dataObject = tc.getLookup().lookup(FlowDescriptionDataObject.class);
+                if (dataObject != null) {
                     tcReference = new WeakReference<TopComponent>(tc);
-                    add(doc.getSatelliteView(), BorderLayout.CENTER);
+                    if (dataObject != current) {
+                        setDataObject(dataObject);
+                    }
                 } else {
                     tcReference = null;
+                    setDataObject(null);
                 }
-                validate();
             }
         } else if (Registry.PROP_TC_CLOSED.equals(pname)) {
             TopComponent tc = (TopComponent) evt.getNewValue();
             if (tc == tcReference.get()) {
-                removeAll();
-                validate();
                 tcReference = null;
+                setDataObject(null);
             }
         }
     }

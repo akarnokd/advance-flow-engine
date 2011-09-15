@@ -20,16 +20,9 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileFilter;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -40,54 +33,28 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
-import org.openide.util.NbBundle.Messages;
 import org.openide.windows.WindowManager;
 
+/**
+ * 
+ * @author TTS
+ */
 @ActionID(category = "File",
 id = "eu.advance.logistics.flow.editor.OpenFlowAction")
-@ActionRegistration(displayName = "#CTL_OpenFlowAction")
+@ActionRegistration(displayName = "#CTL_OpenFlowAction",
+iconBase = "eu/advance/logistics/flow/editor/images/openProject.png")
 @ActionReferences({
     @ActionReference(path = "Menu/File", position = 100),
-    @ActionReference(path = "Shortcuts", name = "D-O")
+    @ActionReference(path = "Shortcuts", name = "D-O"),
+    @ActionReference(path = "Toolbars/File", position = 350)
 })
-@Messages("CTL_OpenFlowAction=Open flow...")
 public final class OpenFlowAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        File workspace = getWorkspaceDir();
-        final File[] files = workspace.listFiles(new FileFilter() {
-
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isFile() && pathname.getName().toLowerCase().endsWith(".xml");
-            }
-        });
-        String[] names = new String[files.length];
-        for (int i = 0, n = files.length; i < n; i++) {
-            names[i] = files[i].getName();
-        }
-        final JDialog dlg = new JDialog(WindowManager.getDefault().getMainWindow(), true);
-        final JList list = new JList(names);
-        list.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int index = list.locationToIndex(e.getPoint());
-                    if (index != -1) {
-                        open(files[index]);
-                        dlg.dispose();
-                    }
-                }
-            }
-        });
-        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dlg.setLayout(new BorderLayout());
-        dlg.add(new JScrollPane(list), BorderLayout.CENTER);
-        dlg.pack();
-        dlg.setLocationRelativeTo(dlg.getOwner());
-        dlg.setVisible(true);
+        final OpenFlowDialog dialog = new OpenFlowDialog(WindowManager.getDefault().getMainWindow(), true);
+        dialog.setLocationRelativeTo(dialog.getOwner());
+        dialog.setVisible(true);
     }
 
     static void open(File file) {
@@ -108,12 +75,13 @@ public final class OpenFlowAction implements ActionListener {
     }
 
     static File getWorkspaceDir() {
-        String userHome = System.getProperty("user.home");
-        File workspace = new File(userHome, ".advance-flow-editor-ws");
+        final String userHome = System.getProperty("user.home");
+        final File workspace = new File(userHome, ".advance-flow-editor-ws");
+
         if (!workspace.exists()) {
             workspace.mkdir();
         }
-        return workspace;
 
+        return workspace;
     }
 }

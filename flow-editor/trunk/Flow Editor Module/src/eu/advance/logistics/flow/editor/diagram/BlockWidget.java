@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import com.google.common.collect.Lists;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -27,10 +28,6 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -62,11 +59,14 @@ public class BlockWidget extends Widget implements StateModel.Listener, VMDMinim
     private LabelWidget typeWidget;
     private IconSetWidget glyphSetWidget;
     private SeparatorWidget pinsSeparator;
-    private HashMap<String, Widget> pinCategoryWidgets = new HashMap<String, Widget>();
     private StateModel stateModel = new StateModel(2);
     private Anchor nodeAnchor;
     private ColorScheme scheme;
     private WeakHashMap<Anchor, Anchor> proxyAnchorCache = new WeakHashMap<Anchor, Anchor>();
+    private Widget inParams;
+    private Widget outParams;
+    private List<Widget> inPins = Lists.newArrayList();
+    private List<Widget> outPins = Lists.newArrayList();
 
     /**
      * Creates a node widget with a specific color scheme.
@@ -123,8 +123,20 @@ public class BlockWidget extends Widget implements StateModel.Listener, VMDMinim
         pinsSeparator = new SeparatorWidget(scene, SeparatorWidget.Orientation.HORIZONTAL);
         addChild(pinsSeparator);
 
-        Widget topLayer = new Widget(scene);
-        addChild(topLayer);
+//        Widget topLayer = new Widget(scene);
+//        addChild(topLayer);
+
+        inParams = new Widget(scene);
+        inParams.setCheckClipping(true);
+        inParams.setLayout(LayoutFactory.createVerticalFlowLayout());
+        outParams = new Widget(scene);
+        outParams.setCheckClipping(true);
+        outParams.setLayout(LayoutFactory.createVerticalFlowLayout());
+
+        addChild(WidgetBuilder.createLabel(scene, "INPUT", true));
+        addChild(inParams);
+        addChild(WidgetBuilder.createLabel(scene, "OUTPUT", true));
+        addChild(outParams);
 
         stateModel = new StateModel();
         stateModel.addListener(this);
@@ -232,9 +244,20 @@ public class BlockWidget extends Widget implements StateModel.Listener, VMDMinim
      * Attaches a pin widget to the node widget.
      * @param widget the pin widget
      */
-    public void attachPinWidget(Widget widget) {
+    public void attachPinWidget(Widget widget, boolean input) {
+        if (input) {
+            attachPinWidget(widget, inPins, inParams);
+        } else {
+            attachPinWidget(widget, outPins, outParams);
+        }
+    }
+    public void attachPinWidget(Widget widget, List<Widget> params, Widget parent) {
         widget.setCheckClipping(true);
-        addChild(widget);
+        parent.removeChildren(params);
+        params.add(widget);
+        for (Widget w : params) {
+            parent.addChild(w);
+        }
         if (stateModel.getBooleanState() && isMinimizableWidget(widget)) {
             widget.setPreferredBounds(new Rectangle());
         }
@@ -277,77 +300,6 @@ public class BlockWidget extends Widget implements StateModel.Listener, VMDMinim
             proxyAnchorCache.put(anchor, proxyAnchor);
         }
         return proxyAnchor;
-    }
-
-    /**
-     * Returns a list of pin widgets attached to the node.
-     * @return the list of pin widgets
-     */
-    private List<Widget> getPinWidgets() {
-        ArrayList<Widget> pins = new ArrayList<Widget>(getChildren());
-        pins.remove(header);
-        pins.remove(pinsSeparator);
-        return pins;
-    }
-
-    /**
-     * Sorts and assigns pins into categories.
-     * @param pinsCategories the map of category name as key and a list of pin widgets as value
-     */
-    public void sortPins(HashMap<String, List<Widget>> pinsCategories) {
-        List<Widget> previousPins = getPinWidgets();
-        ArrayList<Widget> unresolvedPins = new ArrayList<Widget>(previousPins);
-
-        for (Iterator<Widget> iterator = unresolvedPins.iterator(); iterator.hasNext();) {
-            Widget widget = iterator.next();
-            if (pinCategoryWidgets.containsValue(widget)) {
-                iterator.remove();
-            }
-        }
-
-        ArrayList<String> unusedCategories = new ArrayList<String>(pinCategoryWidgets.keySet());
-
-        ArrayList<String> categoryNames = new ArrayList<String>(pinsCategories.keySet());
-        Collections.sort(categoryNames);
-
-        ArrayList<Widget> newWidgets = new ArrayList<Widget>();
-        for (String categoryName : categoryNames) {
-            if (categoryName == null) {
-                continue;
-            }
-            unusedCategories.remove(categoryName);
-            newWidgets.add(createPinCategoryWidget(categoryName));
-            List<Widget> widgets = pinsCategories.get(categoryName);
-            for (Widget widget : widgets) {
-                if (unresolvedPins.remove(widget)) {
-                    newWidgets.add(widget);
-                }
-            }
-        }
-
-        if (!unresolvedPins.isEmpty()) {
-            newWidgets.addAll(0, unresolvedPins);
-        }
-
-        for (String category : unusedCategories) {
-            pinCategoryWidgets.remove(category);
-        }
-
-        removeChildren(previousPins);
-        addChildren(newWidgets);
-    }
-
-    private Widget createPinCategoryWidget(String categoryDisplayName) {
-        Widget w = pinCategoryWidgets.get(categoryDisplayName);
-        if (w != null) {
-            return w;
-        }
-        Widget label = scheme.createPinCategoryWidget(this, categoryDisplayName);
-        if (stateModel.getBooleanState()) {
-            label.setPreferredBounds(new Rectangle());
-        }
-        pinCategoryWidgets.put(categoryDisplayName, label);
-        return label;
     }
 
     /**

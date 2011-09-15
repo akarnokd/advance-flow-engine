@@ -32,6 +32,7 @@ import org.netbeans.api.visual.widget.Scene;
 class BlockConnectionWidget extends ConnectionWidget {
 
     private ColorScheme scheme;
+    private boolean error;
 
     /**
      * Creates a connection widget with a specific color scheme.
@@ -55,4 +56,14 @@ class BlockConnectionWidget extends ConnectionWidget {
     public void notifyStateChanged(ObjectState previousState, ObjectState state) {
         scheme.updateUI(this, previousState, state);
     }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+        notifyStateChanged(getState(), getState());
+    }
+    
 }
