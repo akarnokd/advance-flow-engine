@@ -27,9 +27,9 @@ import java.net.URI;
  * An interface representing the connection information to a remote ADVANCE Flow Engine.
  * @author karnokd, 2011.09.19.
  */
-public interface AdvanceControlToken {
+public class AdvanceControlToken {
 	/** @return the URI address off the remote Flow Engine. */
-	URI target();
+	public URI target;
 	/** @return the user's settings. */
-	AdvanceUser user();
+	public AdvanceUser user;
 }

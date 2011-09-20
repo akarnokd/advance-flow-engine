@@ -25,30 +25,18 @@ package eu.advance.logistics.flow.engine.api;
  * A record representing information about local or remote key stores.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceKeyStore extends AdvanceCreateModifyInfo {
-	/** @return the key store name. */
-	String name();
-	/** @return the key store location on disk. */
-	String location();
+public class AdvanceKeyStore extends AdvanceCreateModifyInfo {
+	/** The key store name. */
+	public String name;
+	/** The key store location on disk. */
+	public String location;
 	/** 
+	 * The password.
+	 * <p>An empty password should be an empty {@code char} array. To keep
+	 * the current password, use {@code null}.</p>
 	 * <p>Note that passwords are never returned from the 
 	 * control API calls and are always {@code null}.</p> 
 	 * @return the password. 
 	 */
-	char[] password();
-	/**
-	 * @param newName the new name
-	 */
-	void name(String newName);
-	/**
-	 * @param newLocation the new location
-	 */
-	void location(String newLocation);
-	/**
-	 * <p>Set a new password.</p>
-	 * <p>An empty password should be an empty {@code char} array. To keep
-	 * the current password, use {@code null}.</p>
-	 * @param newPassword the new password
-	 */
-	void password(char[] newPassword);
+	public char[] password;
 }

@@ -27,29 +27,13 @@ import eu.advance.logistics.util.DistinguishedName;
  * Request to generate a new key.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceGenerateKey extends AdvanceKeyStoreExport {
+public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 	/** @return the key algorithm. */
-	String algorithm();
+	public String algorithm;
 	/** @return the key bit size. */
-	int keySize();
+	public int keySize;
 	/** @return the issuer's distinguished name. */
-	DistinguishedName issuerDn();
+	public DistinguishedName issuerDn;
 	/** @return the subject's distinguished name. */
-	DistinguishedName subjectDn();
-	/**
-	 * @param newAlgorithm the new algorithm
-	 */
-	void algorithm(String newAlgorithm);
-	/**
-	 * @param newKeySize the new key size
-	 */
-	void keySize(int newKeySize);
-	/**
-	 * @param newDn the new issuer distinguished name
-	 */
-	void issuerDn(DistinguishedName newDn);
-	/**
-	 * @param newDn the new subject distinguished name
-	 */
-	void subjectDn(DistinguishedName newDn);
+	public DistinguishedName subjectDn;
 }

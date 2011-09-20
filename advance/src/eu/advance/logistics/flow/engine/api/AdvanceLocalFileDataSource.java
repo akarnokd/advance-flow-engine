@@ -25,19 +25,11 @@ package eu.advance.logistics.flow.engine.api;
  * A local file or directory data source.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo {
-	/** @return the unique identifier of this data source. */
-	int id();
-	/** @return the name of the data source as used by blocks. */
-	String name();
-	/** @return the directory where the file source(s) are located. */
-	String directory();
-	/** 
-	 * @param newName the new name
-	 */
-	void name(String newName);
-	/**
-	 * @param newDirectory the new directory
-	 */
-	void directory(String newDirectory);
+public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo {
+	/** The unique identifier of this data source. */
+	public int id;
+	/** The name of the data source as used by blocks. */
+	public String name;
+	/** The directory where the file source(s) are located. */
+	public String directory;
 }

@@ -28,49 +28,21 @@ import java.net.URL;
  * Describes a SOAP communication channel.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceSOAPChannel extends AdvanceCreateModifyInfo {
-	/** @return the unique channel identifier. */
-	int id();
-	/** @return the name used to reference this channel from blocks. */
-	String name();
-	/** @return the endpoint URL. */
-	URL endpoint();
-	/** @return the target object URI. */
-	URI targetObject();
-	/** @return the remote method. */
-	String method();
-	/** @return the communication should be encrypted. */
-	boolean encrypted();
-	/** @return the keystore for the encryption key. */
-	String keyStore();
-	/** @return the key alias for the encryption. */
-	String keyAlias();
-	/**
-	 * @param newName the new name
-	 */
-	void name(String newName);
-	/**
-	 * @param newEndpoint the new endpoint
-	 */
-	void endpoint(URL newEndpoint);
-	/**
-	 * @param newTargetObject the new target object
-	 */
-	void targetObject(URI newTargetObject);
-	/**
-	 * @param newMethod the new method.
-	 */
-	void method(String newMethod);
-	/**
-	 * @param newEncrypted the new encrypted settings
-	 */
-	void encrypted(boolean newEncrypted);
-	/**
-	 * @param newKeystore the new keystore
-	 */
-	void keyStore(String newKeystore);
-	/**
-	 * @param newKeyAlias the new key alias
-	 */
-	void keyAlias(String newKeyAlias);
+public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo {
+	/** The unique channel identifier. */
+	public int id;
+	/** The name used to reference this channel from blocks. */
+	public String name;
+	/** The endpoint URL. */
+	public URL endpoint;
+	/** The target object URI. */
+	public URI targetObject;
+	/** The remote method. */
+	public String method;
+	/** The communication should be encrypted. */
+	public boolean encrypted;
+	/** The keystore for the encryption key. */
+	public String keyStore;
+	/** The key alias for the encryption. */
+	public String keyAlias;
 }

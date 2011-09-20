@@ -25,50 +25,25 @@ package eu.advance.logistics.flow.engine.api;
  * Description of JDBC data store records.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceJDBCDataSource extends AdvanceCreateModifyInfo {
-	/** @return the unique identifier of the record. */
-	int id();
-	/** @return the name used by blocks to reference this data source. */
-	String name();
-	/** @return the JDBC driver. */
-	AdvanceJDBCDrivers driver();
-	/** @return the connection url. */
-	String url();
-	/** @return the user who connects. */
-	String user();
+public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo {
+	/** The unique identifier of the record. */
+	public int id;
+	/** The name used by blocks to reference this data source. */
+	public String name;
+	/** The JDBC driver. */
+	public AdvanceJDBCDrivers driver;
+	/** The connection url. */
+	public String url;
+	/** The user who connects. */
+	public String user;
 	/** 
+	 * The password for connection.
 	 * <p>Note that passwords are never returned from the 
 	 * control API calls and are always {@code null}.</p> 
-	 * @return the password for connection. 
-	 */
-	char[] password();
-	/** @return the connection pool size. */
-	int poolSize();
-	/**
-	 * @param newName the new name
-	 */
-	void name(String newName);
-	/**
-	 * @param newDriver the new driver
-	 */
-	void driver(AdvanceJDBCDrivers newDriver);
-	/**
-	 * @param newUrl the new url
-	 */
-	void url(String newUrl);
-	/**
-	 * @param newUser the new user
-	 */
-	void user(String newUser);
-	/**
-	 * <p>Set a new password.</p>
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
-	 * @param newPassword the new password
 	 */
-	void password(char[] newPassword);
-	/**
-	 * @param newPoolSize the new pool size
-	 */
-	void poolSize(int newPoolSize);
+	public char[] password;
+	/** The connection pool size. */
+	public int poolSize;
 }

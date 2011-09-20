@@ -25,62 +25,29 @@ package eu.advance.logistics.flow.engine.api;
  * Definition of a Java Messaging Service endpoint.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceJMSEndpoint extends AdvanceCreateModifyInfo {
-	/** @return the unique identifier. */
-	int id();
-	/** @return the name used by blocks to reference this endpoint. */
-	String name();
-	/** @return the JMS driver. */
-	AdvanceJMSDrivers driver();
-	/** @return the connection URL. */
-	String url();
-	/** @return the user name. */
-	String user();
-	/** 
+public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo {
+	/** The unique identifier. */
+	public int id;
+	/** The name used by blocks to reference this endpoint. */
+	public String name;
+	/** The JMS driver. */
+	public AdvanceJMSDrivers driver;
+	/** The connection URL. */
+	public String url;
+	/** The user name. */
+	public String user;
+	/**
+	 * The password. 
 	 * <p>Note that passwords are never returned from the 
 	 * control API calls and are always {@code null}.</p> 
-	 * @return the password. 
-	 */
-	char[] password();
-	/** @return the queue manager name. */
-	String queueManager();
-	/** @return the queue name. */
-	String queue();
-	/** @return the communication pool size. */
-	int poolSize();
-	/**
-	 * @param newName the new name
-	 */
-	void name(String newName);
-	/**
-	 * @param newDriver the new driver
-	 */
-	void driver(AdvanceJMSDrivers newDriver);
-	/**
-	 * @param newUrl the new connection url
-	 */
-	void url(String newUrl);
-	/**
-	 * @param newUser the new user
-	 */
-	void user(String newUser);
-	/**
-	 * <p>Set a new password.</p>
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
-	 * @param newPassword the new password
 	 */
-	void password(char[] newPassword);
-	/**
-	 * @param newQueueManager the new queue manager
-	 */
-	void queueManager(String newQueueManager);
-	/**
-	 * @param newQueue the new queue
-	 */
-	void queue(String newQueue);
-	/**
-	 * @param newPoolSize the new pool size
-	 */
-	void poolSize(int newPoolSize);
+	public char[] password;
+	/** The queue manager name. */
+	public String queueManager;
+	/** The queue name. */
+	public String queue;
+	/** The communication pool size. */
+	public int poolSize;
 }

@@ -42,7 +42,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealmInfo;
-import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
@@ -53,67 +52,6 @@ import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
  * @author karnokd, 2011.09.20.
  */
 public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
-
-	@Override
-	public AdvanceJDBCDataSource createJDBCDataSource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceJMSEndpoint createJMSEndpoint() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceSOAPChannel createSOAPChannel() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceUser createUser() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceWebDataSource createWebDataSource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceFTPDataSource createFTPDataSource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceLocalFileDataSource createLocalFileDataSource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceKeyStore createKeyStore() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceKeyStoreExport createKeyStoreExport() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceGenerateKey createGenerateKey() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override
 	public AdvanceControlToken login(URI target, String userName,
 			char[] password) throws IOException, AdvanceControlException {
