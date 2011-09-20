@@ -32,10 +32,36 @@ import java.util.Set;
 import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
 
 /**
- * The API for interacting with the ADVANCE Flow Engine remotely.
+ * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
+ * <p>The API does not have separate {@code insertXYZ} type methods to create
+ * new instances of various objects. In order to create new objects, use the
+ * various {@code createXYZ()} methods and use them in the {@code updateXYZ()}
+ * methods. The {@code Integer.MIN_VALUE} used as the unique identifier (see {@code id() methods} will represent
+ * the request to create a new object. Once they were created, the proper non-negative
+ * unique identifier replaces this value.</p>
  * @author karnokd, 2011.09.19.
  */
 public interface AdvanceFlowEngineControl {
+	/** @return create a new, uninitialized JDBC data source object. */
+	AdvanceJDBCDataSource createJDBCDataSource();
+	/** @return create a new, uninitialized JMS data source object. */
+	AdvanceJMSEndpoint createJMSEndpoint();
+	/** @return create a new, uninitialized SOAP channel object. */
+	AdvanceSOAPChannel createSOAPChannel();
+	/** @return create a new, uninitialized User object. */
+	AdvanceUser createUser();
+	/** @return create a new, uninitialized web data source object. */
+	AdvanceWebDataSource createWebDataSource();
+	/** @return create a new, uninitialized web data source object. */
+	AdvanceFTPDataSource createFTPDataSource();
+	/** @return create a new, uninitialized web data source object. */
+	AdvanceLocalFileDataSource createLocalFileDataSource();
+	/** @return create a new, uninitialized key store object. */
+	AdvanceKeyStore createKeyStore();
+	/** @return create a new, uninitialized key store export object. */
+	AdvanceKeyStoreExport createKeyStoreExport();
+	/** @return create a new, uninitialized key generation object. */
+	AdvanceGenerateKey createGenerateKey();
 	/**
 	 * Connect to the target ADVANCE Flow Engine via username/password pair.
 	 * @param target the target URI
@@ -178,4 +204,254 @@ public interface AdvanceFlowEngineControl {
 	 * @throws AdvanceControlException if the user is not allowed to modify the target user
 	 */
 	void updateNotificationGroups(AdvanceControlToken token, Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups) throws IOException, AdvanceControlException;
+	/**
+	 * List the available JDBC data sources.
+	 * @param token the connection token
+	 * @return the list of JDBC data sources
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to query the information
+	 */
+	List<AdvanceJDBCDataSource> queryJDBCDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Update a JDBC data source.
+	 * @param token the connection token
+	 * @param dataSource the data source object
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to update the information
+	 */
+	void updateJDBCDataSource(AdvanceControlToken token, AdvanceJDBCDataSource dataSource) throws IOException, AdvanceControlException;
+	/**
+	 * Test the JDBC data source connection.
+	 * @param token the connection token
+	 * @param dataSourceId the data source identifier
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to test the connection or the test failed
+	 */
+	void testJDBCDataSource(AdvanceControlToken token, int dataSourceId) throws IOException, AdvanceControlException;
+	/**
+	 * Delete a specific JDBC data source.
+	 * @param token the connection token
+	 * @param dataSourceId the data source identifier
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete the data source
+	 */
+	void deleteJDBCDataSource(AdvanceControlToken token, int dataSourceId) throws IOException, AdvanceControlException;
+	/**
+	 * Retrieve a list of JMS endpoints.
+	 * @param token the connection token
+	 * @return the list of jms endpoints
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the JMS endpoints
+	 */
+	List<AdvanceJMSEndpoint> queryJMSEndpoints(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Update a JMS endpoint settings.
+	 * @param token the connection token
+	 * @param endpoint the entpoint object.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to modify the JMS endpoint
+	 */
+	void updateJMSEndpoint(AdvanceControlToken token, AdvanceJMSEndpoint endpoint) throws IOException, AdvanceControlException;
+	/**
+	 * Test a JMS endpoint configuration.
+	 * @param token the connection token
+	 * @param jmsId the identifier of the JMS enpoint to test.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to test the connection or the test failed
+	 */
+	void testJMSEndpoint(AdvanceControlToken token, int jmsId) throws IOException, AdvanceControlException;
+	/**
+	 * Delete a JMS endpoint configuration.
+	 * @param token the connection token
+	 * @param jmsId the identifier of the JMS enpoint to test.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete
+	 */
+	void deleteJMSEndpoint(AdvanceControlToken token, int jmsId) throws IOException, AdvanceControlException;
+	/**
+	 * Retrieve a list of web data sources.
+	 * @param token the connection token
+	 * @return the list of web data sources
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the web data sources
+	 */
+	List<AdvanceWebDataSource> queryWebDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Update a web data source.
+	 * @param token the connection token
+	 * @param endpoint the endpoint record
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to update the web data sources
+	 */
+	void updateWebDataSource(AdvanceControlToken token, AdvanceWebDataSource endpoint) throws IOException, AdvanceControlException;
+	/**
+	 * Delete a web data source.
+	 * @param token the connection token
+	 * @param webId the web data source identifier
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete the web data sources
+	 */
+	void deleteWebDataSource(AdvanceControlToken token, int webId) throws IOException, AdvanceControlException;
+	/**
+	 * Retrieve the list of FTP data sources.
+	 * @param token the connection token
+	 * @return the list of FTP data sources
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the data sources
+	 */
+	List<AdvanceFTPDataSource> queryFTPDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Update the FTP data source.
+	 * @param token the connection token
+	 * @param dataSource the data source object
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to modify FTP data sources
+	 */
+	void updateFTPDataSource(AdvanceControlToken token, AdvanceFTPDataSource dataSource) throws IOException, AdvanceControlException;
+	/**
+	 * Test the FTP data source.
+	 * @param token the connection token
+	 * @param ftpId the data source identifier
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to test FTP data sources
+	 */
+	void testFTPDataSource(AdvanceControlToken token, int ftpId) throws IOException, AdvanceControlException;
+	/**
+	 * Delete an FTP data source object.
+	 * @param token the connection token
+	 * @param ftpId the data source identifier
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete FTP data sources
+	 */
+	void deleteFTPDataSource(AdvanceControlToken token, int ftpId) throws IOException, AdvanceControlException;
+	/**
+	 * Retrieve the list of local file data sources.
+	 * @param token the connection token
+	 * @return the list of local file data source
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the local file data sources
+	 */
+	List<AdvanceLocalFileDataSource> queryLocalFileDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Update a local file data source object.
+	 * @param token the connection token
+	 * @param dataSource the data source object
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to modify local file data sources
+	 */
+	void updateLocalFileDataSource(AdvanceControlToken token, AdvanceLocalFileDataSource dataSource) throws IOException, AdvanceControlException;
+	/**
+	 * Delete a local file data source record.
+	 * @param token the connection token
+	 * @param fileId the local file data source identifier
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete local file data sources
+	 */
+	void deleteLocalFileDataSource(AdvanceControlToken token, int fileId) throws IOException, AdvanceControlException;
+	/**
+	 * Query the list of available key stores.
+	 * @param token the connection token
+	 * @return the list of key stores.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to see the key stores.
+	 */
+	List<AdvanceKeyStore> queryKeyStores(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Query the list of the contents of a particular key store.
+	 * @param token the connection token
+	 * @param keyStore the key store name
+	 * @param password the key store master password
+	 * @return the list of key entries
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the key store contents.
+	 */
+	List<AdvanceKeyEntry> queryKeyStore(AdvanceControlToken token, String keyStore, char[] password) throws IOException, AdvanceControlException;
+	/**
+	 * Update key store properties.
+	 * @param token the connection token
+	 * @param keyStore the key store properties
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to modify a key store.
+	 */
+	void updateKeyStore(AdvanceControlToken token, AdvanceKeyStore keyStore) throws IOException, AdvanceControlException;
+	/**
+	 * Delete a key store.
+	 * @param token the connection token
+	 * @param keyStore the key store to delete
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete a key store
+	 */
+	void deleteKeyStore(AdvanceControlToken token, String keyStore) throws IOException, AdvanceControlException;;
+	/**
+	 * Delete a key entry from a keystore.
+	 * @param token the connection token
+	 * @param keyStore the key store name
+	 * @param password the key store master password
+	 * @param keyAlias the key alias
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete a key
+	 */
+	void deleteKeyEntry(AdvanceControlToken token, String keyStore, char[] password, String keyAlias) throws IOException, AdvanceControlException;;
+	/**
+	 * Generate a new key with the given properties.
+	 * @param token the connection token
+	 * @param key the key generation properties
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to generate a key
+	 */
+	void generateKey(AdvanceControlToken token, AdvanceGenerateKey key) throws IOException, AdvanceControlException;
+	/**
+	 * Export a certificate from a designated key store.
+	 * @param token the connection token
+	 * @param request represents the key store and key alias to export
+	 * @return the certificate in textual CER format.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to export
+	 */
+	String exportCertificate(AdvanceControlToken token, AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
+	/**
+	 * Export a private key from a designated key store.
+	 * @param token the connection token
+	 * @param request represents the key store and key alias to export
+	 * @return the private key in textual PEM format.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to export
+	 */
+	String exportPrivateKey(AdvanceControlToken token, AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
+	/**
+	 * Import a certificate into a designated key store.
+	 * @param token the connection token
+	 * @param request represents the key store and key alias to import
+	 * @param data the certificate in textual CER format.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to export
+	 */
+	void importCertificate(AdvanceControlToken token, AdvanceKeyStoreExport request, String data) throws IOException, AdvanceControlException;
+	/**
+	 * Import a private key into a designated key store.
+	 * @param token the connection token
+	 * @param request represents the key store and key alias to import
+	 * @param data the certificate in textual PEM format.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to export
+	 */
+	void importPrivateKey(AdvanceControlToken token, AdvanceKeyStoreExport request, String data) throws IOException, AdvanceControlException;
+	/**
+	 * Export a signing request of the given private key.
+	 * @param token the connection token
+	 * @param request represents the key store and key alias to export
+	 * @return the signing request in textual format.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to export
+	 */
+	String exportSigningRequest(AdvanceControlToken token, AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
+	/**
+	 * Import a signing response into the designated key store.
+	 * @param token the connection token
+	 * @param request represents the key store and key alias to export
+	 * @param data the signing response in textual format.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to export
+	 */
+	void importSigningResponse(AdvanceControlToken token, AdvanceKeyStoreExport request, String data) throws IOException, AdvanceControlException;
 }

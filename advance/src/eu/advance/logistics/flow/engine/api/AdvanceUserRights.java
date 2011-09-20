@@ -42,7 +42,80 @@ public enum AdvanceUserRights {
 	MODIFY_REALM,
 	/** Delete a realm. */
 	DELETE_REALM,
-	/** Manage keystore. */
-	MANAGE_KEYSTORE
-	// TODO more rights
+	/** List the keystores. */
+	LIST_KEYSTORES,
+	/** Create keystore. */
+	CREATE_KEYSTORE,
+	/** Delete keystore. */
+	DELETE_KEYSTORE,
+	/** Modify keystore. */
+	MODIFY_KEYSTORE,
+	/** List keystore keys. */
+	LIST_KEYS,
+	/** Export key certificate. */
+	EXPORT_CERTIFICATE,
+	/** Export private key. */
+	EXPORT_PRIVATE_KEY,
+	/** Import certificate. */
+	IMPORT_CERTIFICATE,
+	/** Import private key. */
+	IMPORT_PRIVATE_KEY,
+	/** Generate new key. */
+	GENERATE_KEY,
+	/** List notification groups. */
+	LIST_NOTIFICATION_GROUPS,
+	/** Create notification group. */
+	CREATE_NOTIFICATION_GROUP,
+	/** Modify an existing notification group. */
+	MODIFY_NOTIFICATION_GROUP,
+	/** Delete a notification group. */
+	DELETE_NOTIFICATION_GROUP,
+	/** List JDBC data sources. */
+	LIST_JDBC_DATA_SOURCES,
+	/** Create new JDBC data source. */
+	CREATE_JDBC_DATA_SOURCE,
+	/** Modify an existing JDBC data source. */
+	MODIFY_JDBC_DATA_SOURCE,
+	/** Delete JDBC data source. */
+	DELETE_JDBC_DATA_SOURCE,
+	/** List Java Messaging Endpoints. */
+	LIST_JMS,
+	/** Create new JMS endpoint. */
+	CREATE_JMS,
+	/** Modify JMS endpoint. */
+	MODIFY_JMS,
+	/** Delete JMS endpoint. */
+	DELETE_JMS,
+	/** List SOAP channels. */
+	LIST_SOAP_CHANNELS,
+	/** Create a SOAP channel. */
+	CREATE_SOAP_CHANNEL,
+	/** Modify a SOAP channel. */
+	MODIFY_SOAP_CHANNEL,
+	/** Delete a SOAP channel. */
+	DELETE_SOAP_CHANNEL,
+	/** List web data sources. */
+	LIST_WEB_DATA_SOURCES,
+	/** Create web data source. */
+	CREATE_WEB_DATA_SOURCE,
+	/** Modify web data source. */
+	MODIFY_WEB_DATA_SOURCE,
+	/** Delete web data source. */
+	DELETE_WEB_DATA_SOURCE,
+	/** List FTP data sources. */
+	LIST_FTP_DATA_SOURCES,
+	/** Create FTP data source. */
+	CREATE_FTP_DATA_SOURCE,
+	/** Modify FTP data source. */
+	MODIFY_FTP_DATA_SOURCE,
+	/** Delete FTP data source. */
+	DELETE_FTP_DATA_SOURCE,
+	/** List local file data sources. */
+	LIST_LOCAL_FILE_DATA_SOURCES,
+	/** Create local file data source. */
+	CREATE_LOCAL_FILE_DATA_SOURCE,
+	/** Modify local file data source. */
+	MODIFY_LOCAL_FILE_DATA_SOURCE,
+	/** Delete local file data source. */
+	DELETE_LOCAL_FILE_DATA_SOURCE,
 }

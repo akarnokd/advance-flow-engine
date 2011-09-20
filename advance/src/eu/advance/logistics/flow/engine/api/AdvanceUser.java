@@ -109,10 +109,16 @@ public interface AdvanceUser extends AdvanceCreateModifyInfo {
 	 * @param viaPassword use password?
 	 */
 	void passwordLogin(boolean viaPassword);
-	/** @return the current password login characters or null if not present. */
-	char[] password();
 	/** 
-	 * Set the password.
+	 * <p>Note that passwords are never returned from the 
+	 * control API calls and are always {@code null}.</p> 
+	 * @return the current password login characters or null if not present. 
+	 */
+	char[] password();
+	/**
+	 * <p>Set a new password.</p>
+	 * <p>An empty password should be an empty {@code char} array. To keep
+	 * the current password, use {@code null}.</p>
 	 * @param newPassword the new password
 	 */
 	void password(char[] newPassword);
