@@ -27,11 +27,11 @@ import java.util.Set;
  * Properties of a concrete key in a key store.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceKeyEntry {
-	/** @return the key type. */
-	AdvanceKeyType type();
-	/** @return The key name. */
-	String name();
-	/** @return a unmodifiable set of aliases. */
-	Set<String> aliases();
+public class AdvanceKeyEntry {
+	/** The key type. */
+	public AdvanceKeyType type;
+	/** The key name. */
+	public String name;
+	/** An unmodifiable set of aliases. */
+	public Set<String> aliases;
 }

@@ -27,46 +27,26 @@ import java.net.URL;
  * The web data source configuration record.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceWebDataSource extends AdvanceCreateModifyInfo {
-	/** @return the unique identifier of the data source. */
-	int id();
-	/** @return the data source name as used by the blocks. */
-	String name();
-	/** @return the URL. */
-	URL url();
-	/** @return the login type enumeration. */
-	AdvanceWebLoginType loginType();
-	/** @return the keystore name if the loginType is CERTIFICATE. */
-	String keyStore();
-	/** @return the user or key alias name. */
-	String userOrKeyAlias();
+public class AdvanceWebDataSource extends AdvanceCreateModifyInfo {
+	/** The unique identifier of the data source. */
+	public int id;
+	/** The data source name as used by the blocks. */
+	public String name;
+	/** The URL. */
+	public URL url;
+	/** The login type enumeration. */
+	public AdvanceWebLoginType loginType;
+	/** The keystore name if the loginType is CERTIFICATE. */
+	public String keyStore;
+	/** The user or key alias name. */
+	public String userOrKeyAlias;
 	/**
+	 * The password for BASIC login or the key password for the CERTIFICATE.
 	 * <p>Note that passwords are never returned from the 
 	 * control API calls and are always {@code null}.</p> 
-	 * @return the password for BASIC login or the key password for the CERTIFICATE. 
-	 */
-	char[] password();
-	/** 
-	 * @param newName the new name
-	 */
-	void name(String newName);
-	/**
-	 * @param newUrl the new URL
-	 */
-	void url(URL newUrl);
-	/**
-	 * @param newLoginType the login type
-	 */
-	void loginType(AdvanceWebLoginType newLoginType);
-	/**
-	 * @param newValue the user or key alias for the login
-	 */
-	void userOrKeyAlias(String newValue);
-	/**
-	 * <p>Set a new password.</p>
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
-	 * @param newPassword the new password
+	 * @return  
 	 */
-	void password(char[] newPassword);
+	public char[] password;
 }

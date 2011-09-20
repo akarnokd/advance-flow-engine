@@ -26,9 +26,9 @@ package eu.advance.logistics.flow.engine.api;
  * The status information about a realm.
  * @author karnokd, 2011.09.19.
  */
-public interface AdvanceRealmInfo extends AdvanceCreateModifyInfo {
-	/** @return the realm status. */
-	AdvanceRealmStatus status();
-	/** @return The name of the realm. */
-	String name();
+public class AdvanceRealmInfo extends AdvanceCreateModifyInfo {
+	/** The realm status. */
+	public AdvanceRealmStatus status;
+	/** The name of the realm. */
+	public String name;
 }

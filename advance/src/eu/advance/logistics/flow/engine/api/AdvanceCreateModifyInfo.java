@@ -27,13 +27,13 @@ import java.sql.Timestamp;
  * The creation/modification time and user information.
  * @author karnokd, 2011.09.19.
  */
-public interface AdvanceCreateModifyInfo {
+public class AdvanceCreateModifyInfo {
 	/** @return the creation timestamp of the object. */
-	Timestamp createdAt();
+	public Timestamp createdAt;
 	/** @return the last modification timestamp of the object. */
-	Timestamp modifiedAt();
+	public Timestamp modifiedAt;
 	/** @return The user who created the object. */
-	String createdBy();
+	public String createdBy;
 	/** @return The user who modified the object the last time. */
-	String modifiedBy();
+	public String modifiedBy;
 }

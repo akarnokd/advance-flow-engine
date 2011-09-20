@@ -25,33 +25,21 @@ package eu.advance.logistics.flow.engine.api;
  * Request for exporting a certificate from a keystore.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceKeyStoreExport {
-	/** @return the key store name. */
-	String keyStore();
-	/** @return the key store master password. */
-	char[] keyStorePassword();
-	/** @return the key alias. */
-	String keyAlias();
-	/** @return the key password. */
-	char[] keyPassword();
-	/**
-	 * @param newKeyStore the new key store name
-	 */
-	void keyStore(String newKeyStore);
-	/**
+public class AdvanceKeyStoreExport {
+	/** The key store name. */
+	public String keyStore;
+	/** 
+	 * The key store master password.
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
-	 * @param newPassword the key store password
 	 */
-	void keyStorePassword(char[] newPassword);
-	/**
-	 * @param newKeyAlias the new key alias
-	 */
-	void keyAlias(String newKeyAlias);
-	/**
+	public char[] keyStorePassword;
+	/** The key alias. */
+	public String keyAlias;
+	/** 
+	 * The key password.
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
-	 * @param newPassword the new key password
 	 */
-	void keyPassword(char[] newPassword);
+	public char[] keyPassword;
 }

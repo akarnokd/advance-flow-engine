@@ -34,34 +34,13 @@ import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
 /**
  * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
  * <p>The API does not have separate {@code insertXYZ} type methods to create
- * new instances of various objects. In order to create new objects, use the
- * various {@code createXYZ()} methods and use them in the {@code updateXYZ()}
- * methods. The {@code Integer.MIN_VALUE} used as the unique identifier (see {@code id() methods} will represent
+ * new instances of various objects. 
+ * The {@code Integer.MIN_VALUE} used as the unique identifier (see {@code id fields} will represent
  * the request to create a new object. Once they were created, the proper non-negative
  * unique identifier replaces this value.</p>
  * @author karnokd, 2011.09.19.
  */
 public interface AdvanceFlowEngineControl {
-	/** @return create a new, uninitialized JDBC data source object. */
-	AdvanceJDBCDataSource createJDBCDataSource();
-	/** @return create a new, uninitialized JMS data source object. */
-	AdvanceJMSEndpoint createJMSEndpoint();
-	/** @return create a new, uninitialized SOAP channel object. */
-	AdvanceSOAPChannel createSOAPChannel();
-	/** @return create a new, uninitialized User object. */
-	AdvanceUser createUser();
-	/** @return create a new, uninitialized web data source object. */
-	AdvanceWebDataSource createWebDataSource();
-	/** @return create a new, uninitialized web data source object. */
-	AdvanceFTPDataSource createFTPDataSource();
-	/** @return create a new, uninitialized web data source object. */
-	AdvanceLocalFileDataSource createLocalFileDataSource();
-	/** @return create a new, uninitialized key store object. */
-	AdvanceKeyStore createKeyStore();
-	/** @return create a new, uninitialized key store export object. */
-	AdvanceKeyStoreExport createKeyStoreExport();
-	/** @return create a new, uninitialized key generation object. */
-	AdvanceGenerateKey createGenerateKey();
 	/**
 	 * Connect to the target ADVANCE Flow Engine via username/password pair.
 	 * @param target the target URI

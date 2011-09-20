@@ -25,56 +25,27 @@ package eu.advance.logistics.flow.engine.api;
  * The FTP data source record.
  * @author karnokd, 2011.09.20.
  */
-public interface AdvanceFTPDataSource extends AdvanceCreateModifyInfo {
+public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo {
 	/** @return the unique identifier. */
-	int id();
+	public int id;
 	/** @return the name used by blocks to reference this data source. */
-	String name();
+	public String name;
 	/** @return the protocol enumeration. */
-	AdvanceFTPProtocols protocol();
+	public AdvanceFTPProtocols protocol;
 	/** @return the FTP address. */
-	String address();
+	public String address;
 	/** @return the remote base directory. */
-	String remoteDirectory();
+	public String remoteDirectory;
 	/** @return the user name used to login. */
-	String user();
+	public String user;
 	/** 
 	 * <p>Note that passwords are never returned from the 
 	 * control API calls and are always {@code null}.</p> 
-	 * @return the password used to login. 
-	 */
-	char[] password();
-	/** @return the connection should be passive? */
-	boolean passive();
-	/**
-	 * @param newName the new name
-	 */
-	void name(String newName);
-	/**
-	 * @param newProtocol the new protocol
-	 */
-	void protocol(AdvanceFTPProtocols newProtocol);
-	/**
-	 * @param newAddress the new address
-	 */
-	void address(String newAddress);
-	/**
-	 * @param newRemoteDirectory the new remote directory
-	 */
-	void remoteDirectory(String newRemoteDirectory);
-	/**
-	 * @param newUser the new user
-	 */
-	void user(String newUser);
-	/**
-	 * <p>Set a new password.</p>
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
-	 * @param newPassword the new password
+	 * @return the password used to login. 
 	 */
-	void password(char[] newPassword);
-	/**
-	 * @param newValue set the connection to passive?
-	 */
-	void passive(boolean newValue);
+	public char[] password;
+	/** @return the connection should be passive? */
+	public boolean passive;
 }
