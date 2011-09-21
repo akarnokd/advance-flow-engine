@@ -83,4 +83,19 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 		
 		super.save(destination);
 	}
+	/** @return create a defensive copy of this object. */
+	public AdvanceWebDataSource copy() {
+		AdvanceWebDataSource result = new AdvanceWebDataSource();
+		
+		result.id = id;
+		result.name = name;
+		result.url = url;
+		result.loginType = loginType;
+		result.keyStore = keyStore;
+		result.userOrKeyAlias = userOrKeyAlias;
+		
+		assignTo(result);
+		
+		return result;
+	}
 }

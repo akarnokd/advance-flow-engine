@@ -56,4 +56,17 @@ public class AdvanceKeyStore extends AdvanceCreateModifyInfo implements XSeriali
 		setPassword(destination, "password", password);
 		super.save(destination);
 	}
+	/** 
+	 * @return create a defensive copy of this object
+	 */
+	public AdvanceKeyStore copy() {
+		AdvanceKeyStore result = new AdvanceKeyStore();
+		
+		result.name = name;
+		result.location = location;
+		
+		assignTo(result);
+		
+		return result;
+	}
 }

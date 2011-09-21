@@ -49,4 +49,16 @@ public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo implemen
 		destination.set("directory", directory);
 		super.save(destination);
 	}
+	/** @return create a defensive copy of this object. */
+	public AdvanceLocalFileDataSource copy() {
+		AdvanceLocalFileDataSource result = new AdvanceLocalFileDataSource();
+		
+		result.id = id;
+		result.name = name;
+		result.directory = directory;
+		
+		assignTo(result);
+		
+		return result;
+	}
 }

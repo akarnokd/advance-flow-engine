@@ -159,30 +159,32 @@ public class LocalDataStore implements XSerializable {
 	}
 	@Override
 	public void save(XElement destination) {
-		destination.set("sequence", sequence.get());
-
-		saveInto(destination, "users", "user", users.values());
-		saveInto(destination, "realms", "realm", realms.values());
-		saveInto(destination, "keystores", "keystore", keystores.values());
+		saveInto(destination, "users", "user", users);
+		saveInto(destination, "realms", "realm", realms);
+		saveInto(destination, "keystores", "keystore", keystores);
 		
 		XElement xnot = destination.add("notification-groups");
-		for (Map.Entry<AdvanceNotificationGroupType, Map<String, Set<String>>> e : notificationGroups.entrySet()) {
-			for (Map.Entry<String, Set<String>> e2 : e.getValue().entrySet()) {
-				XElement xgroup = xnot.add("group");
-				xgroup.set("name", e2.getKey());
-				xgroup.set("type", e.getKey());
-				for (String e3 : e2.getValue()) {
-					xgroup.add("contact").set("value", e3);
+		synchronized (notificationGroups) {
+			for (Map.Entry<AdvanceNotificationGroupType, Map<String, Set<String>>> e : notificationGroups.entrySet()) {
+				for (Map.Entry<String, Set<String>> e2 : e.getValue().entrySet()) {
+					XElement xgroup = xnot.add("group");
+					xgroup.set("name", e2.getKey());
+					xgroup.set("type", e.getKey());
+					for (String e3 : e2.getValue()) {
+						xgroup.add("contact").set("value", e3);
+					}
 				}
 			}
 		}
 		
-		saveInto(destination, "jdbc-data-sources", "source", jdbcDataSources.values());
-		saveInto(destination, "soap-channels", "channel", soapChannels.values());
-		saveInto(destination, "jms-endpoints", "endpoint", jmsEndpoints.values());
-		saveInto(destination, "web-data-sources", "source", webDataSources.values());
-		saveInto(destination, "ftp-data-sources", "source", ftpDataSources.values());
-		saveInto(destination, "local-data-sources", "source", localDataSources.values());
+		saveInto(destination, "jdbc-data-sources", "source", jdbcDataSources);
+		saveInto(destination, "soap-channels", "channel", soapChannels);
+		saveInto(destination, "jms-endpoints", "endpoint", jmsEndpoints);
+		saveInto(destination, "web-data-sources", "source", webDataSources);
+		saveInto(destination, "ftp-data-sources", "source", ftpDataSources);
+		saveInto(destination, "local-data-sources", "source", localDataSources);
+		
+		destination.set("sequence", sequence.get());
 	}
 	/**
 	 * Save the XSerializable elements with the given names into the destination.
@@ -192,10 +194,12 @@ public class LocalDataStore implements XSerializable {
 	 * @param elements the sequence of elements
 	 */
 	protected void saveInto(XElement destination, String collectionName, 
-			String itemName, Iterable<? extends XSerializable> elements) {
+			String itemName, Map<?, ? extends XSerializable> elements) {
 		XElement xe = destination.add(collectionName);
-		for (XSerializable e : elements) {
-			e.save(xe.add(itemName));
+		synchronized (elements) {
+			for (XSerializable e : elements.values()) {
+				e.save(xe.add(itemName));
+			}
 		}
 	}
 }

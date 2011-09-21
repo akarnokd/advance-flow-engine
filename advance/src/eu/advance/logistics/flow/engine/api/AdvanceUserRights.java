@@ -52,6 +52,8 @@ public enum AdvanceUserRights {
 	MODIFY_KEYSTORE,
 	/** List keystore keys. */
 	LIST_KEYS,
+	/** Delete a key. */
+	DELETE_KEY,
 	/** Export key certificate. */
 	EXPORT_CERTIFICATE,
 	/** Export private key. */
@@ -79,13 +81,13 @@ public enum AdvanceUserRights {
 	/** Delete JDBC data source. */
 	DELETE_JDBC_DATA_SOURCE,
 	/** List Java Messaging Endpoints. */
-	LIST_JMS,
+	LIST_JMS_ENDPOINTS,
 	/** Create new JMS endpoint. */
-	CREATE_JMS,
+	CREATE_JMS_ENDPOINT,
 	/** Modify JMS endpoint. */
-	MODIFY_JMS,
+	MODIFY_JMS_ENDPOINT,
 	/** Delete JMS endpoint. */
-	DELETE_JMS,
+	DELETE_JMS_ENDPOINT,
 	/** List SOAP channels. */
 	LIST_SOAP_CHANNELS,
 	/** Create a SOAP channel. */

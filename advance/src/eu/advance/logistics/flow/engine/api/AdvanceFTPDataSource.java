@@ -78,4 +78,20 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 		
 		super.save(destination);
 	}
+	/** @return create a defensive copy of this object. */
+	public AdvanceFTPDataSource copy() {
+		AdvanceFTPDataSource result = new AdvanceFTPDataSource();
+		
+		result.id = id;
+		result.name = name;
+		result.protocol = protocol;
+		result.address = address;
+		result.remoteDirectory = remoteDirectory;
+		result.user = user;
+		result.passive = passive;
+		
+		assignTo(result);
+		
+		return result;
+	}
 }
