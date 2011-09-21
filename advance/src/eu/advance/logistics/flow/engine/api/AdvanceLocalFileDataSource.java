@@ -21,15 +21,32 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
+
 /**
  * A local file or directory data source.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo {
+public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo implements XSerializable {
 	/** The unique identifier of this data source. */
 	public int id;
 	/** The name of the data source as used by blocks. */
 	public String name;
 	/** The directory where the file source(s) are located. */
 	public String directory;
+	@Override
+	public void load(XElement source) {
+		id = source.getInt("id");
+		name = source.get("name");
+		directory = source.get("directory");
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("name", name);
+		destination.set("directory", directory);
+		super.save(destination);
+	}
 }

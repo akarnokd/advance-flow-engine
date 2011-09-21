@@ -21,13 +21,16 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
+
 /**
  * Definition of a Java Messaging Service endpoint.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo {
+public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSerializable {
 	/** The unique identifier. */
-	public int id;
+	public int id = Integer.MIN_VALUE;
 	/** The name used by blocks to reference this endpoint. */
 	public String name;
 	/** The JMS driver. */
@@ -50,4 +53,33 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo {
 	public String queue;
 	/** The communication pool size. */
 	public int poolSize;
+	@Override
+	public void load(XElement source) {
+		id = source.getInt("id");
+		name = source.get("name");
+		driver = AdvanceJMSDrivers.valueOf(source.get("driver"));
+		url = source.get("url");
+		user = source.get("user");
+		password = getPassword(source, "password");
+		
+		queueManager = source.get("queue-manager");
+		queue = source.get("queue");
+		poolSize = source.getInt("poolsize");
+		
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("name", name);
+		destination.set("driver", driver);
+		destination.set("url", url);
+		destination.set("user", user);
+		setPassword(destination, "password", password);
+		destination.set("queue-manager", queueManager);
+		destination.set("queue", queue);
+		destination.set("poolsize", poolSize);
+		
+		super.save(destination);
+	}
 }

@@ -21,14 +21,39 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
+
 
 /**
  * The status information about a realm.
  * @author karnokd, 2011.09.19.
  */
-public class AdvanceRealmInfo extends AdvanceCreateModifyInfo {
+public class AdvanceRealm extends AdvanceCreateModifyInfo implements XSerializable {
 	/** The realm status. */
 	public AdvanceRealmStatus status;
 	/** The name of the realm. */
 	public String name;
+	@Override
+	public void load(XElement source) {
+		status = AdvanceRealmStatus.valueOf(source.get("status"));
+		name = source.get("name");
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("status", status);
+		destination.set("name", name);
+		super.save(destination);
+	}
+	/** @return a defensive copy of this object. */
+	public AdvanceRealm copy() {
+		AdvanceRealm result = new AdvanceRealm();
+		result.status = status;
+		result.name = name;
+		
+		assignTo(result);
+		
+		return result;
+	}
 }

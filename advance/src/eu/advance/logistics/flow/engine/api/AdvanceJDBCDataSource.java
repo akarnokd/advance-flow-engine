@@ -21,13 +21,16 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
+
 /**
  * Description of JDBC data store records.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo {
+public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XSerializable {
 	/** The unique identifier of the record. */
-	public int id;
+	public int id = Integer.MIN_VALUE;
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The JDBC driver. */
@@ -45,5 +48,27 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo {
 	 */
 	public char[] password;
 	/** The connection pool size. */
-	public int poolSize;
+	public int poolSize = 5;
+	@Override
+	public void load(XElement source) {
+		id = source.getInt("id");
+		name = source.get("name");
+		driver = AdvanceJDBCDrivers.valueOf(source.get("driver"));
+		url = source.get("url");
+		user = source.get("user");
+		password = getPassword(source, "password");
+		poolSize = source.getInt("poolsize");
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("name", name);
+		destination.set("driver", driver);
+		destination.set("url", url);
+		destination.set("user", user);
+		setPassword(destination, "password", password);
+		destination.set("poolsize", poolSize);
+		super.save(destination);
+	}
 }

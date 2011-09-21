@@ -121,7 +121,7 @@ public class KeystoreManager {
 	/**
 	 * The Bouncy castle cryptography provider.
 	 */
-	private static final Provider BC_PROVIDER = new BouncyCastleProvider();
+	public static final Provider BC_PROVIDER = new BouncyCastleProvider();
 	/**
 	 * Register bouncy castle provider.
 	 */

@@ -118,4 +118,6 @@ public enum AdvanceUserRights {
 	MODIFY_LOCAL_FILE_DATA_SOURCE,
 	/** Delete local file data source. */
 	DELETE_LOCAL_FILE_DATA_SOURCE,
+	/** List the available blocks. */
+	LIST_BLOCKS,
 }

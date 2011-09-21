@@ -24,10 +24,17 @@ package eu.advance.logistics.xml.typesystem;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Deque;
@@ -42,6 +49,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 import com.google.common.base.Objects;
 
@@ -247,10 +255,10 @@ public class XElement implements Iterable<XElement> {
 		return parseXML(ir);
 	}
 	/**
-	 * A megadott XML Stream reader alapján az XElement fa felépítése.
-	 * @param in az XMLStreamReader
-	 * @return az XElement objektum
-	 * @throws XMLStreamException ha probléma adódik
+	 * Parse an XML from the given XML Stream reader.
+	 * @param in the XMLStreamReader
+	 * @return the parsed XElement tree
+	 * @throws XMLStreamException if an error occurs
 	 */
 	private static XElement parseXML(XMLStreamReader in) throws XMLStreamException {
 		XElement node = null;
@@ -332,11 +340,10 @@ public class XElement implements Iterable<XElement> {
 		return root;
 	}
 	/**
-	 * XML parzolása reader-ből és lightweight XElement formába.
-	 * Nem zárja be az inputstreamet.
-	 * @param in az InputStream objektum
-	 * @return az XElement objektum
-	 * @throws XMLStreamException kivétel esetén
+	 * Parse an XML from the given Reader.
+	 * @param in the Reader
+	 * @return the parsed XElement tree
+	 * @throws XMLStreamException if an error occurs
 	 */
 	public static XElement parseXML(Reader in) throws XMLStreamException {
 		XMLInputFactory inf = XMLInputFactory.newInstance();
@@ -344,14 +351,29 @@ public class XElement implements Iterable<XElement> {
 		return parseXML(ir);
 	}
 	/**
-	 * XML fájl parzolása fájlnév alapján.
-	 * @param fileName fálnév
-	 * @return az XElement objektum
-	 * @throws IOException ha hiba történt
-	 * @throws XMLStreamException ha hiba történt
+	 * Parse an XML from the given file.
+	 * @param fileName the file name
+	 * @return the parsed XElement tree
+	 * @throws XMLStreamException if an error occurs
+	 * @throws IOException if the file could not be found or other I/O error occurs
 	 */
 	public static XElement parseXML(String fileName) throws IOException, XMLStreamException {
 		InputStream in = new FileInputStream(fileName);
+		try {
+			return parseXML(in);
+		} finally {
+			in.close();
+		}
+	}
+	/**
+	 * Parse an XML from the given file.
+	 * @param file the file
+	 * @return the parsed XElement tree
+	 * @throws XMLStreamException if an error occurs
+	 * @throws IOException if the file could not be found or other I/O error occurs
+	 */
+	public static XElement parseXML(File file) throws IOException, XMLStreamException {
+		InputStream in = new FileInputStream(file);
 		try {
 			return parseXML(in);
 		} finally {
@@ -604,5 +626,185 @@ public class XElement implements Iterable<XElement> {
 		}
 		r.append('/').append(name);
 		return r.toString();
+	}
+	/**
+	 * Retrieve an integer attribute. Throws exception if the attribute is missing.
+	 * @param attribute the attribute name
+	 * @return the value
+	 */
+	public int getInt(String attribute) {
+		return Integer.parseInt(get(attribute));
+	}
+	/**
+	 * Retrieve an integer attribute or the default value if not exists.
+	 * @param attribute the attribute name
+	 * @param defaultValue the default value to return
+	 * @return the value
+	 */
+	public int getInt(String attribute, int defaultValue) {
+		String value = get(attribute);
+		if (value == null) {
+			return defaultValue;
+		}
+		return Integer.parseInt(value);
+	}
+	/**
+	 * Retrieve an integer attribute or the default value if not exists.
+	 * @param attribute the attribute name
+	 * @param namespace the attribute namespace URI
+	 * @return the value
+	 */
+	public int getInt(String attribute, String namespace) {
+		return Integer.parseInt(get(attribute, namespace));
+	}
+	/**
+	 * Retrieve an integer attribute or the default value if not exists.
+	 * @param attribute the attribute name
+	 * @param namespace the namespace URI
+	 * @param defaultValue the default value to return
+	 * @return the value
+	 */
+	public int getInt(String attribute, String namespace, int defaultValue) {
+		String value = get(attribute, namespace);
+		if (value == null) {
+			return defaultValue;
+		}
+		return Integer.parseInt(value);
+	}
+	/**
+	 * Retrieve an long attribute or throw an exception if not exists.
+	 * @param attribute the attribute name
+	 * @return the value
+	 */
+	public long getLong(String attribute) {
+		return Long.parseLong(get(attribute));
+	}
+	/**
+	 * Retrieve an long attribute or the default value if not exists.
+	 * @param attribute the attribute name
+	 * @param defaultValue the default value to return
+	 * @return the value
+	 */
+	public long getLong(String attribute, long defaultValue) {
+		String value = get(attribute);
+		if (value == null) {
+			return defaultValue;
+		}
+		return Long.parseLong(value);
+	}
+	/**
+	 * Retrieve an integer attribute or throw an exception if not exists.
+	 * @param attribute the attribute name
+	 * @param namespace the attribute namespace URI
+	 * @return the value
+	 */
+	public long getLong(String attribute, String namespace) {
+		return Long.parseLong(get(attribute, namespace));
+	}
+	/**
+	 * Retrieve an integer attribute or the default value if not exists.
+	 * @param attribute the attribute name
+	 * @param namespace the attribute namespace URI
+	 * @param defaultValue the default value to return
+	 * @return the value
+	 */
+	public long getLong(String attribute, String namespace, long defaultValue) {
+		String value = get(attribute, namespace);
+		if (value == null) {
+			return defaultValue;
+		}
+		return Long.parseLong(value);
+	}
+	/**
+	 * Save this XML into the given file.
+	 * @param fileName the file name
+	 * @throws IOException on error
+	 */
+	public void save(String fileName) throws IOException {
+		save(new File(fileName));
+	}
+	/**
+	 * Save this XML into the given file.
+	 * @param file the file
+	 * @throws IOException on error
+	 */
+	public void save(File file) throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8")));
+		try {
+			out.println("<?xml version='1.0' encoding='UTF-8'?>");
+			out.print(toString());
+		} finally {
+			out.close();
+		}
+	}
+	/**
+	 * Save this XML into the given output stream.
+	 * @param stream the output stream
+	 * @throws IOException on error
+	 */
+	public void save(OutputStream stream) throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(stream, "UTF-8")));
+		try {
+			out.println("<?xml version='1.0' encoding='UTF-8'?>");
+			out.print(toString());
+		} finally {
+			out.close();
+		}
+	}
+	/**
+	 * Save this XML into the given writer.
+	 * @param stream the output writer
+	 * @throws IOException on error
+	 */
+	public void save(Writer stream) throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedWriter(stream));
+		try {
+			out.println("<?xml version='1.0' encoding='UTF-8'?>");
+			out.print(toString());
+		} finally {
+			out.close();
+		}
+	}
+	/**
+	 * Save the tree into the given XML stream writer.
+	 * @param stream the stream writer
+	 * @throws XMLStreamException if an error occurs
+	 */
+	public void save(XMLStreamWriter stream) throws XMLStreamException {
+		// TODO implement
+		stream.writeStartDocument("UTF-8", "1.0");
+		
+		saveInternal(stream);
+		
+		stream.writeEndDocument();
+	}
+	/**
+	 * Store the element's content and recursively call itself for children.
+	 * @param stream the stream output
+	 * @throws XMLStreamException if an error occurs
+	 */
+	protected void saveInternal(XMLStreamWriter stream) throws XMLStreamException {
+		if (namespace != null) {
+			stream.writeStartElement(prefix, namespace, name);
+		} else {
+			stream.writeStartElement(name);
+		}
+		for (Map.Entry<XAttributeName, String> a : attributes.entrySet()) {
+			XAttributeName an = a.getKey();
+			if (an.namespace != null) {
+				stream.writeAttribute(an.prefix, an.namespace, an.name, a.getValue());
+			} else {
+				stream.writeAttribute(an.name, a.getValue());
+			}
+		}
+		if (content != null) {
+			stream.writeCharacters(content);
+		} else {
+			for (XElement e : children) {
+				e.saveInternal(stream);
+			}
+		}
+		
+		stream.writeEndElement();
 	}
 }

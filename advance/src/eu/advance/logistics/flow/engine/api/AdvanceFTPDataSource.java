@@ -21,13 +21,16 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
+
 /**
  * The FTP data source record.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo {
+public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSerializable {
 	/** @return the unique identifier. */
-	public int id;
+	public int id = Integer.MIN_VALUE;
 	/** @return the name used by blocks to reference this data source. */
 	public String name;
 	/** @return the protocol enumeration. */
@@ -48,4 +51,31 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo {
 	public char[] password;
 	/** @return the connection should be passive? */
 	public boolean passive;
+	@Override
+	public void load(XElement source) {
+		id = source.getInt("id");
+		name = source.get("name");
+		protocol = AdvanceFTPProtocols.valueOf(source.get("protocol"));
+		address = source.get("address");
+		remoteDirectory = source.get("remoted-directory");
+		user = source.get("user");
+		password = getPassword(source, "password");
+		passive = "true".equals(source.get("passive"));
+		
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		
+		destination.set("id", id);
+		destination.set("name", name);
+		destination.set("protocol", protocol);
+		destination.set("address", address);
+		destination.set("remote-directory", remoteDirectory);
+		destination.set("user", user);
+		setPassword(destination, "password", password);
+		destination.set("passive", passive);
+		
+		super.save(destination);
+	}
 }

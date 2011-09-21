@@ -21,19 +21,91 @@
 
 package eu.advance.logistics.flow.engine.api;
 
-import java.sql.Timestamp;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.util.Date;
+
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.util.Base64;
+import eu.advance.logistics.xml.XsdDateTime;
+import eu.advance.logistics.xml.typesystem.XElement;
 
 /**
  * The creation/modification time and user information.
  * @author karnokd, 2011.09.19.
  */
-public class AdvanceCreateModifyInfo {
+public class AdvanceCreateModifyInfo implements XSerializable {
 	/** @return the creation timestamp of the object. */
-	public Timestamp createdAt;
+	public Date createdAt;
 	/** @return the last modification timestamp of the object. */
-	public Timestamp modifiedAt;
+	public Date modifiedAt;
 	/** @return The user who created the object. */
 	public String createdBy;
 	/** @return The user who modified the object the last time. */
 	public String modifiedBy;
+	/**
+	 * Returns the password characters from the encoded attribute in the given source element.
+	 * @param source the source element
+	 * @param name the attribute name
+	 * @return the password or null if no password
+	 */
+	public char[] getPassword(XElement source, String name) {
+		String pwd = source.get(name);
+		if (pwd != null) {
+			try {
+				return new String(Base64.decode(pwd), Charset.forName("UTF-8")).toCharArray();
+			} catch (IOException ex) {
+				// FIXME ignored
+			}
+		}
+		return null;
+	}
+	/**
+	 * Encodes the password into the given {@code source} element under the given {@code name}
+	 * attribute.
+	 * @param destination the source element
+	 * @param name the attribute name
+	 * @param password the password characters
+	 */
+	public void setPassword(XElement destination, String name, char[] password) {
+		if (password != null) {
+			destination.set(name, Base64.encodeBytes(new String(password).getBytes(Charset.forName("UTF-8"))));
+		} else {
+			destination.set(name, null);
+		}
+		
+	}
+	@Override
+	public void load(XElement source) {
+		try {
+			createdAt = XsdDateTime.parse(source.get("created-at"));
+		} catch (ParseException ex) {
+			// FIXME ignored
+		}
+		createdBy = source.get("created-by");
+		try {
+			modifiedAt = XsdDateTime.parse(source.get("modified-at"));
+		} catch (ParseException ex) {
+			// FIXME ignored
+		}
+		modifiedBy = source.get("modified-by");
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("created-at", XsdDateTime.format(createdAt));
+		destination.set("created-by", createdBy);
+		destination.set("modified-at", XsdDateTime.format(modifiedAt));
+		destination.set("modified-by", modifiedBy);
+	}
+	/**
+	 * Assign the administrative values to the other record.
+	 * @param other the other record
+	 */
+	public void assignTo(AdvanceCreateModifyInfo other) {
+		other.createdAt = new Date(createdAt.getTime());
+		other.createdBy = createdBy;
+		other.modifiedAt = new Date(modifiedAt.getTime());
+		other.modifiedBy = modifiedBy;
+	}
 }
