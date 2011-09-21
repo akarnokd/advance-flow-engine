@@ -437,10 +437,10 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 			for (AdvanceNotificationGroupType t : groups.keySet()) {
 				Map<String, Set<String>> type = Maps.newHashMap();
 				datastore.notificationGroups.put(t, type);
-				for (String group : groups.get(t).keySet()) {
+				for (Map.Entry<String, Set<String>> group : groups.get(t).entrySet()) {
 					Set<String> set = Sets.newHashSet();
-					type.put(group, set);
-					for (String s : groups.get(t).get(group)) {
+					type.put(group.getKey(), set);
+					for (String s : group.getValue()) {
 						set.add(s);
 					}
 				}
@@ -859,7 +859,7 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 			AdvanceControlException {
 		KeystoreManager mgr = new KeystoreManager();
 		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(keyStore);
+			AdvanceKeyStore e = datastore.keystores.get(keyStore.name);
 			try {
 				if (e == null) {
 					if (!hasUserRight(token, AdvanceUserRights.CREATE_KEYSTORE)) {

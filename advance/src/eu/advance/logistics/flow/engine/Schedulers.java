@@ -81,8 +81,7 @@ public class Schedulers {
 		// ------------------------------------------------------
 		// Create a large pool
 		
-		scheduler = new ScheduledThreadPoolExecutor(0);
-		scheduler.setMaximumPoolSize(1024); // FIXME how big?
+		scheduler = new ScheduledThreadPoolExecutor(1024);
 		scheduler.setKeepAliveTime(1, TimeUnit.SECONDS);
 		scheduler.allowCoreThreadTimeOut(true);
 		

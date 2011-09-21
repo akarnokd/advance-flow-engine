@@ -190,7 +190,7 @@ public final class SchemaParser {
 						if (c.genericType != null) {
 							c.complexType = new XType(); // empty type
 						} else {
-							throw new AssertionError("Strange element: " + root.get("name") + ", " + rootType);
+							throw new AssertionError("Strange element: " + root.get("name"));
 						}
 							
 					}

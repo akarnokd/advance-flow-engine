@@ -203,6 +203,7 @@ public final class AdvanceCompiler {
 						start = q.composites.get(bb.sourceBlock);
 						block = "";
 						param = bb.sourceParameter;
+						break;
 					} else
 					if (start.blocks.containsKey(bb.sourceBlock)) {
 						// otherwise, its a regular block
@@ -217,23 +218,6 @@ public final class AdvanceCompiler {
 			}
 		}
 		return null;
-	}
-	/** The base class for parameters. */
-	static class Parameter {
-		/** The parameter's type. */
-		AdvanceType type;
-		/** The type variables available. */
-		Map<String, AdvanceTypeVariable> typeVariables;
-	}
-	/** An input parameter declaration. */
-	static class InputParameter extends Parameter {
-		/** The connected output. */
-		OutputParameter output;
-	}
-	/** An output parameter declaration. */
-	static class OutputParameter extends Parameter {
-		/** The connected inputs. */
-		final List<InputParameter> inputs = Lists.newArrayList();
 	}
 	/** Definition of a type relation. */
 	static class TypeRelation {
