@@ -81,7 +81,7 @@ public interface AdvanceFlowEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the realms
 	 */
-	List<AdvanceRealmInfo> queryRealms(AdvanceControlToken token)
+	List<AdvanceRealm> queryRealms(AdvanceControlToken token)
 	throws IOException, AdvanceControlException;
 	/**
 	 * Create a new realm.

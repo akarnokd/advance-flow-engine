@@ -23,15 +23,20 @@ package eu.advance.logistics.flow.engine.api;
 
 import java.util.Set;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
 
 /**
  * User settings.
  * @author karnokd, 2011.09.19.
  */
-public class AdvanceUser extends AdvanceCreateModifyInfo {
+public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializable {
 	/** The user's unique identifier. */
-	public int id;
+	public int id = Integer.MIN_VALUE;
 	/** Is the user enabled? */
 	public boolean enabled;
 	/** The user's name. */
@@ -67,9 +72,95 @@ public class AdvanceUser extends AdvanceCreateModifyInfo {
 	/** The certificate alias. */
 	public String keyAlias;
 	/** Set of enabled user rights. */
-	public Set<AdvanceUserRights> rights;
+	public final Set<AdvanceUserRights> rights = Sets.newHashSet();
 	/**
 	 * A multimap of realms and set of rights.
 	 */
-	public Multimap<String, AdvanceUserRealmRights> realmRights;
+	public final Multimap<String, AdvanceUserRealmRights> realmRights = HashMultimap.create();
+	@Override
+	public void load(XElement source) {
+		id = source.getInt("id");
+		enabled = "true".equals(source.get("enabled"));
+		name = source.get("name");
+		email = source.get("email");
+		pager = source.get("pager");
+		sms = source.get("sms");
+		dateFormat = source.get("date-format");
+		dateTimeFormat = source.get("date-time-format");
+		numberFormat = source.get("number-format");
+		thousandSeparator = source.get("thousand-separator").charAt(0);
+		decimalSeparator = source.get("decimal-separator").charAt(0);
+		passwordLogin = "true".equals(source.get("password-login"));
+		password = getPassword(source, "password");
+		keyStore = source.get("keystore");
+		keyAlias = source.get("keyalias");
+		rights.clear();
+		for (XElement xe : source.childElement("rights").childrenWithName("right")) {
+			rights.add(AdvanceUserRights.valueOf(xe.get("value")));
+		}
+		realmRights.clear();
+		for (XElement xe : source.childElement("realm-rights").childrenWithName("realm")) {
+			for (XElement xe2 : xe.childrenWithName("right")) {
+				realmRights.put(xe.get("name"), AdvanceUserRealmRights.valueOf(xe2.get("value")));
+			}
+		}
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("id", id);
+		destination.set("enabled", enabled);
+		destination.set("email", email);
+		destination.set("pager", pager);
+		destination.set("sms", sms);
+		destination.set("date-format", dateFormat);
+		destination.set("date-time-format", dateTimeFormat);
+		destination.set("number-format", numberFormat);
+		destination.set("thousand-separator", thousandSeparator);
+		destination.set("decimal-separator", decimalSeparator);
+		destination.set("password-login", passwordLogin);
+		setPassword(destination, "password", password);
+		destination.set("keystore", keyStore);
+		destination.set("keyalias", keyAlias);
+		XElement xr = destination.add("rights");
+		for (AdvanceUserRights r : rights) {
+			xr.add("right").set("value", r);
+		}
+		XElement rr = destination.add("realm-rights");
+		for (String r : realmRights.keySet()) {
+			XElement xrr = rr.add("realm");
+			xrr.set("name", r);
+			for (AdvanceUserRealmRights urr : realmRights.get(r)) {
+				xrr.add("right").set("value", urr);
+			}
+		}
+		super.save(destination);
+	}
+	/**
+	 * @return a defensive copy of this user without the password
+	 */
+	public AdvanceUser copy() {
+		AdvanceUser result = new AdvanceUser();
+		
+		result.id = id;
+		result.enabled = enabled;
+		result.name = name;
+		result.email = email;
+		result.pager = pager;
+		result.sms = sms;
+		result.dateFormat = dateFormat;
+		result.dateTimeFormat = dateTimeFormat;
+		result.numberFormat = numberFormat;
+		result.thousandSeparator = thousandSeparator;
+		result.decimalSeparator = decimalSeparator;
+		result.passwordLogin = passwordLogin;
+		result.keyStore = keyStore;
+		result.keyAlias = keyAlias;
+		result.rights.addAll(rights);
+		result.realmRights.putAll(realmRights);
+
+		assignTo(result);
+		
+		return result;
+	}
 }

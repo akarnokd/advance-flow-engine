@@ -21,11 +21,14 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
+
 /**
  * A record representing information about local or remote key stores.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceKeyStore extends AdvanceCreateModifyInfo {
+public class AdvanceKeyStore extends AdvanceCreateModifyInfo implements XSerializable {
 	/** The key store name. */
 	public String name;
 	/** The key store location on disk. */
@@ -39,4 +42,18 @@ public class AdvanceKeyStore extends AdvanceCreateModifyInfo {
 	 * @return the password. 
 	 */
 	public char[] password;
+	@Override
+	public void load(XElement source) {
+		name = source.get("name");
+		location = source.get("location");
+		password = getPassword(source, "password");
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("name", name);
+		destination.set("location", location);
+		setPassword(destination, "password", password);
+		super.save(destination);
+	}
 }

@@ -21,15 +21,19 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+
+import eu.advance.logistics.flow.model.XSerializable;
+import eu.advance.logistics.xml.typesystem.XElement;
 
 /**
  * The web data source configuration record.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceWebDataSource extends AdvanceCreateModifyInfo {
+public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSerializable {
 	/** The unique identifier of the data source. */
-	public int id;
+	public int id = Integer.MIN_VALUE;
 	/** The data source name as used by the blocks. */
 	public String name;
 	/** The URL. */
@@ -49,4 +53,34 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo {
 	 * @return  
 	 */
 	public char[] password;
+	@Override
+	public void load(XElement source) {
+		id = source.getInt("id");
+		name = source.get("name");
+		try {
+			url = new URL(source.get("url"));
+		} catch (MalformedURLException ex) {
+			// FIXME ignored
+		}
+		loginType = AdvanceWebLoginType.valueOf(source.get("login-type"));
+		keyStore = source.get("keystore");
+		userOrKeyAlias = source.get("user-or-key");
+		password = getPassword(source, "password");
+		
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		
+		destination.set("id", id);
+		destination.set("name", name);
+		destination.set("url", url);
+		destination.set("login-type", loginType);
+		destination.set("keystore", keyStore);
+		destination.set("user-or-key", userOrKeyAlias);
+		setPassword(destination, "password", password);
+		
+		
+		super.save(destination);
+	}
 }
