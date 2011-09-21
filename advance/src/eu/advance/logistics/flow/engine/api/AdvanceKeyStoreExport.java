@@ -28,12 +28,6 @@ package eu.advance.logistics.flow.engine.api;
 public class AdvanceKeyStoreExport {
 	/** The key store name. */
 	public String keyStore;
-	/** 
-	 * The key store master password.
-	 * <p>An empty password should be an empty {@code char} array. To keep
-	 * the current password, use {@code null}.</p>
-	 */
-	public char[] keyStorePassword;
 	/** The key alias. */
 	public String keyAlias;
 	/** 

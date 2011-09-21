@@ -82,4 +82,21 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSeri
 		
 		super.save(destination);
 	}
+	/** @return the defensive copy of this object. */
+	public AdvanceJMSEndpoint copy() {
+		AdvanceJMSEndpoint result = new AdvanceJMSEndpoint();
+		
+		result.id = id;
+		result.name = name;
+		result.driver = driver;
+		result.url = url;
+		result.user = user;
+		result.queueManager = queueManager;
+		result.queue = queue;
+		result.poolSize = poolSize;
+		
+		assignTo(result);
+		
+		return result;
+	}
 }

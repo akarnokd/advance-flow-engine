@@ -23,6 +23,8 @@ package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -30,12 +32,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +59,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
@@ -66,6 +73,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.api.AdvanceKeyType;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
@@ -75,6 +83,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.util.KeystoreFault;
 import eu.advance.logistics.util.KeystoreManager;
 import eu.advance.logistics.xml.typesystem.XElement;
 
@@ -139,6 +148,7 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 	public AdvanceControlToken login(URI target, KeyStore keyStore,
 			String keyAlias, char[] keyPassword) throws IOException,
 			AdvanceControlException, KeyStoreException {
+		// FIXME implement
 		throw new UnsupportedOperationException();
 	}
 
@@ -278,44 +288,164 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 	@Override
 	public AdvanceUser queryUser(AdvanceControlToken token, int userId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_USERS)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.users) {
+			AdvanceUser u = datastore.users.get(userId);
+			if (u != null) {
+				return u.copy();
+			}
+			throw new AdvanceControlException("User not found");
+		}
 	}
 
 	@Override
 	public void enableUser(AdvanceControlToken token, int userId,
 			boolean enabled) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.MODIFY_USER)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.users) {
+			AdvanceUser u = datastore.users.get(userId);
+			if (u == null) {
+				throw new AdvanceControlException("User not found");
+			}
+			
+			int maybeAdmin = 0;
+			for (AdvanceUser u2 : datastore.users.values()) {
+				if (u2.mayModifyUser()) {
+					maybeAdmin++;
+				}
+			}
+			// do not allow disabling self
+			if (u.id != token.user.id) {
+				if (u.mayModifyUser() && maybeAdmin <= 1) {
+					throw new AdvanceControlException("No user admins would remain");
+				}
+				u.enabled = enabled;
+				u.modifiedAt = new Date();
+				u.modifiedBy = token.user.name;
+			} else {
+				throw new AdvanceControlException("Can't disable self");
+			}
+		}
 	}
 
 	@Override
 	public void deleteUser(AdvanceControlToken token, int userId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_USER)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.users) {
+			int maybeAdmin = 0;
+			for (AdvanceUser u2 : datastore.users.values()) {
+				if (u2.mayModifyUser()) {
+					maybeAdmin++;
+				}
+			}
+			AdvanceUser u = datastore.users.get(userId);
+			if (u.id != token.user.id) {
+				if (u.mayModifyUser() && maybeAdmin <= 1) {
+					throw new AdvanceControlException("No user admins would remain");
+				}
+				datastore.users.remove(userId);
+			} else {
+				throw new AdvanceControlException("Can't delete self");
+			}
+		}
 	}
 
 	@Override
 	public void updateUser(AdvanceControlToken token, AdvanceUser user)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
+		synchronized (datastore.users) {
+			boolean mustExist = true;
+			if (user.id == Integer.MIN_VALUE) {
+				if (!hasUserRight(token, AdvanceUserRights.CREATE_USER)) {
+					throw new AdvanceAccessDenied();
+				}
+				user.id = datastore.sequence.incrementAndGet();
+				mustExist = false;
+			} else {
+				if (!hasUserRight(token, AdvanceUserRights.MODIFY_USER)) {
+					throw new AdvanceAccessDenied();
+				}
+			}
+			if (mustExist && !datastore.users.containsKey(user.id)) {
+				throw new AdvanceControlException("User not found");
+			}
 
+			AdvanceUser prev = datastore.users.get(user.id);
+			AdvanceUser u = user.copy();
+			u.password = user.password != null ? user.password.clone() : (prev != null ? prev.password : null);
+			if (prev != null) {
+				u.createdAt = prev.createdAt;
+				u.createdBy = prev.createdBy;
+			} else {
+				u.createdAt = new Date();
+				u.createdBy = token.user.name;
+			}
+			u.modifiedAt = new Date();
+			u.modifiedBy = token.user.name;
+			datastore.users.put(u.id, u);
+			// ensure that self is nut turned off or loses admin rights
+			if (u.id == token.user.id && prev != null) {
+				u.enabled = prev.enabled;
+				if (prev.mayModifyUser()) {
+					u.rights.add(AdvanceUserRights.LIST_USERS);
+					u.rights.add(AdvanceUserRights.MODIFY_USER);
+				}
+			}
+		}
 	}
 
 	@Override
 	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups(
 			AdvanceControlToken token) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_NOTIFICATION_GROUPS)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.notificationGroups) {
+			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> result = Maps.newHashMap();
+			for (AdvanceNotificationGroupType t : datastore.notificationGroups.keySet()) {
+				Map<String, Set<String>> type = Maps.newHashMap();
+				result.put(t, type);
+				for (String group : datastore.notificationGroups.get(t).keySet()) {
+					Set<String> set = Sets.newHashSet();
+					type.put(group, set);
+					for (String s : datastore.notificationGroups.get(t).get(group)) {
+						set.add(s);
+					}
+				}
+			}
+			return result;
+		}
 	}
 
 	@Override
 	public void updateNotificationGroups(AdvanceControlToken token,
 			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
+		if (!hasUserRight(token, AdvanceUserRights.MODIFY_NOTIFICATION_GROUP)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.notificationGroups) {
+			datastore.notificationGroups.clear();
+			for (AdvanceNotificationGroupType t : groups.keySet()) {
+				Map<String, Set<String>> type = Maps.newHashMap();
+				datastore.notificationGroups.put(t, type);
+				for (String group : groups.get(t).keySet()) {
+					Set<String> set = Sets.newHashSet();
+					type.put(group, set);
+					for (String s : groups.get(t).get(group)) {
+						set.add(s);
+					}
+				}
+			}
+		}
 
 	}
 
@@ -323,228 +453,689 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 	public List<AdvanceJDBCDataSource> queryJDBCDataSources(
 			AdvanceControlToken token) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_JDBC_DATA_SOURCES)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.jdbcDataSources) {
+			List<AdvanceJDBCDataSource> result = Lists.newArrayList();
+			for (AdvanceJDBCDataSource e : datastore.jdbcDataSources.values()) {
+				result.add(e.copy());
+			}
+			
+			return result;
+		}
 	}
 
 	@Override
 	public void updateJDBCDataSource(AdvanceControlToken token,
 			AdvanceJDBCDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		synchronized (datastore.jdbcDataSources) {
+			boolean mustExist = true;
+			if (dataSource.id == Integer.MIN_VALUE) {
+				if (!hasUserRight(token, AdvanceUserRights.CREATE_JDBC_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+				dataSource.id = datastore.sequence.incrementAndGet();
+				mustExist = false;
+			} else {
+				if (!hasUserRight(token, AdvanceUserRights.MODIFY_JDBC_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+			}
+			if (mustExist && !datastore.jdbcDataSources.containsKey(dataSource.id)) {
+				throw new AdvanceControlException("User not found");
+			}
+			AdvanceJDBCDataSource u = dataSource.copy();
+			AdvanceJDBCDataSource prev = datastore.jdbcDataSources.get(dataSource.id);
+			u.password = dataSource.password != null ? dataSource.password.clone() : (prev != null ? prev.password : null);
+			
+			if (prev != null) {
+				u.createdAt = prev.createdAt;
+				u.createdBy = prev.createdBy;
+			} else {
+				u.createdAt = new Date();
+				u.createdBy = token.user.name;
+			}
+			u.modifiedAt = new Date();
+			u.modifiedBy = token.user.name;
+			datastore.jdbcDataSources.put(dataSource.id, u);
+		}
 	}
 
 	@Override
 	public void testJDBCDataSource(AdvanceControlToken token, int dataSourceId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		// FIXME implement
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void deleteJDBCDataSource(AdvanceControlToken token, int dataSourceId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_JDBC_DATA_SOURCE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.jdbcDataSources) {
+			datastore.jdbcDataSources.remove(dataSourceId);
+		}
 	}
 
 	@Override
 	public List<AdvanceJMSEndpoint> queryJMSEndpoints(AdvanceControlToken token)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_JMS_ENDPOINTS)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.jmsEndpoints) {
+			List<AdvanceJMSEndpoint> result = Lists.newArrayList();
+			for (AdvanceJMSEndpoint e : datastore.jmsEndpoints.values()) {
+				result.add(e.copy());
+			}
+			return result;
+		}
 	}
 
 	@Override
 	public void updateJMSEndpoint(AdvanceControlToken token,
 			AdvanceJMSEndpoint endpoint) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
+		
+		synchronized  (datastore.jmsEndpoints) {
+			boolean mustExist = true;
+			if (endpoint.id == Integer.MIN_VALUE) {
+				if (!hasUserRight(token, AdvanceUserRights.CREATE_JMS_ENDPOINT)) {
+					throw new AdvanceAccessDenied();
+				}
+				endpoint.id = datastore.sequence.incrementAndGet();
+				mustExist = false;
+			} else {
+				if (!hasUserRight(token, AdvanceUserRights.MODIFY_JMS_ENDPOINT)) {
+					throw new AdvanceAccessDenied();
+				}
+			}
+			
+			if (mustExist && !datastore.jmsEndpoints.containsKey(endpoint.id)) {
+				throw new AdvanceControlException("User not found");
+			}
+			AdvanceJMSEndpoint u = endpoint.copy();
+			AdvanceJMSEndpoint prev = datastore.jmsEndpoints.get(endpoint.id);
+			u.password = endpoint.password != null ? endpoint.password.clone() : (prev != null ? prev.password : null);
+			
+			if (prev != null) {
+				u.createdAt = prev.createdAt;
+				u.createdBy = prev.createdBy;
+			} else {
+				u.createdAt = new Date();
+				u.createdBy = token.user.name;
+			}
+			u.modifiedAt = new Date();
+			u.modifiedBy = token.user.name;
+			datastore.jmsEndpoints.put(endpoint.id, u);
+		}
+		
 
 	}
 
 	@Override
 	public void testJMSEndpoint(AdvanceControlToken token, int jmsId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		// FIXME implement
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void deleteJMSEndpoint(AdvanceControlToken token, int jmsId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_JMS_ENDPOINT)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.jmsEndpoints) {
+			datastore.jmsEndpoints.remove(jmsId);
+		}
 	}
 
 	@Override
 	public List<AdvanceWebDataSource> queryWebDataSources(
 			AdvanceControlToken token) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_WEB_DATA_SOURCES)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.webDataSources) {
+			List<AdvanceWebDataSource> result = Lists.newArrayList();
+			for (AdvanceWebDataSource e : datastore.webDataSources.values()) {
+				result.add(e.copy());
+			}
+			return result;
+		}
 	}
 
 	@Override
 	public void updateWebDataSource(AdvanceControlToken token,
 			AdvanceWebDataSource endpoint) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
+		synchronized  (datastore.webDataSources) {
+			boolean mustExist = true;
+			if (endpoint.id == Integer.MIN_VALUE) {
+				if (!hasUserRight(token, AdvanceUserRights.CREATE_WEB_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+				endpoint.id = datastore.sequence.incrementAndGet();
+				mustExist = false;
+			} else {
+				if (!hasUserRight(token, AdvanceUserRights.MODIFY_WEB_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+			}
+			
+			if (mustExist && !datastore.webDataSources.containsKey(endpoint.id)) {
+				throw new AdvanceControlException("User not found");
+			}
+			AdvanceWebDataSource u = endpoint.copy();
+			AdvanceWebDataSource prev = datastore.webDataSources.get(endpoint.id);
+			u.password = endpoint.password != null ? endpoint.password.clone() : (prev != null ? prev.password : null);
+			
+			if (prev != null) {
+				u.createdAt = prev.createdAt;
+				u.createdBy = prev.createdBy;
+			} else {
+				u.createdAt = new Date();
+				u.createdBy = token.user.name;
+			}
+			u.modifiedAt = new Date();
+			u.modifiedBy = token.user.name;
+			datastore.webDataSources.put(endpoint.id, u);
+		}
 
 	}
 
 	@Override
 	public void deleteWebDataSource(AdvanceControlToken token, int webId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_WEB_DATA_SOURCE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.webDataSources) {
+			datastore.webDataSources.remove(webId);
+		}
 	}
 
 	@Override
 	public List<AdvanceFTPDataSource> queryFTPDataSources(
 			AdvanceControlToken token) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_FTP_DATA_SOURCES)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.ftpDataSources) {
+			List<AdvanceFTPDataSource> result = Lists.newArrayList();
+			for (AdvanceFTPDataSource e : datastore.ftpDataSources.values()) {
+				result.add(e.copy());
+			}
+			return result;
+		}
 	}
 
 	@Override
 	public void updateFTPDataSource(AdvanceControlToken token,
 			AdvanceFTPDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		synchronized  (datastore.ftpDataSources) {
+			boolean mustExist = true;
+			if (dataSource.id == Integer.MIN_VALUE) {
+				if (!hasUserRight(token, AdvanceUserRights.CREATE_FTP_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+				dataSource.id = datastore.sequence.incrementAndGet();
+				mustExist = false;
+			} else {
+				if (!hasUserRight(token, AdvanceUserRights.MODIFY_FTP_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+			}
+			
+			if (mustExist && !datastore.ftpDataSources.containsKey(dataSource.id)) {
+				throw new AdvanceControlException("User not found");
+			}
+			AdvanceFTPDataSource u = dataSource.copy();
+			AdvanceFTPDataSource prev = datastore.ftpDataSources.get(dataSource.id);
+			u.password = dataSource.password != null ? dataSource.password.clone() : (prev != null ? prev.password : null);
+			
+			if (prev != null) {
+				u.createdAt = prev.createdAt;
+				u.createdBy = prev.createdBy;
+			} else {
+				u.createdAt = new Date();
+				u.createdBy = token.user.name;
+			}
+			u.modifiedAt = new Date();
+			u.modifiedBy = token.user.name;
+			datastore.ftpDataSources.put(dataSource.id, u);
+		}
 	}
 
 	@Override
 	public void testFTPDataSource(AdvanceControlToken token, int ftpId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		// FIXME implement
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void deleteFTPDataSource(AdvanceControlToken token, int ftpId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_FTP_DATA_SOURCE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.ftpDataSources) {
+			datastore.ftpDataSources.remove(ftpId);
+		}
 	}
 
 	@Override
 	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources(
 			AdvanceControlToken token) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_LOCAL_FILE_DATA_SOURCES)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.localDataSources) {
+			List<AdvanceLocalFileDataSource> result = Lists.newArrayList();
+			for (AdvanceLocalFileDataSource e : datastore.localDataSources.values()) {
+				result.add(e.copy());
+			}
+			return result;
+		}
 	}
 
 	@Override
 	public void updateLocalFileDataSource(AdvanceControlToken token,
 			AdvanceLocalFileDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		synchronized  (datastore.localDataSources) {
+			boolean mustExist = true;
+			if (dataSource.id == Integer.MIN_VALUE) {
+				if (!hasUserRight(token, AdvanceUserRights.CREATE_LOCAL_FILE_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+				dataSource.id = datastore.sequence.incrementAndGet();
+				mustExist = false;
+			} else {
+				if (!hasUserRight(token, AdvanceUserRights.MODIFY_LOCAL_FILE_DATA_SOURCE)) {
+					throw new AdvanceAccessDenied();
+				}
+			}
+			
+			if (mustExist && !datastore.localDataSources.containsKey(dataSource.id)) {
+				throw new AdvanceControlException("User not found");
+			}
+			AdvanceLocalFileDataSource u = dataSource.copy();
+			AdvanceLocalFileDataSource prev = datastore.localDataSources.get(dataSource.id);
+			
+			if (prev != null) {
+				u.createdAt = prev.createdAt;
+				u.createdBy = prev.createdBy;
+			} else {
+				u.createdAt = new Date();
+				u.createdBy = token.user.name;
+			}
+			u.modifiedAt = new Date();
+			u.modifiedBy = token.user.name;
+			datastore.localDataSources.put(dataSource.id, u);
+		}
 	}
 
 	@Override
 	public void deleteLocalFileDataSource(AdvanceControlToken token, int fileId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_LOCAL_FILE_DATA_SOURCE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.localDataSources) {
+			datastore.localDataSources.remove(fileId);
+		}
 	}
 
 	@Override
 	public List<AdvanceKeyStore> queryKeyStores(AdvanceControlToken token)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_KEYSTORES)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			List<AdvanceKeyStore> result = Lists.newArrayList();
+			
+			for (AdvanceKeyStore e : datastore.keystores.values()) {
+				result.add(e.copy());
+			}
+			
+			return result;
+		}
 	}
 
 	@Override
 	public List<AdvanceKeyEntry> queryKeyStore(AdvanceControlToken token,
-			String keyStore, char[] password) throws IOException,
+			String keyStore) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.LIST_KEYS)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(keyStore);
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				List<AdvanceKeyEntry> result = Lists.newArrayList();
+				mgr.load(e.location, e.password);
+				KeyStore ks = mgr.getKeyStore();
+				Enumeration<String> aliases = ks.aliases();
+				while (aliases.hasMoreElements()) {
+					String alias = aliases.nextElement();
+					
+					AdvanceKeyEntry k = new AdvanceKeyEntry();
+					if (ks.isKeyEntry(alias)) {
+						k.type = AdvanceKeyType.PRIVATE_KEY;
+					} else
+					if (ks.isCertificateEntry(alias)) {
+						k.type = AdvanceKeyType.CERTIFICATE;
+					}
+					k.name = alias;
+					k.createdAt = ks.getCreationDate(alias);
+					
+					result.add(k);
+				}
+				return result;
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
+			} catch (KeyStoreException ex) {
+				throw new AdvanceControlException(ex);
+			}
+		}
 	}
 
 	@Override
 	public void updateKeyStore(AdvanceControlToken token,
 			AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
+		KeystoreManager mgr = new KeystoreManager();
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(keyStore);
+			try {
+				if (e == null) {
+					if (!hasUserRight(token, AdvanceUserRights.CREATE_KEYSTORE)) {
+						throw new AdvanceAccessDenied();
+					}
+					e = new AdvanceKeyStore();
+					e.name = keyStore.name;
+					e.password = keyStore.password;
+					e.location = keyStore.location;
+					e.createdAt = new Date();
+					e.createdBy = token.user.name;
+					e.modifiedAt = new Date();
+					e.modifiedBy = token.user.name;
+					
+					mgr.create();
+					mgr.save(e.location, e.password);
+					
+					datastore.keystores.put(e.name, e);
+				} else {
+					if (!hasUserRight(token, AdvanceUserRights.MODIFY_KEYSTORE)) {
+						throw new AdvanceAccessDenied();
+					}
+					
+					mgr.load(e.location, e.password);
 
+					e.location = keyStore.location;
+					if (keyStore.password != null) {
+						e.password = keyStore.password;
+					}
+					
+					mgr.save(e.location, e.password);
+
+					e.modifiedAt = new Date();
+					e.modifiedBy = token.user.name;
+
+					File f = new File(e.location);
+					if (!f.delete()) {
+						LOG.warn("Could not delete keystore " + e.location);
+					}
+				}
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
+			}
+		}
 	}
 
 	@Override
 	public void deleteKeyStore(AdvanceControlToken token, String keyStore)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_KEYSTORE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(keyStore);
+			if (e != null) {
+				File f = new File(e.location);
+				if (!f.delete()) {
+					LOG.warn("Could not delete keystore " + e.location);
+				} else {
+					datastore.keystores.remove(keyStore);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 
 	}
 
 	@Override
 	public void deleteKeyEntry(AdvanceControlToken token, String keyStore,
-			char[] password, String keyAlias) throws IOException,
+			String keyAlias) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.DELETE_KEY)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					mgr.getKeyStore().deleteEntry(keyAlias);
+				} catch (KeyStoreException ex) {
+					throw new AdvanceControlException(ex);
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 
 	@Override
 	public void generateKey(AdvanceControlToken token, AdvanceGenerateKey key)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.GENERATE_KEY)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(key.keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					
+					KeyPair kp = mgr.generateKeyPair(key.algorithm, key.keySize);
+					Certificate cert = mgr.createX509Certificate(kp, 12, 
+							key.issuerDn.toString(), key.subjectDn.toString(), 
+							"http://www.advance-logistics.eu", // FIXME maybe parametrize 
+							"MD5withRSA"); // FIXME maybe parametrize
+					
+					mgr.getKeyStore().setKeyEntry(key.keyAlias, kp.getPrivate(), key.keyPassword, new Certificate[] { cert });
+					
+					mgr.save(e.location, e.password);
+					e.modifiedAt = new Date();
+					e.modifiedBy = token.user.name;
+					
+				} catch (KeyStoreException ex) {
+					throw new AdvanceControlException(ex);
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 
 	@Override
 	public String exportCertificate(AdvanceControlToken token,
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.EXPORT_CERTIFICATE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					mgr.exportCertificate(request.keyAlias, out, false);
+					return out.toString("UTF-8");
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 
 	@Override
 	public String exportPrivateKey(AdvanceControlToken token,
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.EXPORT_CERTIFICATE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					mgr.exportPrivateKey(request.keyAlias, request.keyPassword, out, false);
+					return out.toString("UTF-8");
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 
 	@Override
 	public void importCertificate(AdvanceControlToken token,
 			AdvanceKeyStoreExport request, String data) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.IMPORT_CERTIFICATE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					mgr.importCertificate(request.keyAlias, new ByteArrayInputStream(data.getBytes("UTF-8")));
+					mgr.save(e.location, e.password);
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 
 	@Override
 	public void importPrivateKey(AdvanceControlToken token,
-			AdvanceKeyStoreExport request, String data) throws IOException,
+			AdvanceKeyStoreExport request, String keyData, String certData) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.IMPORT_PRIVATE_KEY)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					mgr.importPrivateKey(request.keyAlias, request.keyPassword, 
+							new ByteArrayInputStream(keyData.getBytes("UTF-8")),
+							new ByteArrayInputStream(certData.getBytes("UTF-8"))
+					);
+					mgr.save(e.location, e.password);
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 
 	@Override
 	public String exportSigningRequest(AdvanceControlToken token,
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!hasUserRight(token, AdvanceUserRights.EXPORT_CERTIFICATE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					return mgr.createRSASigningRequest(request.keyAlias, request.keyPassword);
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 
 	@Override
 	public void importSigningResponse(AdvanceControlToken token,
 			AdvanceKeyStoreExport request, String data) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		if (!hasUserRight(token, AdvanceUserRights.IMPORT_CERTIFICATE)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.keystores) {
+			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
+			if (e != null) {
+				KeystoreManager mgr = new KeystoreManager();
+				try {
+					mgr.load(e.location, e.password);
+					mgr.installReply(request.keyAlias, request.keyPassword, new ByteArrayInputStream(data.getBytes("UTF-8")), 
+							true); // FIXME not sure
+					mgr.save(e.location, e.password);
+				} catch (KeystoreFault ex) {
+					throw new AdvanceControlException(ex);
+				}
+			} else {
+				throw new AdvanceControlException("Keystore not found");
+			}
+		}
 	}
 	/**
 	 * Load database from disk.
@@ -682,6 +1273,27 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 			if (!dsFile.renameTo(dsFileBackup1)) {
 				LOG.warn("Could not rename file " + dsFile + " into " + dsFileBackup1);
 			}
+		}
+	}
+	/**
+	 * Initialize the datastore with the first admin record.
+	 */
+	public void initialize() {
+		AdvanceUser u = new AdvanceUser();
+		u.id = 0;
+		u.name = "admin";
+		u.password = "admin".toCharArray();
+		u.thousandSeparator = ',';
+		u.decimalSeparator = '.';
+		u.dateFormat = "yyyy-MM-dd";
+		u.dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+		u.numberFormat = "#,###";
+		u.enabled = true;
+		u.passwordLogin = true;
+		u.rights.addAll(Arrays.asList(AdvanceUserRights.values()));
+		
+		synchronized (datastore.users) {
+			datastore.users.put(u.id, u);
 		}
 	}
 }

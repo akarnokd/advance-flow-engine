@@ -163,4 +163,12 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 		
 		return result;
 	}
+	/**
+	 * @return check if the user could modify users
+	 */
+	public boolean mayModifyUser() {
+		return enabled
+		&& rights.contains(AdvanceUserRights.LIST_USERS)
+		&& rights.contains(AdvanceUserRights.MODIFY_USER);
+	}
 }

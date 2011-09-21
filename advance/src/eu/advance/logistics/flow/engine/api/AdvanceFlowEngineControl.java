@@ -339,12 +339,11 @@ public interface AdvanceFlowEngineControl {
 	 * Query the list of the contents of a particular key store.
 	 * @param token the connection token
 	 * @param keyStore the key store name
-	 * @param password the key store master password
 	 * @return the list of key entries
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the key store contents.
 	 */
-	List<AdvanceKeyEntry> queryKeyStore(AdvanceControlToken token, String keyStore, char[] password) throws IOException, AdvanceControlException;
+	List<AdvanceKeyEntry> queryKeyStore(AdvanceControlToken token, String keyStore) throws IOException, AdvanceControlException;
 	/**
 	 * Update key store properties.
 	 * @param token the connection token
@@ -365,12 +364,11 @@ public interface AdvanceFlowEngineControl {
 	 * Delete a key entry from a keystore.
 	 * @param token the connection token
 	 * @param keyStore the key store name
-	 * @param password the key store master password
 	 * @param keyAlias the key alias
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete a key
 	 */
-	void deleteKeyEntry(AdvanceControlToken token, String keyStore, char[] password, String keyAlias) throws IOException, AdvanceControlException;;
+	void deleteKeyEntry(AdvanceControlToken token, String keyStore, String keyAlias) throws IOException, AdvanceControlException;;
 	/**
 	 * Generate a new key with the given properties.
 	 * @param token the connection token
@@ -410,11 +408,13 @@ public interface AdvanceFlowEngineControl {
 	 * Import a private key into a designated key store.
 	 * @param token the connection token
 	 * @param request represents the key store and key alias to import
-	 * @param data the certificate in textual PEM format.
+	 * @param keyData the key in textual PEM format.
+	 * @param certData the certificate int textual CER format
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to export
 	 */
-	void importPrivateKey(AdvanceControlToken token, AdvanceKeyStoreExport request, String data) throws IOException, AdvanceControlException;
+	void importPrivateKey(AdvanceControlToken token, 
+			AdvanceKeyStoreExport request, String keyData, String certData) throws IOException, AdvanceControlException;
 	/**
 	 * Export a signing request of the given private key.
 	 * @param token the connection token

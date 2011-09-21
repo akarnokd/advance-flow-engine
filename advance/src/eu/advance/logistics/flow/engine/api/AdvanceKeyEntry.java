@@ -21,7 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
-import java.util.Set;
+import java.util.Date;
+
 
 /**
  * Properties of a concrete key in a key store.
@@ -32,6 +33,6 @@ public class AdvanceKeyEntry {
 	public AdvanceKeyType type;
 	/** The key name. */
 	public String name;
-	/** An unmodifiable set of aliases. */
-	public Set<String> aliases;
+	/** The creation date. */
+	public Date createdAt;
 }

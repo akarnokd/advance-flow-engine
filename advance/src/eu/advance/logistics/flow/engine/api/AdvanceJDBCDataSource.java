@@ -71,4 +71,19 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 		destination.set("poolsize", poolSize);
 		super.save(destination);
 	}
+	/** @return a defensive copy of this object. */
+	public AdvanceJDBCDataSource copy() {
+		AdvanceJDBCDataSource result = new AdvanceJDBCDataSource();
+		
+		result.id = id;
+		result.name = name;
+		result.driver = driver;
+		result.url = url;
+		result.user = user;
+		result.poolSize = poolSize;
+		
+		assignTo(result);
+		
+		return result;
+	}
 }
