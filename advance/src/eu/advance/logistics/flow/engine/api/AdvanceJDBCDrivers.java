@@ -21,15 +21,36 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /**
  * Enumeration for JDBC drivers.
  * @author karnokd, 2011.09.19.
  */
 public enum AdvanceJDBCDrivers {
 	/** Generic driver with custom settings. */
-	GENERIC,
+	GENERIC(null, "jdbc:"),
 	/** Oracle driver. */
-	ORACLE,
+	ORACLE("oracle.jdbc.driver.OracleDriver", "jdbc:oracle:thin://{host}:{port 1521}:{sid}"),
 	/** MySQL driver. */
-	MYSQL
+	MYSQL("com.mysql.jdbc.Driver", "jdbc:mysql://{host}:{port 3306}/{database}"),
+	/** MS SQL driver. */
+	MSSQL("net.sourceforge.jtds.jdbc.Driver", "jdbc:jtds:sqlserver://{host}:{port 1433}/{database}")
+	;
+	/** The driver class. */
+	@Nullable
+	public final String driverClass;
+	/** The URL prefix. */
+	@NonNull
+	public final String urlTemplate;
+	/**
+	 * Initializes the enum with the driver class and URL prefix for the connection.
+	 * @param driverClass the driver class
+	 * @param urlTemplate the URL prefix to help the GUI
+	 */
+	AdvanceJDBCDrivers(@Nullable String driverClass, @NonNull String urlTemplate) {
+		this.driverClass = driverClass;
+		this.urlTemplate = urlTemplate;
+	}
 }

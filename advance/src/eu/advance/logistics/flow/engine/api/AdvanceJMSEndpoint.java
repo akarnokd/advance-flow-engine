@@ -34,7 +34,7 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSeri
 	/** The name used by blocks to reference this endpoint. */
 	public String name;
 	/** The JMS driver. */
-	public AdvanceJMSDrivers driver;
+	public String driver;
 	/** The connection URL. */
 	public String url;
 	/** The user name. */
@@ -57,7 +57,7 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSeri
 	public void load(XElement source) {
 		id = source.getInt("id");
 		name = source.get("name");
-		driver = AdvanceJMSDrivers.valueOf(source.get("driver"));
+		driver = source.get("driver");
 		url = source.get("url");
 		user = source.get("user");
 		password = getPassword(source, "password");

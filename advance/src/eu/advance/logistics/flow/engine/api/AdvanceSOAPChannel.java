@@ -50,6 +50,15 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 	public String keyStore;
 	/** The key alias for the encryption. */
 	public String keyAlias;
+	/**
+	 * The password.
+	 * <p>Note that passwords are never returned from the 
+	 * control API calls and are always {@code null}.</p> 
+	 * <p>An empty password should be an empty {@code char} array. To keep
+	 * the current password, use {@code null}.</p>
+	 * @return  
+	 */
+	public char[] password;
 	@Override
 	public void load(XElement source) {
 		id = source.getInt("id");
@@ -68,6 +77,7 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 		encrypted = "true".equals(source.get("encrypted"));
 		keyStore = source.get("keystore");
 		keyAlias = source.get("keyalias");
+		password = getPassword(source, "password");
 		super.load(source);
 	}
 	@Override
@@ -80,6 +90,7 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 		destination.set("encrypted", encrypted);
 		destination.set("keystore", keyStore);
 		destination.set("keyalias", keyAlias);
+		setPassword(destination, "password", password);
 		super.save(destination);
 	}
 }

@@ -34,7 +34,7 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The JDBC driver. */
-	public AdvanceJDBCDrivers driver;
+	public String driver;
 	/** The connection url. */
 	public String url;
 	/** The user who connects. */
@@ -53,7 +53,7 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	public void load(XElement source) {
 		id = source.getInt("id");
 		name = source.get("name");
-		driver = AdvanceJDBCDrivers.valueOf(source.get("driver"));
+		driver = source.get("driver");
 		url = source.get("url");
 		user = source.get("user");
 		password = getPassword(source, "password");

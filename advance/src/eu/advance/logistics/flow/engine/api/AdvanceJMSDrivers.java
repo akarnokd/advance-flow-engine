@@ -21,15 +21,35 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /**
  * Contains some predefined constants for JMS drivers.
  * @author karnokd, 2011.09.20.
  */
 public enum AdvanceJMSDrivers {
 	/** Generic driver. */
-	GENERIC,
+	GENERIC(null, null),
 	/** Open JMS driver. */
-	OPEN_JMS,
+	OPEN_JMS("org.exolab.jms.jndi.InitialContextFactory", "tcp://{host}:{port 3035}/"),
 	/** Websphere MQ driver. */
-	MQ
+	WEBSPHERE_MQ("com.ibm.mq.jms.context.WMQInitialContextFactory", "{host}:{port 1414}/SYSTEM.DEF.SVRCONN"),
+	/** Apache MQ driver. */
+	ACTIVE_MQ("org.apache.activemq.jndi.ActiveMQInitialContextFactory", "tcp://{host}:{port 61616}")
+	;
+	/** The driver class. */
+	@Nullable
+	public final String driverClass;
+	/** The URL prefix. */
+	@Nullable
+	public final String urlTemplate;
+	/**
+	 * Constructor.
+	 * @param driverClass the driver class
+	 * @param urlTemplate the URL template
+	 */
+	AdvanceJMSDrivers(@Nullable String driverClass, @Nullable String urlTemplate) {
+		this.driverClass = driverClass;
+		this.urlTemplate = urlTemplate;
+	}
 }
