@@ -17,6 +17,11 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/reactive4java-gwt-0.94.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jaxen-1.1.3.jar" sourcepath="war/WEB-INF/lib/jaxen-1.1.3.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/bcprov-jdk16-146.jar" sourcepath="war/WEB-INF/lib/bcprov-jdk16-146.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/ojdbc6_g.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/httpclient-4.1.2.jar" sourcepath="war/WEB-INF/lib/httpclient-4.1.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jsch-0.1.44.jar" sourcepath="war/WEB-INF/lib/jsch-0.1.44.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-codec-1.4.jar" sourcepath="war/WEB-INF/lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/javamail.jar" sourcepath="war/WEB-INF/lib/javamail.jar"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
