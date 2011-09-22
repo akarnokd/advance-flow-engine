@@ -53,10 +53,6 @@ public final class AdvanceResolver {
 		String s = schemaURI.getScheme(); 
 		if ("advance".equals(s)) {
 			String u = schemaURI.getSchemeSpecificPart();
-			URL url = AdvanceResolver.class.getResource("/eu/advance/logistics/flow/engine/schemas/" + u + ".xsd");
-			if (url != null) {
-				return resolveSchemaLoad(url, schemaURI);
-			}
 			try {
 				return resolveSchemaLoad(new File("schemas/" + u + ".xsd").toURI().toURL(), schemaURI);
 			} catch (MalformedURLException ex) {

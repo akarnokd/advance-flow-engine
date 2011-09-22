@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xs:element name="timestamp" type="xs:dateTime">
-		<xs:annotation>
-			<xs:documentation>A basic ADVANCE type to represent a point in time as a year-month-day hour-minute-second-fractional and timezone. When referenced as type within a block or flow description, you may use advance:timestamp as the URI.</xs:documentation>
-		</xs:annotation>
-	</xs:element>
-</xs:schema>

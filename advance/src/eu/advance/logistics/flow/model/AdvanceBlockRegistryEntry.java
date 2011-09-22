@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.model;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -93,7 +94,7 @@ public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription implement
 	 */
 	public static List<AdvanceBlockRegistryEntry> parseDefaultRegistry() {
 		try {
-			InputStream in = AdvanceBlockRegistryEntry.class.getResourceAsStream("/eu/advance/logistics/flow/engine/schemas/block-registry.xml");
+			InputStream in = new FileInputStream("schemas/block-registry.xml");
 			try {
 				return parseRegistry(XElement.parseXML(in));
 			} finally {

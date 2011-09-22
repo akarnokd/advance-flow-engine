@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xs:element name="object" type="xs:anyType">
-		<xs:annotation>
-			<xs:documentation>A basic ADVANCE type which represents a base type for all types.</xs:documentation>
-		</xs:annotation>
-	</xs:element>
-</xs:schema>
