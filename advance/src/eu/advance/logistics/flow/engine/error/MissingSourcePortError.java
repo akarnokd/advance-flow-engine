@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.error;
 
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
 
 /**
  * The source port of the source object cannot be found.

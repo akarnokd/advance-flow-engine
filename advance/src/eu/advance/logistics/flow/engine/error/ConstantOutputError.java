@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.error;
 
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
 
 /**
  * A wire is bound to a constant on its destination side.

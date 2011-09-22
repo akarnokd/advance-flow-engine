@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.error;
 
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
 
 /**
  * The destination port of the destination object cannot be found.

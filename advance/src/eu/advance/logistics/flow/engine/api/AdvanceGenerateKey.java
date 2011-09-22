@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
-import eu.advance.logistics.util.DistinguishedName;
+import eu.advance.logistics.flow.engine.util.DistinguishedName;
 
 /**
  * Request to generate a new key.

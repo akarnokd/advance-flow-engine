@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.error;
 
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
 
 /**
  * The wire's destination is bound to an input port of the parent composite block's.

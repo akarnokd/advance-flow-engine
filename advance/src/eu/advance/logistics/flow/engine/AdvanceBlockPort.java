@@ -33,8 +33,8 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.xml.typesystem.XElement;
-import eu.advance.logistics.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * @author karnokd, 2011.06.22.

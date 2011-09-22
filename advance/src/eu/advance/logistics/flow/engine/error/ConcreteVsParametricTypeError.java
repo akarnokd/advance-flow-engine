@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.error;
 
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
-import eu.advance.logistics.flow.model.AdvanceType;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceType;
 
 /**
  * The wire binds a concrete type and a parametric type which cannot be in subtype relation.

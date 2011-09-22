@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.error;
 
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
 
 /**
  * The source (input) of the binding points to a composite input port in the same level (and not the parent composite's input).

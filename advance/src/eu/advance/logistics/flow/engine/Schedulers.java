@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.util.ReactiveEx;
+import eu.advance.logistics.flow.engine.util.ReactiveEx;
 
 /**
  * Container for various schedulers used to run the ADVANCE block bodies.
