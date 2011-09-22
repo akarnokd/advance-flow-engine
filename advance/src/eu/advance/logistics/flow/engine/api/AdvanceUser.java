@@ -27,8 +27,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
-import eu.advance.logistics.flow.model.XSerializable;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * User settings.

@@ -22,7 +22,7 @@
 package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Option;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The diagnostic port for advance regular ports.

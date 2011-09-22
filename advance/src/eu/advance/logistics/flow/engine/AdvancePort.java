@@ -22,8 +22,8 @@
 package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.reactive.Observable;
-import eu.advance.logistics.xml.typesystem.XElement;
-import eu.advance.logistics.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * Generic interface to describe ports.

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="flow-engine-config">
+		<xs:annotation>
+			<xs:documentation>The flow engine configuration settings.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="datastore">
+					<xs:annotation>
+						<xs:documentation>The location of the DataStore.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:attribute name="driver" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The driver class name or some default values: "LOCAL", "MYSQL", "ORACLE".</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="url" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The URL of the datastore. For LOCAL, it points to the datastore file.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="user" type="xs:string" use="optional">
+							<xs:annotation>
+								<xs:documentation>The user name for logging into the database if non LOCAL.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="password" type="xs:base64Binary" use="optional">
+							<xs:annotation>
+								<xs:documentation>The Base64 encoded optional password for login or to encrypt the datastore file.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="schema" type="xs:string" use="optional">
+							<xs:annotation>
+								<xs:documentation>The schema (or catalog) prefix where the datastore tables are located.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="keystore" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The keystore file and its location.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:attribute name="name" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The keystore name.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="file" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The keystore file name with path.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="password" type="xs:base64Binary" use="optional">
+							<xs:annotation>
+								<xs:documentation>The optional master password for the keystore.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="schemas" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The location for XML schemas used by the lookup function.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:attribute name="location" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>The directory path or base URI for the schema location.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="scheduler" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Configuration settings for various schedulers.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:attribute name="type" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The scheduler's type, e.g., "CPU" or "IO"</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="concurrency" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The concurrency level in number of threads or "ALL_CORES" to use all available cores.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="priority" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The thread priority of the cores in percentage or with constant names, such as: "IDLE", "VERY_LOW", "LOW", "NORMAL", "ABOVE_NORMAL", "HIGH", "VERY_HIGH", "MAX".</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

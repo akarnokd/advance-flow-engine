@@ -26,10 +26,10 @@ import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Date;
 
-import eu.advance.logistics.flow.model.XSerializable;
-import eu.advance.logistics.util.Base64;
-import eu.advance.logistics.xml.XsdDateTime;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.util.Base64;
+import eu.advance.logistics.flow.engine.xml.XsdDateTime;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The creation/modification time and user information.

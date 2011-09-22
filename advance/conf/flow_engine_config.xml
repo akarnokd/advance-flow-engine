@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-engine-config>
+	<datastore driver='LOCAL' url='conf/datastore.xml' user='' password='' schema=''/>
+	<keystore name='DEFAULT' file='conf/keystore' password=''/>
+	<schemas location='schemas'/>
+	<scheduler type='CPU' concurrency='ALL_CORES' priority='NORMAL'/>
+	<scheduler type='IO' concurrency='1024' priority='NORMAL'/>
+</flow-engine-config>

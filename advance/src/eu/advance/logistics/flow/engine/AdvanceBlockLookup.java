@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 
 /**
  * Utility class to look up various blocks.

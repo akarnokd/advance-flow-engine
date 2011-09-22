@@ -35,8 +35,8 @@ import eu.advance.logistics.flow.engine.AdvanceBlock;
 import eu.advance.logistics.flow.engine.AdvanceConstantPort;
 import eu.advance.logistics.flow.engine.AdvancePort;
 import eu.advance.logistics.flow.engine.SchedulerPreference;
-import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A block that merges the incoming values of its parameters but without waiting for both of them.

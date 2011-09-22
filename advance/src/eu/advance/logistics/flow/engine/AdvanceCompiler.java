@@ -65,20 +65,20 @@ import eu.advance.logistics.flow.engine.error.SourceToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
 import eu.advance.logistics.flow.engine.error.TypeMismatchError;
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.model.AdvanceBlockReference;
-import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.model.AdvanceConstantBlock;
-import eu.advance.logistics.flow.model.AdvanceType;
-import eu.advance.logistics.flow.model.AdvanceTypeKind;
-import eu.advance.logistics.flow.model.AdvanceTypeVariable;
-import eu.advance.logistics.util.Triplet;
-import eu.advance.logistics.xml.typesystem.SchemaParser;
-import eu.advance.logistics.xml.typesystem.XElement;
-import eu.advance.logistics.xml.typesystem.XRelation;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockReference;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.AdvanceType;
+import eu.advance.logistics.flow.engine.model.AdvanceTypeKind;
+import eu.advance.logistics.flow.engine.model.AdvanceTypeVariable;
+import eu.advance.logistics.flow.engine.util.Triplet;
+import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 
 /**
  * The ADVANCE block compiler which turns the the flow description into runnable advance blocks.

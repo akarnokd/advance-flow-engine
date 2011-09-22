@@ -32,8 +32,8 @@ import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.AdvanceBlock;
 import eu.advance.logistics.flow.engine.SchedulerPreference;
-import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A simple generic block that reserves the children of the supplied advance:collection type object.

@@ -26,8 +26,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import eu.advance.logistics.flow.model.XSerializable;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Describes a SOAP communication channel.

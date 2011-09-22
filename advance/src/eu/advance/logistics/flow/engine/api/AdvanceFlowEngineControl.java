@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.advance.logistics.flow.model.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 
 /**
  * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
