@@ -21,87 +21,14 @@
 
 package eu.advance.logistics.web.client;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.web.client.dialogs.LoginDialog;
-import eu.advance.logistics.web.model.AdvanceContext;
-import eu.advance.logistics.web.model.AdvanceProjectService;
 
 /**
  * The main entry point of the application.
  * @author karnokd
  */
 public class AdvanceProject implements EntryPoint {
-	/** The service caller. */
-	@NonNull
-	public AdvanceContext ctx;
 	@Override
 	public void onModuleLoad() {
-		ctx = new AdvanceContext();
-		ctx.service = GWT.create(AdvanceProjectService.class);
-		
-		retrieveLanguages();
 	}
-	/**
-	 * Retrieve the list of languages.
-	 */
-	void retrieveLanguages() {
-		ctx.service.getLanguages(new AsyncCallback<List<String>>() {
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert(caught.toString());
-			}
-			@Override
-			public void onSuccess(List<String> result) {
-				ctx.languageCodes = result;
-				retrieveDefaultLabels();
-			}
-		});
-	}
-	/**
-	 * Retrieve the default labels.
-	 */
-	void retrieveDefaultLabels() {
-		String languageCode = "en";
-		if (!ctx.languageCodes.contains(languageCode) && ctx.languageCodes.size() > 0) {
-			languageCode = ctx.languageCodes.get(0);
-		}
-		if (ctx.languageCodes.size() == 0) {
-			ctx.labels = new HashMap<String, String>();
-			Window.alert("No suitable user interface language found.");
-			DOM.getElementById("loading").removeFromParent();
-		} else {
-			ctx.service.getLabels(languageCode, new AsyncCallback<Map<String, String>>() {
-				@Override
-				public void onFailure(Throwable caught) {
-					Window.alert(caught.toString());
-				}
-				@Override
-				public void onSuccess(Map<String, String> result) {
-					ctx.labels = result;
-					createLoginPage();
-				}
-			});
-		}
-	}
-	/** Create the login page. */
-	void createLoginPage() {
-		DOM.getElementById("loading").removeFromParent();
-		LoginDialog dialog = new LoginDialog(ctx);
-		dialog.center();
-	}
-	/** Create the application menu. */
-	void createMenu() {
-		
-	}
-
 }
