@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.util.Strings;
 import eu.advance.logistics.xml.typesystem.XElement;
 
