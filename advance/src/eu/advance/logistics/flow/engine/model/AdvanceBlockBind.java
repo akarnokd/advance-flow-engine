@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class AdvanceBlockBind implements XSerializable {
 	/** Identifier of this binding. May be used to communicate problematic bindings for the Flow Editor / Compiler. */
-	// TODO @NonNull
+	@NonNull
 	public String id;
 	/** The parent composite block. */
 	@NonNull

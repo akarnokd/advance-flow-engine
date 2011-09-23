@@ -103,7 +103,6 @@ public class AdvanceType implements XSerializable {
 		if (tu != null) {
 			try {
 				typeURI = new URI(tu);
-				type = AdvanceResolver.resolveSchema(typeURI);
 			} catch (URISyntaxException ex) {
 				throw new RuntimeException(ex);
 			}

@@ -6,6 +6,14 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element name="block-registry" minOccurs="1" maxOccurs="unbounded">
+					<xs:annotation><xs:documentation>The block registry file location.</xs:documentation></xs:annotation>
+					<xs:complexType>
+						<xs:attribute name="file" type="xs:string" use="required">
+							<xs:annotation><xs:documentation>The registry file location.</xs:documentation></xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
 				<xs:element name="datastore">
 					<xs:annotation>
 						<xs:documentation>The location of the DataStore.</xs:documentation>
@@ -35,6 +43,9 @@
 							<xs:annotation>
 								<xs:documentation>The schema (or catalog) prefix where the datastore tables are located.</xs:documentation>
 							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="poolsize" type="xs:int" use="optional">
+							<xs:annotation><xs:documentation>The connection pool size for remote datastores.</xs:documentation></xs:annotation>
 						</xs:attribute>
 					</xs:complexType>
 				</xs:element>
@@ -77,10 +88,17 @@
 						<xs:documentation>Configuration settings for various schedulers.</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
-						<xs:attribute name="type" type="xs:string" use="required">
+						<xs:attribute name="type" use="required">
 							<xs:annotation>
-								<xs:documentation>The scheduler's type, e.g., "CPU" or "IO"</xs:documentation>
+								<xs:documentation>The scheduler's type, e.g., "CPU", "IO" or "SEQUENTIAL"</xs:documentation>
 							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="CPU"/>
+									<xs:enumeration value="IO"/>
+									<xs:enumeration value="SEQUENTIAL"/>
+								</xs:restriction>
+							</xs:simpleType>
 						</xs:attribute>
 						<xs:attribute name="concurrency" type="xs:string" use="required">
 							<xs:annotation>

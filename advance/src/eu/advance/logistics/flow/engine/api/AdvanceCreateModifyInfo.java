@@ -26,6 +26,8 @@ import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Date;
 
+import org.slf4j.LoggerFactory;
+
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.xml.XsdDateTime;
@@ -50,13 +52,13 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	 * @param name the attribute name
 	 * @return the password or null if no password
 	 */
-	public char[] getPassword(XElement source, String name) {
+	public static char[] getPassword(XElement source, String name) {
 		String pwd = source.get(name);
 		if (pwd != null) {
 			try {
 				return new String(Base64.decode(pwd), Charset.forName("UTF-8")).toCharArray();
 			} catch (IOException ex) {
-				// FIXME ignored
+				LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
 			}
 		}
 		return null;
@@ -81,13 +83,13 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 		try {
 			createdAt = XsdDateTime.parse(source.get("created-at"));
 		} catch (ParseException ex) {
-			// FIXME ignored
+			LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
 		}
 		createdBy = source.get("created-by");
 		try {
 			modifiedAt = XsdDateTime.parse(source.get("modified-at"));
 		} catch (ParseException ex) {
-			// FIXME ignored
+			LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
 		}
 		modifiedBy = source.get("modified-by");
 	}

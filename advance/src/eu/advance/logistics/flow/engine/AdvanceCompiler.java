@@ -77,8 +77,8 @@ import eu.advance.logistics.flow.engine.model.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.AdvanceTypeVariable;
 import eu.advance.logistics.flow.engine.util.Triplet;
 import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * The ADVANCE block compiler which turns the the flow description into runnable advance blocks.
@@ -87,16 +87,21 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 public final class AdvanceCompiler {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
-	/** Utility class. */
-	private AdvanceCompiler() {
-		
+	/** The engine configuration. */
+	protected final AdvanceEngineConfig config;
+	/**
+	 * Constructor.
+	 * @param config the configuration record.
+	 */
+	public AdvanceCompiler(AdvanceEngineConfig config) {
+		this.config = config;
 	}
 	/**
 	 * Compile the composite block.
 	 * @param root the flow description
 	 * @param flow the entire compiled flow model
 	 */
-	public static void compile(
+	public void compile(
 			AdvanceCompositeBlock root, 
 			List<AdvanceBlock> flow
 			) {
@@ -106,14 +111,14 @@ public final class AdvanceCompiler {
 		// current level constants
 		for (AdvanceBlockReference br : root.blocks.values()) {
 			Map<String, AdvanceConstantBlock> consts = Maps.newHashMap();
-			AdvanceBlockDescription bd = AdvanceBlockLookup.lookup(br.type);
+			AdvanceBlockDescription bd = config.lookup(br.type);
 			for (AdvanceBlockParameterDescription bdp : bd.inputs.values()) {
 				ConstantOrBlock cb = walkBinding(root, br.id, bdp.id);
 				if (cb != null && cb.constant != null) {
 					consts.put(bdp.id, cb.constant);
 				}
 			}
-			AdvanceBlock ab = AdvanceBlockLookup.create(flow.size(), root, br.id);
+			AdvanceBlock ab = config.create(flow.size(), root, br.id);
 			ab.init(bd, consts);
 			flow.add(ab);
 		}
@@ -138,13 +143,12 @@ public final class AdvanceCompiler {
 	/**
 	 * Run the flow graph.
 	 * @param flow the list of blocks
-	 * @param schedulers the available set of schedulers
 	 */
-	public static void run(List<AdvanceBlock> flow, Schedulers schedulers) {
+	public void run(List<AdvanceBlock> flow) {
 		// arm
 		List<Observer<Void>> notifycations = Lists.newLinkedList();
 		for (AdvanceBlock ab : flow) {
-			notifycations.add(ab.run(schedulers.get(ab.schedulerPreference)));
+			notifycations.add(ab.run(config.get(ab.schedulerPreference)));
 		}
 		// notify
 		for (Observer<Void> n : notifycations) {
@@ -155,7 +159,7 @@ public final class AdvanceCompiler {
 	 * Terminate the blocks' connections and observations.
 	 * @param flow the flow
 	 */
-	public static void done(List<AdvanceBlock> flow) {
+	public void done(List<AdvanceBlock> flow) {
 		for (AdvanceBlock ab : flow) {
 			ab.done();
 		}
@@ -178,7 +182,7 @@ public final class AdvanceCompiler {
 	 * @param param the starting parameter
 	 * @return the constant block or null
 	 */
-	static ConstantOrBlock walkBinding(AdvanceCompositeBlock start, String block, String param) {
+	ConstantOrBlock walkBinding(AdvanceCompositeBlock start, String block, String param) {
 		while (!Thread.currentThread().isInterrupted()) {
 			for (AdvanceBlockBind bb : start.bindings) {
 				if (bb.destinationBlock.equals(block) && bb.destinationParameter.equals(param)) {
@@ -274,7 +278,7 @@ public final class AdvanceCompiler {
 	 * @param enclosingBlock the most outer block
 	 * @return the list compilation errors
 	 */
-	public static List<AdvanceCompilationError> verify(AdvanceCompositeBlock enclosingBlock) {
+	public List<AdvanceCompilationError> verify(AdvanceCompositeBlock enclosingBlock) {
 		List<AdvanceCompilationError> result = Lists.newArrayList();
 		
 		LinkedList<TypeRelation> relations = Lists.newLinkedList();
@@ -306,7 +310,7 @@ public final class AdvanceCompiler {
 						AdvanceType at2 = new AdvanceType();
 						AdvanceConstantBlock constblock = cb.constants.get(bb.sourceBlock);
 						at2.typeURI = constblock.typeURI;
-						at2.type = constblock.type;
+						at2.type = config.resolve(constblock.typeURI);
 						typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
 						tr.left = at2;
 					} else {
@@ -316,12 +320,14 @@ public final class AdvanceCompiler {
 				if (cb.blocks.containsKey(bb.sourceBlock)) {
 					Map<String, AdvanceType> at = typeMemory.get(bb.sourceBlock);
 					if (at == null) {
-						AdvanceBlockDescription lookup = AdvanceBlockLookup.lookup(cb.blocks.get(bb.sourceBlock).type).copy();
+						AdvanceBlockDescription block = config.lookup(cb.blocks.get(bb.sourceBlock).type).copy();
 						at = Maps.newHashMap();
-						for (AdvanceBlockParameterDescription bpd : lookup.inputs.values()) {
+						for (AdvanceBlockParameterDescription bpd : block.inputs.values()) {
+							resolve(bpd.type);
 							at.put(bpd.id, bpd.type);
 						}
-						for (AdvanceBlockParameterDescription bpd : lookup.outputs.values()) {
+						for (AdvanceBlockParameterDescription bpd : block.outputs.values()) {
+							resolve(bpd.type);
 							at.put(bpd.id, bpd.type);
 						}
 						typeMemory.put(bb.sourceBlock, at);
@@ -363,12 +369,14 @@ public final class AdvanceCompiler {
 				if (cb.blocks.containsKey(bb.destinationBlock)) {
 					Map<String, AdvanceType> at = typeMemory.get(bb.destinationBlock);
 					if (at == null) {
-						AdvanceBlockDescription lookup = AdvanceBlockLookup.lookup(cb.blocks.get(bb.destinationBlock).type).copy();
+						AdvanceBlockDescription block = config.lookup(cb.blocks.get(bb.destinationBlock).type).copy();
 						at = Maps.newHashMap();
-						for (AdvanceBlockParameterDescription bpd : lookup.inputs.values()) {
+						for (AdvanceBlockParameterDescription bpd : block.inputs.values()) {
+							resolve(bpd.type);
 							at.put(bpd.id, bpd.type);
 						}
-						for (AdvanceBlockParameterDescription bpd : lookup.outputs.values()) {
+						for (AdvanceBlockParameterDescription bpd : block.outputs.values()) {
+							resolve(bpd.type);
 							at.put(bpd.id, bpd.type);
 						}
 						typeMemory.put(bb.destinationBlock, at);
@@ -430,7 +438,7 @@ public final class AdvanceCompiler {
 	 * @param cb the current composite block
 	 * @param validBindings the valid bindings
 	 */
-	public static void verifyBindings(final List<? super AdvanceCompilationError> result,
+	public void verifyBindings(final List<? super AdvanceCompilationError> result,
 			final AdvanceCompositeBlock cb, final List<AdvanceBlockBind> validBindings) {
 		Set<List<Object>> bindingMemory = Sets.newHashSet();
 		Set<List<Object>> sameOutputMemory = Sets.newHashSet();
@@ -454,12 +462,12 @@ public final class AdvanceCompiler {
 			if (cb.blocks.containsKey(bb.sourceBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.sourceBlock);
 				input = b;
-				AdvanceBlockRegistryEntry lookup = AdvanceBlockLookup.lookup(b.type);
-				if (lookup.inputs.containsKey(bb.sourceParameter)) {
+				AdvanceBlockRegistryEntry block = config.lookup(b.type);
+				if (block.inputs.containsKey(bb.sourceParameter)) {
 					result.add(new SourceToInputBindingError(bb));
 					continue;
 				}
-				inputPort = lookup.outputs.get(bb.sourceParameter);
+				inputPort = block.outputs.get(bb.sourceParameter);
 			} else
 			if (cb.composites.containsKey(bb.sourceBlock)) {
 				AdvanceCompositeBlock cb1 = cb.composites.get(bb.sourceBlock);
@@ -500,12 +508,12 @@ public final class AdvanceCompiler {
 			if (cb.blocks.containsKey(bb.destinationBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.destinationBlock);
 				output = b;
-				AdvanceBlockRegistryEntry lookup = AdvanceBlockLookup.lookup(b.type);
-				if (lookup.outputs.containsKey(bb.destinationParameter)) {
+				AdvanceBlockRegistryEntry block = config.lookup(b.type);
+				if (block.outputs.containsKey(bb.destinationParameter)) {
 					result.add(new DestinationToOutputError(bb));
 					continue;
 				}
-				outputPort = lookup.inputs.get(bb.destinationParameter);
+				outputPort = block.inputs.get(bb.destinationParameter);
 			} else
 			if (cb.composites.containsKey(bb.destinationBlock)) {
 				AdvanceCompositeBlock cb1 = cb.composites.get(bb.destinationBlock);
@@ -537,16 +545,6 @@ public final class AdvanceCompiler {
 			}
 
 		}
-	}
-	/** 
-	 * Test the compiler.
-	 * @param args ignored
-	 * @throws Exception ignored 
-	 */
-	public static void main(String[] args) throws Exception {
-		XElement flow = XElement.parseXML("test/flow1.xml");
-		AdvanceCompositeBlock cb = AdvanceCompositeBlock.parseFlow(flow);
-		System.out.println(verify(cb));
 	}
 	/** The type substitution record. */
 	public static class TypeSubstitution {
@@ -974,34 +972,6 @@ public final class AdvanceCompiler {
 				}
 			}
 		}
-//		for (AdvanceType lb : lowerBound.keySet()) {
-//			for (AdvanceType ub : upperBound.keySet()) {
-//				if (lb == ub) {
-//					// locate concrete type up and down
-//					AdvanceType cl = null;
-//					for (AdvanceType b : lowerBound.get(lb)) {
-//						if (b.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
-//							cl = b;
-//							break;
-//						}
-//					}
-//					AdvanceType cu = null;
-//					for (AdvanceType b : upperBound.get(ub)) {
-//						if (b.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
-//							cu = b;
-//							break;
-//						}
-//					}
-//					if (cl != null && cu != null) {
-//						XRelation xr = SchemaParser.compare(cl.type, cu.type);
-//						if (xr != XRelation.EQUAL && xr != XRelation.EXTENDS) {
-//							error.add(new TypeMismatchError(null)); // TODO find a wire
-//							return;
-//						}
-//					}
-//				}
-//			}
-//		}
 	}
 	/**
 	 * Based on the structure of left >= right, creates new type relations and places it back to relations.
@@ -1187,5 +1157,31 @@ public final class AdvanceCompiler {
 				return Sets.newHashSet();
 			}
 		});
+	}
+	/**
+	 * Resolve the schemas in the given type recursively.
+	 * It caches the resolved schemas for the duration of this method
+	 * @param type the type to start with
+	 */
+	void resolve(AdvanceType type) {
+		LinkedList<AdvanceType> queue = Lists.newLinkedList();
+		queue.add(type);
+		Map<String, XType> cache = Maps.newHashMap();
+		while (!queue.isEmpty()) {
+			AdvanceType t = queue.removeFirst();
+			if (t.typeURI != null) {
+				String key = t.typeURI.toString();
+				XType xt = cache.get(key);
+				if (xt == null) {
+					xt = config.resolve(t.typeURI);
+					cache.put(key, xt);
+				}
+				t.type = xt;
+			}
+			queue.addAll(t.typeArguments);
+			if (t.typeVariable != null) {
+				queue.addAll(t.typeVariable.bounds);
+			}
+		}
 	}
 }

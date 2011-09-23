@@ -24,6 +24,8 @@ package eu.advance.logistics.flow.engine.api;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.slf4j.LoggerFactory;
+
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -60,7 +62,7 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 		try {
 			url = new URL(source.get("url"));
 		} catch (MalformedURLException ex) {
-			// FIXME ignored
+			LoggerFactory.getLogger(AdvanceWebDataSource.class).error(ex.toString(), ex);
 		}
 		loginType = AdvanceWebLoginType.valueOf(source.get("login-type"));
 		keyStore = source.get("keystore");
