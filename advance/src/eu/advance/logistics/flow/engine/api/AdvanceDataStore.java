@@ -41,6 +41,16 @@ public interface AdvanceDataStore {
 	List<AdvanceRealm> queryRealms(AdvanceControlToken token)
 	throws IOException, AdvanceControlException;
 	/**
+	 * Retrieve a concrete realm.
+	 * @param token the connection token
+	 * @param realm the the target realm
+	 * @return the list of realms
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the realms
+	 */
+	AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
+	throws IOException, AdvanceControlException;
+	/**
 	 * Create a new realm.
 	 * @param token the connection token
 	 * @param name the realm name.
@@ -65,22 +75,6 @@ public interface AdvanceDataStore {
 	 * @throws AdvanceControlException if the user is not allowed to rename the realm
 	 */
 	void renameRealm(AdvanceControlToken token, String name, String newName) throws IOException, AdvanceControlException;
-	/**
-	 * Stop a realm's execution.
-	 * @param token the connection token
-	 * @param name the realm's name
-	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user is not allowed to stop the realm or other problems arise
-	 */
-	void stopRealm(AdvanceControlToken token, String name) throws IOException, AdvanceControlException;
-	/**
-	 * Start a realm's execution.
-	 * @param token the connection token
-	 * @param name the realm's name
-	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user is not allowed to start the realm or other problems arise
-	 */
-	void startRealm(AdvanceControlToken token, String name) throws IOException, AdvanceControlException;
 	/**
 	 * Query the list of users.
 	 * @param token the connection token
@@ -307,5 +301,5 @@ public interface AdvanceDataStore {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete a key store
 	 */
-	void deleteKeyStore(AdvanceControlToken token, String keyStore) throws IOException, AdvanceControlException;;
+	void deleteKeyStore(AdvanceControlToken token, String keyStore) throws IOException, AdvanceControlException;
 }

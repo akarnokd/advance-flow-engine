@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.reactive4java.reactive.Observable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,19 +42,26 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.AdvanceFlowEngineControl;
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyType;
+import eu.advance.logistics.flow.engine.api.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
+import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 
@@ -61,9 +70,9 @@ import eu.advance.logistics.flow.engine.util.KeystoreManager;
  * <p>May be used to test GUI without the need to connect to real remote data source.
  * @author karnokd, 2011.09.20.
  */
-public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
+public class LocalEngineControl implements AdvanceEngineControl {
 	/** The logger object. */
-	private static final Logger LOG = LoggerFactory.getLogger(LocalFlowEngineControl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LocalEngineControl.class);
 	/** The local data store. */
 	protected final LocalDataStore datastore = new LocalDataStore();
 	@Override
@@ -99,6 +108,7 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 		return AdvanceBlockRegistryEntry.parseDefaultRegistry();
 	}
 	/** @return the datastore instance */
+	@Override
 	public AdvanceDataStore datastore() {
 		return datastore;
 	}
@@ -450,5 +460,83 @@ public class LocalFlowEngineControl implements AdvanceFlowEngineControl {
 			throws IOException, AdvanceControlException {
 		// FIXME implement
 		throw new UnsupportedOperationException();
+	}
+	@Override
+	public void stopRealm(AdvanceControlToken token, String name)
+			throws IOException, AdvanceControlException {
+		if (!datastore.hasUserRight(token, name, AdvanceUserRealmRights.STOP)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.realms) {
+			AdvanceRealm r = datastore.realms.get(name);
+			if (r != null) {
+				if (r.status == AdvanceRealmStatus.RUNNING) {
+					r.status = AdvanceRealmStatus.STOPPED;
+					r.modifiedAt = new Date();
+					r.modifiedBy = token.user.name;
+				} else {
+					throw new AdvanceControlException("Realm not running");
+				}
+			} else {
+				throw new AdvanceControlException("Realm not found");
+			}
+		}
+	}
+
+	@Override
+	public void startRealm(AdvanceControlToken token, String name)
+			throws IOException, AdvanceControlException {
+		if (!datastore.hasUserRight(token, name, AdvanceUserRealmRights.START)) {
+			throw new AdvanceAccessDenied();
+		}
+		synchronized (datastore.realms) {
+			AdvanceRealm r = datastore.realms.get(name);
+			if (r != null) {
+				if (r.status == AdvanceRealmStatus.STOPPED) {
+					r.status = AdvanceRealmStatus.RUNNING;
+					r.modifiedAt = new Date();
+					r.modifiedBy = token.user.name;
+				} else {
+					throw new AdvanceControlException("Realm not stopped");
+				}
+			} else {
+				throw new AdvanceControlException("Realm not found");
+			}
+		}
+	}
+	@Override
+	public Observable<AdvanceBlockDiagnostic> debugBlock(
+			AdvanceControlToken token, String realm, String blockId)
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Observable<AdvanceParameterDiagnostic> debugParameter(
+			AdvanceControlToken token, String realm, String blockId,
+			String port, boolean isImput) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public AdvanceCompositeBlock queryFlow(AdvanceControlToken token,
+			String realm) throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void updateFlow(AdvanceControlToken token, String realm,
+			AdvanceCompositeBlock flow) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public List<AdvanceCompilationError> verifyFlow(AdvanceControlToken token,
+			AdvanceCompositeBlock flow) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

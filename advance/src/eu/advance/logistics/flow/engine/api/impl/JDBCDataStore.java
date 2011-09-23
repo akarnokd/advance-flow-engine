@@ -76,20 +76,6 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void stopRealm(AdvanceControlToken token, String name)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void startRealm(AdvanceControlToken token, String name)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public List<AdvanceUser> queryUsers(AdvanceControlToken token)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
@@ -296,5 +282,10 @@ public class JDBCDataStore implements AdvanceDataStore {
 		// TODO Auto-generated method stub
 		
 	}
-
+	@Override
+	public AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
