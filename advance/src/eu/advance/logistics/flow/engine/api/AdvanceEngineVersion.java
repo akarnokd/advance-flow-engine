@@ -25,7 +25,7 @@ package eu.advance.logistics.flow.engine.api;
  * Contains version information and engine details.
  * @author karnokd, 2011.09.19.
  */
-public class AdvanceFlowEngineVersion {
+public class AdvanceEngineVersion {
 	/**
 	 * @return the minor version number. When displayed, this should be a two digit zero padded number, e.g., 1 is 1.01 and 20 is 1.20. 
 	 */

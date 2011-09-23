@@ -422,51 +422,22 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 		}		
 	}
-
 	@Override
-	public void stopRealm(AdvanceControlToken token, String name)
+	public AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, name, AdvanceUserRealmRights.STOP)) {
+		if (!hasUserRight(token, AdvanceUserRights.MODIFY_REALM)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (realms) {
-			AdvanceRealm r = realms.get(name);
+			AdvanceRealm r = realms.get(realm);
 			if (r != null) {
-				if (r.status == AdvanceRealmStatus.RUNNING) {
-					r.status = AdvanceRealmStatus.STOPPED;
-					r.modifiedAt = new Date();
-					r.modifiedBy = token.user.name;
-				} else {
-					throw new AdvanceControlException("Realm not running");
-				}
+				return r.copy();
 			} else {
 				throw new AdvanceControlException("Realm not found");
 			}
-		}
+		}		
 	}
-
-	@Override
-	public void startRealm(AdvanceControlToken token, String name)
-			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, name, AdvanceUserRealmRights.START)) {
-			throw new AdvanceAccessDenied();
-		}
-		synchronized (realms) {
-			AdvanceRealm r = realms.get(name);
-			if (r != null) {
-				if (r.status == AdvanceRealmStatus.STOPPED) {
-					r.status = AdvanceRealmStatus.RUNNING;
-					r.modifiedAt = new Date();
-					r.modifiedBy = token.user.name;
-				} else {
-					throw new AdvanceControlException("Realm not stopped");
-				}
-			} else {
-				throw new AdvanceControlException("Realm not found");
-			}
-		}
-	}
-
+	
 	@Override
 	public List<AdvanceUser> queryUsers(AdvanceControlToken token)
 			throws IOException, AdvanceControlException {
@@ -1102,7 +1073,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			
 			AdvanceKeyStore e = keystores.get(name);
 			if (e != null) {
-				return e;
+				return e.copy();
 			} else {
 				throw new AdvanceControlException("Keystore not found");
 			}

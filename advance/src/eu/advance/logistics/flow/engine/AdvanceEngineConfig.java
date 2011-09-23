@@ -338,10 +338,27 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 		} else
 		if ("MAX".equals(priority)) {
 			p = Thread.MAX_PRIORITY;
+		} else
+		if ("VERY_LOW".equals(priority)) {
+			p = Thread.MIN_PRIORITY + 1;
+		} else
+		if ("LOW".equals(priority)) {
+			p = Thread.NORM_PRIORITY - 1;
+		} else
+		if ("NORMAL".equals(priority)) {
+			p = Thread.NORM_PRIORITY;
+		} else
+		if ("ABOVE_NORMAL".equals(priority)) {
+			p = Thread.NORM_PRIORITY + 1;
+		} else
+		if ("HIGH".equals(priority)) {
+			p = Thread.MAX_PRIORITY - 2;
+		} else
+		if ("VERY_HIGH".equals(priority)) {
+			p = Thread.MAX_PRIORITY - 1;
 		} else {
 			p = Thread.MIN_PRIORITY + Integer.parseInt(priority) * (Thread.MAX_PRIORITY - Thread.MIN_PRIORITY) / 100;
 		}
-		// TODO more priority constants
 		
 		final int prio = p;
 		

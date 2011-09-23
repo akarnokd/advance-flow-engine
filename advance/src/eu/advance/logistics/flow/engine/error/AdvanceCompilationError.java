@@ -26,5 +26,5 @@ package eu.advance.logistics.flow.engine.error;
  * @author karnokd, 2011.07.07.
  */
 public interface AdvanceCompilationError {
-
+	
 }

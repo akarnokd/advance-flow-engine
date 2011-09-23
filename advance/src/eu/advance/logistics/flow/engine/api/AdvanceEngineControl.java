@@ -21,13 +21,19 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.reactive.Observable;
+
 import java.io.IOException;
 import java.net.URI;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.List;
 
+import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
+import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 
 /**
  * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
@@ -38,7 +44,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
  * unique identifier replaces this value.</p>
  * @author karnokd, 2011.09.19.
  */
-public interface AdvanceFlowEngineControl {
+public interface AdvanceEngineControl {
 	/**
 	 * Connect to the target ADVANCE Flow Engine via username/password pair.
 	 * @param target the target URI
@@ -178,4 +184,71 @@ public interface AdvanceFlowEngineControl {
 	 * @throws AdvanceControlException i fthe user is not allowed to list the keys
 	 */
 	List<AdvanceKeyEntry> queryKeys(AdvanceControlToken token, String keyStore) throws IOException, AdvanceControlException;
+	/** @return the datastore interface. */
+	AdvanceDataStore datastore();
+	/**
+	 * Stop a realm's execution.
+	 * @param token the connection token
+	 * @param name the realm's name
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to stop the realm or other problems arise
+	 */
+	void stopRealm(AdvanceControlToken token, String name) throws IOException, AdvanceControlException;
+	/**
+	 * Start a realm's execution.
+	 * @param token the connection token
+	 * @param name the realm's name
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to start the realm or other problems arise
+	 */
+	void startRealm(AdvanceControlToken token, String name) throws IOException, AdvanceControlException;
+	/**
+	 * Retrieve the current flow, if any, from the given realm.
+	 * @param token the connection token
+	 * @param realm the target realm
+	 * @return the composite block representing the flow, or a completely empty composite block
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to query the flow
+	 */
+	AdvanceCompositeBlock queryFlow(AdvanceControlToken token, String realm) throws IOException, AdvanceControlException;
+	/**
+	 * Update a flow in a the given realm.
+	 * @param token the connection token
+	 * @param realm the target realm
+	 * @param flow the new flow to upload
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to update a flow
+	 */
+	void updateFlow(AdvanceControlToken token, String realm, AdvanceCompositeBlock flow) throws IOException, AdvanceControlException;
+	/**
+	 * Verify the given flow.
+	 * @param token the connection token
+	 * @param flow the flow to verify
+	 * @return the list of compilation errors.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to update a flow
+	 */
+	List<AdvanceCompilationError> verifyFlow(AdvanceControlToken token, AdvanceCompositeBlock flow) throws IOException, AdvanceControlException;
+	/**
+	 * Ask for the observable sequence of block diagnostic messages for the given block within the given realm.
+	 * @param token the connection token
+	 * @param realm the realm
+	 * @param blockId the block unique identifier (as in the flow)
+	 * @return the observable for the diagnostic messages
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the block is missing
+	 */
+	Observable<AdvanceBlockDiagnostic> debugBlock(AdvanceControlToken token, String realm, String blockId) throws IOException, AdvanceControlException;
+	/**
+	 * Ask for the observable sequence of port messages of the given port/block/realm.
+	 * @param token the connection token
+	 * @param realm the realm
+	 * @param blockId the block unique identifier (as in the flow)
+	 * @param port the port name
+	 * @param isImput is this port an input port?
+	 * @return the observable of parameter messages
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the referenced parameter is missing
+	 */
+	Observable<AdvanceParameterDiagnostic> debugParameter(AdvanceControlToken token, String realm, String blockId, String port, boolean isImput) throws IOException, AdvanceControlException;
 }
