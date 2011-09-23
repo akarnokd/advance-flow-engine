@@ -69,7 +69,6 @@ public class AdvanceConstantBlock implements XSerializable {
 		if (t != null) {
 			try {
 				typeURI = new URI(t);
-				type = AdvanceResolver.resolveSchema(typeURI);
 			} catch (URISyntaxException ex) {
 				throw new RuntimeException(ex);
 			}

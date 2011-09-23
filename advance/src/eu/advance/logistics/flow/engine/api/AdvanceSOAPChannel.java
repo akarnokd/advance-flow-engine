@@ -26,6 +26,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.slf4j.LoggerFactory;
+
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -66,12 +68,12 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 		try {
 			endpoint = new URL(source.get("endpoint"));
 		} catch (MalformedURLException ex) {
-			// FIXME ignored
+			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
 		}
 		try {
 			targetObject = new URI(source.get("target-object"));
 		} catch (URISyntaxException ex) {
-			// FIXME ignored
+			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
 		}
 		method = source.get("method");
 		encrypted = "true".equals(source.get("encrypted"));

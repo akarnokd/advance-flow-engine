@@ -771,7 +771,6 @@ public class XElement implements Iterable<XElement> {
 	 * @throws XMLStreamException if an error occurs
 	 */
 	public void save(XMLStreamWriter stream) throws XMLStreamException {
-		// TODO implement
 		stream.writeStartDocument("UTF-8", "1.0");
 		
 		saveInternal(stream);

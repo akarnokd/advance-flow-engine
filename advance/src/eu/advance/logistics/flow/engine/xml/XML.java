@@ -182,7 +182,7 @@ public final class XML {
 	 * Callback interface for processing a fully parsed XML DOM document.
 	 * @param <T> the type of the parsing result 
 	 */
-	public static interface XmlProcessor<T> {
+	public interface XmlProcessor<T> {
 		/** 
 		 * Process the given document object and return an object.
 		 * @param doc the DOM document
