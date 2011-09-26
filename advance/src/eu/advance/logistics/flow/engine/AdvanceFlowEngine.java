@@ -21,8 +21,14 @@
 
 package eu.advance.logistics.flow.engine;
 
+import java.io.IOException;
+
+import javax.xml.stream.XMLStreamException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The Advance Data Flow Engine main program.
@@ -40,6 +46,18 @@ public class AdvanceFlowEngine implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		LOG.info("Advance Flow Engine Started");
+		
+		final AdvanceEngineConfig config = new AdvanceEngineConfig();
+		try {
+			XElement xconfig = XElement.parseXML("conf/flow_engine_config.xml");
+			config.initialize(xconfig);
+		} catch (IOException ex) {
+			LOG.error(ex.toString(), ex);
+		} catch (XMLStreamException ex) {
+			LOG.error(ex.toString(), ex);
+		}
+		
+		
 		LOG.info("Advance Flow Engine Terminated");
 	}
 	/**

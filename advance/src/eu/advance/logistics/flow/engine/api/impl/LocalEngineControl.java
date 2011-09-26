@@ -64,6 +64,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A synchronized local flow engine control object storing data in local XML file.
@@ -538,5 +539,12 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	@Override
+	public void injectValue(AdvanceControlToken token, String realm,
+			String blockId, String port, XElement value) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
 	}
 }

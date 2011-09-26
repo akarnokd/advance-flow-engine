@@ -307,7 +307,7 @@ public class KeystoreManager {
 		}
 	}
 	/**
-	 * Generate an RSA certificate and add it to the current keystore
+	 * Generate an RSA 1024 bit key and certificate and add it to the current keystore
 	 * under the given alias.
 	 * The distinguished names must be in format: CN=cName, OU=orgUnit, O=org, L=city, S=state, C=countryCode
 	 * use backslash to escape a comma
@@ -896,6 +896,61 @@ public class KeystoreManager {
 		} catch (KeyStoreException ex) {
 			throw new KeystoreFault(ex);
 		}
+	}
+	/**
+	 * Create a keystore with a single key from the another keystore.
+	 * @param source the source keystore
+	 * @param alias the key alias
+	 * @param password the key password
+	 * @return the new keystore
+	 */
+	public static KeyStore singleKey(KeyStore source, String alias, char[] password) {
+		KeyStore result = null;
+		try {
+			result = KeyStore.getInstance("JKS");
+			result.load(null, null);
+	
+			Certificate cert = source.getCertificate(alias);
+			Key key = source.getKey(alias, password);
+			
+			result.setKeyEntry(alias, key, password, new Certificate[] { cert });
+		} catch (KeyStoreException ex) {
+			throw new KeystoreFault(ex);
+		} catch (CertificateException ex) {
+			throw new KeystoreFault(ex);
+		} catch (NoSuchAlgorithmException ex) {
+			throw new KeystoreFault(ex);
+		} catch (IOException ex) {
+			throw new KeystoreFault(ex);
+		} catch (UnrecoverableKeyException ex) {
+			throw new KeystoreFault(ex);
+		}
+		return result;
+	}
+	/**
+	 * Create a managed keystore with the single key from this keystore.
+	 * @param alias the key alias
+	 * @param password the key password
+	 * @return the new keystore
+	 */
+	public KeystoreManager singleKey(String alias, char[] password) {
+		KeystoreManager result = new KeystoreManager();
+		result.create();
+
+		try {
+			Certificate cert = keystore.getCertificate(alias);
+			Key key = keystore.getKey(alias, password);
+			
+			result.keystore.setKeyEntry(alias, key, password, new Certificate[] { cert });
+		} catch (KeyStoreException ex) {
+			throw new KeystoreFault(ex);
+		} catch (NoSuchAlgorithmException ex) {
+			throw new KeystoreFault(ex);
+		} catch (UnrecoverableKeyException ex) {
+			throw new KeystoreFault(ex);
+		}
+
+		return result;
 	}
 	/** Begin private key constant. */
 	private static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";

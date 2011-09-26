@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 import hu.akarnokd.reactive4java.base.Pair;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +35,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -51,6 +53,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
 
 
@@ -77,23 +80,23 @@ public final class SchemaParser {
 		XElement schema3 = XElement.parseXML("test/type3.xsd");
 //		
 //		System.out.println(schema1);
-		XType t1 = parse(schema1, "schemas");
+		XType t1 = parse(schema1, Collections.singleton("schemas"));
 //		System.out.println(t1);
 //		System.out.println(schema2);
-		XType t2 = parse(schema2, "schemas");
+		XType t2 = parse(schema2, Collections.singleton("schemas"));
 //		System.out.println(t2);
 //		System.out.println(t1.compareTo(t2));
 //		System.out.println(t2.compareTo(t1));
 //		System.out.println(t1.compareTo(t1));
 //		
 //		System.out.println();
-		XType t3 = parse(schema3, "schemas");
+		XType t3 = parse(schema3, Collections.singleton("schemas"));
 //		System.out.println(t1.compareTo(t3));
 //		System.out.println(compare(t1, t3));
 		
 		XType t4 = fromInstance(XElement.parseXML("schemas/block-registry.xml"));
 		System.out.println(t4);
-		XType t5 = parse(XElement.parseXML("schemas/block-registry.xsd"), "schemas");
+		XType t5 = parse(XElement.parseXML("schemas/block-registry.xsd"), Collections.singleton("schemas"));
 		System.out.println(t5);
 		System.out.println(compare(t4, t5));
 		
@@ -101,8 +104,8 @@ public final class SchemaParser {
 		System.out.println(t2.intersection(t3).compareTo(t3));
 		System.out.println(t2.union(t3));
 		
-		XType stringType = parse(XElement.parseXML("schemas/string.xsd"), "schemas");
-		XType intType = parse(XElement.parseXML("schemas/integer.xsd"), "schemas");
+		XType stringType = parse(XElement.parseXML("schemas/string.xsd"), Collections.singleton("schemas"));
+		XType intType = parse(XElement.parseXML("schemas/integer.xsd"), Collections.singleton("schemas"));
 
 		System.out.println(intersection(stringType, intType));
 		System.out.println(union(stringType, intType));
@@ -110,10 +113,10 @@ public final class SchemaParser {
 	/**
 	 * Create the XML type by parsing the given schema document.
 	 * @param schema the schema tree.
-	 * @param path the location to look for local schemas
+	 * @param schemaLocations the ordered sequence of schema locations to look for referenced XSDs
 	 * @return the XML type representing the schema
 	 */
-	public static XType parse(XElement schema, String path) {
+	public static XType parse(XElement schema, Iterable<String> schemaLocations) {
 		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XSD));
 		if (roots.size() != 1) {
 			throw new IllegalArgumentException("Zero or multi-rooted schema not supported");
@@ -123,7 +126,7 @@ public final class SchemaParser {
 		
 		List<XElement> typedefs = new ArrayList<XElement>();
 
-		searchTypes(schema, typedefs, new HashSet<String>(), path);
+		searchTypes(schema, typedefs, new HashSet<String>(), schemaLocations);
 		
 		XType result = new XType();
 		Map<String, XType> memory = new HashMap<String, XType>();
@@ -452,10 +455,10 @@ public final class SchemaParser {
 	 * @param root the current schema object
 	 * @param typedefs the simple types, complex types and attribute groups
 	 * @param memory the memory for already visited resources
-	 * @param path the path to local schema directory
+	 * @param schemaLocations the schema directories
 	 */
 	static void searchTypes(XElement root, List<XElement> typedefs, 
-			Set<String> memory, String path) {
+			Set<String> memory, Iterable<String> schemaLocations) {
 		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XSD));
 		Iterables.addAll(typedefs, root.childrenWithName("complexType", XSD));
 		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XSD));
@@ -465,34 +468,64 @@ public final class SchemaParser {
 			if (loc != null && memory.add(loc)) {
 				InputStream in = null;
 				try {
+					// open URI or file
 					try {
-						try {
-							URI uri = new URI(loc);
-							if (uri.isAbsolute()) {
-								in = uri.toURL().openStream();
-							} else {
-								in = new FileInputStream(loc);
-							}
-						} catch (URISyntaxException ex) {
-							in = new FileInputStream(loc);
+						URI uri = new URI(loc);
+						if (uri.isAbsolute()) {
+							in = uri.toURL().openStream();
+						} else {
+							in = tryLocalLocations(schemaLocations, loc);
 						}
-					} catch (FileNotFoundException ex) {
-						in = new FileInputStream(new File(path, loc));
+					} catch (URISyntaxException ex) {
+						in = tryLocalLocations(schemaLocations, loc);
 					}
-					searchTypes(XElement.parseXML(in), typedefs, memory, path);
+					if (in != null) {
+						searchTypes(XElement.parseXML(in), typedefs, memory, schemaLocations);
+					} else {
+						throw new RuntimeException("Could not locate schema file for " + loc);
+					}
 				} catch (IOException ex) {
 					throw new RuntimeException(ex);
 				} catch (XMLStreamException ex) {
 					throw new RuntimeException(ex);
 				} finally {
-					if (in != null) {
-						try { in.close(); } catch (IOException ex) { ex.printStackTrace(); }
-					}
+					close0(in);
 				}
 			}
 		}
 	}
-	
+	/**
+	 * Try opening the {@code loc} file with or without the help of schema location directories.
+	 * @param schemaLocations the sequence of schema locations.
+	 * @param loc the location of the schema
+	 * @return the opened input stream or null if not found
+	 */
+	protected static InputStream tryLocalLocations(
+			Iterable<String> schemaLocations, String loc) {
+		InputStream in = null;
+		try {
+			in = new FileInputStream(loc);
+		} catch (FileNotFoundException ex) {
+			for (String path : schemaLocations) {
+				try {
+					in = new FileInputStream(new File(path, loc));
+					break;
+				} catch (FileNotFoundException ex2) {
+					// continue
+				}
+			}
+		}
+		return in;
+	}
+	/**
+	 * Close the given closeable silently.
+	 * @param c the closeable object
+	 */
+	static void close0(@Nullable Closeable c) {
+		if (c != null) {
+			try { c.close(); } catch (IOException ex) {  }
+		}
+	}
 
 	/**
 	 * Find a specific type definition by its id.

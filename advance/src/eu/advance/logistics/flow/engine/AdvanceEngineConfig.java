@@ -145,7 +145,7 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 		try {
 			BufferedInputStream bin = new BufferedInputStream(url.openStream());
 			try {
-				return SchemaParser.parse(XElement.parseXML(bin), "schemas");
+				return SchemaParser.parse(XElement.parseXML(bin), schemas);
 			} finally {
 				bin.close();
 			}
@@ -161,7 +161,7 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 	 * Create the lookup.
 	 * @param blockRegistry The block registry to use
 	 */
-	public void initBlockRegistry(String blockRegistry) {
+	protected void initBlockRegistry(String blockRegistry) {
 		try {
 			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
 					XElement.parseXML(blockRegistry))) {
@@ -275,14 +275,22 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 		// initialize datastore
 		XElement ds = configXML.childElement("datastore");
 		jdbcDataStore = new AdvanceJDBCDataSource();
-		jdbcDataStore.load(ds);
-		if ("LOCAL".equals(ds.get("driver"))) {
+		
+		jdbcDataStore.driver = ds.get("driver");
+		jdbcDataStore.url = ds.get("url");
+		jdbcDataStore.password = AdvanceCreateModifyInfo.getPassword(ds, "password");
+		
+		if ("LOCAL".equals(jdbcDataStore.driver)) {
 			localDataStore = new LocalDataStore();
 			if (jdbcDataStore.password != null) {
 				localDataStore.loadEncrypted(jdbcDataStore.url, jdbcDataStore.password);
 			} else {
 				localDataStore.load(jdbcDataStore.url);
 			}
+		} else {
+			jdbcDataStore.user = ds.get("user");
+			jdbcDataStore.schema = ds.get("schema");
+			jdbcDataStore.poolSize = ds.getInt("poolsize");
 		}
 	}
 	/**
