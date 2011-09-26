@@ -47,6 +47,8 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	 * the current password, use {@code null}.</p>
 	 */
 	public char[] password;
+	/** The default schema. */
+	public String schema;
 	/** The connection pool size. */
 	public int poolSize = 5;
 	@Override
@@ -58,6 +60,7 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 		user = source.get("user");
 		password = getPassword(source, "password");
 		poolSize = source.getInt("poolsize");
+		schema = source.get("schema");
 		super.load(source);
 	}
 	@Override
@@ -69,6 +72,7 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 		destination.set("user", user);
 		setPassword(destination, "password", password);
 		destination.set("poolsize", poolSize);
+		destination.set("schema", schema);
 		super.save(destination);
 	}
 	/** @return a defensive copy of this object. */
@@ -81,6 +85,7 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 		result.url = url;
 		result.user = user;
 		result.poolSize = poolSize;
+		result.schema = schema;
 		
 		assignTo(result);
 		

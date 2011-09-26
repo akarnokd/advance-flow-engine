@@ -34,6 +34,7 @@ import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
@@ -251,4 +252,15 @@ public interface AdvanceEngineControl {
 	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the referenced parameter is missing
 	 */
 	Observable<AdvanceParameterDiagnostic> debugParameter(AdvanceControlToken token, String realm, String blockId, String port, boolean isImput) throws IOException, AdvanceControlException;
+	/**
+	 * Inject a value into the given  realm/block/input port.
+	 * @param token the connection token
+	 * @param realm the realm
+	 * @param blockId the block unique identifier (as in the flow)
+	 * @param port the port name
+	 * @param value the value as XElement to inject
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to debug a realm or the referenced object is missing
+	 */
+	void injectValue(AdvanceControlToken token, String realm, String blockId, String port, XElement value) throws IOException, AdvanceControlException;
 }

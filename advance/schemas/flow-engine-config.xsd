@@ -6,11 +6,15 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="block-registry" minOccurs="1" maxOccurs="unbounded">
-					<xs:annotation><xs:documentation>The block registry file location.</xs:documentation></xs:annotation>
+				<xs:element name="block-registry" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The block registry file location.</xs:documentation>
+					</xs:annotation>
 					<xs:complexType>
 						<xs:attribute name="file" type="xs:string" use="required">
-							<xs:annotation><xs:documentation>The registry file location.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The registry file location.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 					</xs:complexType>
 				</xs:element>
@@ -45,7 +49,9 @@
 							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute name="poolsize" type="xs:int" use="optional">
-							<xs:annotation><xs:documentation>The connection pool size for remote datastores.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The connection pool size for remote datastores.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 					</xs:complexType>
 				</xs:element>
@@ -64,7 +70,7 @@
 								<xs:documentation>The keystore file name with path.</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
-						<xs:attribute name="password" type="xs:base64Binary" use="optional">
+						<xs:attribute name="password" type="xs:base64Binary" use="required">
 							<xs:annotation>
 								<xs:documentation>The optional master password for the keystore.</xs:documentation>
 							</xs:annotation>
