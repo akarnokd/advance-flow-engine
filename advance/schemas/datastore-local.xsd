@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="local-source">
+		<xs:annotation>
+			<xs:documentation>A local data source properties.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of this local data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name used to reference this data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="directory" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The local directory.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

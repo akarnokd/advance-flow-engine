@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="ftp-source">
+		<xs:annotation>
+			<xs:documentation>An FTP data source properties.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of this FTP data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name used to reference this data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="protocol" use="required">
+				<xs:annotation>
+					<xs:documentation>The protocol to use for the file transfer.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="FTP"/>
+						<xs:enumeration value="FTPS"/>
+						<xs:enumeration value="SFTP"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="address" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The host and port to the targeted FTP without protocol or directory.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="remote-directory" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The remote directory.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="user" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The optional user name to log into the target server.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="password" type="xs:base64Binary">
+				<xs:annotation>
+					<xs:documentation>The optional Base64 encoded password to log int othe target server.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="passive" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Use passive mode?</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

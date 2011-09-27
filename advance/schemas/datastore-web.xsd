@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="web-source">
+		<xs:annotation>
+			<xs:documentation>The description of a web data source.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of this web data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name used to reference this web data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="url" type="xs:anyURI" use="required">
+				<xs:annotation>
+					<xs:documentation>The URL of the web data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="login-type" use="required">
+				<xs:annotation>
+					<xs:documentation>The login type enumeration.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="NONE"/>
+						<xs:enumeration value="BASIC"/>
+						<xs:enumeration value="CERTIFICATE"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="keystore" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>In case of client certificate based login, this contains the keystore name.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="user-or-key" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The login user name or the key alias for the certificate.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="password" type="xs:base64Binary">
+				<xs:annotation>
+					<xs:documentation>The optional password used in case of BASIC login or the private key password for the keystore.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

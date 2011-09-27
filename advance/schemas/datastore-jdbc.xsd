@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="jdbc-source">
+		<xs:annotation>
+			<xs:documentation>A JDBC data source's properties.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of this JDBC data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name used to reference this JDBC data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="driver" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The driver's class name.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="url" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The connection URL of the data source in the format the driver expects.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="user" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The user name to use to login into the data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="password" type="xs:base64Binary" use="optional">
+				<xs:annotation>
+					<xs:documentation>The optional Base64 encoded password to login into the data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="poolsize" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The maximum number of active connections into the data source.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="schema" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>The default schema of the connection.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
