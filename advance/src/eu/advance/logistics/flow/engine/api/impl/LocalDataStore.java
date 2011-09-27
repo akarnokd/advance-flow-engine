@@ -200,24 +200,62 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			localDataSources.put(e.id, e);
 		}
 	}
+	/**
+	 * Create an XElement from the given complex map of notification groups.
+	 * @param name the name of the element
+	 * @param groups the map from group type to group to set of contact information
+	 * @return the XElement created
+	 */
+	public static XElement createGroups(String name, Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups) {
+		XElement result = new XElement(name);
+		
+		for (Map.Entry<AdvanceNotificationGroupType, Map<String, Set<String>>> e : groups.entrySet()) {
+			for (Map.Entry<String, Set<String>> e2 : e.getValue().entrySet()) {
+				XElement xgroup = result.add("group");
+				xgroup.set("name", e2.getKey());
+				xgroup.set("type", e.getKey());
+				for (String e3 : e2.getValue()) {
+					xgroup.add("contact").set("value", e3);
+				}
+			}
+		}
+		return result;
+	}
+	/**
+	 * Parse the given source into the complex map of notification groups and contacts.
+	 * @param source the source XElement
+	 * @return the parsed map from group type to group name to contacts
+	 */
+	public static Map<AdvanceNotificationGroupType, Map<String, Set<String>>> parseGroups(XElement source) {
+		Map<AdvanceNotificationGroupType, Map<String, Set<String>>> result = Maps.newHashMap();
+		
+		for (XElement xe : source.childrenWithName("group")) {
+			String name = xe.get("name");
+			AdvanceNotificationGroupType type = AdvanceNotificationGroupType.valueOf(xe.get("type"));
+			for (XElement xi : xe.childrenWithName("contact")) {
+				Map<String, Set<String>> groups = result.get(type);
+				if (groups == null) {
+					groups = Maps.newHashMap();
+					result.put(type, groups);
+				}
+				Set<String> contacts = groups.get(name);
+				if (contacts == null) {
+					contacts = Sets.newHashSet();
+					groups.put(name, contacts);
+				}
+				contacts.add(xi.get("value"));
+			}
+		}
+		return result;
+	}
 	@Override
 	public void save(XElement destination) {
 		saveInto(destination, "users", "user", users);
 		saveInto(destination, "realms", "realm", realms);
 		saveInto(destination, "keystores", "keystore", keystores);
 		
-		XElement xnot = destination.add("notification-groups");
 		synchronized (notificationGroups) {
-			for (Map.Entry<AdvanceNotificationGroupType, Map<String, Set<String>>> e : notificationGroups.entrySet()) {
-				for (Map.Entry<String, Set<String>> e2 : e.getValue().entrySet()) {
-					XElement xgroup = xnot.add("group");
-					xgroup.set("name", e2.getKey());
-					xgroup.set("type", e.getKey());
-					for (String e3 : e2.getValue()) {
-						xgroup.add("contact").set("value", e3);
-					}
-				}
-			}
+			destination.add(createGroups("notification-groups", notificationGroups));
 		}
 		
 		saveInto(destination, "jdbc-data-sources", "jdbc-source", jdbcDataSources);

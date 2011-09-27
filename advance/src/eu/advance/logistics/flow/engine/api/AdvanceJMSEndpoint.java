@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -53,6 +54,13 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSeri
 	public String queue;
 	/** The communication pool size. */
 	public int poolSize;
+	/** The function to create a new instance of this class. */
+	public static final Func0<AdvanceJMSEndpoint> CREATOR = new Func0<AdvanceJMSEndpoint>() {
+		@Override
+		public AdvanceJMSEndpoint invoke() {
+			return new AdvanceJMSEndpoint();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		id = source.getInt("id");

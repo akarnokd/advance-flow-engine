@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -55,6 +57,13 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 	 * @return  
 	 */
 	public char[] password;
+	/** The function to create a new instance of this class. */
+	public static final Func0<AdvanceWebDataSource> CREATOR = new Func0<AdvanceWebDataSource>() {
+		@Override
+		public AdvanceWebDataSource invoke() {
+			return new AdvanceWebDataSource();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		id = source.getInt("id");

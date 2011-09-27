@@ -76,7 +76,7 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
 		}
 		method = source.get("method");
-		encrypted = "true".equals(source.get("encrypted"));
+		encrypted = source.getBoolean("encrypted");
 		keyStore = source.get("keystore");
 		keyAlias = source.get("keyalias");
 		password = getPassword(source, "password");

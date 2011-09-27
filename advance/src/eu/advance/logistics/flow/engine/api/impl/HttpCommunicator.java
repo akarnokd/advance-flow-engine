@@ -42,6 +42,7 @@ import javax.xml.stream.XMLStreamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
@@ -55,16 +56,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 public class HttpCommunicator {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(HttpCommunicator.class);
-	/** The login type. */
-	public AdvanceWebLoginType loginType;
-	/** The certificate store to verify the HTTPS server. */
-	public KeyStore certStore;
-	/** The authentication store to send certificate credentials to the HTTPS server. */
-	public KeyStore authStore;
-	/** The user name for basic authentication or the key alias for certificate credentials. */
-	public String name;
-	/** The password for the basic authentication or the key password for certificate credentials. */
-	public char[] password;
+	/** The authentication record. */
+	public AdvanceHttpAuthentication authentication;
 	/** The endpoint URL. */
 	public URL url;
 	/**
@@ -74,7 +67,7 @@ public class HttpCommunicator {
 	 */
 	protected HttpURLConnection prepare() throws IOException {
 		boolean isHttps = "https".equals(url.getProtocol());
-		if (loginType == AdvanceWebLoginType.CERTIFICATE && !isHttps) {
+		if (authentication.loginType == AdvanceWebLoginType.CERTIFICATE && !isHttps) {
 			throw new IllegalStateException("Certificate login works only with HTTPS endpoint!");
 		}
 		try {
@@ -83,18 +76,18 @@ public class HttpCommunicator {
 				KeyManagerFactory kmf = null;
 				
 				TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-				tmf.init(certStore);
+				tmf.init(authentication.certStore);
 				
 				HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
-				if (loginType == AdvanceWebLoginType.BASIC) {
+				if (authentication.loginType == AdvanceWebLoginType.BASIC) {
 					StringBuilder userPass = new StringBuilder();
-					userPass.append(name).append(":").append(password);
+					userPass.append(authentication.name).append(":").append(authentication.password);
 					conn.setRequestProperty("Authorization", "Basic " + Base64.encodeBytes(userPass.toString().getBytes("UTF-8")));
 				} else
-				if (loginType == AdvanceWebLoginType.CERTIFICATE) {
-					KeyStore ks = KeystoreManager.singleKey(authStore, name, password);
+				if (authentication.loginType == AdvanceWebLoginType.CERTIFICATE) {
+					KeyStore ks = KeystoreManager.singleKey(authentication.authStore, authentication.name, authentication.password);
 					kmf = KeyManagerFactory.getInstance("SunX509");
-					kmf.init(ks, password);
+					kmf.init(ks, authentication.password);
 				}
 				
 				SSLContext ctx = SSLContext.getInstance("TLS"); // FIXME maybe parametrize?
@@ -107,9 +100,9 @@ public class HttpCommunicator {
 				c = conn;
 			} else {
 				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-				if (loginType == AdvanceWebLoginType.BASIC) {
+				if (authentication.loginType == AdvanceWebLoginType.BASIC) {
 					StringBuilder userPass = new StringBuilder();
-					userPass.append(name).append(":").append(password);
+					userPass.append(authentication.name).append(":").append(authentication.password);
 					conn.setRequestProperty("Authorization", "Basic " + Base64.encodeBytes(userPass.toString().getBytes("UTF-8")));
 				}
 				c = conn;

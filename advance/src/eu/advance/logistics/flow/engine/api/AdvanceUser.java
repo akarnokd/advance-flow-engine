@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
@@ -77,10 +79,17 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 	 * A multimap of realms and set of rights.
 	 */
 	public final Multimap<String, AdvanceUserRealmRights> realmRights = HashMultimap.create();
+	/** The function to create an instance of this class. */
+	public static final Func0<AdvanceUser> CREATOR = new Func0<AdvanceUser>() {
+		@Override
+		public AdvanceUser invoke() {
+			return new AdvanceUser();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		id = source.getInt("id");
-		enabled = "true".equals(source.get("enabled"));
+		enabled = source.getBoolean("enabled");
 		name = source.get("name");
 		email = source.get("email");
 		pager = source.get("pager");
@@ -90,7 +99,7 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 		numberFormat = source.get("number-format");
 		thousandSeparator = source.get("thousand-separator").charAt(0);
 		decimalSeparator = source.get("decimal-separator").charAt(0);
-		passwordLogin = "true".equals(source.get("password-login"));
+		passwordLogin = source.getBoolean("password-login");
 		password = getPassword(source, "password");
 		keyStore = source.get("keystore");
 		keyAlias = source.get("keyalias");

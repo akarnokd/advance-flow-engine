@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -42,6 +43,13 @@ public class AdvanceKeyStore extends AdvanceCreateModifyInfo implements XSeriali
 	 * @return the password. 
 	 */
 	public char[] password;
+	/** The function to create a new instance of this class. */
+	public static final Func0<AdvanceKeyStore> CREATOR = new Func0<AdvanceKeyStore>() {
+		@Override
+		public AdvanceKeyStore invoke() {
+			return new AdvanceKeyStore();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		name = source.get("name");
