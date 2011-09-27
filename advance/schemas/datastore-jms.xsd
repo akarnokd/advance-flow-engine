@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="endpoint">
+		<xs:annotation>
+			<xs:documentation>A JMS endpoint properties.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of this endpoint.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name used to reference this endpoint.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="driver" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The InitialContextFactory class name (e.g., the JMS driver).</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="url" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The driver specific connection URL to the endpoint.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="user" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The optional user name to log into a JMS service provider.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="password" type="xs:base64Binary">
+				<xs:annotation>
+					<xs:documentation>The optional Base64 encoded password to log into the JMS service provider.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="queue-manager" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The optional queue manager name to use.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="queue" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The optional queue name to use for communication.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="poolsize" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The maximum allowed concurrent connections to this JMS endpoint.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="user">
+		<xs:annotation>
+			<xs:documentation>The user record.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The unique identifier.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="enabled" type="xs:boolean" use="required">
+				<xs:annotation>
+					<xs:documentation>Is the user enabled?</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The user name.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="email" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The optional email address.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="pager" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The optional pager number.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="sms" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The optional sms number.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="date-format" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The short date format.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="date-time-format" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The long date-time format.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="number-format" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The number format.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="thousand-separator" type="char1" use="required">
+				<xs:annotation>
+					<xs:documentation>The thousand separator character.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="decimal-separator" type="char1" use="required">
+				<xs:annotation>
+					<xs:documentation>The decimal separator character.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="password-login" type="xs:boolean" use="required">
+				<xs:annotation>
+					<xs:documentation>Choice to use password-based login (true) or client certificate-based login (false).</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="password" type="xs:base64Binary" use="required">
+				<xs:annotation>
+					<xs:documentation>The Base64 encoded login password or the key password of the client certificate/private key.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="keystore" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The keystore name.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="keyalias" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The client certificate/private key alias within the keystore.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

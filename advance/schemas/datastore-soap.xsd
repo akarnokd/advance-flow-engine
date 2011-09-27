@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="channel">
+		<xs:annotation>
+			<xs:documentation>A SOAP channel properties.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:int" use="required">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of this SOAP channel.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name used to reference this SOAP channel.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="endpoint" type="xs:anyURI" use="required">
+				<xs:annotation>
+					<xs:documentation>The URL of the SOAP channel's endpoint.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="target-object" type="xs:anyURI">
+				<xs:annotation>
+					<xs:documentation>The optional target object URI (usually required by WS-Addressing enabled SOAP endpoints).</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="encrypted" type="xs:boolean" use="required">
+				<xs:annotation>
+					<xs:documentation>Should the connection use encryption.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="keystore" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>If the connection is encrypted, this represents the keystore where the keys are stored.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="keyalias" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>If the connection is encrypted, this represents the certificate/private key alias to use.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="password" type="xs:base64Binary">
+				<xs:annotation>
+					<xs:documentation>The optional Base64 encoded password to access the certificate/private key for an encrypted channel.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

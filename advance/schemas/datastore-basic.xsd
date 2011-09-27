@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:attributeGroup name="create-modify">
+		<xs:annotation><xs:documentation>The creation and modification administrative record.</xs:documentation></xs:annotation>
+		<xs:attribute name="created-at" type="xs:dateTime" use="required">
+			<xs:annotation>
+				<xs:documentation>The timestamp when the record was created.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="created-by" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The user who created the record.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="modified-at" type="xs:dateTime" use="required">
+			<xs:annotation>
+				<xs:documentation>The timestamp when the record was last modified.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="modified-by" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The user who modified the record last.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:simpleType name="char1">
+		<xs:annotation>
+			<xs:documentation>A single character.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

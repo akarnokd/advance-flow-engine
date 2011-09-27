@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="realm">
+		<xs:annotation>
+			<xs:documentation>A realm description.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The realm's name.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="status" use="required">
+				<xs:annotation>
+					<xs:documentation>The status of the realm, implying whether to automatically restart a realm when the Flow Engine is restarted.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="STOPPED"/>
+						<xs:enumeration value="RUNNING"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

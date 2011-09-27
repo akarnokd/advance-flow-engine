@@ -169,7 +169,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				addNotificationContact(type, name, xi.get("value"));
 			}
 		}
-		for (XElement xe : source.childElement("jdbc-data-sources").childrenWithName("source")) {
+		for (XElement xe : source.childElement("jdbc-data-sources").childrenWithName("jdbc-source")) {
 			AdvanceJDBCDataSource e = new AdvanceJDBCDataSource();
 			e.load(xe);
 			jdbcDataSources.put(e.id, e);
@@ -184,17 +184,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			e.load(xe);
 			jmsEndpoints.put(e.id, e);
 		}
-		for (XElement xe : source.childElement("web-data-sources").childrenWithName("source")) {
+		for (XElement xe : source.childElement("web-data-sources").childrenWithName("web-source")) {
 			AdvanceWebDataSource e = new AdvanceWebDataSource();
 			e.load(xe);
 			webDataSources.put(e.id, e);
 		}
-		for (XElement xe : source.childElement("ftp-data-sources").childrenWithName("source")) {
+		for (XElement xe : source.childElement("ftp-data-sources").childrenWithName("ftp-source")) {
 			AdvanceFTPDataSource e = new AdvanceFTPDataSource();
 			e.load(xe);
 			ftpDataSources.put(e.id, e);
 		}
-		for (XElement xe : source.childElement("local-data-sources").childrenWithName("source")) {
+		for (XElement xe : source.childElement("local-data-sources").childrenWithName("local-source")) {
 			AdvanceLocalFileDataSource e = new AdvanceLocalFileDataSource();
 			e.load(xe);
 			localDataSources.put(e.id, e);
@@ -220,12 +220,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 		}
 		
-		saveInto(destination, "jdbc-data-sources", "source", jdbcDataSources);
+		saveInto(destination, "jdbc-data-sources", "jdbc-source", jdbcDataSources);
 		saveInto(destination, "soap-channels", "channel", soapChannels);
 		saveInto(destination, "jms-endpoints", "endpoint", jmsEndpoints);
-		saveInto(destination, "web-data-sources", "source", webDataSources);
-		saveInto(destination, "ftp-data-sources", "source", ftpDataSources);
-		saveInto(destination, "local-data-sources", "source", localDataSources);
+		saveInto(destination, "web-data-sources", "web-source", webDataSources);
+		saveInto(destination, "ftp-data-sources", "ftp-source", ftpDataSources);
+		saveInto(destination, "local-data-sources", "local-source", localDataSources);
 		
 		destination.set("sequence", sequence.get());
 	}
