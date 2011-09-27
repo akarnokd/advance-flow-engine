@@ -53,28 +53,28 @@ public interface AdvanceDataStore {
 	/**
 	 * Create a new realm.
 	 * @param token the connection token
-	 * @param name the realm name.
+	 * @param realm the realm name.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to create a realm or the realm exists.
 	 */
-	void createRealm(AdvanceControlToken token, String name) throws IOException, AdvanceControlException;
+	void createRealm(AdvanceControlToken token, String realm) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a realm.
 	 * @param token the connection token
-	 * @param name the realm name
+	 * @param realm the realm name
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the realm
 	 */
-	void deleteRealm(AdvanceControlToken token, String name) throws IOException, AdvanceControlException;
+	void deleteRealm(AdvanceControlToken token, String realm) throws IOException, AdvanceControlException;
 	/**
 	 * Rename the given realm.
 	 * @param token the connection token
-	 * @param name the original realm name
+	 * @param realm the original realm name
 	 * @param newName the new realm name
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to rename the realm
 	 */
-	void renameRealm(AdvanceControlToken token, String name, String newName) throws IOException, AdvanceControlException;
+	void renameRealm(AdvanceControlToken token, String realm, String newName) throws IOException, AdvanceControlException;
 	/**
 	 * Query the list of users.
 	 * @param token the connection token
@@ -276,16 +276,18 @@ public interface AdvanceDataStore {
 	 * @param token the token to test
 	 * @param expected the expected rights
 	 * @return true if the user has the expected right
+	 * @throws IOException if a network error occurs
 	 */
-	boolean hasUserRight(AdvanceControlToken token, AdvanceUserRights expected);
+	boolean hasUserRight(AdvanceControlToken token, AdvanceUserRights expected) throws IOException;
 	/**
 	 * Check if the user of the given token has the expected rights.
 	 * @param token the token to test
 	 * @param realm the target realm
 	 * @param expected the expected rights
 	 * @return true if the user has the expected right
+	 * @throws IOException if a network error occurs
 	 */
-	boolean hasUserRight(AdvanceControlToken token, String realm, AdvanceUserRealmRights expected);
+	boolean hasUserRight(AdvanceControlToken token, String realm, AdvanceUserRealmRights expected) throws IOException;
 	/**
 	 * Update key store properties.
 	 * @param token the connection token

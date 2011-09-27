@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -35,6 +36,13 @@ public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo implemen
 	public String name;
 	/** The directory where the file source(s) are located. */
 	public String directory;
+	/** The function to create a new instance of this class. */
+	public static final Func0<AdvanceLocalFileDataSource> CREATOR = new Func0<AdvanceLocalFileDataSource>() {
+		@Override
+		public AdvanceLocalFileDataSource invoke() {
+			return new AdvanceLocalFileDataSource();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		id = source.getInt("id");

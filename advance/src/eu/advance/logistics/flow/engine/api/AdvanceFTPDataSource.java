@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -51,6 +52,13 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 	public char[] password;
 	/** @return the connection should be passive? */
 	public boolean passive;
+	/** The function to create a new instance of this class. */
+	public static final Func0<AdvanceFTPDataSource> CREATOR = new Func0<AdvanceFTPDataSource>() {
+		@Override
+		public AdvanceFTPDataSource invoke() {
+			return new AdvanceFTPDataSource();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		id = source.getInt("id");
@@ -60,7 +68,7 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 		remoteDirectory = source.get("remoted-directory");
 		user = source.get("user");
 		password = getPassword(source, "password");
-		passive = "true".equals(source.get("passive"));
+		passive = source.getBoolean("passive");
 		
 		super.load(source);
 	}

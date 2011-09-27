@@ -806,4 +806,71 @@ public class XElement implements Iterable<XElement> {
 		
 		stream.writeEndElement();
 	}
+	/**
+	 * Retrieve a value of a boolean attribute.
+	 * Throws IllegalArgumentException if the attribute is missing or not of type boolean.
+	 * @param attribute the attribute name
+	 * @return the value
+	 */
+	public boolean getBoolean(String attribute) {
+		String s = get(attribute);
+		if ("true".equals(s) || "1".equals(s)) {
+			return true;
+		} else
+		if ("false".equals(s) || "0".equals(s)) {
+			return false;
+		}
+		throw new IllegalArgumentException("Attribute " + attribute + " is non-boolean");
+	}
+	/**
+	 * Retrieve a value of a boolean attribute.
+	 * Throws IllegalArgumentException if the attribute is missing or not of type boolean.
+	 * @param attribute the attribute name
+	 * @param namespace the attribute namespace
+	 * @return the value
+	 */
+	public boolean getBoolean(String attribute, String namespace) {
+		String s = get(attribute, namespace);
+		if ("true".equals(s) || "1".equals(s)) {
+			return true;
+		} else
+		if ("false".equals(s) || "0".equals(s)) {
+			return false;
+		}
+		throw new IllegalArgumentException("Attribute " + attribute + " is non-boolean");
+	}
+	/**
+	 * Retrieve a value of a boolean attribute.
+	 * @param attribute the attribute name
+	 * @param defaultValue the value to return if no such attribute
+	 * @return the value
+	 */
+	public boolean getBoolean(String attribute, boolean defaultValue) {
+		String s = get(attribute);
+		if ("true".equals(s) || "1".equals(s)) {
+			return true;
+		} else
+		if ("false".equals(s) || "0".equals(s)) {
+			return false;
+		}
+		return defaultValue;
+	}
+	/**
+	 * Retrieve a value of a boolean attribute.
+	 * Throws IllegalArgumentException if the attribute is missing or not of type boolean.
+	 * @param attribute the attribute name
+	 * @param namespace the attribute namespace
+	 * @param defaultValue the value to return if no such attribute
+	 * @return the value
+	 */
+	public boolean getBoolean(String attribute, String namespace, boolean defaultValue) {
+		String s = get(attribute, namespace);
+		if ("true".equals(s) || "1".equals(s)) {
+			return true;
+		} else
+		if ("false".equals(s) || "0".equals(s)) {
+			return false;
+		}
+		return defaultValue;
+	}
 }

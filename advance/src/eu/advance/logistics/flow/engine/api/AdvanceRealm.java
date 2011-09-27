@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -34,6 +35,15 @@ public class AdvanceRealm extends AdvanceCreateModifyInfo implements XSerializab
 	public AdvanceRealmStatus status;
 	/** The name of the realm. */
 	public String name;
+	/**
+	 * Lambda function to create a new object of this class.
+	 */
+	public static final Func0<AdvanceRealm> CREATOR = new Func0<AdvanceRealm>() {
+		@Override
+		public AdvanceRealm invoke() {
+			return new AdvanceRealm();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		status = AdvanceRealmStatus.valueOf(source.get("status"));

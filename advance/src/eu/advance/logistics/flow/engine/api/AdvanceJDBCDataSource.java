@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -51,6 +52,13 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	public String schema;
 	/** The connection pool size. */
 	public int poolSize = 5;
+	/** The function to create a new instance of this class. */
+	public static final Func0<AdvanceJDBCDataSource> CREATOR = new Func0<AdvanceJDBCDataSource>() {
+		@Override
+		public AdvanceJDBCDataSource invoke() {
+			return new AdvanceJDBCDataSource();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		id = source.getInt("id");
