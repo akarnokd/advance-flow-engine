@@ -47,6 +47,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.SchedulerPreference;
 import eu.advance.logistics.flow.engine.util.ReactiveEx;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 

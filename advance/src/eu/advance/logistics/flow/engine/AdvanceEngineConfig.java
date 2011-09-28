@@ -59,6 +59,7 @@ import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.AdvanceSchemaResolver;
+import eu.advance.logistics.flow.engine.model.SchedulerPreference;
 import eu.advance.logistics.flow.engine.model.UnresolvableSchemaURIException;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.util.ReactiveEx;

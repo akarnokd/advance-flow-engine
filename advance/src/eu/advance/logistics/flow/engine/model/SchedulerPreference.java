@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.model;
 
 /**
  * <p>When a block body needs to be executed, which scheduler pool is preferred for that.</p>

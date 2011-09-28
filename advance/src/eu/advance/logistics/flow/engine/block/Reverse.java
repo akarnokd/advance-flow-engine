@@ -31,8 +31,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.AdvanceBlock;
-import eu.advance.logistics.flow.engine.SchedulerPreference;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.SchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
