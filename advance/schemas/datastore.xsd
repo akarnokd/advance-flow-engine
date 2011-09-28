@@ -10,6 +10,7 @@
 	<xs:include schemaLocation="datastore-web.xsd"/>
 	<xs:include schemaLocation="datastore-ftp.xsd"/>
 	<xs:include schemaLocation="datastore-local.xsd"/>
+	<xs:include schemaLocation="datastore-flow.xsd"/>
 	<xs:element name="datastore">
 		<xs:annotation>
 			<xs:documentation>The local datastore.</xs:documentation>
@@ -113,6 +114,44 @@
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element ref="local-source" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="dataflows">
+					<xs:annotation><xs:documentation>The flow-descriptions of each realm.</xs:documentation></xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="flow" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="block-states">
+					<xs:annotation><xs:documentation>The persisted state of blocks per realm.</xs:documentation></xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="realm" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation><xs:documentation>The persisted contents of a realm.</xs:documentation></xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="block" minOccurs="0" maxOccurs="unbounded">
+											<xs:annotation><xs:documentation>The persisted contents of a block</xs:documentation></xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:any processContents="lax" minOccurs="1" maxOccurs="1">
+														<xs:annotation><xs:documentation>An arbitrary XML element and content</xs:documentation></xs:annotation>
+													</xs:any>
+												</xs:sequence>
+												<xs:attribute name="id" type="xs:string" use="required">
+													<xs:annotation><xs:documentation>The identifier of the block (as in the flow-description).</xs:documentation></xs:annotation>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="name" type="xs:string" use="required">
+										<xs:annotation><xs:documentation>The realm's name.</xs:documentation></xs:annotation>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

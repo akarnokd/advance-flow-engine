@@ -21,11 +21,14 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+
 /**
  * Contains version information and engine details.
  * @author karnokd, 2011.09.19.
  */
-public class AdvanceEngineVersion {
+public class AdvanceEngineVersion implements XSerializable {
 	/**
 	 * @return the minor version number. When displayed, this should be a two digit zero padded number, e.g., 1 is 1.01 and 20 is 1.20. 
 	 */
@@ -34,4 +37,33 @@ public class AdvanceEngineVersion {
 	public int majorVersion;
 	/** @return the build number. When displayed, this should be a three digit zero padded number, e.g., 1 is 1.00.001. */
 	public int buildNumber;
+	@Override
+	public void load(XElement source) {
+		parse(source.get("version"));
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("version", format());
+	}
+	/**
+	 * Set the version values from the string.
+	 * @param versionString the string in format 0.00.000
+	 */
+	public void parse(String versionString) {
+		int idx1 = versionString.indexOf('.');
+		int idx2 = versionString.indexOf('.');
+		if (idx1 < 0 || idx2 < 0) {
+			throw new IllegalArgumentException("Version format error: " + versionString);
+		}
+		majorVersion = Integer.parseInt(versionString.substring(0, idx1));
+		minorVersion = Integer.parseInt(versionString.substring(idx1 + 1, idx2));
+		buildNumber = Integer.parseInt(versionString.substring(idx2 + 1));
+	}
+	/**
+	 * Format the engine version.
+	 * @return the engine version in format 0.00.000
+	 */
+	public String format() {
+		return String.format("%d.%02d.%03d", majorVersion, minorVersion, buildNumber);
+	}
 }

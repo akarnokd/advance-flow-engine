@@ -61,20 +61,22 @@ public class AdvanceCompositeBlock implements XSerializable {
 	public final Map<String, AdvanceConstantBlock> constants = Maps.newLinkedHashMap();
 	/** The binding definition of internal blocks and/or boundary parameters. You may bind the output of the blocks to many input parameters. */
 	public final List<AdvanceBlockBind> bindings = Lists.newArrayList();
+	/** The visual properties for the Flow Editor. */
+	public final AdvanceBlockVisuals visuals = new AdvanceBlockVisuals();
 	/**
 	 * Load the contents from an XML element with a schema of <code>flow-description.xsd</code> and typed as {@code composite-block}.
-	 * @param root the root element
+	 * @param source the root element
 	 */
 	@Override
-	public void load(XElement root) {
-		id = root.get("id");
-		documentation = root.get("documentation");
-		String kw = root.get("keywords");
+	public void load(XElement source) {
+		id = source.get("id");
+		documentation = source.get("documentation");
+		String kw = source.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
 		Set<String> ids = Sets.newHashSet();
-		for (XElement e : root.children()) {
+		for (XElement e : source.children()) {
 			if (e.name.equals("input")) {
 				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
 				p.load(e);
@@ -119,6 +121,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 				bindings.add(p);
 			}
 		}
+		visuals.load(source);
 	}
 	@Override
 	public void save(XElement destination) {
@@ -147,6 +150,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 		for (AdvanceBlockBind item : bindings) {
 			item.save(destination.add("bind"));
 		}
+		visuals.save(destination);
 	}
 	/**
 	 * Check if the given binding exists.

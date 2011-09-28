@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="flow-description.xsd"/>
+	<xs:element name="flow">
+		<xs:annotation>
+			<xs:documentation>Represents a flow-description element.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="flow-description" minOccurs="1" maxOccurs="1"/>
+			</xs:sequence>
+			<xs:attribute name="realm" type="xs:string" use="required">
+				<xs:annotation><xs:documentation>The name of the realm where the flow is running.</xs:documentation></xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

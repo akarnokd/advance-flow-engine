@@ -37,18 +37,23 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
+import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
@@ -56,6 +61,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
+import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
@@ -76,6 +82,15 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	private static final Logger LOG = LoggerFactory.getLogger(LocalEngineControl.class);
 	/** The local data store. */
 	protected final LocalDataStore datastore = new LocalDataStore();
+	/** The engine configuration. */
+	protected final AdvanceEngineConfig config;
+	/**
+	 * Constructor initializing the configuration.
+	 * @param config the configuration
+	 */
+	public LocalEngineControl(AdvanceEngineConfig config) {
+		this.config = config;
+	}
 	@Override
 	public AdvanceControlToken login(URI target, String userName,
 			char[] password) throws IOException, AdvanceControlException {
@@ -546,5 +561,59 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public List<AdvanceSchemaRegistryEntry> querySchemas(
+			AdvanceControlToken token) throws IOException,
+			AdvanceControlException {
+		if (!datastore.hasUserRight(token, AdvanceUserRights.LIST_SCHEMAS)) {
+			throw new AdvanceAccessDenied();
+		}
+		try {
+			List<AdvanceSchemaRegistryEntry> result = Lists.newArrayList();
+			for (String sd : config.schemas) {
+				File[] files = new File(sd).listFiles();
+				if (files != null) {
+					for (File f : files) {
+						if (f.getName().toLowerCase().endsWith(".xsd")) {
+							AdvanceSchemaRegistryEntry e = new AdvanceSchemaRegistryEntry();
+							e.name = f.getName();
+							e.schema = XElement.parseXML(f);
+							result.add(e);
+						}
+					}
+				}
+			}
+			return result;
+		} catch (XMLStreamException ex) {
+			throw new IOException(ex);
+		}
+	}
+	@Override
+	public void updateSchema(AdvanceControlToken token, String name,
+			XElement schema) throws IOException, AdvanceControlException {
+		if (config.schemas.size() == 0) {
+			throw new AdvanceControlException("No place for schemas");
+		}
+		String sd = config.schemas.get(0);
+		File fname = new File(name);
+		File f = new File(sd, fname.getName());
+		if (f.canRead()) {
+			if (!datastore.hasUserRight(token, AdvanceUserRights.MODIFY_SCHEMA)) {
+				throw new AdvanceAccessDenied();
+			}
+		} else {
+			if (!datastore.hasUserRight(token, AdvanceUserRights.CREATE_SCHEMA)) {
+				throw new AdvanceAccessDenied();
+			}
+		}
+		schema.save(f);
+	}
+	@Override
+	public AdvanceEngineVersion queryVersion(AdvanceControlToken token)
+			throws IOException, AdvanceControlException {
+		AdvanceEngineVersion result = new AdvanceEngineVersion();
+		result.parse(AdvanceFlowEngine.VERSION);
+		return result;
 	}
 }

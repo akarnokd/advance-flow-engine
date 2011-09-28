@@ -61,6 +61,10 @@ import eu.advance.logistics.flow.engine.xml.XsdDateTime;
  * @author karnokd
  */
 public class XElement implements Iterable<XElement> {
+	/** The XSD namespace. */
+	public static final String XSD = "http://www.w3.org/2001/XMLSchema";
+	/** The XSD instance URI. */
+	public static final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
 	/** The namespace:name record. */
 	public static class XAttributeName {
 		/** The name. */

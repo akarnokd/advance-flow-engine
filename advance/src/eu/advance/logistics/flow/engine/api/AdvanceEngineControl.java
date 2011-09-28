@@ -80,6 +80,31 @@ public interface AdvanceEngineControl {
 	List<AdvanceBlockRegistryEntry> queryBlocks(AdvanceControlToken token) 
 	throws IOException, AdvanceControlException;
 	/**
+	 * Query the list of schemas known by the engine.
+	 * @param token the connection token
+	 * @return the list and value of the known schemas
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
+	 */
+	List<AdvanceSchemaRegistryEntry> querySchemas(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Return the engine version infromation.
+	 * @param token the connection token
+	 * @return the engine version information
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not authenticated
+	 */
+	AdvanceEngineVersion queryVersion(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	/**
+	 * Add or modify a new schema in the flow engine.
+	 * @param token the connection token
+	 * @param name the schema's filename (without path)
+	 * @param schema the schema content
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to add new schemas
+	 */
+	void updateSchema(AdvanceControlToken token, String name, XElement schema) throws IOException, AdvanceControlException;
+	/**
 	 * Delete a key entry from a keystore.
 	 * @param token the connection token
 	 * @param keyStore the key store name

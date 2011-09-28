@@ -57,15 +57,17 @@ public class AdvanceConstantBlock implements XSerializable {
 	public String documentation;
 	/** The user-entered keywords for easier finding of this parameter. */
 	public final List<String> keywords = Lists.newArrayList();
+	/** The visual properties for the Flow Editor. */
+	public final AdvanceBlockVisuals visuals = new AdvanceBlockVisuals();
 	/**
 	 * Load a parameter description from an XML element which conforms the {@code block-description.xsd}.
-	 * @param root the root element of an input/output node.
+	 * @param source the root element of an input/output node.
 	 */
 	@Override
-	public void load(XElement root) {
-		id = root.get("id");
-		displayName = root.get("displayname");
-		String t = root.get("type");
+	public void load(XElement source) {
+		id = source.get("id");
+		displayName = source.get("displayname");
+		String t = source.get("type");
 		if (t != null) {
 			try {
 				typeURI = new URI(t);
@@ -73,12 +75,13 @@ public class AdvanceConstantBlock implements XSerializable {
 				throw new RuntimeException(ex);
 			}
 		}
-		documentation = root.get("documentation");
-		String kw = root.get("keywords");
+		documentation = source.get("documentation");
+		String kw = source.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
-		value = root.children().iterator().next();
+		value = source.children().iterator().next();
+		visuals.load(source);
 	}
 	@Override
 	public void save(XElement destination) {
@@ -91,5 +94,6 @@ public class AdvanceConstantBlock implements XSerializable {
 			destination.set("keywords", null);
 		}
 		destination.add(value.copy());
+		visuals.save(destination);
 	}
 }

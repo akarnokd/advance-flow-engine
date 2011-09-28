@@ -122,4 +122,10 @@ public enum AdvanceUserRights {
 	DELETE_LOCAL_FILE_DATA_SOURCE,
 	/** List the available blocks. */
 	LIST_BLOCKS,
+	/** List the available schemas. */
+	LIST_SCHEMAS,
+	/** Add a new schema. */
+	CREATE_SCHEMA,
+	/** Modify an existing schema. */
+	MODIFY_SCHEMA
 }
