@@ -68,7 +68,7 @@ public class AdvanceEngineConfig {
 	/** The block resolver. */
 	public AdvanceBlockResolver blockResolver;
 	/** The schema resolver. */
-	public AdvanceSchemaResolver schemaResolver;
+	public AdvanceLocalSchemaResolver schemaResolver;
 	/** A JDBC based datastore datasource. */
 	protected AdvanceJDBCDataSource jdbcDataStore;
 	/** The local datastore object. */
@@ -125,7 +125,7 @@ public class AdvanceEngineConfig {
 		for (XElement xs : configXML.childrenWithName("schemas")) {
 			schemas.add(xs.get("location"));
 		}
-		schemaResolver = new AdvanceSchemaResolver(schemas);
+		schemaResolver = new AdvanceLocalSchemaResolver(schemas);
 		
 		// initialize keystores
 		for (XElement xks : configXML.childrenWithName("keystore")) {
