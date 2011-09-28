@@ -24,6 +24,8 @@ package eu.advance.logistics.flow.engine.api;
 import java.io.IOException;
 import java.util.Set;
 
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+
 /**
  * Contains functions for accessing the datastore without a control token.
  * Used by the engine and its blocks to access the datastore.
@@ -87,4 +89,27 @@ public interface AdvanceDirectDataStore {
 	 * @throws IOException if a network error occurs
 	 */
 	Set<String> queryNotificationGroup(AdvanceNotificationGroupType type, String name) throws IOException;
+	/**
+	 * Retrieve the block state.
+	 * @param realm the target realm
+	 * @param blockId the block identifier
+	 * @return the state XElement
+	 * @throws IOException if a network error occurs
+	 */
+	XElement queryBlockState(String realm, String blockId) throws IOException;
+	/**
+	 * Save the block state.
+	 * @param realm the target realm
+	 * @param blockId the target block identifier
+	 * @param state the state XElement
+	 * @throws IOException if a network error occurs
+	 */
+	void updateBlockState(String realm, String blockId, XElement state) throws IOException;
+	/**
+	 * Retrieve the flow descriptor of the given realm.
+	 * @param realm the target realm
+	 * @return the flow description XElement
+	 * @throws IOException if a network error occurs
+	 */
+	XElement queryFlow(String realm) throws IOException;
 }

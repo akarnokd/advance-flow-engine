@@ -19,21 +19,28 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
+package eu.advance.logistics.flow.engine;
 
-import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.AdvanceType;
 
 /**
- * Interface to resolve a schema into XType.
- * @author karnokd, 2011.09.23.
+ * Record to store compiler errors, warnings and the computed types of various wires.
+ * @author karnokd, 2011.09.28.
  */
-public interface AdvanceSchemaResolver {
+public class AdvanceCompilationResult {
 	/**
-	 * Resolve the given schema.
-	 * @param schemaURI the schema URI
-	 * @return the resolved type
+	 * The list of compilation errors.
 	 */
-	XType resolve(URI schemaURI);
+	public final List<AdvanceCompilationError> errors = Lists.newArrayList();
+	/**
+	 * The inferred wire types.
+	 */
+	public final Map<String, AdvanceType> wireTypes = Maps.newHashMap();
 }
