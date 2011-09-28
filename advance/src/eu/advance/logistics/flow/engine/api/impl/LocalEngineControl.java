@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
 import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
@@ -82,14 +81,14 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	private static final Logger LOG = LoggerFactory.getLogger(LocalEngineControl.class);
 	/** The local data store. */
 	protected final LocalDataStore datastore = new LocalDataStore();
-	/** The engine configuration. */
-	protected final AdvanceEngineConfig config;
+	/** The set of schema locations. */
+	protected final List<String> schemas;
 	/**
 	 * Constructor initializing the configuration.
-	 * @param config the configuration
+	 * @param schemas the sequence of schemas
 	 */
-	public LocalEngineControl(AdvanceEngineConfig config) {
-		this.config = config;
+	public LocalEngineControl(Iterable<String> schemas) {
+		this.schemas = Lists.newArrayList(schemas);
 	}
 	@Override
 	public AdvanceControlToken login(URI target, String userName,
@@ -571,7 +570,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		}
 		try {
 			List<AdvanceSchemaRegistryEntry> result = Lists.newArrayList();
-			for (String sd : config.schemas) {
+			for (String sd : schemas) {
 				File[] files = new File(sd).listFiles();
 				if (files != null) {
 					for (File f : files) {
@@ -592,10 +591,10 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public void updateSchema(AdvanceControlToken token, String name,
 			XElement schema) throws IOException, AdvanceControlException {
-		if (config.schemas.size() == 0) {
+		if (schemas.size() == 0) {
 			throw new AdvanceControlException("No place for schemas");
 		}
-		String sd = config.schemas.get(0);
+		String sd = schemas.get(0);
 		File fname = new File(name);
 		File f = new File(sd, fname.getName());
 		if (f.canRead()) {
