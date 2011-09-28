@@ -36,9 +36,6 @@ public class AdvanceBlockParameterDescription implements XSerializable {
 	/** Optional display text for this attribute. Can be used as a key into a translation table. */
 	@Nullable
 	public String displayName;
-	/** The variance definition of this input parameter, required for the block bindings to check for compatibility, e.g., allow extension, restriction or exact type matches to be wired in. */
-	@NonNull
-	public TypeVariance variance;
 	/** The URI pointing to the documentation describing this parameter. */
 	public String documentation;
 	/** The type variable. */
@@ -51,12 +48,6 @@ public class AdvanceBlockParameterDescription implements XSerializable {
 	public void load(XElement root) {
 		id = root.get("id");
 		displayName = root.get("displayname");
-		String v = root.get("variance");
-		if (v != null) {
-			variance = TypeVariance.of(v);
-		} else {
-			variance = TypeVariance.NONVARIANT;
-		}
 		documentation = root.get("documentation");
 		type = new AdvanceType();
 		type.load(root);
@@ -65,7 +56,6 @@ public class AdvanceBlockParameterDescription implements XSerializable {
 	public void save(XElement destination) {
 		destination.set("id", id);
 		destination.set("displayname", displayName);
-		destination.set("variance", variance.asXML);
 		destination.set("documentation", documentation);
 		type.save(destination);
 	}

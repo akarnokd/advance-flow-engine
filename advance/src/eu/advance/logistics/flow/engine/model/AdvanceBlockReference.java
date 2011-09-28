@@ -48,19 +48,22 @@ public class AdvanceBlockReference implements XSerializable {
 	public AdvanceCompositeBlock parent;
 	/** The user-entered keywords for easier finding of this block. */
 	public final List<String> keywords = Lists.newArrayList();
+	/** The visual properties for the Flow Editor. */
+	public final AdvanceBlockVisuals visuals = new AdvanceBlockVisuals();
 	/**
 	 * Load a block reference from an XML element which conforms the {@code flow-description.xsd}.
-	 * @param root the element of a input or output
+	 * @param source the element of a input or output
 	 */
 	@Override
-	public void load(XElement root) {
-		id = root.get("id");
-		type = root.get("type");
-		documentation = root.get("documentation");
-		String kw = root.get("keywords");
+	public void load(XElement source) {
+		id = source.get("id");
+		type = source.get("type");
+		documentation = source.get("documentation");
+		String kw = source.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
+		visuals.load(source);
 	}
 	@Override
 	public void save(XElement destination) {
@@ -72,5 +75,6 @@ public class AdvanceBlockReference implements XSerializable {
 		} else {
 			destination.set("keywords", null);
 		}
+		visuals.save(destination);
 	}
 }

@@ -33,8 +33,11 @@ import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
+import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
+import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -203,9 +206,30 @@ public class HttpDataStoreListener {
 		} else
 		if ("query-keystores".equals(function)) {
 			return storeList("keystores", "keystore", datastore.queryKeyStores(token));
+		} else
+		if ("query-keystore".equals(function)) {
+			return storeItem("keystore", datastore.queryKeyStore(token, request.get("name")));
+		} else
+		if ("has-user-right".equals(function)) {
+			XElement e = new XElement("boolean");
+			e.content = String.valueOf(datastore.hasUserRight(token, AdvanceUserRights.valueOf(request.get("expected"))));
+			return e;
+		} else
+		if ("has-user-realm-right".equals(function)) {
+			XElement e = new XElement("boolean");
+			e.content = String.valueOf(datastore.hasUserRight(token, request.get("realm"), 
+					AdvanceUserRealmRights.valueOf(request.get("expected"))));
+			return e;
+		} else
+		if ("update-keystore".equals(function)) {
+			datastore.updateKeyStore(token, parseItem(request, AdvanceKeyStore.CREATOR));
+			return null;
+		} else
+		if ("delete-keystore".equals(function)) {
+			datastore.deleteKeyStore(token, request.get("keystore"));
+			return null;
 		}
-		// TODO implement remaining requests
 		
-		throw new AdvanceControlException("Unknown function " + function);
+		throw new AdvanceControlException("Unknown request " + request);
 	}
 }

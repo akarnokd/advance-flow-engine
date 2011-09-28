@@ -42,6 +42,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 public class AdvanceFlowEngine implements Runnable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
+	/** The version of the flow engine. */
+	public static final String VERSION = "0.01.066";
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub

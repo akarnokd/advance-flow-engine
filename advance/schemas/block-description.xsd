@@ -52,28 +52,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-	<xs:simpleType name="variance">
-		<xs:annotation>
-			<xs:documentation>The variance enumeration for inputs and outputs.</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="covariant">
-				<xs:annotation>
-					<xs:documentation>For types A and B where A extends B, you may wire in B where A is required.</xs:documentation>
-				</xs:annotation>
-			</xs:enumeration>
-			<xs:enumeration value="contravariant">
-				<xs:annotation>
-					<xs:documentation>For types A and B where B extends A, you may wire in A where B is required.</xs:documentation>
-				</xs:annotation>
-			</xs:enumeration>
-			<xs:enumeration value="nonvariant">
-				<xs:annotation>
-					<xs:documentation>For types A and B you may wire in only if A = B.</xs:documentation>
-				</xs:annotation>
-			</xs:enumeration>
-		</xs:restriction>
-	</xs:simpleType>
 	<xs:complexType name="input">
 		<xs:annotation>
 			<xs:documentation>The definition of the input parameter.</xs:documentation>
@@ -88,11 +66,6 @@
 				<xs:attribute name="displayname" type="xs:string">
 					<xs:annotation>
 						<xs:documentation>Optional display text for this attribute. Can be used as a key into a translation table.</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-				<xs:attribute name="variance" type="variance" default="covariant">
-					<xs:annotation>
-						<xs:documentation>The variance definition of this input parameter, required for the block bindings to check for compatibility, e.g., allow extension, restriction or exact type matches to be wired in.</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="documentation" type="xs:string">
@@ -117,11 +90,6 @@
 				<xs:attribute name="displayname" type="xs:string">
 					<xs:annotation>
 						<xs:documentation>Optional display text for this attribute. Can be used as a key into a translation table.</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-				<xs:attribute name="variance" type="variance" default="contravariant">
-					<xs:annotation>
-						<xs:documentation>The variance definition of this input parameter, required for the block bindings to check for compatibility, e.g., allow extension, restriction or exact type matches to be wired in.</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="documentation" type="xs:anyURI">

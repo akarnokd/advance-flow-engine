@@ -145,6 +145,7 @@
 							<xs:list itemType="xs:string"/>
 						</xs:simpleType>
 					</xs:attribute>
+					<xs:attributeGroup ref="location"/>
 				</xs:complexType>
 			</xs:element>
 		</xs:choice>
@@ -166,6 +167,7 @@
 				<xs:list itemType="xs:string"/>
 			</xs:simpleType>
 		</xs:attribute>
+		<xs:attributeGroup ref="location"/>
 	</xs:complexType>
 	<xs:complexType name="block">
 		<xs:annotation>
@@ -194,5 +196,21 @@
 				<xs:list itemType="xs:string"/>
 			</xs:simpleType>
 		</xs:attribute>
+		<xs:attributeGroup ref="location"/>
 	</xs:complexType>
+	<xs:attributeGroup name="location">
+		<xs:annotation>
+			<xs:documentation>The visualization attributes used by the Flow Editor.</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="x" type="xs:int" use="optional">
+			<xs:annotation>
+				<xs:documentation>The X location of this block when rendered on screen within the Flow Editor.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="y" type="xs:int" use="optional">
+			<xs:annotation>
+				<xs:documentation>The Y location of this block when rendered on screen within the Flow Editor.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
 </xs:schema>

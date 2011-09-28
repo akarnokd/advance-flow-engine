@@ -111,6 +111,10 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public final Map<Integer, AdvanceFTPDataSource> ftpDataSources = Maps.newHashMap();
 	/** The Local file data sources table. */
 	public final Map<Integer, AdvanceLocalFileDataSource> localDataSources = Maps.newHashMap();
+	/** The dataflow storage per realm. */
+	public final Map<String, XElement> dataflows = Maps.newHashMap();
+	/** The map from realm to block-id to an arbitrary XML used to persist block states between restarts. */
+	public final Map<String, Map<String, XElement>> blockStates = Maps.newHashMap();
 	/** Clear all records from the maps. */
 	protected void clear() {
 		users.clear();
@@ -123,6 +127,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		webDataSources.clear();
 		ftpDataSources.clear();
 		localDataSources.clear();
+		dataflows.clear();
+		blockStates.clear();
 	}
 	/**
 	 * Add a contact to the given notification type and group.
@@ -199,6 +205,23 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			e.load(xe);
 			localDataSources.put(e.id, e);
 		}
+		for (XElement xe : source.childElement("dataflows").childrenWithName("flow")) {
+			dataflows.put(xe.get("realm"), xe.childElement("flow-description").copy());
+		}
+		for (XElement xe : source.childElement("block-states").childrenWithName("realm")) {
+			String realm = xe.get("name");
+			Map<String, XElement> r = blockStates.get(realm);
+			if (r == null) {
+				r = Maps.newHashMap();
+				blockStates.put(realm, r);
+			}
+			for (XElement be : xe.childrenWithName("block")) {
+				String block = be.get("id");
+				if (be.children().size() == 1) {
+					r.put(block, be.children().get(0).copy());
+				}
+			}
+		}
 	}
 	/**
 	 * Create an XElement from the given complex map of notification groups.
@@ -264,6 +287,23 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		saveInto(destination, "web-data-sources", "web-source", webDataSources);
 		saveInto(destination, "ftp-data-sources", "ftp-source", ftpDataSources);
 		saveInto(destination, "local-data-sources", "local-source", localDataSources);
+		
+		XElement xflows = destination.add("dataflows");
+		for (Map.Entry<String, XElement> fe : dataflows.entrySet()) {
+			XElement xf = xflows.add("flow");
+			xf.set("realm", fe.getKey());
+			xf.add(fe.getValue());
+		}
+		XElement xstate = destination.add("block-states");
+		for (Map.Entry<String, Map<String, XElement>> bs : blockStates.entrySet()) {
+			XElement xr = xstate.add("realm");
+			xr.set("name", bs.getKey());
+			for (Map.Entry<String, XElement> bse : bs.getValue().entrySet()) {
+				XElement xb = xr.add("block");
+				xb.set("id", bse.getKey());
+				xb.add(bse.getValue());
+			}
+		}
 		
 		destination.set("sequence", sequence.get());
 	}

@@ -62,10 +62,6 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
  * @author karnokd
  */
 public final class SchemaParser {
-	/** The XSD namespace. */
-	public static final String XSD = "http://www.w3.org/2001/XMLSchema";
-	/** The XSD instance URI. */
-	public static final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
 	/** Utility class. */
 	private SchemaParser() {
 		// utility class
@@ -117,7 +113,7 @@ public final class SchemaParser {
 	 * @return the XML type representing the schema
 	 */
 	public static XType parse(XElement schema, Iterable<String> schemaLocations) {
-		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XSD));
+		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XElement.XSD));
 		if (roots.size() != 1) {
 			throw new IllegalArgumentException("Zero or multi-rooted schema not supported");
 		}
@@ -182,11 +178,11 @@ public final class SchemaParser {
 			// TODO implement reference mode! 
 			if (rootType == null) {
 				// check for local definitions
-				XElement simpleType = root.childElement("simpleType", XSD);
+				XElement simpleType = root.childElement("simpleType", XElement.XSD);
 				if (simpleType != null) {
 					setSimpleType(c, simpleType, typedefs);
 				} else {
-					XElement complexType = root.childElement("complexType", XSD);
+					XElement complexType = root.childElement("complexType", XElement.XSD);
 					if (complexType != null) {
 						setComplexType(c, complexType, typedefs, memory);
 					} else {
@@ -229,7 +225,7 @@ public final class SchemaParser {
 		seqs.addAll(typedef.children);
 		while (seqs.size() > 0) {
 			XElement sequence = seqs.removeFirst();
-			if (sequence.namespace.equals(XSD)) {
+			if (sequence.namespace.equals(XElement.XSD)) {
 				if (sequence.name.equals("element")) {
 					setElement(sequence, types, c.complexType, memory);
 				} else
@@ -332,7 +328,7 @@ public final class SchemaParser {
 	 */
 	static void setAttributes(XCapability c, XElement typedef,
 			List<XElement> types, Map<String, XType> memory) {
-		for (XElement attr : typedef.childrenWithName("attribute", XSD)) {
+		for (XElement attr : typedef.childrenWithName("attribute", XElement.XSD)) {
 			XCapability cap = setElement(attr, types, c.complexType, memory);
 			String use = attr.get("use");
 			if ("forbidden".equals(use)) {
@@ -350,7 +346,7 @@ public final class SchemaParser {
 			}
 		}
 		LinkedList<XElement> attrgr = new LinkedList<XElement>();
-		Iterables.addAll(attrgr, typedef.childrenWithName("attributeGroup", XSD));
+		Iterables.addAll(attrgr, typedef.childrenWithName("attributeGroup", XElement.XSD));
 		while (attrgr.size() > 0) {
 			XElement ag = attrgr.removeFirst();
 			String ref = ag.get("ref");
@@ -360,7 +356,7 @@ public final class SchemaParser {
 					throw new AssertionError("Unknown attribute group: " + ref);
 				}
 			}
-			for (XElement attr : typedef.childrenWithName("attribute", XSD)) {
+			for (XElement attr : typedef.childrenWithName("attribute", XElement.XSD)) {
 				setElement(attr, types, c.complexType, memory);
 				XCapability cap = setElement(attr, types, c.complexType, memory);
 				String use = attr.get("use");
@@ -373,7 +369,7 @@ public final class SchemaParser {
 					cap.cardinality = XCardinality.ZERO;
 				}
 			}
-			Iterables.addAll(attrgr, ag.childrenWithName("attributeGroup", XSD));
+			Iterables.addAll(attrgr, ag.childrenWithName("attributeGroup", XElement.XSD));
 		}
 	}
 	/**
@@ -384,11 +380,11 @@ public final class SchemaParser {
 	 */
 	static void setSimpleType(XCapability c, XElement typedef, 
 			List<XElement> types) {
-		XElement restrict = typedef.childElement("restriction", XSD);
+		XElement restrict = typedef.childElement("restriction", XElement.XSD);
 		if (restrict != null) {
 			setSimpleRestriction(c, typedef, types, restrict);
 		} else {
-			XElement list = typedef.childElement("list", XSD);
+			XElement list = typedef.childElement("list", XElement.XSD);
 			if (list != null) {
 				
 				String itemType = list.get("itemType");
@@ -403,7 +399,7 @@ public final class SchemaParser {
 					c.complexType.capabilities.add(c1);
 				} else {
 					// find among children
-					XElement parent = findType(itemType, "simpleType", list.childrenWithName("simpleType", XSD));
+					XElement parent = findType(itemType, "simpleType", list.childrenWithName("simpleType", XElement.XSD));
 					if (parent == null) {
 						parent = findType(itemType, "simpleType", types);
 					}
@@ -415,7 +411,7 @@ public final class SchemaParser {
 				}
 				
 			} else {
-				XElement union = typedef.childElement("union", XSD);
+				XElement union = typedef.childElement("union", XElement.XSD);
 				if (union != null) {
 					c.valueType = XValueType.STRING; // FIXME, almost always comes to a common strung
 				} else {
@@ -439,7 +435,7 @@ public final class SchemaParser {
 			c.valueType = primitiveType;
 		} else {
 			// find among children
-			XElement parent = findType(base, "simpleType", restrict.childrenWithName("simpleType", XSD));
+			XElement parent = findType(base, "simpleType", restrict.childrenWithName("simpleType", XElement.XSD));
 			if (parent == null) {
 				parent = findType(base, "simpleType", types);
 			}
@@ -459,10 +455,10 @@ public final class SchemaParser {
 	 */
 	static void searchTypes(XElement root, List<XElement> typedefs, 
 			Set<String> memory, Iterable<String> schemaLocations) {
-		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XSD));
-		Iterables.addAll(typedefs, root.childrenWithName("complexType", XSD));
-		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XSD));
-		Iterable<XElement> includes = root.childrenWithName("include", XSD);
+		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XElement.XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("complexType", XElement.XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XElement.XSD));
+		Iterable<XElement> includes = root.childrenWithName("include", XElement.XSD);
 		for (XElement inc : includes) {
 			String loc = inc.get("schemaLocation");
 			if (loc != null && memory.add(loc)) {
@@ -687,9 +683,9 @@ public final class SchemaParser {
 	 */
 	static XGenerics getGenericType(XElement elementDef) {
 		// TODO think about this a bit more
-		XElement annot = elementDef.childElement("annotation", XSD);
+		XElement annot = elementDef.childElement("annotation", XElement.XSD);
 		if (annot != null) {
-			XElement appinfo = annot.childElement("appinfo", XSD);
+			XElement appinfo = annot.childElement("appinfo", XElement.XSD);
 			if (appinfo != null) {
 				XElement gt = appinfo.childElement("advance-type-variable");
 				if (gt != null) {
@@ -726,7 +722,7 @@ public final class SchemaParser {
 			// add attributes as capabilities
 			for (XAttributeName an : xmlRoot.getAttributeNames()) {
 				// except XSI attributes
-				if (!XSI.equals(an.namespace)) {
+				if (!XElement.XSI.equals(an.namespace)) {
 					XCapability c = new XCapability();
 					c.name = new XName();
 					c.name.name = an.name;
