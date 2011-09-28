@@ -24,15 +24,9 @@ package eu.advance.logistics.flow.engine;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.util.DefaultScheduler;
 
-import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -57,31 +51,24 @@ import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.AdvanceSchemaResolver;
 import eu.advance.logistics.flow.engine.model.SchedulerPreference;
-import eu.advance.logistics.flow.engine.model.UnresolvableSchemaURIException;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.util.ReactiveEx;
-import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * The engine configuration record.
  * @author karnokd, 2011.09.23.
  */
-public class AdvanceEngineConfig implements AdvanceSchemaResolver {
+public class AdvanceEngineConfig {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceEngineConfig.class);
 	/** The block registry. */
 	public String blockRegistry;
-	/** The block descriptions. */
-	protected final Map<String, AdvanceBlockRegistryEntry> blocks = Maps.newHashMap();
-	/**
-	 * The list of local schema locations.
-	 */
-	public final List<String> schemas = Lists.newArrayList();
+	/** The block resolver. */
+	public AdvanceBlockResolver blockResolver;
+	/** The schema resolver. */
+	public AdvanceSchemaResolver schemaResolver;
 	/** A JDBC based datastore datasource. */
 	protected AdvanceJDBCDataSource jdbcDataStore;
 	/** The local datastore object. */
@@ -93,76 +80,11 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 	/** The backing executor services to allow peaceful shutdown. */
 	protected final EnumMap<SchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<SchedulerPreference, ExecutorService>(SchedulerPreference.class);
 	/**
-	 * Resolve a schema URI link.
-	 * @param schemaURI the schema URI.
-	 * @return the parsed schema
-	 */
-	@Override
-	public XType resolve(URI schemaURI) {
-		String s = schemaURI.getScheme(); 
-		if ("advance".equals(s)) {
-			String u = schemaURI.getSchemeSpecificPart();
-			for (String schemaDir : schemas) {
-				File f = new File(schemaDir + "/" + u + ".xsd");
-				if (f.exists()) {
-					try {
-						return resolveSchemaLoad(f.toURI().toURL(), schemaURI);
-					} catch (MalformedURLException ex) {
-						LOG.error(f.toString(), ex);
-						throw new UnresolvableSchemaURIException(schemaURI, ex);
-					}
-				}
-			}
-		}
-		if ("res".equals(s)) {
-			String u = schemaURI.getSchemeSpecificPart();
-			if (!u.startsWith("/")) {
-				u = "/" + u;
-			}
-			URL url = getClass().getResource(u);
-			if (url != null) {
-				return resolveSchemaLoad(url, schemaURI);
-			}
-		} else
-		if ("http".equals(s) || "https".equals(s) || "ftp".equals(s) || "file".equals(s)) {
-			try {
-				URL url = schemaURI.toURL();
-				return resolveSchemaLoad(url, schemaURI);
-			} catch (MalformedURLException ex) {
-				LOG.error(schemaURI.toString(), ex);
-				throw new UnresolvableSchemaURIException(schemaURI, ex);
-			}
-		}
-		LOG.error(schemaURI.toString());
-		throw new UnresolvableSchemaURIException(schemaURI);
-	}
-	/**
-	 * Perform the retrieval and parsing of the schema file.
-	 * @param url the URL to load from
-	 * @param schemaURI the original URI
-	 * @return the parsed schema
-	 */
-	protected XType resolveSchemaLoad(URL url, URI schemaURI) {
-		try {
-			BufferedInputStream bin = new BufferedInputStream(url.openStream());
-			try {
-				return SchemaParser.parse(XElement.parseXML(bin), schemas);
-			} finally {
-				bin.close();
-			}
-		} catch (XMLStreamException ex) {
-			LOG.error(ex.toString(), ex);
-			throw new UnresolvableSchemaURIException(schemaURI, ex);
-		} catch (IOException ex) {
-			LOG.error(ex.toString(), ex);
-			throw new UnresolvableSchemaURIException(schemaURI, ex);
-		}
-	}
-	/**
 	 * Create the lookup.
 	 * @param blockRegistry The block registry to use
 	 */
 	protected void initBlockRegistry(String blockRegistry) {
+		Map<String, AdvanceBlockRegistryEntry> blocks = Maps.newHashMap();
 		try {
 			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
 					XElement.parseXML(blockRegistry))) {
@@ -173,54 +95,7 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 		} catch (IOException ex) {
 			throw new IllegalArgumentException(ex);
 		}
-	}
-	/**
-	 * Locate the block description in the repository (e.g., block-repository.xml).
-	 * @param id the block identifier
-	 * @return the block
-	 */
-	public AdvanceBlockRegistryEntry lookup(@NonNull String id) {
-		return blocks.get(id);
-	}
-	/**
-	 * Create a concrete block by using the given settings.
-	 * @param gid the global block id
-	 * @param parent the parent composite block
-	 * @param name the level block identifier
-	 * @return the new block instance 
-	 */
-	public AdvanceBlock create(int gid, AdvanceCompositeBlock parent, String name) {
-		AdvanceBlockRegistryEntry e = blocks.get(name);
-		try {
-			Class<?> clazz = Class.forName(e.clazz);
-			if (AdvanceBlock.class.isInstance(clazz)) {
-				try {
-					Constructor<?> c = clazz.getConstructor(
-							Integer.TYPE, 
-							AdvanceCompositeBlock.class, 
-							String.class, 
-							SchedulerPreference.class);
-					return AdvanceBlock.class.cast(c.newInstance(gid, parent, name, e.scheduler));
-				} catch (NoSuchMethodException ex) {
-					LOG.error("Missing constructor of {int, AdvanceCompositeBlock, String, SchedulerPreference}", ex);
-				} catch (SecurityException ex) {
-					LOG.error(ex.toString(), ex);
-				} catch (InstantiationException ex) {
-					LOG.error(ex.toString(), ex);
-				} catch (IllegalAccessException ex) {
-					LOG.error(ex.toString(), ex);
-				} catch (IllegalArgumentException ex) {
-					LOG.error(ex.toString(), ex);
-				} catch (InvocationTargetException ex) {
-					LOG.error(ex.toString(), ex);
-				}
-			} else {
-				LOG.error("Block " + name + " of class " + e.clazz + " is not an AdvanceBlock");
-			}
-		} catch (ClassNotFoundException ex) {
-			LOG.error(ex.toString(), ex);
-		}
-		return null;
+		blockResolver = new AdvanceBlockResolver(blocks);
 	}
 	
 	/**
@@ -238,7 +113,6 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 	 */
 	public void initialize(XElement configXML) {
 		// load blocks.
-		blocks.clear();
 		for (XElement br : configXML.childrenWithName("block-registry")) {
 			initBlockRegistry(br.get("file"));
 		}
@@ -247,10 +121,12 @@ public class AdvanceEngineConfig implements AdvanceSchemaResolver {
 		schedulerMapExecutors.clear();
 		initSchedulers(configXML.childrenWithName("scheduler"));
 		// load schema locations
-		schemas.clear();
+		List<String> schemas = Lists.newArrayList();
 		for (XElement xs : configXML.childrenWithName("schemas")) {
 			schemas.add(xs.get("location"));
 		}
+		schemaResolver = new AdvanceSchemaResolver(schemas);
+		
 		// initialize keystores
 		for (XElement xks : configXML.childrenWithName("keystore")) {
 			AdvanceKeyStore e = new AdvanceKeyStore();
