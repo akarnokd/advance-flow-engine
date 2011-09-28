@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.xml.typesystem;
 
+import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Pair;
 
 import java.io.Closeable;
@@ -30,12 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -44,6 +44,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.HashMultiset;
@@ -54,6 +57,7 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.URLResolver;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
 
 
@@ -62,6 +66,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
  * @author karnokd
  */
 public final class SchemaParser {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(SchemaParser.class);
 	/** Utility class. */
 	private SchemaParser() {
 		// utility class
@@ -74,25 +80,41 @@ public final class SchemaParser {
 		XElement schema1 = XElement.parseXML("test/type1.xsd");
 		XElement schema2 = XElement.parseXML("test/type2.xsd");
 		XElement schema3 = XElement.parseXML("test/type3.xsd");
+		Func1<String, XElement> resolver = new Func1<String, XElement>() {
+			@Override
+			public XElement invoke(String param1) {
+				File f = new File("schemas", param1);
+				if (f.canRead()) {
+					try {
+						return XElement.parseXML(f);
+					} catch (XMLStreamException ex) {
+						LOG.error(ex.toString(), ex);
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+				return null;
+			}
+		};
 //		
 //		System.out.println(schema1);
-		XType t1 = parse(schema1, Collections.singleton("schemas"));
+		XType t1 = parse(schema1, resolver);
 //		System.out.println(t1);
 //		System.out.println(schema2);
-		XType t2 = parse(schema2, Collections.singleton("schemas"));
+		XType t2 = parse(schema2, resolver);
 //		System.out.println(t2);
 //		System.out.println(t1.compareTo(t2));
 //		System.out.println(t2.compareTo(t1));
 //		System.out.println(t1.compareTo(t1));
 //		
 //		System.out.println();
-		XType t3 = parse(schema3, Collections.singleton("schemas"));
+		XType t3 = parse(schema3, resolver);
 //		System.out.println(t1.compareTo(t3));
 //		System.out.println(compare(t1, t3));
 		
 		XType t4 = fromInstance(XElement.parseXML("schemas/block-registry.xml"));
 		System.out.println(t4);
-		XType t5 = parse(XElement.parseXML("schemas/block-registry.xsd"), Collections.singleton("schemas"));
+		XType t5 = parse(XElement.parseXML("schemas/block-registry.xsd"), resolver);
 		System.out.println(t5);
 		System.out.println(compare(t4, t5));
 		
@@ -100,8 +122,8 @@ public final class SchemaParser {
 		System.out.println(t2.intersection(t3).compareTo(t3));
 		System.out.println(t2.union(t3));
 		
-		XType stringType = parse(XElement.parseXML("schemas/string.xsd"), Collections.singleton("schemas"));
-		XType intType = parse(XElement.parseXML("schemas/integer.xsd"), Collections.singleton("schemas"));
+		XType stringType = parse(XElement.parseXML("schemas/string.xsd"), resolver);
+		XType intType = parse(XElement.parseXML("schemas/integer.xsd"), resolver);
 
 		System.out.println(intersection(stringType, intType));
 		System.out.println(union(stringType, intType));
@@ -109,10 +131,10 @@ public final class SchemaParser {
 	/**
 	 * Create the XML type by parsing the given schema document.
 	 * @param schema the schema tree.
-	 * @param schemaLocations the ordered sequence of schema locations to look for referenced XSDs
+	 * @param resolver the function which will return a schema XML for the supplied name
 	 * @return the XML type representing the schema
 	 */
-	public static XType parse(XElement schema, Iterable<String> schemaLocations) {
+	public static XType parse(XElement schema, Func1<String, XElement> resolver) {
 		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XElement.XSD));
 		if (roots.size() != 1) {
 			throw new IllegalArgumentException("Zero or multi-rooted schema not supported");
@@ -122,7 +144,7 @@ public final class SchemaParser {
 		
 		List<XElement> typedefs = new ArrayList<XElement>();
 
-		searchTypes(schema, typedefs, new HashSet<String>(), schemaLocations);
+		searchTypes(schema, typedefs, new HashSet<String>(), resolver);
 		
 		XType result = new XType();
 		Map<String, XType> memory = new HashMap<String, XType>();
@@ -451,10 +473,10 @@ public final class SchemaParser {
 	 * @param root the current schema object
 	 * @param typedefs the simple types, complex types and attribute groups
 	 * @param memory the memory for already visited resources
-	 * @param schemaLocations the schema directories
+	 * @param resolver the function to return a schema for the supplied name
 	 */
 	static void searchTypes(XElement root, List<XElement> typedefs, 
-			Set<String> memory, Iterable<String> schemaLocations) {
+			Set<String> memory, Func1<String, XElement> resolver) {
 		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XElement.XSD));
 		Iterables.addAll(typedefs, root.childrenWithName("complexType", XElement.XSD));
 		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XElement.XSD));
@@ -462,30 +484,32 @@ public final class SchemaParser {
 		for (XElement inc : includes) {
 			String loc = inc.get("schemaLocation");
 			if (loc != null && memory.add(loc)) {
-				InputStream in = null;
-				try {
-					// open URI or file
+				// if remote location
+				if (loc.startsWith("http") || loc.startsWith("https")) {
 					try {
-						URI uri = new URI(loc);
-						if (uri.isAbsolute()) {
-							in = uri.toURL().openStream();
-						} else {
-							in = tryLocalLocations(schemaLocations, loc);
+						XElement xe = null;
+						URL u = new URL(loc);
+						InputStream in = u.openStream();
+						try {
+							xe = XElement.parseXML(in);
+						} finally {
+							in.close();
 						}
-					} catch (URISyntaxException ex) {
-						in = tryLocalLocations(schemaLocations, loc);
+						searchTypes(xe, typedefs, memory, new URLResolver(u));
+					} catch (MalformedURLException ex) {
+						
+					} catch (IOException ex) {
+						
+					} catch (XMLStreamException ex) {
+						
 					}
+				} else {
+					XElement in = resolver.invoke(loc);
 					if (in != null) {
-						searchTypes(XElement.parseXML(in), typedefs, memory, schemaLocations);
+						searchTypes(in, typedefs, memory, resolver);
 					} else {
 						throw new RuntimeException("Could not locate schema file for " + loc);
 					}
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				} catch (XMLStreamException ex) {
-					throw new RuntimeException(ex);
-				} finally {
-					close0(in);
 				}
 			}
 		}

@@ -21,107 +21,19 @@
 
 package eu.advance.logistics.flow.engine;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.util.Collection;
-import java.util.List;
 
-import javax.xml.stream.XMLStreamException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-
-import eu.advance.logistics.flow.engine.model.UnresolvableSchemaURIException;
-import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
- * Class to resolve schemas and load them as XTypes.
+ * Interface for providing support to resolve a schema URI into an XType.
  * @author karnokd, 2011.09.28.
  */
-public class AdvanceSchemaResolver {
-	/** The logger. */
-	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceSchemaResolver.class);
-	/** The list of schema locations. */
-	protected final List<String> schemas = Lists.newArrayList();
-	/**
-	 * Constructor with the collection of schema locations.
-	 * @param schemaLocations the schema location directories
-	 */
-	public AdvanceSchemaResolver(Collection<String> schemaLocations) {
-		this.schemas.addAll(schemaLocations);
-	}
-	/**
-	 * Perform the retrieval and parsing of the schema file.
-	 * @param url the URL to load from
-	 * @param schemaURI the original URI
-	 * @return the parsed schema
-	 */
-	XType resolveSchemaLoad(URL url, URI schemaURI) {
-		try {
-			BufferedInputStream bin = new BufferedInputStream(url.openStream());
-			try {
-				return SchemaParser.parse(XElement.parseXML(bin), schemas);
-			} finally {
-				bin.close();
-			}
-		} catch (XMLStreamException ex) {
-			LOG.error(ex.toString(), ex);
-			throw new UnresolvableSchemaURIException(schemaURI, ex);
-		} catch (IOException ex) {
-			LOG.error(ex.toString(), ex);
-			throw new UnresolvableSchemaURIException(schemaURI, ex);
-		}
-	}
+public interface AdvanceSchemaResolver {
 	/**
 	 * Resolve a schema URI link.
 	 * @param schemaURI the schema URI.
 	 * @return the parsed schema
 	 */
-	public XType resolve(URI schemaURI) {
-		String s = schemaURI.getScheme(); 
-		if ("advance".equals(s)) {
-			String u = schemaURI.getSchemeSpecificPart();
-			for (String schemaDir : schemas) {
-				File f = new File(schemaDir + "/" + u + ".xsd");
-				if (f.exists()) {
-					try {
-						return resolveSchemaLoad(f.toURI().toURL(), schemaURI);
-					} catch (MalformedURLException ex) {
-						LOG.error(f.toString(), ex);
-						throw new UnresolvableSchemaURIException(schemaURI, ex);
-					}
-				}
-			}
-		}
-		if ("res".equals(s)) {
-			String u = schemaURI.getSchemeSpecificPart();
-			if (!u.startsWith("/")) {
-				u = "/" + u;
-			}
-			URL url = getClass().getResource(u);
-			if (url != null) {
-				return resolveSchemaLoad(url, schemaURI);
-			}
-		} else
-		if ("http".equals(s) || "https".equals(s) || "ftp".equals(s) || "file".equals(s)) {
-			try {
-				URL url = schemaURI.toURL();
-				return resolveSchemaLoad(url, schemaURI);
-			} catch (MalformedURLException ex) {
-				LOG.error(schemaURI.toString(), ex);
-				throw new UnresolvableSchemaURIException(schemaURI, ex);
-			}
-		}
-		LOG.error(schemaURI.toString());
-		throw new UnresolvableSchemaURIException(schemaURI);
-	}
-
+	XType resolve(URI schemaURI);
 }
