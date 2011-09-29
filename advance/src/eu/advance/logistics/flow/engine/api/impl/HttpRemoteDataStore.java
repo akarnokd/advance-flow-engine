@@ -27,9 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
@@ -39,6 +40,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
@@ -89,7 +91,7 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 		comm.authentication = auth;
 	}
 	@Override
-	public List<AdvanceRealm> queryRealms(AdvanceControlToken token)
+	public List<AdvanceRealm> queryRealms()
 			throws IOException, AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-realms"));
 		return HttpRemoteUtils.parseList(response, "realm", AdvanceRealm.CREATOR);
@@ -97,72 +99,72 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	
 
 	@Override
-	public AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
+	public AdvanceRealm queryRealm(String realm)
 			throws IOException, AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-realm", "realm", realm));
 		return HttpRemoteUtils.parseItem(response, AdvanceRealm.CREATOR);
 	}
 
 	@Override
-	public void createRealm(AdvanceControlToken token, String realm)
+	public void createRealm(String realm, String byUser)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("create-realm", "realm", realm));
 	}
 
 	@Override
-	public void deleteRealm(AdvanceControlToken token, String realm)
+	public void deleteRealm(String realm)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-realm", "realm", realm));
 	}
 
 	@Override
-	public void renameRealm(AdvanceControlToken token, String realm,
-			String newName) throws IOException, AdvanceControlException {
+	public void renameRealm(String realm,
+			String newName, String byUser) throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("rename-realm", "realm", realm, "new-realm", newName));
 	}
 
 	@Override
-	public List<AdvanceUser> queryUsers(AdvanceControlToken token)
+	public List<AdvanceUser> queryUsers()
 			throws IOException, AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-users"));
 		return HttpRemoteUtils.parseList(response, "user", AdvanceUser.CREATOR);
 	}
 
 	@Override
-	public AdvanceUser queryUser(AdvanceControlToken token, String userName)
+	public AdvanceUser queryUser(String userName)
 			throws IOException, AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-user", "user-name", userName));
 		return HttpRemoteUtils.parseItem(response, AdvanceUser.CREATOR);
 	}
 
 	@Override
-	public void enableUser(AdvanceControlToken token, String userName,
-			boolean enabled) throws IOException, AdvanceControlException {
+	public void enableUser(String userName,
+			boolean enabled, String byUser) throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("enable-user", "user-name", userName, "enabled", enabled));
 	}
 
 	@Override
-	public void deleteUser(AdvanceControlToken token, String userName)
+	public void deleteUser(String userName, String byUser)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-user", "user-name", userName));
 	}
 
 	@Override
-	public void updateUser(AdvanceControlToken token, AdvanceUser user)
+	public void updateUser(AdvanceUser user)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createUpdate("update-user", user));
 	}
 
 	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups(
-			AdvanceControlToken token) throws IOException,
+	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
+			throws IOException,
 			AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-notification-groups"));
 		return LocalDataStore.parseGroups(response);
 	}
 
 	@Override
-	public void updateNotificationGroups(AdvanceControlToken token,
+	public void updateNotificationGroups(
 			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
 			throws IOException, AdvanceControlException {
 		XElement request = LocalDataStore.createGroups("update-notification-groups", groups);
@@ -170,148 +172,212 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 	
 	@Override
-	public List<AdvanceJDBCDataSource> queryJDBCDataSources(
-			AdvanceControlToken token) throws IOException,
+	public List<AdvanceJDBCDataSource> queryJDBCDataSources() throws IOException,
 			AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-jdbc-data-sources"));
 		return HttpRemoteUtils.parseList(response, "jdbc-source", AdvanceJDBCDataSource.CREATOR);
 	}
 
 	@Override
-	public void updateJDBCDataSource(AdvanceControlToken token,
+	public void updateJDBCDataSource(
 			AdvanceJDBCDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		comm.send(HttpRemoteUtils.createUpdate("update-jdbc-data-source", dataSource));
 	}
 
 	@Override
-	public void deleteJDBCDataSource(AdvanceControlToken token, String dataSourceName)
+	public void deleteJDBCDataSource(String dataSourceName)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-jdbc-data-source", "data-source-name", dataSourceName));
 	}
 
 	@Override
-	public List<AdvanceJMSEndpoint> queryJMSEndpoints(AdvanceControlToken token)
+	public List<AdvanceJMSEndpoint> queryJMSEndpoints()
 			throws IOException, AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-jms-endpoints"));
 		return HttpRemoteUtils.parseList(response, "endpoint", AdvanceJMSEndpoint.CREATOR);
 	}
 
 	@Override
-	public void updateJMSEndpoint(AdvanceControlToken token,
+	public void updateJMSEndpoint(
 			AdvanceJMSEndpoint endpoint) throws IOException,
 			AdvanceControlException {
 		comm.send(HttpRemoteUtils.createUpdate("update-jms-endpoint", endpoint));
 	}
 
 	@Override
-	public void deleteJMSEndpoint(AdvanceControlToken token, String jmsName)
+	public void deleteJMSEndpoint(String jmsName)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-jms-endpoint", "jms-name", jmsName));
 	}
 
 	@Override
-	public List<AdvanceWebDataSource> queryWebDataSources(
-			AdvanceControlToken token) throws IOException,
+	public List<AdvanceWebDataSource> queryWebDataSources() throws IOException,
 			AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-web-data-sources"));
 		return HttpRemoteUtils.parseList(response, "web-source", AdvanceWebDataSource.CREATOR);
 	}
 
 	@Override
-	public void updateWebDataSource(AdvanceControlToken token,
+	public void updateWebDataSource(
 			AdvanceWebDataSource endpoint) throws IOException,
 			AdvanceControlException {
 		comm.send(HttpRemoteUtils.createUpdate("update-web-data-source", endpoint));
 	}
 
 	@Override
-	public void deleteWebDataSource(AdvanceControlToken token, String webName)
+	public void deleteWebDataSource(String webName)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-web-data-source", "web-name", webName));
 	}
 
 	@Override
-	public List<AdvanceFTPDataSource> queryFTPDataSources(
-			AdvanceControlToken token) throws IOException,
+	public List<AdvanceFTPDataSource> queryFTPDataSources() throws IOException,
 			AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-ftp-data-sources"));
 		return HttpRemoteUtils.parseList(response, "ftp-source", AdvanceFTPDataSource.CREATOR);
 	}
 
 	@Override
-	public void updateFTPDataSource(AdvanceControlToken token,
+	public void updateFTPDataSource(
 			AdvanceFTPDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		comm.send(HttpRemoteUtils.createUpdate("update-ftp-data-source", dataSource));
 	}
 
 	@Override
-	public void deleteFTPDataSource(AdvanceControlToken token, String ftpName)
+	public void deleteFTPDataSource(String ftpName)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-ftp-data-source", "ftp-name", ftpName));
 	}
 
 	@Override
 	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources(
-			AdvanceControlToken token) throws IOException,
+			) throws IOException,
 			AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-local-file-data-sources"));
 		return HttpRemoteUtils.parseList(response, "local-source", AdvanceLocalFileDataSource.CREATOR);
 	}
 
 	@Override
-	public void updateLocalFileDataSource(AdvanceControlToken token,
+	public void updateLocalFileDataSource(
 			AdvanceLocalFileDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		comm.send(HttpRemoteUtils.createUpdate("update-local-file-data-source", dataSource));
 	}
 
 	@Override
-	public void deleteLocalFileDataSource(AdvanceControlToken token, String fileName)
+	public void deleteLocalFileDataSource(String fileName)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-local-file-data-source", "file-name", fileName));
 	}
 
 	@Override
-	public List<AdvanceKeyStore> queryKeyStores(AdvanceControlToken token)
+	public List<AdvanceKeyStore> queryKeyStores()
 			throws IOException, AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-keystores"));
 		return HttpRemoteUtils.parseList(response, "keystore", AdvanceKeyStore.CREATOR);
 	}
 
 	@Override
-	public AdvanceKeyStore queryKeyStore(AdvanceControlToken token, String name)
+	public AdvanceKeyStore queryKeyStore(String name)
 			throws IOException, AdvanceControlException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("query-keystore", "name", name));
 		return HttpRemoteUtils.parseItem(response, AdvanceKeyStore.CREATOR);
 	}
 
 	@Override
-	public boolean hasUserRight(AdvanceControlToken token,
+	public boolean hasUserRight(String userName,
 			AdvanceUserRights expected) throws IOException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("has-user-right", "expected", expected));
 		return "true".equals(response.content);
 	}
 
 	@Override
-	public boolean hasUserRight(AdvanceControlToken token, String realm,
+	public boolean hasUserRight(String userName, String realm,
 			AdvanceUserRealmRights expected) throws IOException {
 		XElement response = comm.query(HttpRemoteUtils.createRequest("has-user-realm-right", "realm", realm, "expected", expected));
 		return "true".equals(response.content);
 	}
 
 	@Override
-	public void updateKeyStore(AdvanceControlToken token,
+	public void updateKeyStore(
 			AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
 		comm.send(HttpRemoteUtils.createUpdate("update-keystore", keyStore));
 	}
 
 	@Override
-	public void deleteKeyStore(AdvanceControlToken token, String keyStore)
+	public void deleteKeyStore(String keyStore)
 			throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-keystore", "keystore", keyStore));
 	}
-
+	@Override
+	public Set<String> queryNotificationGroup(
+			AdvanceNotificationGroupType type, String name) throws IOException {
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-notification-group", "type", type, "name", name));
+		Set<String> result = Sets.newHashSet();
+		for (XElement x : response.childrenWithName("contact")) {
+			result.add(x.get("value"));
+		}
+		return result;
+	}
+	@Override
+	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
+			throws IOException {
+		return HttpRemoteUtils.parseItem(comm.query(
+				HttpRemoteUtils.createRequest("query-jdbc-data-source", "name", name)), 
+				AdvanceJDBCDataSource.CREATOR);
+	}
+	@Override
+	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException {
+		return HttpRemoteUtils.parseItem(comm.query(
+				HttpRemoteUtils.createRequest("query-jms-endpoint", "name", name)), 
+				AdvanceJMSEndpoint.CREATOR);
+	}
+	@Override
+	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException {
+		return HttpRemoteUtils.parseItem(comm.query(
+				HttpRemoteUtils.createRequest("query-soap-channel", "name", name)), 
+				AdvanceSOAPChannel.CREATOR);
+	}
+	@Override
+	public AdvanceFTPDataSource queryFTPDataSource(String name)
+			throws IOException {
+		return HttpRemoteUtils.parseItem(comm.query(
+				HttpRemoteUtils.createRequest("query-ftp-data-source", "name", name)), 
+				AdvanceFTPDataSource.CREATOR);
+	}
+	@Override
+	public AdvanceWebDataSource queryWebDataSource(String name)
+			throws IOException {
+		return HttpRemoteUtils.parseItem(comm.query(
+				HttpRemoteUtils.createRequest("query-web-data-source", "name", name)), 
+				AdvanceWebDataSource.CREATOR);
+	}
+	@Override
+	public AdvanceLocalFileDataSource queryLocalFileDataSource(String name)
+			throws IOException {
+		return HttpRemoteUtils.parseItem(comm.query(
+				HttpRemoteUtils.createRequest("query-local-file-data-source", "name", name)), 
+				AdvanceLocalFileDataSource.CREATOR);
+	}
+	@Override
+	public XElement queryBlockState(String realm, String blockId)
+			throws IOException {
+		return comm.query(
+				HttpRemoteUtils.createRequest("query-block-state", "realm", realm, "block-id", blockId));
+	}
+	@Override
+	public void updateBlockState(String realm, String blockId, XElement state)
+			throws IOException {
+		XElement request = HttpRemoteUtils.createRequest("update-block-state", "realm", realm, "block-id", blockId);
+		request.add(state);
+		comm.send(request);
+	}
+	@Override
+	public XElement queryFlow(String realm) throws IOException {
+		return comm.query(
+				HttpRemoteUtils.createRequest("query-flow", "realm", realm));
+	}
 }

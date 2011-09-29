@@ -36,4 +36,6 @@ public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 	public DistinguishedName issuerDn;
 	/** @return the subject's distinguished name. */
 	public DistinguishedName subjectDn;
+	/** The user who modifies the record. */
+	public String modifiedBy;
 }

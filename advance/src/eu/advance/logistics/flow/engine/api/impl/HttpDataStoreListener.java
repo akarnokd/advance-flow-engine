@@ -22,17 +22,18 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
+import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
+import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
@@ -56,137 +57,171 @@ public class HttpDataStoreListener {
 	}
 	/**
 	 * Dispatch the request to the proper datastore function.
-	 * @param token the control token for the data access checks
+	 * @param userName the requestor
 	 * @param request the request XML
 	 * @return the response XElement or null if no response
 	 * @throws IOException when the underlying datastore throws this exception
 	 * @throws AdvanceControlException if the user has no right to execute the request or it is malformed
 	 */
 	@Nullable
-	public XElement dispatch(@NonNull AdvanceControlToken token, @NonNull XElement request) throws IOException, AdvanceControlException {
+	public XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException {
+		AdvanceDataStore ds = new CheckedDataStore(datastore, userName);
 		String function = request.name;
 		if ("query-realms".equals(function)) {
-			return HttpRemoteUtils.storeList("realms", "realm", datastore.queryRealms(token));
+			return HttpRemoteUtils.storeList("realms", "realm", ds.queryRealms());
 		} else
 		if ("query-realm".equals(function)) {
-			return HttpRemoteUtils.storeItem("realm", datastore.queryRealm(token, request.get("realm")));
+			return HttpRemoteUtils.storeItem("realm", ds.queryRealm(request.get("realm")));
 		} else
 		if ("create-realm".equals(function)) {
-			datastore.createRealm(token, request.get("realm"));
+			ds.createRealm(request.get("realm"), userName);
 			return null;
 		} else
 		if ("delete-realm".equals(function)) {
-			datastore.deleteRealm(token, request.get("realm"));
+			ds.deleteRealm(request.get("realm"));
 			return null;
 		} else
 		if ("rename-realm".equals(function)) {
-			datastore.renameRealm(token, request.get("realm"), request.get("new-realm"));
+			ds.renameRealm(request.get("realm"), request.get("new-realm"), userName);
 			return null;
 		} else
 		if ("query-users".equals(function)) {
-			return HttpRemoteUtils.storeList("users", "user", datastore.queryUsers(token));
+			return HttpRemoteUtils.storeList("users", "user", ds.queryUsers());
 		} else
 		if ("query-user".equals(function)) {
-			return HttpRemoteUtils.storeItem("user", datastore.queryUser(token, request.get("user-name")));
+			return HttpRemoteUtils.storeItem("user", ds.queryUser(request.get("user-name")));
 		} else
 		if ("enable-user".equals(function)) {
-			datastore.enableUser(token, request.get("user-name"), request.getBoolean("enabled"));
+			ds.enableUser(request.get("user-name"), request.getBoolean("enabled"), userName);
 			return null;
 		} else
 		if ("delete-user".equals(function)) {
-			datastore.deleteUser(token, request.get("user-name"));
+			ds.deleteUser(request.get("user-name"), userName);
 			return null;
 		} else
 		if ("update-user".equals(function)) {
-			datastore.updateUser(token, HttpRemoteUtils.parseItem(request, AdvanceUser.CREATOR));
+			ds.updateUser(HttpRemoteUtils.parseItem(request, AdvanceUser.CREATOR));
 			return null;
 		} else
 		if ("query-notification-groups".equals(function)) {
-			return LocalDataStore.createGroups("notification-groups", datastore.queryNotificationGroups(token));
+			return LocalDataStore.createGroups("notification-groups", ds.queryNotificationGroups());
 		} else
 		if ("update-notification-groups".equals(function)) {
-			datastore.updateNotificationGroups(token, LocalDataStore.parseGroups(request));
+			ds.updateNotificationGroups(LocalDataStore.parseGroups(request));
 			return null;
 		} else
 		if ("query-jdbc-data-sources".equals(function)) {
-			return HttpRemoteUtils.storeList("jdbc-data-sources", "jdbc-source", datastore.queryJDBCDataSources(token));
+			return HttpRemoteUtils.storeList("jdbc-data-sources", "jdbc-source", ds.queryJDBCDataSources());
 		} else
 		if ("update-jdbc-data-source".equals(function)) {
-			datastore.updateJDBCDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceJDBCDataSource.CREATOR));
+			ds.updateJDBCDataSource(HttpRemoteUtils.parseItem(request, AdvanceJDBCDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-jdbc-data-source".equals(function)) {
-			datastore.deleteJDBCDataSource(token, request.get("data-source-name"));
+			ds.deleteJDBCDataSource(request.get("data-source-name"));
 			return null;
 		} else
 		if ("query-jms-endpoints".equals(function)) {
-			return HttpRemoteUtils.storeList("jms-endpoints", "endpoint", datastore.queryJMSEndpoints(token));
+			return HttpRemoteUtils.storeList("jms-endpoints", "endpoint", ds.queryJMSEndpoints());
 		} else
 		if ("update-jms-endpoint".equals(function)) {
-			datastore.updateJMSEndpoint(token, HttpRemoteUtils.parseItem(request, AdvanceJMSEndpoint.CREATOR));
+			ds.updateJMSEndpoint(HttpRemoteUtils.parseItem(request, AdvanceJMSEndpoint.CREATOR));
 			return null;
 		} else
 		if ("delete-jms-endpoint".equals(function)) {
-			datastore.deleteJMSEndpoint(token, request.get("jms-name"));
+			ds.deleteJMSEndpoint(request.get("jms-name"));
 			return null;
 		} else
 		if ("query-web-data-sources".equals(function)) {
-			return HttpRemoteUtils.storeList("web-data-sources", "web-source", datastore.queryWebDataSources(token));
+			return HttpRemoteUtils.storeList("web-data-sources", "web-source", ds.queryWebDataSources());
 		} else
 		if ("update-web-data-source".equals(function)) {
-			datastore.updateWebDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceWebDataSource.CREATOR));
+			ds.updateWebDataSource(HttpRemoteUtils.parseItem(request, AdvanceWebDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-web-data-source".equals(function)) {
-			datastore.deleteWebDataSource(token, request.get("web-name"));
+			ds.deleteWebDataSource(request.get("web-name"));
 			return null;
 		} else
 		if ("query-ftp-data-sources".equals(function)) {
-			return HttpRemoteUtils.storeList("ftp-data-sources", "ftp-source", datastore.queryFTPDataSources(token));
+			return HttpRemoteUtils.storeList("ftp-data-sources", "ftp-source", ds.queryFTPDataSources());
 		} else
 		if ("update-ftp-data-source".equals(function)) {
-			datastore.updateFTPDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceFTPDataSource.CREATOR));
+			ds.updateFTPDataSource(HttpRemoteUtils.parseItem(request, AdvanceFTPDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-ftp-data-source".equals(function)) {
-			datastore.deleteFTPDataSource(token, request.get("ftp-name"));
+			ds.deleteFTPDataSource(request.get("ftp-name"));
 			return null;
 		} else
 		if ("query-local-file-data-sources".equals(function)) {
-			return HttpRemoteUtils.storeList("local-file-data-sources", "local-source", datastore.queryLocalFileDataSources(token));
+			return HttpRemoteUtils.storeList("local-file-data-sources", "local-source", ds.queryLocalFileDataSources());
 		} else
 		if ("update-local-file-data-source".equals(function)) {
-			datastore.updateLocalFileDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceLocalFileDataSource.CREATOR));
+			ds.updateLocalFileDataSource(HttpRemoteUtils.parseItem(request, AdvanceLocalFileDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-local-file-data-source".equals(function)) {
-			datastore.deleteLocalFileDataSource(token, request.get("file-name"));
+			ds.deleteLocalFileDataSource(request.get("file-name"));
 			return null;
 		} else
 		if ("query-keystores".equals(function)) {
-			return HttpRemoteUtils.storeList("keystores", "keystore", datastore.queryKeyStores(token));
+			return HttpRemoteUtils.storeList("keystores", "keystore", ds.queryKeyStores());
 		} else
 		if ("query-keystore".equals(function)) {
-			return HttpRemoteUtils.storeItem("keystore", datastore.queryKeyStore(token, request.get("name")));
+			return HttpRemoteUtils.storeItem("keystore", ds.queryKeyStore(request.get("name")));
 		} else
 		if ("has-user-right".equals(function)) {
 			XElement e = new XElement("boolean");
-			e.content = String.valueOf(datastore.hasUserRight(token, AdvanceUserRights.valueOf(request.get("expected"))));
+			e.content = String.valueOf(ds.hasUserRight(userName, AdvanceUserRights.valueOf(request.get("expected"))));
 			return e;
 		} else
 		if ("has-user-realm-right".equals(function)) {
 			XElement e = new XElement("boolean");
-			e.content = String.valueOf(datastore.hasUserRight(token, request.get("realm"), 
+			e.content = String.valueOf(ds.hasUserRight(userName, request.get("realm"), 
 					AdvanceUserRealmRights.valueOf(request.get("expected"))));
 			return e;
 		} else
 		if ("update-keystore".equals(function)) {
-			datastore.updateKeyStore(token, HttpRemoteUtils.parseItem(request, AdvanceKeyStore.CREATOR));
+			ds.updateKeyStore(HttpRemoteUtils.parseItem(request, AdvanceKeyStore.CREATOR));
 			return null;
 		} else
 		if ("delete-keystore".equals(function)) {
-			datastore.deleteKeyStore(token, request.get("keystore"));
+			ds.deleteKeyStore(request.get("keystore"));
 			return null;
+		} else
+		if ("query-notification-group".equals(function)) {
+			Set<String> contacts = ds.queryNotificationGroup(AdvanceNotificationGroupType.valueOf(request.get("type")), request.get("name"));
+			XElement response = new XElement("group");
+			for (String s : contacts) {
+				response.add("contact").set("value", s);
+			}
+			return response;
+		} else
+		if ("query-jdbc-data-source".equals(function)) {
+			return HttpRemoteUtils.storeItem("jdbc-source", ds.queryJDBCDataSource(request.get("name")));
+		} else
+		if ("query-jms-endpoint".equals(function)) {
+			return HttpRemoteUtils.storeItem("endpoint", ds.queryJMSEndpoint(request.get("name")));
+		} else
+		if ("query-soap-channel".equals(function)) {
+			return HttpRemoteUtils.storeItem("channel", ds.querySOAPChannel(request.get("name")));
+		} else
+		if ("query-web-data-source".equals(function)) {
+			return HttpRemoteUtils.storeItem("web-source", ds.queryWebDataSource(request.get("name")));
+		} else
+		if ("query-local-file-data-source".equals(function)) {
+			return HttpRemoteUtils.storeItem("local-source", ds.queryLocalFileDataSource(request.get("name")));
+		} else
+		if ("query-block-state".equals(function)) {
+			return ds.queryBlockState(request.get("realm"), request.get("block-id"));
+		} else
+		if ("update-block-state".equals(function)) {
+			ds.updateBlockState(request.get("realm"), request.get("block-id"), request.children().get(0));
+			return null;
+		} else
+		if ("query-flow".equals(function)) {
+			return ds.queryFlow(request.get("realm"));
 		}
 		
 		throw new AdvanceControlException("Unknown request " + request);

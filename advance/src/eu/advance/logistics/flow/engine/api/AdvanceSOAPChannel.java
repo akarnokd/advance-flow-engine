@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,6 +61,15 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 	 * @return  
 	 */
 	public char[] password;
+	/**
+	 * Create a new instance of the class.
+	 */
+	public static final Func0<AdvanceSOAPChannel> CREATOR = new Func0<AdvanceSOAPChannel>() {
+		@Override
+		public AdvanceSOAPChannel invoke() {
+			return new AdvanceSOAPChannel();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		name = source.get("name");

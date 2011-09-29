@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
@@ -43,16 +44,55 @@ import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * A JDBC based remote datastore.
- * @author karnokd, 2011.09.23.
+ * A datastore wrapper which checks at each query whether the user
+ * is allowed to perform that operation.
+ * <p>Whenever an updateXYZ() method is called, the class replaces the {@code modifiedBy} field
+ * with the user name.</p>
+ * @author karnokd, 2011.09.29.
  */
-public class JDBCDataStore implements AdvanceDataStore {
+public class CheckedDataStore implements AdvanceDataStore {
+	/** The wrapped datastore. */
+	protected final AdvanceDataStore datastore;
+	/** The target user name. */
+	protected final String userName;
+	/**
+	 * Check if the expected right is present for the user.
+	 * @param expected the expected right
+	 * @throws AdvanceAccessDenied thrown if the user has no right
+	 * @throws IOException if a network error occurs
+	 */
+	protected void check(AdvanceUserRights expected) throws IOException, AdvanceAccessDenied {
+		if (!datastore.hasUserRight(userName, expected)) {
+			throw new AdvanceAccessDenied();
+		}
+	}
+	/**
+	 * Check if the expected right is present for the user.
+	 * @param realm the realm name
+	 * @param expected the expected right
+	 * @throws AdvanceAccessDenied thrown if the user has no right
+	 * @throws IOException if a network error occurs
+	 */
+	protected void check(String realm, AdvanceUserRealmRights expected) throws IOException, AdvanceAccessDenied {
+		if (!datastore.hasUserRight(userName, realm, expected)) {
+			throw new AdvanceAccessDenied();
+		}
+	}
+	/**
+	 * Construct the wrapper for the given datastore and user name.
+	 * @param datastore the datastore to wrap
+	 * @param userName the user name to check the access rights
+	 */
+	public CheckedDataStore(AdvanceDataStore datastore, String userName) {
+		this.datastore = datastore;
+		this.userName = userName;
+	}
 
 	@Override
 	public List<AdvanceRealm> queryRealms() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_REALMS);
+		return datastore.queryRealms();
 	}
 
 	@Override
@@ -66,21 +106,21 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void createRealm(String realm, String byUser) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteRealm(String realm) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public void renameRealm(String realm, String newName, String byUser)
-			throws IOException, AdvanceControlException {
+	public void renameRealm(String realm, String newName, String byUser) throws IOException,
+			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -101,21 +141,21 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void enableUser(String userName, boolean enabled, String byUser)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteUser(String userName, String byUser) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void updateUser(AdvanceUser user) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -130,7 +170,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -144,14 +184,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void updateJDBCDataSource(AdvanceJDBCDataSource dataSource)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -165,14 +205,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void updateJMSEndpoint(AdvanceJMSEndpoint endpoint)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -186,14 +226,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void updateWebDataSource(AdvanceWebDataSource endpoint)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteWebDataSource(String webName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -207,14 +247,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void updateFTPDataSource(AdvanceFTPDataSource dataSource)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -228,14 +268,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void updateLocalFileDataSource(AdvanceLocalFileDataSource dataSource)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteLocalFileDataSource(String fileName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -270,14 +310,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void updateKeyStore(AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteKeyStore(String keyStore) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -338,7 +378,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	public void updateBlockState(String realm, String blockId, XElement state)
 			throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -346,4 +386,5 @@ public class JDBCDataStore implements AdvanceDataStore {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 }
