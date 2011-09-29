@@ -21,8 +21,6 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
-import hu.akarnokd.reactive4java.base.Func0;
-
 import java.io.IOException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -39,7 +37,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -58,44 +55,6 @@ public class HttpDataStoreListener {
 		this.datastore = datastore;
 	}
 	/**
-	 * Create an XElement with the given name and items stored from the source sequence.
-	 * @param container the container name
-	 * @param item the item name
-	 * @param source the source of items
-	 * @return the list in XElement
-	 */
-	protected XElement storeList(String container, String item, Iterable<? extends XSerializable> source) {
-		XElement result = new XElement(container);
-		for (XSerializable e : source) {
-			e.save(result.add(item));
-		}
-		return result;
-	}
-	/**
-	 * Store the value of a single serializable object with the given element name.
-	 * @param itemName the item element name
-	 * @param source the object to store
-	 * @return the created XElement
-	 */
-	protected XElement storeItem(String itemName, XSerializable source) {
-		XElement result = new XElement(itemName);
-		source.save(result);
-		return result;
-	}
-	/**
-	 * Create an XSerializable object through the {@code creator} function
-	 * and load it from the {@code item}.
-	 * @param <T> the XSerializable object
-	 * @param item the item to load from
-	 * @param creator the function to create Ts
-	 * @return the created and loaded object
-	 */
-	protected <T extends XSerializable> T parseItem(XElement item, Func0<T> creator) {
-		T result = creator.invoke();
-		result.load(item);
-		return result;
-	}
-	/**
 	 * Dispatch the request to the proper datastore function.
 	 * @param token the control token for the data access checks
 	 * @param request the request XML
@@ -107,10 +66,10 @@ public class HttpDataStoreListener {
 	public XElement dispatch(@NonNull AdvanceControlToken token, @NonNull XElement request) throws IOException, AdvanceControlException {
 		String function = request.name;
 		if ("query-realms".equals(function)) {
-			return storeList("realms", "realm", datastore.queryRealms(token));
+			return HttpRemoteUtils.storeList("realms", "realm", datastore.queryRealms(token));
 		} else
 		if ("query-realm".equals(function)) {
-			return storeItem("realm", datastore.queryRealm(token, request.get("realm")));
+			return HttpRemoteUtils.storeItem("realm", datastore.queryRealm(token, request.get("realm")));
 		} else
 		if ("create-realm".equals(function)) {
 			datastore.createRealm(token, request.get("realm"));
@@ -125,10 +84,10 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("query-users".equals(function)) {
-			return storeList("users", "user", datastore.queryUsers(token));
+			return HttpRemoteUtils.storeList("users", "user", datastore.queryUsers(token));
 		} else
 		if ("query-user".equals(function)) {
-			return storeItem("user", datastore.queryUser(token, request.get("user-name")));
+			return HttpRemoteUtils.storeItem("user", datastore.queryUser(token, request.get("user-name")));
 		} else
 		if ("enable-user".equals(function)) {
 			datastore.enableUser(token, request.get("user-name"), request.getBoolean("enabled"));
@@ -139,7 +98,7 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("update-user".equals(function)) {
-			datastore.updateUser(token, parseItem(request, AdvanceUser.CREATOR));
+			datastore.updateUser(token, HttpRemoteUtils.parseItem(request, AdvanceUser.CREATOR));
 			return null;
 		} else
 		if ("query-notification-groups".equals(function)) {
@@ -150,10 +109,10 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("query-jdbc-data-sources".equals(function)) {
-			return storeList("jdbc-data-sources", "jdbc-source", datastore.queryJDBCDataSources(token));
+			return HttpRemoteUtils.storeList("jdbc-data-sources", "jdbc-source", datastore.queryJDBCDataSources(token));
 		} else
 		if ("update-jdbc-data-source".equals(function)) {
-			datastore.updateJDBCDataSource(token, parseItem(request, AdvanceJDBCDataSource.CREATOR));
+			datastore.updateJDBCDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceJDBCDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-jdbc-data-source".equals(function)) {
@@ -161,10 +120,10 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("query-jms-endpoints".equals(function)) {
-			return storeList("jms-endpoints", "endpoint", datastore.queryJMSEndpoints(token));
+			return HttpRemoteUtils.storeList("jms-endpoints", "endpoint", datastore.queryJMSEndpoints(token));
 		} else
 		if ("update-jms-endpoint".equals(function)) {
-			datastore.updateJMSEndpoint(token, parseItem(request, AdvanceJMSEndpoint.CREATOR));
+			datastore.updateJMSEndpoint(token, HttpRemoteUtils.parseItem(request, AdvanceJMSEndpoint.CREATOR));
 			return null;
 		} else
 		if ("delete-jms-endpoint".equals(function)) {
@@ -172,10 +131,10 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("query-web-data-sources".equals(function)) {
-			return storeList("web-data-sources", "web-source", datastore.queryWebDataSources(token));
+			return HttpRemoteUtils.storeList("web-data-sources", "web-source", datastore.queryWebDataSources(token));
 		} else
 		if ("update-web-data-source".equals(function)) {
-			datastore.updateWebDataSource(token, parseItem(request, AdvanceWebDataSource.CREATOR));
+			datastore.updateWebDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceWebDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-web-data-source".equals(function)) {
@@ -183,10 +142,10 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("query-ftp-data-sources".equals(function)) {
-			return storeList("ftp-data-sources", "ftp-source", datastore.queryFTPDataSources(token));
+			return HttpRemoteUtils.storeList("ftp-data-sources", "ftp-source", datastore.queryFTPDataSources(token));
 		} else
 		if ("update-ftp-data-source".equals(function)) {
-			datastore.updateFTPDataSource(token, parseItem(request, AdvanceFTPDataSource.CREATOR));
+			datastore.updateFTPDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceFTPDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-ftp-data-source".equals(function)) {
@@ -194,10 +153,10 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("query-local-file-data-sources".equals(function)) {
-			return storeList("local-file-data-sources", "local-source", datastore.queryLocalFileDataSources(token));
+			return HttpRemoteUtils.storeList("local-file-data-sources", "local-source", datastore.queryLocalFileDataSources(token));
 		} else
 		if ("update-local-file-data-source".equals(function)) {
-			datastore.updateLocalFileDataSource(token, parseItem(request, AdvanceLocalFileDataSource.CREATOR));
+			datastore.updateLocalFileDataSource(token, HttpRemoteUtils.parseItem(request, AdvanceLocalFileDataSource.CREATOR));
 			return null;
 		} else
 		if ("delete-local-file-data-source".equals(function)) {
@@ -205,10 +164,10 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("query-keystores".equals(function)) {
-			return storeList("keystores", "keystore", datastore.queryKeyStores(token));
+			return HttpRemoteUtils.storeList("keystores", "keystore", datastore.queryKeyStores(token));
 		} else
 		if ("query-keystore".equals(function)) {
-			return storeItem("keystore", datastore.queryKeyStore(token, request.get("name")));
+			return HttpRemoteUtils.storeItem("keystore", datastore.queryKeyStore(token, request.get("name")));
 		} else
 		if ("has-user-right".equals(function)) {
 			XElement e = new XElement("boolean");
@@ -222,7 +181,7 @@ public class HttpDataStoreListener {
 			return e;
 		} else
 		if ("update-keystore".equals(function)) {
-			datastore.updateKeyStore(token, parseItem(request, AdvanceKeyStore.CREATOR));
+			datastore.updateKeyStore(token, HttpRemoteUtils.parseItem(request, AdvanceKeyStore.CREATOR));
 			return null;
 		} else
 		if ("delete-keystore".equals(function)) {

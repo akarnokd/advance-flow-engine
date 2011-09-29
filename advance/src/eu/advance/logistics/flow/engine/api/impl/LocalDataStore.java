@@ -57,6 +57,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceDirectDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
@@ -79,7 +80,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The local realm object containing various tables.
  * @author karnokd, 2011.09.21.
  */
-public class LocalDataStore implements XSerializable, AdvanceDataStore {
+public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceDirectDataStore {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(LocalDataStore.class);
 	/** The cryptographic salt used to encrypt the datastore. */
@@ -1114,5 +1115,79 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				throw new AdvanceControlException("Keystore not found");
 			}
 		}
+	}
+	@Override
+	public AdvanceKeyStore queryKeyStore(String name) throws IOException {
+		return keystores.get(name);
+	}
+	@Override
+	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
+			throws IOException {
+		return jdbcDataSources.get(name);
+	}
+	@Override
+	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException {
+		return jmsEndpoints.get(name);
+	}
+	@Override
+	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException {
+		return soapChannels.get(name);
+	}
+	@Override
+	public AdvanceFTPDataSource queryFTPDataSource(String name)
+			throws IOException {
+		return ftpDataSources.get(name);
+	}
+	@Override
+	public AdvanceWebDataSource queryWebDataSource(String name)
+			throws IOException {
+		return webDataSources.get(name);
+	}
+	@Override
+	public AdvanceLocalFileDataSource queryLocalFileDataSource(String name)
+			throws IOException {
+		return localDataSources.get(name);
+	}
+	@Override
+	public Set<String> queryNotificationGroup(
+			AdvanceNotificationGroupType type, String name) throws IOException {
+		Map<String, Set<String>> map = notificationGroups.get(type);
+		if (map != null) {
+			Set<String> result = map.get(name);
+			if (result == null) {
+				LOG.error("Missing group " + name + " in type " + type);
+			}
+			return result;
+		} else {
+			LOG.error("Missing group type: " + type);
+		}
+		return null;
+	}
+	@Override
+	public XElement queryBlockState(String realm, String blockId)
+			throws IOException {
+		blockStates.get(realm);
+		return null;
+	}
+	@Override
+	public void updateBlockState(String realm, String blockId, XElement state)
+			throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public XElement queryFlow(String realm) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public AdvanceUser queryUser(String userName) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<AdvanceUser> queryUsers() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

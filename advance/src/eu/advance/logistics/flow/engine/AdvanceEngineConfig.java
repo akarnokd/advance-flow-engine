@@ -63,10 +63,14 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 public class AdvanceEngineConfig {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceEngineConfig.class);
+	/** The listener configuration. */
+	public AdvanceListenerConfig listener;
 	/** The block registry. */
 	public String blockRegistry;
 	/** The block resolver. */
 	public AdvanceBlockResolver blockResolver;
+	/** The schema directories. */
+	public final List<String> schemas = Lists.newArrayList();
 	/** The schema resolver. */
 	public AdvanceLocalSchemaResolver schemaResolver;
 	/** A JDBC based datastore datasource. */
@@ -112,6 +116,9 @@ public class AdvanceEngineConfig {
 	 * @param configXML the configuration tree
 	 */
 	public void initialize(XElement configXML) {
+		// load listeners
+		listener = new AdvanceListenerConfig();
+		listener.load(configXML.childElement("listener"));
 		// load blocks.
 		for (XElement br : configXML.childrenWithName("block-registry")) {
 			initBlockRegistry(br.get("file"));
@@ -121,7 +128,7 @@ public class AdvanceEngineConfig {
 		schedulerMapExecutors.clear();
 		initSchedulers(configXML.childrenWithName("scheduler"));
 		// load schema locations
-		List<String> schemas = Lists.newArrayList();
+		schemas.clear();
 		for (XElement xs : configXML.childrenWithName("schemas")) {
 			schemas.add(xs.get("location"));
 		}
