@@ -55,21 +55,28 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void createRealm(AdvanceControlToken token, String name)
+	public AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void createRealm(AdvanceControlToken token, String realm)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void deleteRealm(AdvanceControlToken token, String name)
+	public void deleteRealm(AdvanceControlToken token, String realm)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void renameRealm(AdvanceControlToken token, String name,
+	public void renameRealm(AdvanceControlToken token, String realm,
 			String newName) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
@@ -83,21 +90,21 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public AdvanceUser queryUser(AdvanceControlToken token, int userId)
+	public AdvanceUser queryUser(AdvanceControlToken token, String userName)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void enableUser(AdvanceControlToken token, int userId,
+	public void enableUser(AdvanceControlToken token, String userName,
 			boolean enabled) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void deleteUser(AdvanceControlToken token, int userId)
+	public void deleteUser(AdvanceControlToken token, String userName)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
@@ -143,8 +150,8 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteJDBCDataSource(AdvanceControlToken token, int dataSourceId)
-			throws IOException, AdvanceControlException {
+	public void deleteJDBCDataSource(AdvanceControlToken token,
+			String dataSourceName) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -165,7 +172,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteJMSEndpoint(AdvanceControlToken token, int jmsId)
+	public void deleteJMSEndpoint(AdvanceControlToken token, String jmsName)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
@@ -188,7 +195,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteWebDataSource(AdvanceControlToken token, int webId)
+	public void deleteWebDataSource(AdvanceControlToken token, String webName)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
@@ -211,7 +218,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteFTPDataSource(AdvanceControlToken token, int ftpId)
+	public void deleteFTPDataSource(AdvanceControlToken token, String ftpName)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
@@ -234,8 +241,8 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteLocalFileDataSource(AdvanceControlToken token, int fileId)
-			throws IOException, AdvanceControlException {
+	public void deleteLocalFileDataSource(AdvanceControlToken token,
+			String fileName) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -248,24 +255,24 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
+	public AdvanceKeyStore queryKeyStore(AdvanceControlToken token, String name)
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public boolean hasUserRight(AdvanceControlToken token,
-			AdvanceUserRights expected) {
+			AdvanceUserRights expected) throws IOException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean hasUserRight(AdvanceControlToken token, String realm,
-			AdvanceUserRealmRights expected) {
+			AdvanceUserRealmRights expected) throws IOException {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-	@Override
-	public AdvanceKeyStore queryKeyStore(AdvanceControlToken token, String name)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -281,11 +288,5 @@ public class JDBCDataStore implements AdvanceDataStore {
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
-	}
-	@Override
-	public AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

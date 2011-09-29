@@ -6,11 +6,6 @@
 			<xs:documentation>The description of a web data source.</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
-			<xs:attribute name="id" type="xs:int" use="required">
-				<xs:annotation>
-					<xs:documentation>The unique identifier of this web data source.</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
 			<xs:attribute name="name" type="xs:string" use="required">
 				<xs:annotation>
 					<xs:documentation>The name used to reference this web data source.</xs:documentation>

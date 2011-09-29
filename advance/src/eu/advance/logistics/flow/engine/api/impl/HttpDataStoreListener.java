@@ -128,14 +128,14 @@ public class HttpDataStoreListener {
 			return storeList("users", "user", datastore.queryUsers(token));
 		} else
 		if ("query-user".equals(function)) {
-			return storeItem("user", datastore.queryUser(token, request.getInt("user-id")));
+			return storeItem("user", datastore.queryUser(token, request.get("user-name")));
 		} else
 		if ("enable-user".equals(function)) {
-			datastore.enableUser(token, request.getInt("user-id"), request.getBoolean("enabled"));
+			datastore.enableUser(token, request.get("user-name"), request.getBoolean("enabled"));
 			return null;
 		} else
 		if ("delete-user".equals(function)) {
-			datastore.deleteUser(token, request.getInt("user-id"));
+			datastore.deleteUser(token, request.get("user-name"));
 			return null;
 		} else
 		if ("update-user".equals(function)) {
@@ -157,7 +157,7 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("delete-jdbc-data-source".equals(function)) {
-			datastore.deleteJDBCDataSource(token, request.getInt("data-source-id"));
+			datastore.deleteJDBCDataSource(token, request.get("data-source-name"));
 			return null;
 		} else
 		if ("query-jms-endpoints".equals(function)) {
@@ -168,7 +168,7 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("delete-jms-endpoint".equals(function)) {
-			datastore.deleteJMSEndpoint(token, request.getInt("jms-id"));
+			datastore.deleteJMSEndpoint(token, request.get("jms-name"));
 			return null;
 		} else
 		if ("query-web-data-sources".equals(function)) {
@@ -179,7 +179,7 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("delete-web-data-source".equals(function)) {
-			datastore.deleteWebDataSource(token, request.getInt("web-id"));
+			datastore.deleteWebDataSource(token, request.get("web-name"));
 			return null;
 		} else
 		if ("query-ftp-data-sources".equals(function)) {
@@ -190,7 +190,7 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("delete-ftp-data-source".equals(function)) {
-			datastore.deleteFTPDataSource(token, request.getInt("ftp-id"));
+			datastore.deleteFTPDataSource(token, request.get("ftp-name"));
 			return null;
 		} else
 		if ("query-local-file-data-sources".equals(function)) {
@@ -201,7 +201,7 @@ public class HttpDataStoreListener {
 			return null;
 		} else
 		if ("delete-local-file-data-source".equals(function)) {
-			datastore.deleteLocalFileDataSource(token, request.getInt("file-id"));
+			datastore.deleteLocalFileDataSource(token, request.get("file-name"));
 			return null;
 		} else
 		if ("query-keystores".equals(function)) {

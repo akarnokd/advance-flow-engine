@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -89,10 +88,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	};
 	/** The cycle count for the encryption of the datastore. */
 	private static final int CRYPTO_COUNT = 21;
-	/** The global sequence used to generate new unique identifiers. */
-	public final AtomicInteger sequence = new AtomicInteger();
 	/** The users table with general and realm rights. */
-	public final Map<Integer, AdvanceUser> users = Maps.newHashMap();
+	public final Map<String, AdvanceUser> users = Maps.newHashMap();
 	/** The realms table. */
 	public final Map<String, AdvanceRealm> realms = Maps.newHashMap();
 	/** The key stores table. */
@@ -100,17 +97,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	/** The notification groups table. */
 	public final Map<AdvanceNotificationGroupType, Map<String, Set<String>>> notificationGroups = Maps.newHashMap();
 	/** The JDBC data sources table. */
-	public final Map<Integer, AdvanceJDBCDataSource> jdbcDataSources = Maps.newHashMap();
+	public final Map<String, AdvanceJDBCDataSource> jdbcDataSources = Maps.newHashMap();
 	/** The SOAP channels table. */
-	public final Map<Integer, AdvanceSOAPChannel> soapChannels = Maps.newHashMap();
+	public final Map<String, AdvanceSOAPChannel> soapChannels = Maps.newHashMap();
 	/** The JMS endpoints table. */
-	public final Map<Integer, AdvanceJMSEndpoint> jmsEndpoints = Maps.newHashMap();
+	public final Map<String, AdvanceJMSEndpoint> jmsEndpoints = Maps.newHashMap();
 	/** The Web data sources table. */
-	public final Map<Integer, AdvanceWebDataSource> webDataSources = Maps.newHashMap();
+	public final Map<String, AdvanceWebDataSource> webDataSources = Maps.newHashMap();
 	/** The FTP data sources table. */
-	public final Map<Integer, AdvanceFTPDataSource> ftpDataSources = Maps.newHashMap();
+	public final Map<String, AdvanceFTPDataSource> ftpDataSources = Maps.newHashMap();
 	/** The Local file data sources table. */
-	public final Map<Integer, AdvanceLocalFileDataSource> localDataSources = Maps.newHashMap();
+	public final Map<String, AdvanceLocalFileDataSource> localDataSources = Maps.newHashMap();
 	/** The dataflow storage per realm. */
 	public final Map<String, XElement> dataflows = Maps.newHashMap();
 	/** The map from realm to block-id to an arbitrary XML used to persist block states between restarts. */
@@ -152,11 +149,10 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public void load(XElement source) {
 		clear();
-		sequence.set(source.getInt("sequence"));
 		for (XElement xe : source.childElement("users").childrenWithName("user")) {
 			AdvanceUser e = new AdvanceUser();
 			e.load(xe);
-			users.put(e.id, e);
+			users.put(e.name, e);
 		}
 		for (XElement xe : source.childElement("realms").childrenWithName("realm")) {
 			AdvanceRealm e = new AdvanceRealm();
@@ -178,32 +174,32 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		for (XElement xe : source.childElement("jdbc-data-sources").childrenWithName("jdbc-source")) {
 			AdvanceJDBCDataSource e = new AdvanceJDBCDataSource();
 			e.load(xe);
-			jdbcDataSources.put(e.id, e);
+			jdbcDataSources.put(e.name, e);
 		}
 		for (XElement xe : source.childElement("soap-channels").childrenWithName("channel")) {
 			AdvanceSOAPChannel e = new AdvanceSOAPChannel();
 			e.load(xe);
-			soapChannels.put(e.id, e);
+			soapChannels.put(e.name, e);
 		}
 		for (XElement xe : source.childElement("jms-endpoints").childrenWithName("endpoint")) {
 			AdvanceJMSEndpoint e = new AdvanceJMSEndpoint();
 			e.load(xe);
-			jmsEndpoints.put(e.id, e);
+			jmsEndpoints.put(e.name, e);
 		}
 		for (XElement xe : source.childElement("web-data-sources").childrenWithName("web-source")) {
 			AdvanceWebDataSource e = new AdvanceWebDataSource();
 			e.load(xe);
-			webDataSources.put(e.id, e);
+			webDataSources.put(e.name, e);
 		}
 		for (XElement xe : source.childElement("ftp-data-sources").childrenWithName("ftp-source")) {
 			AdvanceFTPDataSource e = new AdvanceFTPDataSource();
 			e.load(xe);
-			ftpDataSources.put(e.id, e);
+			ftpDataSources.put(e.name, e);
 		}
 		for (XElement xe : source.childElement("local-data-sources").childrenWithName("local-source")) {
 			AdvanceLocalFileDataSource e = new AdvanceLocalFileDataSource();
 			e.load(xe);
-			localDataSources.put(e.id, e);
+			localDataSources.put(e.name, e);
 		}
 		for (XElement xe : source.childElement("dataflows").childrenWithName("flow")) {
 			dataflows.put(xe.get("realm"), xe.childElement("flow-description").copy());
@@ -304,8 +300,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				xb.add(bse.getValue());
 			}
 		}
-		
-		destination.set("sequence", sequence.get());
 	}
 	/**
 	 * Save the XSerializable elements with the given names into the destination.
@@ -532,13 +526,13 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	}
 
 	@Override
-	public AdvanceUser queryUser(AdvanceControlToken token, int userId)
+	public AdvanceUser queryUser(AdvanceControlToken token, String userName)
 			throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.LIST_USERS)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (users) {
-			AdvanceUser u = users.get(userId);
+			AdvanceUser u = users.get(userName);
 			if (u != null) {
 				return u.copy();
 			}
@@ -547,13 +541,13 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	}
 
 	@Override
-	public void enableUser(AdvanceControlToken token, int userId,
+	public void enableUser(AdvanceControlToken token, String userName,
 			boolean enabled) throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.MODIFY_USER)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (users) {
-			AdvanceUser u = users.get(userId);
+			AdvanceUser u = users.get(userName);
 			if (u == null) {
 				throw new AdvanceControlException("User not found");
 			}
@@ -565,7 +559,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				}
 			}
 			// do not allow disabling self
-			if (u.id != token.user.id) {
+			if (!u.name.equals(token.user.name)) {
 				if (u.mayModifyUser() && maybeAdmin <= 1) {
 					throw new AdvanceControlException("No user admins would remain");
 				}
@@ -579,7 +573,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteUser(AdvanceControlToken token, int userId)
+	public void deleteUser(AdvanceControlToken token, String userName)
 			throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.DELETE_USER)) {
 			throw new AdvanceAccessDenied();
@@ -591,12 +585,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					maybeAdmin++;
 				}
 			}
-			AdvanceUser u = users.get(userId);
-			if (u.id != token.user.id) {
+			AdvanceUser u = users.get(userName);
+			if (!u.name.equals(token.user.name)) {
 				if (u.mayModifyUser() && maybeAdmin <= 1) {
 					throw new AdvanceControlException("No user admins would remain");
 				}
-				users.remove(userId);
+				users.remove(userName);
 			} else {
 				throw new AdvanceControlException("Can't delete self");
 			}
@@ -607,23 +601,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public void updateUser(AdvanceControlToken token, AdvanceUser user)
 			throws IOException, AdvanceControlException {
 		synchronized (users) {
-			boolean mustExist = true;
-			if (user.id == Integer.MIN_VALUE) {
+			if (!users.containsKey(user.name)) {
 				if (!hasUserRight(token, AdvanceUserRights.CREATE_USER)) {
 					throw new AdvanceAccessDenied();
 				}
-				user.id = sequence.incrementAndGet();
-				mustExist = false;
 			} else {
 				if (!hasUserRight(token, AdvanceUserRights.MODIFY_USER)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
-			if (mustExist && !users.containsKey(user.id)) {
-				throw new AdvanceControlException("User not found");
-			}
 
-			AdvanceUser prev = users.get(user.id);
+			AdvanceUser prev = users.get(user.name);
 			AdvanceUser u = user.copy();
 			u.password = user.password != null ? user.password.clone() : (prev != null ? prev.password : null);
 			if (prev != null) {
@@ -635,9 +623,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			u.modifiedAt = new Date();
 			u.modifiedBy = token.user.name;
-			users.put(u.id, u);
+			users.put(u.name, u);
 			// ensure that self is nut turned off or loses admin rights
-			if (u.id == token.user.id && prev != null) {
+			if (u.name.equals(token.user.name) && prev != null) {
 				u.enabled = prev.enabled;
 				if (prev.mayModifyUser()) {
 					u.rights.add(AdvanceUserRights.LIST_USERS);
@@ -717,23 +705,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceJDBCDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		synchronized (jdbcDataSources) {
-			boolean mustExist = true;
-			if (dataSource.id == Integer.MIN_VALUE) {
+			if (!jdbcDataSources.containsKey(dataSource.name)) {
 				if (!hasUserRight(token, AdvanceUserRights.CREATE_JDBC_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
-				dataSource.id = sequence.incrementAndGet();
-				mustExist = false;
 			} else {
 				if (!hasUserRight(token, AdvanceUserRights.MODIFY_JDBC_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
-			if (mustExist && !jdbcDataSources.containsKey(dataSource.id)) {
-				throw new AdvanceControlException("User not found");
-			}
 			AdvanceJDBCDataSource u = dataSource.copy();
-			AdvanceJDBCDataSource prev = jdbcDataSources.get(dataSource.id);
+			AdvanceJDBCDataSource prev = jdbcDataSources.get(dataSource.name);
 			u.password = dataSource.password != null ? dataSource.password.clone() : (prev != null ? prev.password : null);
 			
 			if (prev != null) {
@@ -745,18 +727,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			u.modifiedAt = new Date();
 			u.modifiedBy = token.user.name;
-			jdbcDataSources.put(dataSource.id, u);
+			jdbcDataSources.put(u.name, u);
 		}
 	}
 
 	@Override
-	public void deleteJDBCDataSource(AdvanceControlToken token, int dataSourceId)
+	public void deleteJDBCDataSource(AdvanceControlToken token, String dataSourceName)
 			throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.DELETE_JDBC_DATA_SOURCE)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (jdbcDataSources) {
-			jdbcDataSources.remove(dataSourceId);
+			jdbcDataSources.remove(dataSourceName);
 		}
 	}
 
@@ -781,24 +763,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceControlException {
 		
 		synchronized  (jmsEndpoints) {
-			boolean mustExist = true;
-			if (endpoint.id == Integer.MIN_VALUE) {
+			AdvanceJMSEndpoint prev = jmsEndpoints.get(endpoint.name);
+			if (prev == null) {
 				if (!hasUserRight(token, AdvanceUserRights.CREATE_JMS_ENDPOINT)) {
 					throw new AdvanceAccessDenied();
 				}
-				endpoint.id = sequence.incrementAndGet();
-				mustExist = false;
 			} else {
 				if (!hasUserRight(token, AdvanceUserRights.MODIFY_JMS_ENDPOINT)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
 			
-			if (mustExist && !jmsEndpoints.containsKey(endpoint.id)) {
-				throw new AdvanceControlException("User not found");
-			}
 			AdvanceJMSEndpoint u = endpoint.copy();
-			AdvanceJMSEndpoint prev = jmsEndpoints.get(endpoint.id);
 			u.password = endpoint.password != null ? endpoint.password.clone() : (prev != null ? prev.password : null);
 			
 			if (prev != null) {
@@ -810,20 +786,20 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			u.modifiedAt = new Date();
 			u.modifiedBy = token.user.name;
-			jmsEndpoints.put(endpoint.id, u);
+			jmsEndpoints.put(endpoint.name, u);
 		}
 		
 
 	}
 
 	@Override
-	public void deleteJMSEndpoint(AdvanceControlToken token, int jmsId)
+	public void deleteJMSEndpoint(AdvanceControlToken token, String jmsName)
 			throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.DELETE_JMS_ENDPOINT)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (jmsEndpoints) {
-			jmsEndpoints.remove(jmsId);
+			jmsEndpoints.remove(jmsName);
 		}
 	}
 
@@ -848,24 +824,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceWebDataSource endpoint) throws IOException,
 			AdvanceControlException {
 		synchronized  (webDataSources) {
-			boolean mustExist = true;
-			if (endpoint.id == Integer.MIN_VALUE) {
+			AdvanceWebDataSource prev = webDataSources.get(endpoint.name);
+			if (prev == null) {
 				if (!hasUserRight(token, AdvanceUserRights.CREATE_WEB_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
-				endpoint.id = sequence.incrementAndGet();
-				mustExist = false;
 			} else {
 				if (!hasUserRight(token, AdvanceUserRights.MODIFY_WEB_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
 			
-			if (mustExist && !webDataSources.containsKey(endpoint.id)) {
-				throw new AdvanceControlException("User not found");
-			}
 			AdvanceWebDataSource u = endpoint.copy();
-			AdvanceWebDataSource prev = webDataSources.get(endpoint.id);
 			u.password = endpoint.password != null ? endpoint.password.clone() : (prev != null ? prev.password : null);
 			
 			if (prev != null) {
@@ -877,19 +847,19 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			u.modifiedAt = new Date();
 			u.modifiedBy = token.user.name;
-			webDataSources.put(endpoint.id, u);
+			webDataSources.put(u.name, u);
 		}
 
 	}
 
 	@Override
-	public void deleteWebDataSource(AdvanceControlToken token, int webId)
+	public void deleteWebDataSource(AdvanceControlToken token, String webName)
 			throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.DELETE_WEB_DATA_SOURCE)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (webDataSources) {
-			webDataSources.remove(webId);
+			webDataSources.remove(webName);
 		}
 	}
 
@@ -914,24 +884,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceFTPDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		synchronized  (ftpDataSources) {
-			boolean mustExist = true;
-			if (dataSource.id == Integer.MIN_VALUE) {
+			AdvanceFTPDataSource prev = ftpDataSources.get(dataSource.name);
+			if (prev == null) {
 				if (!hasUserRight(token, AdvanceUserRights.CREATE_FTP_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
-				dataSource.id = sequence.incrementAndGet();
-				mustExist = false;
 			} else {
 				if (!hasUserRight(token, AdvanceUserRights.MODIFY_FTP_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
 			
-			if (mustExist && !ftpDataSources.containsKey(dataSource.id)) {
-				throw new AdvanceControlException("User not found");
-			}
 			AdvanceFTPDataSource u = dataSource.copy();
-			AdvanceFTPDataSource prev = ftpDataSources.get(dataSource.id);
 			u.password = dataSource.password != null ? dataSource.password.clone() : (prev != null ? prev.password : null);
 			
 			if (prev != null) {
@@ -943,18 +907,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			u.modifiedAt = new Date();
 			u.modifiedBy = token.user.name;
-			ftpDataSources.put(dataSource.id, u);
+			ftpDataSources.put(u.name, u);
 		}
 	}
 
 	@Override
-	public void deleteFTPDataSource(AdvanceControlToken token, int ftpId)
+	public void deleteFTPDataSource(AdvanceControlToken token, String ftpName)
 			throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.DELETE_FTP_DATA_SOURCE)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (ftpDataSources) {
-			ftpDataSources.remove(ftpId);
+			ftpDataSources.remove(ftpName);
 		}
 	}
 
@@ -979,24 +943,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceLocalFileDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		synchronized  (localDataSources) {
-			boolean mustExist = true;
-			if (dataSource.id == Integer.MIN_VALUE) {
+			AdvanceLocalFileDataSource prev = localDataSources.get(dataSource.name);
+			if (prev == null) {
 				if (!hasUserRight(token, AdvanceUserRights.CREATE_LOCAL_FILE_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
-				dataSource.id = sequence.incrementAndGet();
-				mustExist = false;
 			} else {
 				if (!hasUserRight(token, AdvanceUserRights.MODIFY_LOCAL_FILE_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
 			
-			if (mustExist && !localDataSources.containsKey(dataSource.id)) {
-				throw new AdvanceControlException("User not found");
-			}
 			AdvanceLocalFileDataSource u = dataSource.copy();
-			AdvanceLocalFileDataSource prev = localDataSources.get(dataSource.id);
 			
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
@@ -1007,18 +965,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			u.modifiedAt = new Date();
 			u.modifiedBy = token.user.name;
-			localDataSources.put(dataSource.id, u);
+			localDataSources.put(u.name, u);
 		}
 	}
 
 	@Override
-	public void deleteLocalFileDataSource(AdvanceControlToken token, int fileId)
+	public void deleteLocalFileDataSource(AdvanceControlToken token, String fileName)
 			throws IOException, AdvanceControlException {
 		if (!hasUserRight(token, AdvanceUserRights.DELETE_LOCAL_FILE_DATA_SOURCE)) {
 			throw new AdvanceAccessDenied();
 		}
 		synchronized (localDataSources) {
-			localDataSources.remove(fileId);
+			localDataSources.remove(fileName);
 		}
 	}
 
@@ -1047,7 +1005,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public boolean hasUserRight(AdvanceControlToken token, AdvanceUserRights expected) {
 		synchronized (users) {
-			AdvanceUser u = users.get(token.user.id);
+			AdvanceUser u = users.get(token.user.name);
 			return u.rights.contains(expected);
 		}
 	}
@@ -1061,7 +1019,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public boolean hasUserRight(AdvanceControlToken token, String realm, AdvanceUserRealmRights expected) {
 		synchronized (users) {
-			AdvanceUser u = users.get(token.user.id);
+			AdvanceUser u = users.get(token.user.name);
 			return u.realmRights.containsEntry(realm, expected);
 		}
 	}

@@ -36,8 +36,6 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSerializable {
-	/** The unique identifier of the data source. */
-	public int id = Integer.MIN_VALUE;
 	/** The data source name as used by the blocks. */
 	public String name;
 	/** The URL. */
@@ -66,7 +64,6 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 	};
 	@Override
 	public void load(XElement source) {
-		id = source.getInt("id");
 		name = source.get("name");
 		try {
 			url = new URL(source.get("url"));
@@ -83,7 +80,6 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 	@Override
 	public void save(XElement destination) {
 		
-		destination.set("id", id);
 		destination.set("name", name);
 		destination.set("url", url);
 		destination.set("login-type", loginType);
@@ -98,7 +94,6 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 	public AdvanceWebDataSource copy() {
 		AdvanceWebDataSource result = new AdvanceWebDataSource();
 		
-		result.id = id;
 		result.name = name;
 		result.url = url;
 		result.loginType = loginType;

@@ -86,29 +86,29 @@ public interface AdvanceDataStore {
 	/**
 	 * Query an individual user.
 	 * @param token the connection token
-	 * @param userId the user identifier
+	 * @param userName the user identifier
 	 * @return the list of users
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to see the list of users
 	 */
-	AdvanceUser queryUser(AdvanceControlToken token, int userId) throws IOException, AdvanceControlException;
+	AdvanceUser queryUser(AdvanceControlToken token, String userName) throws IOException, AdvanceControlException;
 	/**
 	 * Enable/disable a user.
 	 * @param token the connection token
-	 * @param userId the user's identifier
+	 * @param userName the user's identifier
 	 * @param enabled should be enabled or disabled?
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the target's properties
 	 */
-	void enableUser(AdvanceControlToken token, int userId, boolean enabled) throws IOException, AdvanceControlException;
+	void enableUser(AdvanceControlToken token, String userName, boolean enabled) throws IOException, AdvanceControlException;
 	/**
 	 * Delete the given user.
 	 * @param token the connection token
-	 * @param userId the user's identifier
+	 * @param userName the user's identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the target
 	 */
-	void deleteUser(AdvanceControlToken token, int userId) throws IOException, AdvanceControlException;
+	void deleteUser(AdvanceControlToken token, String userName) throws IOException, AdvanceControlException;
 	/**
 	 * Update the user's settings.
 	 * @param token the connection token
@@ -153,11 +153,11 @@ public interface AdvanceDataStore {
 	/**
 	 * Delete a specific JDBC data source.
 	 * @param token the connection token
-	 * @param dataSourceId the data source identifier
+	 * @param dataSourceName the data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the data source
 	 */
-	void deleteJDBCDataSource(AdvanceControlToken token, int dataSourceId) throws IOException, AdvanceControlException;
+	void deleteJDBCDataSource(AdvanceControlToken token, String dataSourceName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve a list of JMS endpoints.
 	 * @param token the connection token
@@ -177,11 +177,11 @@ public interface AdvanceDataStore {
 	/**
 	 * Delete a JMS endpoint configuration.
 	 * @param token the connection token
-	 * @param jmsId the identifier of the JMS enpoint to delete.
+	 * @param jmsName the identifier of the JMS enpoint to delete.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete
 	 */
-	void deleteJMSEndpoint(AdvanceControlToken token, int jmsId) throws IOException, AdvanceControlException;
+	void deleteJMSEndpoint(AdvanceControlToken token, String jmsName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve a list of web data sources.
 	 * @param token the connection token
@@ -201,11 +201,11 @@ public interface AdvanceDataStore {
 	/**
 	 * Delete a web data source.
 	 * @param token the connection token
-	 * @param webId the web data source identifier
+	 * @param webName the web data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the web data sources
 	 */
-	void deleteWebDataSource(AdvanceControlToken token, int webId) throws IOException, AdvanceControlException;
+	void deleteWebDataSource(AdvanceControlToken token, String webName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the list of FTP data sources.
 	 * @param token the connection token
@@ -225,11 +225,11 @@ public interface AdvanceDataStore {
 	/**
 	 * Delete an FTP data source object.
 	 * @param token the connection token
-	 * @param ftpId the data source identifier
+	 * @param ftpName the data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete FTP data sources
 	 */
-	void deleteFTPDataSource(AdvanceControlToken token, int ftpId) throws IOException, AdvanceControlException;
+	void deleteFTPDataSource(AdvanceControlToken token, String ftpName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the list of local file data sources.
 	 * @param token the connection token
@@ -249,11 +249,11 @@ public interface AdvanceDataStore {
 	/**
 	 * Delete a local file data source record.
 	 * @param token the connection token
-	 * @param fileId the local file data source identifier
+	 * @param fileName the local file data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete local file data sources
 	 */
-	void deleteLocalFileDataSource(AdvanceControlToken token, int fileId) throws IOException, AdvanceControlException;
+	void deleteLocalFileDataSource(AdvanceControlToken token, String fileName) throws IOException, AdvanceControlException;
 	/**
 	 * Query the list of available key stores.
 	 * @param token the connection token

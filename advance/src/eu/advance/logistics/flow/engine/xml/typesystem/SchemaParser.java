@@ -25,8 +25,6 @@ import hu.akarnokd.reactive4java.base.Pair;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -513,29 +511,6 @@ public final class SchemaParser {
 				}
 			}
 		}
-	}
-	/**
-	 * Try opening the {@code loc} file with or without the help of schema location directories.
-	 * @param schemaLocations the sequence of schema locations.
-	 * @param loc the location of the schema
-	 * @return the opened input stream or null if not found
-	 */
-	protected static InputStream tryLocalLocations(
-			Iterable<String> schemaLocations, String loc) {
-		InputStream in = null;
-		try {
-			in = new FileInputStream(loc);
-		} catch (FileNotFoundException ex) {
-			for (String path : schemaLocations) {
-				try {
-					in = new FileInputStream(new File(path, loc));
-					break;
-				} catch (FileNotFoundException ex2) {
-					// continue
-				}
-			}
-		}
-		return in;
 	}
 	/**
 	 * Close the given closeable silently.

@@ -30,8 +30,6 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSerializable {
-	/** @return the unique identifier. */
-	public int id = Integer.MIN_VALUE;
 	/** @return the name used by blocks to reference this data source. */
 	public String name;
 	/** @return the protocol enumeration. */
@@ -61,7 +59,6 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 	};
 	@Override
 	public void load(XElement source) {
-		id = source.getInt("id");
 		name = source.get("name");
 		protocol = AdvanceFTPProtocols.valueOf(source.get("protocol"));
 		address = source.get("address");
@@ -75,7 +72,6 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 	@Override
 	public void save(XElement destination) {
 		
-		destination.set("id", id);
 		destination.set("name", name);
 		destination.set("protocol", protocol);
 		destination.set("address", address);
@@ -90,7 +86,6 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 	public AdvanceFTPDataSource copy() {
 		AdvanceFTPDataSource result = new AdvanceFTPDataSource();
 		
-		result.id = id;
 		result.name = name;
 		result.protocol = protocol;
 		result.address = address;
