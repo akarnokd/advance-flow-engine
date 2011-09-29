@@ -120,7 +120,7 @@ public class AdvanceFlowEngine implements Runnable {
 				LOG.error("Missing server keystore " + config.listener.serverKeyStore);
 			}
 			KeystoreManager smgr = new KeystoreManager();
-			smgr.load(aks.location, aks.password);
+			smgr.load(aks.location, aks.password());
 			
 			KeyStore sks = KeystoreManager.singleKey(smgr.getKeyStore(), config.listener.serverKeyAlias, config.listener.serverKeyPassword);
 			
@@ -129,7 +129,7 @@ public class AdvanceFlowEngine implements Runnable {
 				LOG.error("Missing client keystore " + config.listener.clientKeyStore);
 			}
 			KeystoreManager cmgr = new KeystoreManager();
-			cmgr.load(aks2.location, aks2.password);
+			cmgr.load(aks2.location, aks2.password());
 	
 			KeyStore cks = cmgr.getKeyStore();
 			
@@ -246,7 +246,7 @@ public class AdvanceFlowEngine implements Runnable {
 				try {
 					AdvanceUser u = datastore.queryUser(user);
 					if (u != null) {
-						if (Arrays.equals(password.toCharArray(), u.password)) {
+						if (Arrays.equals(password.toCharArray(), u.password())) {
 							HttpExchange exch = exchanges.get();
 							
 							exch.setAttribute(LOGIN_USERNAME, u.name);

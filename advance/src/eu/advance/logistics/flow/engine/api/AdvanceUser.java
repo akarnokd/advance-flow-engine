@@ -36,7 +36,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * User settings.
  * @author karnokd, 2011.09.19.
  */
-public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceUser extends AdvanceCreateModifyInfo 
+implements XSerializable, HasPassword, Copyable<AdvanceUser> {
 	/** Is the user enabled? */
 	public boolean enabled;
 	/** The user's name. */
@@ -66,7 +67,7 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
 	 */
-	public char[] password;
+	private char[] password;
 	/** The keystore where the user certificate is located. */
 	public String keyStore;
 	/** The certificate alias. */
@@ -141,9 +142,7 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 		}
 		super.save(destination);
 	}
-	/**
-	 * @return a defensive copy of this user without the password
-	 */
+	@Override
 	public AdvanceUser copy() {
 		AdvanceUser result = new AdvanceUser();
 		
@@ -162,7 +161,8 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 		result.keyAlias = keyAlias;
 		result.rights.addAll(rights);
 		result.realmRights.putAll(realmRights);
-
+		result.password = password != null ? password.clone() : null;
+		
 		assignTo(result);
 		
 		return result;
@@ -174,5 +174,13 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 		return enabled
 		&& rights.contains(AdvanceUserRights.LIST_USERS)
 		&& rights.contains(AdvanceUserRights.MODIFY_USER);
+	}
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		password = newPassword != null ? newPassword.clone() : null;
 	}
 }

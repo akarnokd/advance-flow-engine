@@ -29,7 +29,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A local file or directory data source.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo 
+implements XSerializable, Copyable<AdvanceLocalFileDataSource> {
 	/** The name of the data source as used by blocks. */
 	public String name;
 	/** The directory where the file source(s) are located. */
@@ -53,7 +54,7 @@ public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo implemen
 		destination.set("directory", directory);
 		super.save(destination);
 	}
-	/** @return create a defensive copy of this object. */
+	@Override
 	public AdvanceLocalFileDataSource copy() {
 		AdvanceLocalFileDataSource result = new AdvanceLocalFileDataSource();
 		

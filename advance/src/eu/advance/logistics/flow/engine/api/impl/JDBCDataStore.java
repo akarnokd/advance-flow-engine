@@ -346,4 +346,10 @@ public class JDBCDataStore implements AdvanceDataStore {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

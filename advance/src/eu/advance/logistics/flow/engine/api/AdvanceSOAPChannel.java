@@ -37,7 +37,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Describes a SOAP communication channel.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo 
+implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel> {
 	/** The name used to reference this channel from blocks. */
 	public String name;
 	/** The endpoint URL. */
@@ -60,7 +61,7 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 	 * the current password, use {@code null}.</p>
 	 * @return  
 	 */
-	public char[] password;
+	private char[] password;
 	/**
 	 * Create a new instance of the class.
 	 */
@@ -102,7 +103,7 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 		setPassword(destination, "password", password);
 		super.save(destination);
 	}
-	/** @return create a copy of this object without the password. */
+	@Override
 	public AdvanceSOAPChannel copy() {
 		AdvanceSOAPChannel result = new AdvanceSOAPChannel();
 		result.name = name;
@@ -112,7 +113,16 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 		result.encrypted = encrypted;
 		result.keyStore = keyStore;
 		result.keyAlias = keyAlias;
+		result.password = password != null ? password.clone() : null;
 		assignTo(result);
 		return result;
+	}
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		password = newPassword != null ? newPassword.clone() : null;
 	}
 }

@@ -66,12 +66,8 @@ public enum AdvanceUserRights {
 	GENERATE_KEY,
 	/** List notification groups. */
 	LIST_NOTIFICATION_GROUPS,
-	/** Create notification group. */
-	CREATE_NOTIFICATION_GROUP,
 	/** Modify an existing notification group. */
-	MODIFY_NOTIFICATION_GROUP,
-	/** Delete a notification group. */
-	DELETE_NOTIFICATION_GROUP,
+	MODIFY_NOTIFICATION_GROUPS,
 	/** List JDBC data sources. */
 	LIST_JDBC_DATA_SOURCES,
 	/** Create new JDBC data source. */

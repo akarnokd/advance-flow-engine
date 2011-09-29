@@ -285,72 +285,89 @@ public interface AdvanceDataStore {
 	 * @param name the name of the data source
 	 * @return the data source properties
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	AdvanceJDBCDataSource queryJDBCDataSource(String name) throws IOException;
+	AdvanceJDBCDataSource queryJDBCDataSource(String name) throws IOException, AdvanceControlException;
 	/**
 	 * Return the properties of a a JMS endpoint.
 	 * @param name the name of the endpoint
 	 * @return the endpoint properties
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException;
+	AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException, AdvanceControlException;
 	/**
 	 * Return the properties of a a SOAP channel.
 	 * @param name the name of the channel
 	 * @return the channel properties
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	AdvanceSOAPChannel querySOAPChannel(String name) throws IOException;
+	AdvanceSOAPChannel querySOAPChannel(String name) throws IOException, AdvanceControlException;
 	/**
 	 * Return the properties of a a FTP data source.
 	 * @param name the name of the data source
 	 * @return the data source properties
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	AdvanceFTPDataSource queryFTPDataSource(String name) throws IOException;
+	AdvanceFTPDataSource queryFTPDataSource(String name) throws IOException, AdvanceControlException;
 	/**
 	 * Return the properties of a a Web data source.
 	 * @param name the name of the data source
 	 * @return the data source properties
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	AdvanceWebDataSource queryWebDataSource(String name) throws IOException;
+	AdvanceWebDataSource queryWebDataSource(String name) throws IOException, AdvanceControlException;
 	/**
 	 * Return the properties of a a local file data source.
 	 * @param name the name of the data source
 	 * @return the data source properties
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	AdvanceLocalFileDataSource queryLocalFileDataSource(String name) throws IOException;
+	AdvanceLocalFileDataSource queryLocalFileDataSource(String name) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the contact information of a notification group type and name.
 	 * @param type the group type
 	 * @param name the group name
 	 * @return the set of contact information
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	Set<String> queryNotificationGroup(AdvanceNotificationGroupType type, String name) throws IOException;
+	Set<String> queryNotificationGroup(AdvanceNotificationGroupType type, String name) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the block state.
 	 * @param realm the target realm
 	 * @param blockId the block identifier
 	 * @return the state XElement
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	XElement queryBlockState(String realm, String blockId) throws IOException;
+	XElement queryBlockState(String realm, String blockId) throws IOException, AdvanceControlException;
 	/**
 	 * Save the block state.
 	 * @param realm the target realm
 	 * @param blockId the target block identifier
 	 * @param state the state XElement
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	void updateBlockState(String realm, String blockId, XElement state) throws IOException;
+	void updateBlockState(String realm, String blockId, XElement state) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the flow descriptor of the given realm.
 	 * @param realm the target realm
 	 * @return the flow description XElement
 	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
 	 */
-	XElement queryFlow(String realm) throws IOException;
+	XElement queryFlow(String realm) throws IOException, AdvanceControlException;
+	/**
+	 * Return the list of SOAP channels.
+	 * @return the channel properties
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
+	 */
+	List<AdvanceSOAPChannel> querySOAPChannels() throws IOException, AdvanceControlException;
 }
