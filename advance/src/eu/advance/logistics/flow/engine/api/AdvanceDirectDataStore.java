@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.api;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -112,4 +113,17 @@ public interface AdvanceDirectDataStore {
 	 * @throws IOException if a network error occurs
 	 */
 	XElement queryFlow(String realm) throws IOException;
+	/**
+	 * Query an user properties.
+	 * @param userName the user name
+	 * @return the user object
+	 * @throws IOException if a network error occurs
+	 */
+	AdvanceUser queryUser(String userName) throws IOException;
+	/**
+	 * Retrieve all users.
+	 * @return the list of user objects with passwords
+	 * @throws IOException if a network error occurs
+	 */
+	List<AdvanceUser> queryUsers() throws IOException;
 }

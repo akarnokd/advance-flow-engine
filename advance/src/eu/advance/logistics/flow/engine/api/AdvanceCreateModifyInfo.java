@@ -70,7 +70,7 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	 * @param name the attribute name
 	 * @param password the password characters
 	 */
-	public void setPassword(XElement destination, String name, char[] password) {
+	public static void setPassword(XElement destination, String name, char[] password) {
 		if (password != null) {
 			destination.set(name, Base64.encodeBytes(new String(password).getBytes(Charset.forName("UTF-8"))));
 		} else {
