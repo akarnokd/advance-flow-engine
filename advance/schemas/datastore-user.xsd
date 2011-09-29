@@ -6,11 +6,6 @@
 			<xs:documentation>The user record.</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
-			<xs:attribute name="id" type="xs:int" use="required">
-				<xs:annotation>
-					<xs:documentation>The unique identifier.</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
 			<xs:attribute name="enabled" type="xs:boolean" use="required">
 				<xs:annotation>
 					<xs:documentation>Is the user enabled?</xs:documentation>

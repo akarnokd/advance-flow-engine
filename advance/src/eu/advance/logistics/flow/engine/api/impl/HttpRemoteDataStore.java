@@ -190,22 +190,22 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public AdvanceUser queryUser(AdvanceControlToken token, int userId)
+	public AdvanceUser queryUser(AdvanceControlToken token, String userName)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(createRequest("query-user", "user-id", userId));
+		XElement response = comm.query(createRequest("query-user", "user-name", userName));
 		return parseItem(response, AdvanceUser.CREATOR);
 	}
 
 	@Override
-	public void enableUser(AdvanceControlToken token, int userId,
+	public void enableUser(AdvanceControlToken token, String userName,
 			boolean enabled) throws IOException, AdvanceControlException {
-		comm.send(createRequest("enable-user", "user-id", userId, "enabled", enabled));
+		comm.send(createRequest("enable-user", "user-name", userName, "enabled", enabled));
 	}
 
 	@Override
-	public void deleteUser(AdvanceControlToken token, int userId)
+	public void deleteUser(AdvanceControlToken token, String userName)
 			throws IOException, AdvanceControlException {
-		comm.send(createRequest("delete-user", "user-id", userId));
+		comm.send(createRequest("delete-user", "user-name", userName));
 	}
 
 	@Override
@@ -246,9 +246,9 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteJDBCDataSource(AdvanceControlToken token, int dataSourceId)
+	public void deleteJDBCDataSource(AdvanceControlToken token, String dataSourceName)
 			throws IOException, AdvanceControlException {
-		comm.send(createRequest("delete-jdbc-data-source", "data-source-id", dataSourceId));
+		comm.send(createRequest("delete-jdbc-data-source", "data-source-name", dataSourceName));
 	}
 
 	@Override
@@ -266,9 +266,9 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteJMSEndpoint(AdvanceControlToken token, int jmsId)
+	public void deleteJMSEndpoint(AdvanceControlToken token, String jmsName)
 			throws IOException, AdvanceControlException {
-		comm.send(createRequest("delete-jms-endpoint", "jms-id", jmsId));
+		comm.send(createRequest("delete-jms-endpoint", "jms-name", jmsName));
 	}
 
 	@Override
@@ -287,9 +287,9 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteWebDataSource(AdvanceControlToken token, int webId)
+	public void deleteWebDataSource(AdvanceControlToken token, String webName)
 			throws IOException, AdvanceControlException {
-		comm.send(createRequest("delete-web-data-source", "web-id", webId));
+		comm.send(createRequest("delete-web-data-source", "web-name", webName));
 	}
 
 	@Override
@@ -308,9 +308,9 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteFTPDataSource(AdvanceControlToken token, int ftpId)
+	public void deleteFTPDataSource(AdvanceControlToken token, String ftpName)
 			throws IOException, AdvanceControlException {
-		comm.send(createRequest("delete-ftp-data-source", "ftp-id", ftpId));
+		comm.send(createRequest("delete-ftp-data-source", "ftp-name", ftpName));
 	}
 
 	@Override
@@ -329,9 +329,9 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteLocalFileDataSource(AdvanceControlToken token, int fileId)
+	public void deleteLocalFileDataSource(AdvanceControlToken token, String fileName)
 			throws IOException, AdvanceControlException {
-		comm.send(createRequest("delete-local-file-data-source", "file-id", fileId));
+		comm.send(createRequest("delete-local-file-data-source", "file-name", fileName));
 	}
 
 	@Override

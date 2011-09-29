@@ -36,8 +36,6 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSerializable {
-	/** The unique channel identifier. */
-	public int id = Integer.MIN_VALUE;
 	/** The name used to reference this channel from blocks. */
 	public String name;
 	/** The endpoint URL. */
@@ -63,7 +61,6 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 	public char[] password;
 	@Override
 	public void load(XElement source) {
-		id = source.getInt("id");
 		name = source.get("name");
 		try {
 			endpoint = new URL(source.get("endpoint"));
@@ -84,7 +81,6 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 	}
 	@Override
 	public void save(XElement destination) {
-		destination.set("id", id);
 		destination.set("name", name);
 		destination.set("endpoint", endpoint);
 		destination.set("target-object", targetObject);
@@ -94,5 +90,18 @@ public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo implements XSeri
 		destination.set("keyalias", keyAlias);
 		setPassword(destination, "password", password);
 		super.save(destination);
+	}
+	/** @return create a copy of this object without the password. */
+	public AdvanceSOAPChannel copy() {
+		AdvanceSOAPChannel result = new AdvanceSOAPChannel();
+		result.name = name;
+		result.endpoint = endpoint;
+		result.targetObject = targetObject;
+		result.method = method;
+		result.encrypted = encrypted;
+		result.keyStore = keyStore;
+		result.keyAlias = keyAlias;
+		assignTo(result);
+		return result;
 	}
 }

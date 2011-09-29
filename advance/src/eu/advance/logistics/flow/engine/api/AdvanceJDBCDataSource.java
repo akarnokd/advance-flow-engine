@@ -30,8 +30,6 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XSerializable {
-	/** The unique identifier of the record. */
-	public int id = Integer.MIN_VALUE;
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The JDBC driver. */
@@ -61,7 +59,6 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	};
 	@Override
 	public void load(XElement source) {
-		id = source.getInt("id");
 		name = source.get("name");
 		driver = source.get("driver");
 		url = source.get("url");
@@ -73,7 +70,6 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	}
 	@Override
 	public void save(XElement destination) {
-		destination.set("id", id);
 		destination.set("name", name);
 		destination.set("driver", driver);
 		destination.set("url", url);
@@ -87,7 +83,6 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	public AdvanceJDBCDataSource copy() {
 		AdvanceJDBCDataSource result = new AdvanceJDBCDataSource();
 		
-		result.id = id;
 		result.name = name;
 		result.driver = driver;
 		result.url = url;

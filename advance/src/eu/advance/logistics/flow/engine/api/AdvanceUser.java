@@ -37,8 +37,6 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author karnokd, 2011.09.19.
  */
 public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializable {
-	/** The user's unique identifier. */
-	public int id = Integer.MIN_VALUE;
 	/** Is the user enabled? */
 	public boolean enabled;
 	/** The user's name. */
@@ -88,7 +86,6 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 	};
 	@Override
 	public void load(XElement source) {
-		id = source.getInt("id");
 		enabled = source.getBoolean("enabled");
 		name = source.get("name");
 		email = source.get("email");
@@ -117,7 +114,6 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 	}
 	@Override
 	public void save(XElement destination) {
-		destination.set("id", id);
 		destination.set("enabled", enabled);
 		destination.set("email", email);
 		destination.set("pager", pager);
@@ -151,7 +147,6 @@ public class AdvanceUser extends AdvanceCreateModifyInfo implements XSerializabl
 	public AdvanceUser copy() {
 		AdvanceUser result = new AdvanceUser();
 		
-		result.id = id;
 		result.enabled = enabled;
 		result.name = name;
 		result.email = email;

@@ -409,7 +409,6 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	 */
 	public void initialize() {
 		AdvanceUser u = new AdvanceUser();
-		u.id = 0;
 		u.name = "admin";
 		u.password = "admin".toCharArray();
 		u.thousandSeparator = ',';
@@ -422,7 +421,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		u.rights.addAll(Arrays.asList(AdvanceUserRights.values()));
 		
 		synchronized (datastore.users) {
-			datastore.users.put(u.id, u);
+			datastore.users.put(u.name, u);
 		}
 	}
 	/**
