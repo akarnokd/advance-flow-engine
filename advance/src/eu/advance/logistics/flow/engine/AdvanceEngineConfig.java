@@ -140,14 +140,14 @@ public class AdvanceEngineConfig {
 			e.name = xks.get("name");
 			e.location = xks.get("file");
 
-			e.password = AdvanceCreateModifyInfo.getPassword(xks, "password");
+			e.password(AdvanceCreateModifyInfo.getPassword(xks, "password"));
 			
 			// initialize keystore if nonexistent
 			File f = new File(e.location);
 			if (!f.canRead()) {
 				KeystoreManager mgr = new KeystoreManager();
 				mgr.create();
-				mgr.save(e.location, e.password);
+				mgr.save(e.location, e.password());
 			}
 			
 			e.createdAt = new Date(f.lastModified());
@@ -162,12 +162,12 @@ public class AdvanceEngineConfig {
 		
 		jdbcDataStore.driver = ds.get("driver");
 		jdbcDataStore.url = ds.get("url");
-		jdbcDataStore.password = AdvanceCreateModifyInfo.getPassword(ds, "password");
+		jdbcDataStore.password(AdvanceCreateModifyInfo.getPassword(ds, "password"));
 		
 		if ("LOCAL".equals(jdbcDataStore.driver)) {
 			localDataStore = new LocalDataStore();
-			if (jdbcDataStore.password != null) {
-				localDataStore.loadEncrypted(jdbcDataStore.url, jdbcDataStore.password);
+			if (jdbcDataStore.password() != null) {
+				localDataStore.loadEncrypted(jdbcDataStore.url, jdbcDataStore.password());
 			} else {
 				localDataStore.load(jdbcDataStore.url);
 			}
@@ -182,8 +182,8 @@ public class AdvanceEngineConfig {
 	 */
 	public void close() {
 		if (localDataStore != null) {
-			if (jdbcDataStore.password != null) {
-				localDataStore.saveEncrypted(jdbcDataStore.url, jdbcDataStore.password);
+			if (jdbcDataStore.password() != null) {
+				localDataStore.saveEncrypted(jdbcDataStore.url, jdbcDataStore.password());
 			} else {
 				localDataStore.save(jdbcDataStore.url);
 			}

@@ -585,7 +585,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 
 			AdvanceUser prev = users.get(user.name);
 			AdvanceUser u = user.copy();
-			u.password = user.password != null ? user.password.clone() : (prev != null ? prev.password : null);
+			u.password(user.password() != null ? user.password().clone() : (prev != null ? prev.password() : null));
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
 				u.createdBy = prev.createdBy;
@@ -677,7 +677,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			AdvanceJDBCDataSource u = dataSource.copy();
 			AdvanceJDBCDataSource prev = jdbcDataSources.get(dataSource.name);
-			u.password = dataSource.password != null ? dataSource.password.clone() : (prev != null ? prev.password : null);
+			u.password(dataSource.password() != null ? dataSource.password().clone() : (prev != null ? prev.password() : null));
 			
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
@@ -729,7 +729,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			
 			AdvanceJMSEndpoint u = endpoint.copy();
-			u.password = endpoint.password != null ? endpoint.password.clone() : (prev != null ? prev.password : null);
+			u.password(endpoint.password() != null ? endpoint.password().clone() : (prev != null ? prev.password() : null));
 			
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
@@ -781,7 +781,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			
 			AdvanceWebDataSource u = endpoint.copy();
-			u.password = endpoint.password != null ? endpoint.password.clone() : (prev != null ? prev.password : null);
+			u.password(endpoint.password() != null ? endpoint.password().clone() : (prev != null ? prev.password() : null));
 			
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
@@ -833,7 +833,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			}
 			
 			AdvanceFTPDataSource u = dataSource.copy();
-			u.password = dataSource.password != null ? dataSource.password.clone() : (prev != null ? prev.password : null);
+			u.password(dataSource.password() != null ? dataSource.password() : (prev != null ? prev.password() : null));
 			
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
@@ -958,7 +958,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					}
 					e = new AdvanceKeyStore();
 					e.name = keyStore.name;
-					e.password = keyStore.password;
+					e.password(keyStore.password());
 					e.location = keyStore.location;
 					e.createdAt = new Date();
 					e.createdBy = keyStore.modifiedBy;
@@ -966,7 +966,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					e.modifiedBy = keyStore.modifiedBy;
 					
 					mgr.create();
-					mgr.save(e.location, e.password);
+					mgr.save(e.location, e.password());
 					
 					keystores.put(e.name, e);
 				} else {
@@ -976,7 +976,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					
 					File f = new File(e.location);
 					if (f.exists()) {
-						mgr.load(e.location, e.password);
+						mgr.load(e.location, e.password());
 						if (!f.delete()) {
 							LOG.warn("Could not delete keystore " + e.location);
 						}
@@ -985,14 +985,14 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					}
 					
 					e.location = keyStore.location;
-					if (keyStore.password != null) {
-						e.password = keyStore.password;
+					if (keyStore.password() != null) {
+						e.password(keyStore.password());
 					}
 					
 					e.modifiedAt = new Date();
 					e.modifiedBy = keyStore.modifiedBy;
 
-					mgr.save(e.location, e.password);
+					mgr.save(e.location, e.password());
 					
 				}
 			} catch (KeystoreFault ex) {
@@ -1098,5 +1098,14 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public XElement queryFlow(String realm) throws IOException {
 		return dataflows.get(realm);
+	}
+	@Override
+	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
+			AdvanceControlException {
+		List<AdvanceSOAPChannel> result = Lists.newArrayList();
+		for (AdvanceSOAPChannel e : soapChannels.values()) {
+			result.add(e.copy());
+		}
+		return result;
 	}
 }

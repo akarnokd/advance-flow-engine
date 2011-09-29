@@ -26,8 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
@@ -41,6 +45,8 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
+import eu.advance.logistics.flow.engine.api.HasPassword;
+import eu.advance.logistics.flow.engine.api.Copyable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -51,6 +57,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author karnokd, 2011.09.29.
  */
 public class CheckedDataStore implements AdvanceDataStore {
+	/** The logger object. */
+	protected static final Logger LOG = LoggerFactory.getLogger(CheckedDataStore.class);
 	/** The wrapped datastore. */
 	protected final AdvanceDataStore datastore;
 	/** The target user name. */
@@ -68,6 +76,21 @@ public class CheckedDataStore implements AdvanceDataStore {
 	}
 	/**
 	 * Check if the expected right is present for the user.
+	 * @param expected the expected rights
+	 * @throws AdvanceAccessDenied thrown if the user has no right
+	 * @throws IOException if a network error occurs
+	 */
+	protected void check(AdvanceUserRights... expected) throws IOException, AdvanceAccessDenied {
+		boolean allow = false;
+		for (AdvanceUserRights r : expected) {
+			allow |= datastore.hasUserRight(userName, r);
+		}
+		if (!allow) {
+			throw new AdvanceAccessDenied();
+		}
+	}
+	/**
+	 * Check if the expected right is present for the user.
 	 * @param realm the realm name
 	 * @param expected the expected right
 	 * @throws AdvanceAccessDenied thrown if the user has no right
@@ -77,6 +100,54 @@ public class CheckedDataStore implements AdvanceDataStore {
 		if (!datastore.hasUserRight(userName, realm, expected)) {
 			throw new AdvanceAccessDenied();
 		}
+	}
+	/**
+	 * Check if the expected right is present for the user.
+	 * @param realm the realm name
+	 * @param expected the expected rights
+	 * @throws AdvanceAccessDenied thrown if the user has no right
+	 * @throws IOException if a network error occurs
+	 */
+	protected void check(String realm, AdvanceUserRealmRights... expected) throws IOException, AdvanceAccessDenied {
+		boolean allow = false;
+		for (AdvanceUserRealmRights r : expected) {
+			allow |= datastore.hasUserRight(userName, realm, r);
+		}
+		if (!allow) {
+			throw new AdvanceAccessDenied();
+		}
+	}
+	/**
+	 * Clear the password from the given sequence of objects.
+	 * @param <K> an iterable sequence were the elements implement HasPassword
+	 * @param source the source sequence
+	 * @return the source
+	 */
+	protected <K extends Iterable<? extends HasPassword>> K clearPassword(K source) {
+		for (HasPassword pw : source) {
+			pw.password(null);
+		}
+		return source;
+	}
+	/**
+	 * Clear the password field of the given source object.
+	 * @param <K> a type which implements {@code HasPassword}
+	 * @param source the source object with password field
+	 * @return the {@code source} object itself
+	 */
+	protected <K extends HasPassword> K clearPassword(K source) {
+		source.password(null);
+		return source;
+	}
+	/**
+	 * Overwrite the {@code modifiedBy} field of the object with the current user.
+	 * @param <T> a type with AdvanceCreateModifyInfo records
+	 * @param obj the object to change
+	 * @return the {@code obj} itself
+	 */
+	protected <T extends AdvanceCreateModifyInfo & Copyable<T>> T changeModifiedBy(T obj) {
+		obj.copy().modifiedBy = userName;
+		return obj;
 	}
 	/**
 	 * Construct the wrapper for the given datastore and user name.
@@ -98,293 +169,296 @@ public class CheckedDataStore implements AdvanceDataStore {
 	@Override
 	public AdvanceRealm queryRealm(String realm) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_REALMS);
+		return datastore.queryRealm(realm);
 	}
 
 	@Override
 	public void createRealm(String realm, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_REALM);
+		datastore.createRealm(realm, userName);
 	}
 
 	@Override
 	public void deleteRealm(String realm) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_REALM);
+		datastore.deleteRealm(realm);
 	}
 
 	@Override
 	public void renameRealm(String realm, String newName, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.MODIFY_REALM);
+		datastore.renameRealm(realm, newName, userName);
 	}
 
 	@Override
 	public List<AdvanceUser> queryUsers() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_USERS);
+		return clearPassword(datastore.queryUsers());
 	}
 
 	@Override
 	public AdvanceUser queryUser(String userName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_USERS);
+		return clearPassword(datastore.queryUser(userName));
 	}
 
 	@Override
 	public void enableUser(String userName, boolean enabled, String byUser)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.MODIFY_USER);
+		datastore.enableUser(userName, enabled, this.userName);
 	}
 
 	@Override
 	public void deleteUser(String userName, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_USER);
+		datastore.deleteUser(userName, this.userName);
 	}
 
 	@Override
 	public void updateUser(AdvanceUser user) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_USER, AdvanceUserRights.MODIFY_USER);
+		datastore.updateUser(changeModifiedBy(user.copy()));
 	}
 
 	@Override
 	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
+		return datastore.queryNotificationGroups();
 	}
 
 	@Override
 	public void updateNotificationGroups(
 			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.MODIFY_NOTIFICATION_GROUPS);
+		datastore.updateNotificationGroups(groups);
 	}
 
 	@Override
 	public List<AdvanceJDBCDataSource> queryJDBCDataSources()
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
+		return clearPassword(datastore.queryJDBCDataSources());
 	}
 
 	@Override
 	public void updateJDBCDataSource(AdvanceJDBCDataSource dataSource)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_JDBC_DATA_SOURCE, AdvanceUserRights.MODIFY_JDBC_DATA_SOURCE);
+		datastore.updateJDBCDataSource(changeModifiedBy(dataSource));
 	}
 
 	@Override
 	public void deleteJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_JDBC_DATA_SOURCE);
+		datastore.deleteJDBCDataSource(dataSourceName);
 	}
 
 	@Override
 	public List<AdvanceJMSEndpoint> queryJMSEndpoints() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_JMS_ENDPOINTS);
+		return clearPassword(datastore.queryJMSEndpoints());
 	}
 
 	@Override
 	public void updateJMSEndpoint(AdvanceJMSEndpoint endpoint)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_JMS_ENDPOINT, AdvanceUserRights.MODIFY_JMS_ENDPOINT);
+		datastore.updateJMSEndpoint(changeModifiedBy(endpoint));
 	}
 
 	@Override
 	public void deleteJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_JMS_ENDPOINT);
+		datastore.deleteJMSEndpoint(jmsName);
 	}
 
 	@Override
 	public List<AdvanceWebDataSource> queryWebDataSources() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_WEB_DATA_SOURCES);
+		return clearPassword(datastore.queryWebDataSources());
 	}
 
 	@Override
 	public void updateWebDataSource(AdvanceWebDataSource endpoint)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_WEB_DATA_SOURCE, AdvanceUserRights.MODIFY_WEB_DATA_SOURCE);
+		datastore.updateWebDataSource(changeModifiedBy(endpoint));
 	}
 
 	@Override
 	public void deleteWebDataSource(String webName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_WEB_DATA_SOURCE);
+		datastore.deleteWebDataSource(webName);
 	}
 
 	@Override
 	public List<AdvanceFTPDataSource> queryFTPDataSources() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_FTP_DATA_SOURCES);
+		return clearPassword(datastore.queryFTPDataSources());
 	}
 
 	@Override
 	public void updateFTPDataSource(AdvanceFTPDataSource dataSource)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
+		check(AdvanceUserRights.CREATE_FTP_DATA_SOURCE, AdvanceUserRights.MODIFY_FTP_DATA_SOURCE);
+		datastore.updateFTPDataSource(changeModifiedBy(dataSource));
 
 	}
 
 	@Override
 	public void deleteFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_FTP_DATA_SOURCE);
+		datastore.deleteFTPDataSource(ftpName);
 	}
 
 	@Override
 	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources()
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_LOCAL_FILE_DATA_SOURCES);
+		return datastore.queryLocalFileDataSources();
 	}
 
 	@Override
 	public void updateLocalFileDataSource(AdvanceLocalFileDataSource dataSource)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_LOCAL_FILE_DATA_SOURCE, AdvanceUserRights.MODIFY_LOCAL_FILE_DATA_SOURCE);
+		datastore.updateLocalFileDataSource(changeModifiedBy(dataSource));
 	}
 
 	@Override
 	public void deleteLocalFileDataSource(String fileName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_LOCAL_FILE_DATA_SOURCE);
+		datastore.deleteLocalFileDataSource(fileName);
 	}
 
 	@Override
 	public List<AdvanceKeyStore> queryKeyStores() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_KEYSTORES);
+		return clearPassword(datastore.queryKeyStores());
 	}
 
 	@Override
 	public AdvanceKeyStore queryKeyStore(String name) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_KEYSTORES);
+		return clearPassword(datastore.queryKeyStore(name));
 	}
 
 	@Override
 	public boolean hasUserRight(String userName, AdvanceUserRights expected)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		return datastore.hasUserRight(this.userName, expected);
 	}
 
 	@Override
 	public boolean hasUserRight(String userName, String realm,
 			AdvanceUserRealmRights expected) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		return datastore.hasUserRight(this.userName, realm, expected);
 	}
 
 	@Override
 	public void updateKeyStore(AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_KEYSTORE, AdvanceUserRights.MODIFY_KEYSTORE);
+		datastore.updateKeyStore(changeModifiedBy(keyStore));
 	}
 
 	@Override
 	public void deleteKeyStore(String keyStore) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_KEYSTORE);
+		datastore.deleteKeyStore(keyStore);
 	}
 
 	@Override
 	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+			throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
+		return clearPassword(datastore.queryJDBCDataSource(name));
 	}
 
 	@Override
-	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_JMS_ENDPOINTS);
+		return clearPassword(datastore.queryJMSEndpoint(name));
 	}
 
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_SOAP_CHANNELS);
+		return clearPassword(datastore.querySOAPChannel(name));
 	}
-
+	@Override
+	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_SOAP_CHANNELS);
+		return clearPassword(datastore.querySOAPChannels());
+	}
 	@Override
 	public AdvanceFTPDataSource queryFTPDataSource(String name)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+			throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_FTP_DATA_SOURCES);
+		return clearPassword(datastore.queryFTPDataSource(name));
 	}
 
 	@Override
 	public AdvanceWebDataSource queryWebDataSource(String name)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+			throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_WEB_DATA_SOURCES);
+		return clearPassword(datastore.queryWebDataSource(name));
 	}
 
 	@Override
 	public AdvanceLocalFileDataSource queryLocalFileDataSource(String name)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+			throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_LOCAL_FILE_DATA_SOURCES);
+		return datastore.queryLocalFileDataSource(name);
 	}
 
 	@Override
 	public Set<String> queryNotificationGroup(
-			AdvanceNotificationGroupType type, String name) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+			AdvanceNotificationGroupType type, String name) throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
+		return datastore.queryNotificationGroup(type, name);
 	}
 
 	@Override
 	public XElement queryBlockState(String realm, String blockId)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+			throws IOException, AdvanceControlException {
+		check(realm, AdvanceUserRealmRights.DEBUG);
+		return datastore.queryBlockState(realm, blockId);
 	}
 
 	@Override
 	public void updateBlockState(String realm, String blockId, XElement state)
-			throws IOException {
-		// TODO Auto-generated method stub
-
+			throws IOException, AdvanceControlException {
+		check(realm, AdvanceUserRealmRights.DEBUG);
+		datastore.updateBlockState(realm, blockId, state);
 	}
 
 	@Override
-	public XElement queryFlow(String realm) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public XElement queryFlow(String realm) throws IOException, AdvanceControlException {
+		check(realm, AdvanceUserRealmRights.READ);
+		return datastore.queryFlow(realm);
 	}
 
 }

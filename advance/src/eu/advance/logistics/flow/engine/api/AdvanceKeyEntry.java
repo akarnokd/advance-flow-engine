@@ -21,18 +21,49 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import java.text.ParseException;
 import java.util.Date;
+
+import org.slf4j.LoggerFactory;
+
+import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XsdDateTime;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 
 /**
  * Properties of a concrete key in a key store.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceKeyEntry {
+public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry> {
 	/** The key type. */
 	public AdvanceKeyType type;
 	/** The key name. */
 	public String name;
 	/** The creation date. */
 	public Date createdAt;
+	@Override
+	public AdvanceKeyEntry copy() {
+		AdvanceKeyEntry result = new AdvanceKeyEntry();
+		result.type = type;
+		result.name = name;
+		result.createdAt = new Date(createdAt.getTime());
+		return result;
+	}
+	@Override
+	public void load(XElement source) {
+		type = AdvanceKeyType.valueOf(source.get("type"));
+		name = source.get("name");
+		try {
+			createdAt = XsdDateTime.parse(source.get("created-at"));
+		} catch (ParseException ex) {
+			LoggerFactory.getLogger(AdvanceKeyEntry.class).error(ex.toString(), ex);
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("type", type);
+		destination.set("name", name);
+		destination.set("created-at", XsdDateTime.format(createdAt));
+	}
 }

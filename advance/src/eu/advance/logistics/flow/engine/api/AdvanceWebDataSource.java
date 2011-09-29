@@ -35,7 +35,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The web data source configuration record.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceWebDataSource extends AdvanceCreateModifyInfo 
+implements XSerializable, HasPassword, Copyable<AdvanceWebDataSource> {
 	/** The data source name as used by the blocks. */
 	public String name;
 	/** The URL. */
@@ -54,7 +55,7 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 	 * the current password, use {@code null}.</p>
 	 * @return  
 	 */
-	public char[] password;
+	private char[] password;
 	/** The function to create a new instance of this class. */
 	public static final Func0<AdvanceWebDataSource> CREATOR = new Func0<AdvanceWebDataSource>() {
 		@Override
@@ -90,7 +91,7 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 		
 		super.save(destination);
 	}
-	/** @return create a defensive copy of this object. */
+	@Override
 	public AdvanceWebDataSource copy() {
 		AdvanceWebDataSource result = new AdvanceWebDataSource();
 		
@@ -99,9 +100,18 @@ public class AdvanceWebDataSource extends AdvanceCreateModifyInfo implements XSe
 		result.loginType = loginType;
 		result.keyStore = keyStore;
 		result.userOrKeyAlias = userOrKeyAlias;
+		result.password = password != null ? password.clone() : null;
 		
 		assignTo(result);
 		
 		return result;
+	}
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		password = newPassword != null ? newPassword.clone() : null;
 	}
 }

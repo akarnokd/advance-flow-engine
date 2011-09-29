@@ -57,6 +57,7 @@ public class HttpEngineControlListener {
 	@Nullable
 	public XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException {
 		//throw new AdvanceControlException("Unknown request " + request);
+		// TODO add control functions
 		// try datastore
 		return datastore.dispatch(userName, request);
 	}

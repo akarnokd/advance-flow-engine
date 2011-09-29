@@ -222,6 +222,9 @@ public class HttpDataStoreListener {
 		} else
 		if ("query-flow".equals(function)) {
 			return ds.queryFlow(request.get("realm"));
+		} else
+		if ("query-soap-channels".equals(function)) {
+			return HttpRemoteUtils.storeList("soap-channels", "channel", ds.querySOAPChannels());
 		}
 		
 		throw new AdvanceControlException("Unknown request " + request);

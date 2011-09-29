@@ -29,7 +29,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The FTP data source record.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo 
+implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
 	/** @return the name used by blocks to reference this data source. */
 	public String name;
 	/** @return the protocol enumeration. */
@@ -47,7 +48,7 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 	 * the current password, use {@code null}.</p>
 	 * @return the password used to login. 
 	 */
-	public char[] password;
+	private char[] password;
 	/** @return the connection should be passive? */
 	public boolean passive;
 	/** The function to create a new instance of this class. */
@@ -82,7 +83,7 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 		
 		super.save(destination);
 	}
-	/** @return create a defensive copy of this object. */
+	@Override
 	public AdvanceFTPDataSource copy() {
 		AdvanceFTPDataSource result = new AdvanceFTPDataSource();
 		
@@ -92,9 +93,18 @@ public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo implements XSe
 		result.remoteDirectory = remoteDirectory;
 		result.user = user;
 		result.passive = passive;
+		result.password = password != null ? password.clone() : null;
 		
 		assignTo(result);
 		
 		return result;
+	}
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		password = newPassword != null ? newPassword.clone() : null;
 	}
 }

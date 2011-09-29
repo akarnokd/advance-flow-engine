@@ -380,4 +380,11 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 		return comm.query(
 				HttpRemoteUtils.createRequest("query-flow", "realm", realm));
 	}
+	@Override
+	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
+			AdvanceControlException {
+		return HttpRemoteUtils.parseList(comm.query(
+				HttpRemoteUtils.createRequest("query-soap-channels")), 
+				"channel", AdvanceSOAPChannel.CREATOR);
+	}
 }

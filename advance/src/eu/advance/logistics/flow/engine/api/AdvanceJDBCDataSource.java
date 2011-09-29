@@ -29,7 +29,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Description of JDBC data store records.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo 
+implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource> {
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The JDBC driver. */
@@ -45,7 +46,7 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
 	 */
-	public char[] password;
+	private char[] password;
 	/** The default schema. */
 	public String schema;
 	/** The connection pool size. */
@@ -79,7 +80,7 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 		destination.set("schema", schema);
 		super.save(destination);
 	}
-	/** @return a defensive copy of this object. */
+	@Override
 	public AdvanceJDBCDataSource copy() {
 		AdvanceJDBCDataSource result = new AdvanceJDBCDataSource();
 		
@@ -89,9 +90,18 @@ public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo implements XS
 		result.user = user;
 		result.poolSize = poolSize;
 		result.schema = schema;
+		result.password = password != null ? password.clone() : null;
 		
 		assignTo(result);
 		
 		return result;
+	}
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		password = newPassword != null ? newPassword.clone() : null;
 	}
 }

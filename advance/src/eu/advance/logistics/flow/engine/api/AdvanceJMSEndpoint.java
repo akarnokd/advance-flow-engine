@@ -29,7 +29,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Definition of a Java Messaging Service endpoint.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo 
+implements XSerializable, HasPassword, Copyable<AdvanceJMSEndpoint> {
 	/** The name used by blocks to reference this endpoint. */
 	public String name;
 	/** The JMS driver. */
@@ -45,7 +46,7 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSeri
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
 	 */
-	public char[] password;
+	private char[] password;
 	/** The queue manager name. */
 	public String queueManager;
 	/** The queue name. */
@@ -86,7 +87,7 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSeri
 		
 		super.save(destination);
 	}
-	/** @return the defensive copy of this object. */
+	@Override
 	public AdvanceJMSEndpoint copy() {
 		AdvanceJMSEndpoint result = new AdvanceJMSEndpoint();
 		
@@ -97,9 +98,18 @@ public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo implements XSeri
 		result.queueManager = queueManager;
 		result.queue = queue;
 		result.poolSize = poolSize;
+		result.password = password != null ? password.clone() : null;
 		
 		assignTo(result);
 		
 		return result;
+	}
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		password = newPassword != null ? newPassword.clone() : null;
 	}
 }

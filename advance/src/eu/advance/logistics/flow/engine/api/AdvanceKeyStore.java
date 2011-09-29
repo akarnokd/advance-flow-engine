@@ -29,7 +29,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A record representing information about local or remote key stores.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceKeyStore extends AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceKeyStore extends AdvanceCreateModifyInfo 
+implements XSerializable, HasPassword, Copyable<AdvanceKeyStore> {
 	/** The key store name. */
 	public String name;
 	/** The key store location on disk. */
@@ -42,7 +43,7 @@ public class AdvanceKeyStore extends AdvanceCreateModifyInfo implements XSeriali
 	 * control API calls and are always {@code null}.</p> 
 	 * @return the password. 
 	 */
-	public char[] password;
+	private char[] password;
 	/** The function to create a new instance of this class. */
 	public static final Func0<AdvanceKeyStore> CREATOR = new Func0<AdvanceKeyStore>() {
 		@Override
@@ -64,17 +65,24 @@ public class AdvanceKeyStore extends AdvanceCreateModifyInfo implements XSeriali
 		setPassword(destination, "password", password);
 		super.save(destination);
 	}
-	/** 
-	 * @return create a defensive copy of this object
-	 */
+	@Override
 	public AdvanceKeyStore copy() {
 		AdvanceKeyStore result = new AdvanceKeyStore();
 		
 		result.name = name;
 		result.location = location;
+		result.password = password != null ? password.clone() : null;
 		
 		assignTo(result);
 		
 		return result;
+	}
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		password = newPassword != null ? newPassword.clone() : null;
 	}
 }
