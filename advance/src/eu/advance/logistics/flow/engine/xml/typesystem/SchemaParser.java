@@ -55,7 +55,6 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
-import eu.advance.logistics.flow.engine.URLResolver;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
 
 

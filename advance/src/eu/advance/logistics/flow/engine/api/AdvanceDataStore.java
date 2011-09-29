@@ -26,282 +26,331 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+
 /**
  * Interface for performing datastore related operations.
+ * <p>The users of the updateXYZ methods must set the {@code modifiedBy} field.</p>
  * @author karnokd, 2011.09.23.
  */
 public interface AdvanceDataStore {
 	/**
 	 * Retrieve a list of realm information.
-	 * @param token the connection token
 	 * @return the list of realms
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the realms
 	 */
-	List<AdvanceRealm> queryRealms(AdvanceControlToken token)
+	List<AdvanceRealm> queryRealms()
 	throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve a concrete realm.
-	 * @param token the connection token
 	 * @param realm the the target realm
 	 * @return the list of realms
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the realms
 	 */
-	AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
+	AdvanceRealm queryRealm(String realm)
 	throws IOException, AdvanceControlException;
 	/**
 	 * Create a new realm.
-	 * @param token the connection token
 	 * @param realm the realm name.
+	 * @param byUser the user who changed the object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to create a realm or the realm exists.
 	 */
-	void createRealm(AdvanceControlToken token, String realm) throws IOException, AdvanceControlException;
+	void createRealm(String realm, String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a realm.
-	 * @param token the connection token
 	 * @param realm the realm name
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the realm
 	 */
-	void deleteRealm(AdvanceControlToken token, String realm) throws IOException, AdvanceControlException;
+	void deleteRealm(String realm) throws IOException, AdvanceControlException;
 	/**
 	 * Rename the given realm.
-	 * @param token the connection token
 	 * @param realm the original realm name
 	 * @param newName the new realm name
+	 * @param byUser the user who changed the object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to rename the realm
 	 */
-	void renameRealm(AdvanceControlToken token, String realm, String newName) throws IOException, AdvanceControlException;
+	void renameRealm(String realm, String newName, String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Query the list of users.
-	 * @param token the connection token
 	 * @return the list of users
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to see the list of users
 	 */
-	List<AdvanceUser> queryUsers(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	List<AdvanceUser> queryUsers() throws IOException, AdvanceControlException;
 	/**
 	 * Query an individual user.
-	 * @param token the connection token
 	 * @param userName the user identifier
 	 * @return the list of users
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to see the list of users
 	 */
-	AdvanceUser queryUser(AdvanceControlToken token, String userName) throws IOException, AdvanceControlException;
+	AdvanceUser queryUser(String userName) throws IOException, AdvanceControlException;
 	/**
 	 * Enable/disable a user.
-	 * @param token the connection token
 	 * @param userName the user's identifier
 	 * @param enabled should be enabled or disabled?
+	 * @param byUser the user who changed the object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the target's properties
 	 */
-	void enableUser(AdvanceControlToken token, String userName, boolean enabled) throws IOException, AdvanceControlException;
+	void enableUser(String userName, boolean enabled, String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Delete the given user.
-	 * @param token the connection token
 	 * @param userName the user's identifier
+	 * @param byUser the user who is changes the object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the target
 	 */
-	void deleteUser(AdvanceControlToken token, String userName) throws IOException, AdvanceControlException;
+	void deleteUser(String userName, String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Update the user's settings.
-	 * @param token the connection token
 	 * @param user the target user object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the target user
 	 */
-	void updateUser(AdvanceControlToken token, AdvanceUser user) throws IOException, AdvanceControlException;
+	void updateUser(AdvanceUser user) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the notification group settings.
-	 * @param token the connection token
 	 * @return the map from notification group type to notification group name to set of notification address.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the target user
 	 */
-	Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups() throws IOException, AdvanceControlException;
 	/**
 	 * Update the notification groups. Note that this update is considered complete, e.g., the existing group
 	 * settings will be deleted and replaced by the contents of the map.
-	 * @param token the connection token
 	 * @param groups the map from notification group type to notification group name to set of notification address.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the target user
 	 */
-	void updateNotificationGroups(AdvanceControlToken token, Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups) throws IOException, AdvanceControlException;
+	void updateNotificationGroups(Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups) throws IOException, AdvanceControlException;
 	/**
 	 * List the available JDBC data sources.
-	 * @param token the connection token
 	 * @return the list of JDBC data sources
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to query the information
 	 */
-	List<AdvanceJDBCDataSource> queryJDBCDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	List<AdvanceJDBCDataSource> queryJDBCDataSources() throws IOException, AdvanceControlException;
 	/**
 	 * Update a JDBC data source.
-	 * @param token the connection token
 	 * @param dataSource the data source object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to update the information
 	 */
-	void updateJDBCDataSource(AdvanceControlToken token, AdvanceJDBCDataSource dataSource) throws IOException, AdvanceControlException;
+	void updateJDBCDataSource(AdvanceJDBCDataSource dataSource) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a specific JDBC data source.
-	 * @param token the connection token
 	 * @param dataSourceName the data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the data source
 	 */
-	void deleteJDBCDataSource(AdvanceControlToken token, String dataSourceName) throws IOException, AdvanceControlException;
+	void deleteJDBCDataSource(String dataSourceName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve a list of JMS endpoints.
-	 * @param token the connection token
 	 * @return the list of jms endpoints
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the JMS endpoints
 	 */
-	List<AdvanceJMSEndpoint> queryJMSEndpoints(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	List<AdvanceJMSEndpoint> queryJMSEndpoints() throws IOException, AdvanceControlException;
 	/**
 	 * Update a JMS endpoint settings.
-	 * @param token the connection token
 	 * @param endpoint the entpoint object.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the JMS endpoint
 	 */
-	void updateJMSEndpoint(AdvanceControlToken token, AdvanceJMSEndpoint endpoint) throws IOException, AdvanceControlException;
+	void updateJMSEndpoint(AdvanceJMSEndpoint endpoint) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a JMS endpoint configuration.
-	 * @param token the connection token
 	 * @param jmsName the identifier of the JMS enpoint to delete.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete
 	 */
-	void deleteJMSEndpoint(AdvanceControlToken token, String jmsName) throws IOException, AdvanceControlException;
+	void deleteJMSEndpoint(String jmsName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve a list of web data sources.
-	 * @param token the connection token
 	 * @return the list of web data sources
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the web data sources
 	 */
-	List<AdvanceWebDataSource> queryWebDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	List<AdvanceWebDataSource> queryWebDataSources() throws IOException, AdvanceControlException;
 	/**
 	 * Update a web data source.
-	 * @param token the connection token
 	 * @param endpoint the endpoint record
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to update the web data sources
 	 */
-	void updateWebDataSource(AdvanceControlToken token, AdvanceWebDataSource endpoint) throws IOException, AdvanceControlException;
+	void updateWebDataSource(AdvanceWebDataSource endpoint) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a web data source.
-	 * @param token the connection token
 	 * @param webName the web data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete the web data sources
 	 */
-	void deleteWebDataSource(AdvanceControlToken token, String webName) throws IOException, AdvanceControlException;
+	void deleteWebDataSource(String webName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the list of FTP data sources.
-	 * @param token the connection token
 	 * @return the list of FTP data sources
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the data sources
 	 */
-	List<AdvanceFTPDataSource> queryFTPDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	List<AdvanceFTPDataSource> queryFTPDataSources() throws IOException, AdvanceControlException;
 	/**
 	 * Update the FTP data source.
-	 * @param token the connection token
 	 * @param dataSource the data source object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify FTP data sources
 	 */
-	void updateFTPDataSource(AdvanceControlToken token, AdvanceFTPDataSource dataSource) throws IOException, AdvanceControlException;
+	void updateFTPDataSource(AdvanceFTPDataSource dataSource) throws IOException, AdvanceControlException;
 	/**
 	 * Delete an FTP data source object.
-	 * @param token the connection token
 	 * @param ftpName the data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete FTP data sources
 	 */
-	void deleteFTPDataSource(AdvanceControlToken token, String ftpName) throws IOException, AdvanceControlException;
+	void deleteFTPDataSource(String ftpName) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the list of local file data sources.
-	 * @param token the connection token
 	 * @return the list of local file data source
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the local file data sources
 	 */
-	List<AdvanceLocalFileDataSource> queryLocalFileDataSources(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	List<AdvanceLocalFileDataSource> queryLocalFileDataSources() throws IOException, AdvanceControlException;
 	/**
 	 * Update a local file data source object.
-	 * @param token the connection token
 	 * @param dataSource the data source object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify local file data sources
 	 */
-	void updateLocalFileDataSource(AdvanceControlToken token, AdvanceLocalFileDataSource dataSource) throws IOException, AdvanceControlException;
+	void updateLocalFileDataSource(AdvanceLocalFileDataSource dataSource) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a local file data source record.
-	 * @param token the connection token
 	 * @param fileName the local file data source identifier
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete local file data sources
 	 */
-	void deleteLocalFileDataSource(AdvanceControlToken token, String fileName) throws IOException, AdvanceControlException;
+	void deleteLocalFileDataSource(String fileName) throws IOException, AdvanceControlException;
 	/**
 	 * Query the list of available key stores.
-	 * @param token the connection token
 	 * @return the list of key stores.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to see the key stores.
 	 */
-	List<AdvanceKeyStore> queryKeyStores(AdvanceControlToken token) throws IOException, AdvanceControlException;
+	List<AdvanceKeyStore> queryKeyStores() throws IOException, AdvanceControlException;
 	/**
 	 * Query an individual keystore item.
-	 * @param token the connection token
 	 * @param name the keystore name
 	 * @return the list of key stores.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to see the key stores.
 	 */
-	AdvanceKeyStore queryKeyStore(AdvanceControlToken token, String name) throws IOException, AdvanceControlException;
+	AdvanceKeyStore queryKeyStore(String name) throws IOException, AdvanceControlException;
 	/**
-	 * Check if the user of the given token has the expected rights.
-	 * @param token the token to test
+	 * Check if the user has the expected rights.
+	 * @param userName the user's name
 	 * @param expected the expected rights
 	 * @return true if the user has the expected right
 	 * @throws IOException if a network error occurs
 	 */
-	boolean hasUserRight(AdvanceControlToken token, AdvanceUserRights expected) throws IOException;
+	boolean hasUserRight(String userName, AdvanceUserRights expected) throws IOException;
 	/**
-	 * Check if the user of the given token has the expected rights.
-	 * @param token the token to test
+	 * Check if the user has the expected realm rights.
+	 * @param userName the user's name
 	 * @param realm the target realm
 	 * @param expected the expected rights
 	 * @return true if the user has the expected right
 	 * @throws IOException if a network error occurs
 	 */
-	boolean hasUserRight(AdvanceControlToken token, String realm, AdvanceUserRealmRights expected) throws IOException;
+	boolean hasUserRight(String userName, String realm, AdvanceUserRealmRights expected) throws IOException;
 	/**
 	 * Update key store properties.
-	 * @param token the connection token
 	 * @param keyStore the key store properties
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify a key store.
 	 */
-	void updateKeyStore(AdvanceControlToken token, AdvanceKeyStore keyStore) throws IOException, AdvanceControlException;
+	void updateKeyStore(AdvanceKeyStore keyStore) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a key store.
-	 * @param token the connection token
 	 * @param keyStore the key store to delete
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete a key store
 	 */
-	void deleteKeyStore(AdvanceControlToken token, String keyStore) throws IOException, AdvanceControlException;
+	void deleteKeyStore(String keyStore) throws IOException, AdvanceControlException;
+	/**
+	 * Return the properties of a a JDBC data source.
+	 * @param name the name of the data source
+	 * @return the data source properties
+	 * @throws IOException if a network error occurs
+	 */
+	AdvanceJDBCDataSource queryJDBCDataSource(String name) throws IOException;
+	/**
+	 * Return the properties of a a JMS endpoint.
+	 * @param name the name of the endpoint
+	 * @return the endpoint properties
+	 * @throws IOException if a network error occurs
+	 */
+	AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException;
+	/**
+	 * Return the properties of a a SOAP channel.
+	 * @param name the name of the channel
+	 * @return the channel properties
+	 * @throws IOException if a network error occurs
+	 */
+	AdvanceSOAPChannel querySOAPChannel(String name) throws IOException;
+	/**
+	 * Return the properties of a a FTP data source.
+	 * @param name the name of the data source
+	 * @return the data source properties
+	 * @throws IOException if a network error occurs
+	 */
+	AdvanceFTPDataSource queryFTPDataSource(String name) throws IOException;
+	/**
+	 * Return the properties of a a Web data source.
+	 * @param name the name of the data source
+	 * @return the data source properties
+	 * @throws IOException if a network error occurs
+	 */
+	AdvanceWebDataSource queryWebDataSource(String name) throws IOException;
+	/**
+	 * Return the properties of a a local file data source.
+	 * @param name the name of the data source
+	 * @return the data source properties
+	 * @throws IOException if a network error occurs
+	 */
+	AdvanceLocalFileDataSource queryLocalFileDataSource(String name) throws IOException;
+	/**
+	 * Retrieve the contact information of a notification group type and name.
+	 * @param type the group type
+	 * @param name the group name
+	 * @return the set of contact information
+	 * @throws IOException if a network error occurs
+	 */
+	Set<String> queryNotificationGroup(AdvanceNotificationGroupType type, String name) throws IOException;
+	/**
+	 * Retrieve the block state.
+	 * @param realm the target realm
+	 * @param blockId the block identifier
+	 * @return the state XElement
+	 * @throws IOException if a network error occurs
+	 */
+	XElement queryBlockState(String realm, String blockId) throws IOException;
+	/**
+	 * Save the block state.
+	 * @param realm the target realm
+	 * @param blockId the target block identifier
+	 * @param state the state XElement
+	 * @throws IOException if a network error occurs
+	 */
+	void updateBlockState(String realm, String blockId, XElement state) throws IOException;
+	/**
+	 * Retrieve the flow descriptor of the given realm.
+	 * @param realm the target realm
+	 * @return the flow description XElement
+	 * @throws IOException if a network error occurs
+	 */
+	XElement queryFlow(String realm) throws IOException;
 }

@@ -59,8 +59,7 @@ import com.sun.net.httpserver.HttpsServer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
-import eu.advance.logistics.flow.engine.api.AdvanceDirectDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.impl.HttpEngineControlListener;
@@ -81,7 +80,7 @@ public class AdvanceFlowEngine implements Runnable {
 	/**
 	 * The attribute name to store the control token in the current session.
 	 */
-	private static final String ADVANCE_CONTROL_TOKEN = "advance-control-token";
+	private static final String LOGIN_USERNAME = "advance-login-username";
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The version of the flow engine. */
@@ -170,9 +169,9 @@ public class AdvanceFlowEngine implements Runnable {
 				try {
 					XElement xrequest = XElement.parseXML(in);
 					
-					AdvanceControlToken token = (AdvanceControlToken)request.getAttribute(ADVANCE_CONTROL_TOKEN);
+					String userName = (String)request.getAttribute(LOGIN_USERNAME);
 					
-					XElement xresponse = engineListener.dispatch(token, xrequest);
+					XElement xresponse = engineListener.dispatch(userName, xrequest);
 					if (xresponse == null) {
 						sendResponse(request, 200, "");
 					} else {
@@ -230,7 +229,7 @@ public class AdvanceFlowEngine implements Runnable {
 	 * @param ctx the HTTP context
 	 * @param datastore the datastore
 	 */
-	protected void setBasicAuthenticator(HttpContext ctx, final AdvanceDirectDataStore datastore) {
+	protected void setBasicAuthenticator(HttpContext ctx, final AdvanceDataStore datastore) {
 		ctx.setAuthenticator(new BasicAuthenticator("/") {
 			final ThreadLocal<HttpExchange> exchanges = new ThreadLocal<HttpExchange>();
 			@Override
@@ -250,11 +249,7 @@ public class AdvanceFlowEngine implements Runnable {
 						if (Arrays.equals(password.toCharArray(), u.password)) {
 							HttpExchange exch = exchanges.get();
 							
-							AdvanceControlToken token = new AdvanceControlToken();
-							token.user = u;
-							token.target = exch.getRequestURI();
-							
-							exch.setAttribute(ADVANCE_CONTROL_TOKEN, token);
+							exch.setAttribute(LOGIN_USERNAME, u.name);
 							
 							return true;
 						}
@@ -262,6 +257,8 @@ public class AdvanceFlowEngine implements Runnable {
 						LOG.error("Missing user: " + user);
 					}
 				} catch (IOException ex) {
+					LOG.error(ex.toString(), ex);
+				} catch (AdvanceControlException ex) {
 					LOG.error(ex.toString(), ex);
 				}
 				return false;
@@ -274,7 +271,8 @@ public class AdvanceFlowEngine implements Runnable {
 	 * @param clientKeyStore the keystore where the certificates should be located
 	 * @param datastore the datastore to access the user's settings
 	 */
-	protected void setCertAuthenticator(HttpContext ctx, final KeyStore clientKeyStore, final AdvanceDirectDataStore datastore) {
+	protected void setCertAuthenticator(HttpContext ctx, final KeyStore clientKeyStore, 
+			final AdvanceDataStore datastore) {
 		ctx.setAuthenticator(new Authenticator() {
 			@Override
 			public Result authenticate(HttpExchange t) {
@@ -292,11 +290,7 @@ public class AdvanceFlowEngine implements Runnable {
 								if (alias != null) {
 									for (AdvanceUser u : datastore.queryUsers()) {
 										if (!u.passwordLogin && u.keyAlias.equals(alias)) {
-											AdvanceControlToken token = new AdvanceControlToken();
-											token.user = u;
-											token.target = t.getRequestURI();
-											
-											t.setAttribute(ADVANCE_CONTROL_TOKEN, token);
+											t.setAttribute(LOGIN_USERNAME, u.name);
 											return new Authenticator.Success(t.getPrincipal());
 										}
 									}
@@ -306,6 +300,8 @@ public class AdvanceFlowEngine implements Runnable {
 							}
 						}
 					} catch (SSLPeerUnverifiedException ex) {
+						LOG.error(ex.toString(), ex);
+					} catch (AdvanceControlException ex) {
 						LOG.error(ex.toString(), ex);
 					} catch (IOException ex) {
 						LOG.error(ex.toString(), ex);

@@ -27,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -49,7 +48,6 @@ import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
@@ -62,7 +60,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
@@ -83,6 +80,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	protected final LocalDataStore datastore = new LocalDataStore();
 	/** The set of schema locations. */
 	protected final List<String> schemas;
+	/** The logged-in user. */
+	protected AdvanceUser user;
 	/**
 	 * Constructor initializing the configuration.
 	 * @param schemas the sequence of schemas
@@ -90,36 +89,31 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public LocalEngineControl(Iterable<String> schemas) {
 		this.schemas = Lists.newArrayList(schemas);
 	}
-	@Override
-	public AdvanceControlToken login(URI target, String userName,
-			char[] password) throws IOException, AdvanceControlException {
+	/**
+	 * Login with the given user credentials.
+	 * @param userName the user name
+	 * @param password the password
+	 * @throws AdvanceControlException the user cannot be found
+	 */
+	public void login(String userName,
+			char[] password) throws AdvanceControlException {
+		this.user = null;
 		synchronized (datastore.users) {
 			for (AdvanceUser u : datastore.users.values()) {
 				if (u.enabled && u.name.equals(userName) && Arrays.equals(password, u.password)) {
-					AdvanceControlToken token = new AdvanceControlToken();
-					token.target = target;
-					token.user = u.copy();
-					return token;
+					this.user = u.copy();
 				}
 			}
 		}
 		throw new AdvanceAccessDenied("Wrong user name or password");
 	}
-
 	@Override
-	public AdvanceControlToken login(URI target, KeyStore keyStore,
-			String keyAlias, char[] keyPassword) throws IOException,
-			AdvanceControlException, KeyStoreException {
-		// FIXME implement
-		throw new UnsupportedOperationException();
+	public AdvanceUser getUser() throws IOException, AdvanceControlException {
+		return user;
 	}
-
 	@Override
-	public List<AdvanceBlockRegistryEntry> queryBlocks(AdvanceControlToken token)
+	public List<AdvanceBlockRegistryEntry> queryBlocks()
 			throws IOException, AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.LIST_BLOCKS)) {
-			throw new AdvanceAccessDenied();
-		}
 		return AdvanceBlockRegistryEntry.parseDefaultRegistry();
 	}
 	/** @return the datastore instance */
@@ -129,12 +123,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public List<AdvanceKeyEntry> queryKeys(AdvanceControlToken token,
+	public List<AdvanceKeyEntry> queryKeys(
 			String keyStore) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.LIST_KEYS)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(keyStore);
 			KeystoreManager mgr = new KeystoreManager();
@@ -168,12 +159,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void deleteKeyEntry(AdvanceControlToken token, String keyStore,
+	public void deleteKeyEntry(String keyStore,
 			String keyAlias) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.DELETE_KEY)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(keyStore);
 			if (e != null) {
@@ -194,11 +182,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void generateKey(AdvanceControlToken token, AdvanceGenerateKey key)
+	public void generateKey(AdvanceGenerateKey key)
 			throws IOException, AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.GENERATE_KEY)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(key.keyStore);
 			if (e != null) {
@@ -216,7 +201,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 					
 					mgr.save(e.location, e.password);
 					e.modifiedAt = new Date();
-					e.modifiedBy = token.user.name;
+					e.modifiedBy = key.modifiedBy;
 					
 				} catch (KeyStoreException ex) {
 					throw new AdvanceControlException(ex);
@@ -230,12 +215,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public String exportCertificate(AdvanceControlToken token,
+	public String exportCertificate(
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.EXPORT_CERTIFICATE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
 			if (e != null) {
@@ -255,12 +237,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public String exportPrivateKey(AdvanceControlToken token,
+	public String exportPrivateKey(
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.EXPORT_CERTIFICATE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
 			if (e != null) {
@@ -280,12 +259,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void importCertificate(AdvanceControlToken token,
+	public void importCertificate(
 			AdvanceKeyStoreExport request, String data) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.IMPORT_CERTIFICATE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
 			if (e != null) {
@@ -304,12 +280,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void importPrivateKey(AdvanceControlToken token,
+	public void importPrivateKey(
 			AdvanceKeyStoreExport request, String keyData, String certData) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.IMPORT_PRIVATE_KEY)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
 			if (e != null) {
@@ -331,12 +304,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public String exportSigningRequest(AdvanceControlToken token,
+	public String exportSigningRequest(
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.EXPORT_CERTIFICATE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
 			if (e != null) {
@@ -354,12 +324,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void importSigningResponse(AdvanceControlToken token,
+	public void importSigningResponse(
 			AdvanceKeyStoreExport request, String data) throws IOException,
 			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.IMPORT_CERTIFICATE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.keystores) {
 			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
 			if (e != null) {
@@ -458,36 +425,33 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		datastore.save(dsFile.toString());
 	}
 	@Override
-	public void testJDBCDataSource(AdvanceControlToken token, int dataSourceId)
+	public void testJDBCDataSource(String dataSourceName)
 			throws IOException, AdvanceControlException {
 		// FIXME implement
 		throw new UnsupportedOperationException();
 	}
 	@Override
-	public void testJMSEndpoint(AdvanceControlToken token, int jmsId)
+	public void testJMSEndpoint(String jmsName)
 			throws IOException, AdvanceControlException {
 		// FIXME implement
 		throw new UnsupportedOperationException();
 	}
 	@Override
-	public void testFTPDataSource(AdvanceControlToken token, int ftpId)
+	public void testFTPDataSource(String ftpName)
 			throws IOException, AdvanceControlException {
 		// FIXME implement
 		throw new UnsupportedOperationException();
 	}
 	@Override
-	public void stopRealm(AdvanceControlToken token, String name)
+	public void stopRealm(String name, String byUser)
 			throws IOException, AdvanceControlException {
-		if (!datastore.hasUserRight(token, name, AdvanceUserRealmRights.STOP)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.realms) {
 			AdvanceRealm r = datastore.realms.get(name);
 			if (r != null) {
 				if (r.status == AdvanceRealmStatus.RUNNING) {
 					r.status = AdvanceRealmStatus.STOPPED;
 					r.modifiedAt = new Date();
-					r.modifiedBy = token.user.name;
+					r.modifiedBy = byUser;
 				} else {
 					throw new AdvanceControlException("Realm not running");
 				}
@@ -498,18 +462,15 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void startRealm(AdvanceControlToken token, String name)
+	public void startRealm(String name, String byUser)
 			throws IOException, AdvanceControlException {
-		if (!datastore.hasUserRight(token, name, AdvanceUserRealmRights.START)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (datastore.realms) {
 			AdvanceRealm r = datastore.realms.get(name);
 			if (r != null) {
 				if (r.status == AdvanceRealmStatus.STOPPED) {
 					r.status = AdvanceRealmStatus.RUNNING;
 					r.modifiedAt = new Date();
-					r.modifiedBy = token.user.name;
+					r.modifiedBy = byUser;
 				} else {
 					throw new AdvanceControlException("Realm not stopped");
 				}
@@ -520,41 +481,41 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public Observable<AdvanceBlockDiagnostic> debugBlock(
-			AdvanceControlToken token, String realm, String blockId)
+			String realm, String blockId)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
 	public Observable<AdvanceParameterDiagnostic> debugParameter(
-			AdvanceControlToken token, String realm, String blockId,
+			String realm, String blockId,
 			String port, boolean isImput) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public AdvanceCompositeBlock queryFlow(AdvanceControlToken token,
+	public AdvanceCompositeBlock queryFlow(
 			String realm) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public void updateFlow(AdvanceControlToken token, String realm,
+	public void updateFlow(String realm,
 			AdvanceCompositeBlock flow) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
 	@Override
-	public List<AdvanceCompilationError> verifyFlow(AdvanceControlToken token,
+	public List<AdvanceCompilationError> verifyFlow(
 			AdvanceCompositeBlock flow) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public void injectValue(AdvanceControlToken token, String realm,
+	public void injectValue(String realm,
 			String blockId, String port, XElement value) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
@@ -562,11 +523,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public List<AdvanceSchemaRegistryEntry> querySchemas(
-			AdvanceControlToken token) throws IOException,
-			AdvanceControlException {
-		if (!datastore.hasUserRight(token, AdvanceUserRights.LIST_SCHEMAS)) {
-			throw new AdvanceAccessDenied();
-		}
+			) throws IOException, AdvanceControlException {
 		try {
 			List<AdvanceSchemaRegistryEntry> result = Lists.newArrayList();
 			for (String sd : schemas) {
@@ -588,8 +545,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		}
 	}
 	@Override
-	public void updateSchema(AdvanceControlToken token, String name,
-			XElement schema) throws IOException, AdvanceControlException {
+	public void updateSchema(String name,
+			XElement schema, String byUser) throws IOException, AdvanceControlException {
 		if (schemas.size() == 0) {
 			throw new AdvanceControlException("No place for schemas");
 		}
@@ -597,21 +554,26 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		File fname = new File(name);
 		File f = new File(sd, fname.getName());
 		if (f.canRead()) {
-			if (!datastore.hasUserRight(token, AdvanceUserRights.MODIFY_SCHEMA)) {
+			if (!datastore.hasUserRight(byUser, AdvanceUserRights.MODIFY_SCHEMA)) {
 				throw new AdvanceAccessDenied();
 			}
 		} else {
-			if (!datastore.hasUserRight(token, AdvanceUserRights.CREATE_SCHEMA)) {
+			if (!datastore.hasUserRight(byUser, AdvanceUserRights.CREATE_SCHEMA)) {
 				throw new AdvanceAccessDenied();
 			}
 		}
 		schema.save(f);
 	}
 	@Override
-	public AdvanceEngineVersion queryVersion(AdvanceControlToken token)
+	public AdvanceEngineVersion queryVersion()
 			throws IOException, AdvanceControlException {
 		AdvanceEngineVersion result = new AdvanceEngineVersion();
 		result.parse(AdvanceFlowEngine.VERSION);
 		return result;
+	}
+	@Override
+	public void shutdown() throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		
 	}
 }

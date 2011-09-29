@@ -26,7 +26,6 @@ import java.io.IOException;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -49,16 +48,16 @@ public class HttpEngineControlListener {
 	}
 	/**
 	 * Dispatch the incoming requests.
-	 * @param token the connection token
+	 * @param userName the logged-in user
 	 * @param request the raw request XML
 	 * @return the optional response XML
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the wrapped control throws it.
 	 */
 	@Nullable
-	public XElement dispatch(@NonNull AdvanceControlToken token, @NonNull XElement request) throws IOException, AdvanceControlException {
+	public XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException {
 		//throw new AdvanceControlException("Unknown request " + request);
 		// try datastore
-		return datastore.dispatch(token, request);
+		return datastore.dispatch(userName, request);
 	}
 }

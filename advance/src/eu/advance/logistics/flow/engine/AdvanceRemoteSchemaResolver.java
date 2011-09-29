@@ -39,6 +39,7 @@ import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.engine.model.UnresolvableSchemaURIException;
 import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
+import eu.advance.logistics.flow.engine.xml.typesystem.URLResolver;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 

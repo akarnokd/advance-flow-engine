@@ -24,211 +24,235 @@ package eu.advance.logistics.flow.engine.api.impl;
 import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
+import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
-import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
+import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
+ * Wraps the given engine control object and for each call, it checks
+ * if the user has the appropriate rights.
  * @author karnokd, 2011.09.29.
  */
-public class HttpRemoteEngineControl implements AdvanceEngineControl {
-	/** The communicator used to send and receive requests. */
-	protected HttpCommunicator comm;
+public class CheckedEngineControl implements AdvanceEngineControl {
+	/** The wrapped control. */
+	protected final AdvanceEngineControl control;
+	/** The target user name. */
+	protected final String userName;
 	/**
-	 * Initialize the engine control with the given remote address and authentication
-	 * record.
-	 * @param remote the remote datastore URL
-	 * @param auth the authentication record
+	 * Check if the expected right is present for the user.
+	 * @param expected the expected right
+	 * @throws AdvanceAccessDenied thrown if the user has no right
+	 * @throws IOException if a network error occurs
 	 */
-	public HttpRemoteEngineControl(@NonNull URL remote, @NonNull AdvanceHttpAuthentication auth) {
-		init(remote, auth);
+	protected void check(AdvanceUserRights expected) throws IOException, AdvanceAccessDenied {
+		if (!control.datastore().hasUserRight(userName, expected)) {
+			throw new AdvanceAccessDenied();
+		}
 	}
 	/**
-	 * Convenience method to initialize the engine control with the given remote address
-	 * and BASIC authentication mode.
-	 * @param remote the remote address
-	 * @param username the username
-	 * @param password the password
+	 * Check if the expected right is present for the user.
+	 * @param realm the realm name
+	 * @param expected the expected right
+	 * @throws AdvanceAccessDenied thrown if the user has no right
+	 * @throws IOException if a network error occurs
 	 */
-	public HttpRemoteEngineControl(@NonNull URL remote, @NonNull String username, @NonNull char[] password) {
-		AdvanceHttpAuthentication auth = new AdvanceHttpAuthentication();
-		auth.loginType = AdvanceWebLoginType.BASIC;
-		auth.name = username;
-		auth.password = password;
-		
-		init(remote, auth);
+	protected void check(String realm, AdvanceUserRealmRights expected) throws IOException, AdvanceAccessDenied {
+		if (!control.datastore().hasUserRight(userName, realm, expected)) {
+			throw new AdvanceAccessDenied();
+		}
 	}
 	/**
-	 * Initialize the internal communicator with the given address and authentication.
-	 * @param remote the remote address
-	 * @param auth the authentication record
+	 * Construct the wrapper for the given datastore and user name.
+	 * @param control the control to wrap
+	 * @param userName the user name to check the access rights
 	 */
-	private void init(@NonNull URL remote, @NonNull AdvanceHttpAuthentication auth) {
-		comm = new HttpCommunicator();
-		comm.url = remote;
-		comm.authentication = auth;
+	public CheckedEngineControl(AdvanceEngineControl control, String userName) {
+		this.control = control;
+		this.userName = userName;
 	}
-
 	@Override
 	public AdvanceUser getUser() throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("get-user"));
-		return HttpRemoteUtils.parseItem(response, AdvanceUser.CREATOR);
+		// TODO Auto-generated method stub
+		return null;
 	}
+
 	@Override
 	public List<AdvanceBlockRegistryEntry> queryBlocks() throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public AdvanceEngineVersion queryVersion() throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public void updateSchema(String name, XElement schema, String byUser)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void deleteKeyEntry(String keyStore, String keyAlias)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void generateKey(AdvanceGenerateKey key) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public String exportCertificate(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public String exportPrivateKey(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public void importCertificate(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void importPrivateKey(AdvanceKeyStoreExport request, String keyData,
 			String certData) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public String exportSigningRequest(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public void importSigningResponse(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public List<AdvanceKeyEntry> queryKeys(String keyStore) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public AdvanceDataStore datastore() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public void stopRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void startRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public AdvanceCompositeBlock queryFlow(String realm) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public void updateFlow(String realm, AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public List<AdvanceCompilationError> verifyFlow(AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public Observable<AdvanceBlockDiagnostic> debugBlock(String realm,
 			String blockId) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public Observable<AdvanceParameterDiagnostic> debugParameter(String realm,
 			String blockId, String port, boolean isImput) throws IOException,
@@ -236,16 +260,18 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public void injectValue(String realm, String blockId, String port,
 			XElement value) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	@Override
 	public void shutdown() throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

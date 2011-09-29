@@ -55,9 +55,7 @@ import com.google.common.collect.Sets;
 
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceControlToken;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.AdvanceDirectDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
@@ -80,7 +78,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The local realm object containing various tables.
  * @author karnokd, 2011.09.21.
  */
-public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceDirectDataStore {
+public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(LocalDataStore.class);
 	/** The cryptographic salt used to encrypt the datastore. */
@@ -432,11 +430,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 		}
 	}
 	@Override
-	public List<AdvanceRealm> queryRealms(AdvanceControlToken token)
+	public List<AdvanceRealm> queryRealms()
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_REALMS)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (realms) {
 			List<AdvanceRealm> result = Lists.newArrayList();
 			for (AdvanceRealm e : realms.values()) {
@@ -446,20 +441,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 		}
 	}
 	@Override
-	public void createRealm(AdvanceControlToken token, String name)
+	public void createRealm(String name, String byUser)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.CREATE_REALM)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (realms) {
 			if (!realms.containsKey(name)) {
 				AdvanceRealm r = new AdvanceRealm();
 				r.name = name;
 				r.status = AdvanceRealmStatus.STOPPED;
 				r.createdAt = new Date();
-				r.createdBy = token.user.name;
+				r.createdBy = byUser;
 				r.modifiedAt = new Date();
-				r.modifiedBy = token.user.name;
+				r.modifiedBy = byUser;
 				realms.put(r.name, r);
 			} else {
 				throw new AdvanceControlException("Realm exists");
@@ -468,39 +460,30 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void deleteRealm(AdvanceControlToken token, String name)
+	public void deleteRealm(String name)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_REALM)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (realms) {
 			realms.remove(name);
 		}
 	}
 
 	@Override
-	public void renameRealm(AdvanceControlToken token, String name,
-			String newName) throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.MODIFY_REALM)) {
-			throw new AdvanceAccessDenied();
-		}
+	public void renameRealm(String name,
+			String newName, String byUser) throws IOException, AdvanceControlException {
 		synchronized (realms) {
 			AdvanceRealm r = realms.get(name);
 			if (r != null) {
 				r.name = newName;
 				r.modifiedAt = new Date();
-				r.modifiedBy = token.user.name;
+				r.modifiedBy = byUser;
 			} else {
 				throw new AdvanceControlException("Realm not found");
 			}
 		}		
 	}
 	@Override
-	public AdvanceRealm queryRealm(AdvanceControlToken token, String realm)
+	public AdvanceRealm queryRealm(String realm)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.MODIFY_REALM)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (realms) {
 			AdvanceRealm r = realms.get(realm);
 			if (r != null) {
@@ -512,11 +495,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 	
 	@Override
-	public List<AdvanceUser> queryUsers(AdvanceControlToken token)
+	public List<AdvanceUser> queryUsers()
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_USERS)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (users) {
 			List<AdvanceUser> result = Lists.newArrayList();
 			for (AdvanceUser u : users.values()) {
@@ -527,11 +507,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public AdvanceUser queryUser(AdvanceControlToken token, String userName)
+	public AdvanceUser queryUser(String userName)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_USERS)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (users) {
 			AdvanceUser u = users.get(userName);
 			if (u != null) {
@@ -542,11 +519,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void enableUser(AdvanceControlToken token, String userName,
-			boolean enabled) throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.MODIFY_USER)) {
-			throw new AdvanceAccessDenied();
-		}
+	public void enableUser(String userName,
+			boolean enabled, String byUser) throws IOException, AdvanceControlException {
 		synchronized (users) {
 			AdvanceUser u = users.get(userName);
 			if (u == null) {
@@ -560,13 +534,13 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				}
 			}
 			// do not allow disabling self
-			if (!u.name.equals(token.user.name)) {
+			if (!u.name.equals(byUser)) {
 				if (u.mayModifyUser() && maybeAdmin <= 1) {
 					throw new AdvanceControlException("No user admins would remain");
 				}
 				u.enabled = enabled;
 				u.modifiedAt = new Date();
-				u.modifiedBy = token.user.name;
+				u.modifiedBy = byUser;
 			} else {
 				throw new AdvanceControlException("Can't disable self");
 			}
@@ -574,11 +548,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void deleteUser(AdvanceControlToken token, String userName)
+	public void deleteUser(String userName, String byUser)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_USER)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (users) {
 			int maybeAdmin = 0;
 			for (AdvanceUser u2 : users.values()) {
@@ -587,7 +558,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				}
 			}
 			AdvanceUser u = users.get(userName);
-			if (!u.name.equals(token.user.name)) {
+			if (!u.name.equals(byUser)) {
 				if (u.mayModifyUser() && maybeAdmin <= 1) {
 					throw new AdvanceControlException("No user admins would remain");
 				}
@@ -599,15 +570,15 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void updateUser(AdvanceControlToken token, AdvanceUser user)
+	public void updateUser(AdvanceUser user)
 			throws IOException, AdvanceControlException {
 		synchronized (users) {
 			if (!users.containsKey(user.name)) {
-				if (!hasUserRight(token, AdvanceUserRights.CREATE_USER)) {
+				if (!hasUserRight(user.modifiedBy, AdvanceUserRights.CREATE_USER)) {
 					throw new AdvanceAccessDenied();
 				}
 			} else {
-				if (!hasUserRight(token, AdvanceUserRights.MODIFY_USER)) {
+				if (!hasUserRight(user.modifiedBy, AdvanceUserRights.MODIFY_USER)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
@@ -620,13 +591,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				u.createdBy = prev.createdBy;
 			} else {
 				u.createdAt = new Date();
-				u.createdBy = token.user.name;
+				u.createdBy = u.modifiedBy;
 			}
 			u.modifiedAt = new Date();
-			u.modifiedBy = token.user.name;
 			users.put(u.name, u);
 			// ensure that self is nut turned off or loses admin rights
-			if (u.name.equals(token.user.name) && prev != null) {
+			if (u.name.equals(u.modifiedBy) && prev != null) {
 				u.enabled = prev.enabled;
 				if (prev.mayModifyUser()) {
 					u.rights.add(AdvanceUserRights.LIST_USERS);
@@ -637,12 +607,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups(
-			AdvanceControlToken token) throws IOException,
+	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
+			throws IOException,
 			AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_NOTIFICATION_GROUPS)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (notificationGroups) {
 			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> result = Maps.newHashMap();
 			for (AdvanceNotificationGroupType t : notificationGroups.keySet()) {
@@ -661,12 +628,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void updateNotificationGroups(AdvanceControlToken token,
+	public void updateNotificationGroups(
 			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.MODIFY_NOTIFICATION_GROUP)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (notificationGroups) {
 			notificationGroups.clear();
 			for (AdvanceNotificationGroupType t : groups.keySet()) {
@@ -685,12 +649,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public List<AdvanceJDBCDataSource> queryJDBCDataSources(
-			AdvanceControlToken token) throws IOException,
+	public List<AdvanceJDBCDataSource> queryJDBCDataSources() throws IOException,
 			AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_JDBC_DATA_SOURCES)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (jdbcDataSources) {
 			List<AdvanceJDBCDataSource> result = Lists.newArrayList();
 			for (AdvanceJDBCDataSource e : jdbcDataSources.values()) {
@@ -702,16 +662,16 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void updateJDBCDataSource(AdvanceControlToken token,
+	public void updateJDBCDataSource(
 			AdvanceJDBCDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		synchronized (jdbcDataSources) {
 			if (!jdbcDataSources.containsKey(dataSource.name)) {
-				if (!hasUserRight(token, AdvanceUserRights.CREATE_JDBC_DATA_SOURCE)) {
+				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.CREATE_JDBC_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			} else {
-				if (!hasUserRight(token, AdvanceUserRights.MODIFY_JDBC_DATA_SOURCE)) {
+				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.MODIFY_JDBC_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
@@ -724,31 +684,24 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				u.createdBy = prev.createdBy;
 			} else {
 				u.createdAt = new Date();
-				u.createdBy = token.user.name;
+				u.createdBy = u.modifiedBy;
 			}
 			u.modifiedAt = new Date();
-			u.modifiedBy = token.user.name;
 			jdbcDataSources.put(u.name, u);
 		}
 	}
 
 	@Override
-	public void deleteJDBCDataSource(AdvanceControlToken token, String dataSourceName)
+	public void deleteJDBCDataSource(String dataSourceName)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_JDBC_DATA_SOURCE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (jdbcDataSources) {
 			jdbcDataSources.remove(dataSourceName);
 		}
 	}
 
 	@Override
-	public List<AdvanceJMSEndpoint> queryJMSEndpoints(AdvanceControlToken token)
+	public List<AdvanceJMSEndpoint> queryJMSEndpoints()
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_JMS_ENDPOINTS)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (jmsEndpoints) {
 			List<AdvanceJMSEndpoint> result = Lists.newArrayList();
 			for (AdvanceJMSEndpoint e : jmsEndpoints.values()) {
@@ -759,18 +712,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void updateJMSEndpoint(AdvanceControlToken token,
+	public void updateJMSEndpoint(
 			AdvanceJMSEndpoint endpoint) throws IOException,
 			AdvanceControlException {
 		
 		synchronized  (jmsEndpoints) {
 			AdvanceJMSEndpoint prev = jmsEndpoints.get(endpoint.name);
 			if (prev == null) {
-				if (!hasUserRight(token, AdvanceUserRights.CREATE_JMS_ENDPOINT)) {
+				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.CREATE_JMS_ENDPOINT)) {
 					throw new AdvanceAccessDenied();
 				}
 			} else {
-				if (!hasUserRight(token, AdvanceUserRights.MODIFY_JMS_ENDPOINT)) {
+				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.MODIFY_JMS_ENDPOINT)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
@@ -783,10 +736,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				u.createdBy = prev.createdBy;
 			} else {
 				u.createdAt = new Date();
-				u.createdBy = token.user.name;
+				u.createdBy = endpoint.modifiedBy;
 			}
 			u.modifiedAt = new Date();
-			u.modifiedBy = token.user.name;
 			jmsEndpoints.put(endpoint.name, u);
 		}
 		
@@ -794,23 +746,16 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void deleteJMSEndpoint(AdvanceControlToken token, String jmsName)
+	public void deleteJMSEndpoint(String jmsName)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_JMS_ENDPOINT)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (jmsEndpoints) {
 			jmsEndpoints.remove(jmsName);
 		}
 	}
 
 	@Override
-	public List<AdvanceWebDataSource> queryWebDataSources(
-			AdvanceControlToken token) throws IOException,
+	public List<AdvanceWebDataSource> queryWebDataSources() throws IOException,
 			AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_WEB_DATA_SOURCES)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (webDataSources) {
 			List<AdvanceWebDataSource> result = Lists.newArrayList();
 			for (AdvanceWebDataSource e : webDataSources.values()) {
@@ -821,17 +766,16 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void updateWebDataSource(AdvanceControlToken token,
-			AdvanceWebDataSource endpoint) throws IOException,
+	public void updateWebDataSource(AdvanceWebDataSource endpoint) throws IOException,
 			AdvanceControlException {
 		synchronized  (webDataSources) {
 			AdvanceWebDataSource prev = webDataSources.get(endpoint.name);
 			if (prev == null) {
-				if (!hasUserRight(token, AdvanceUserRights.CREATE_WEB_DATA_SOURCE)) {
+				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.CREATE_WEB_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			} else {
-				if (!hasUserRight(token, AdvanceUserRights.MODIFY_WEB_DATA_SOURCE)) {
+				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.MODIFY_WEB_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
@@ -844,33 +788,25 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				u.createdBy = prev.createdBy;
 			} else {
 				u.createdAt = new Date();
-				u.createdBy = token.user.name;
+				u.createdBy = endpoint.modifiedBy;
 			}
 			u.modifiedAt = new Date();
-			u.modifiedBy = token.user.name;
 			webDataSources.put(u.name, u);
 		}
 
 	}
 
 	@Override
-	public void deleteWebDataSource(AdvanceControlToken token, String webName)
+	public void deleteWebDataSource(String webName)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_WEB_DATA_SOURCE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (webDataSources) {
 			webDataSources.remove(webName);
 		}
 	}
 
 	@Override
-	public List<AdvanceFTPDataSource> queryFTPDataSources(
-			AdvanceControlToken token) throws IOException,
+	public List<AdvanceFTPDataSource> queryFTPDataSources() throws IOException,
 			AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_FTP_DATA_SOURCES)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (ftpDataSources) {
 			List<AdvanceFTPDataSource> result = Lists.newArrayList();
 			for (AdvanceFTPDataSource e : ftpDataSources.values()) {
@@ -881,17 +817,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void updateFTPDataSource(AdvanceControlToken token,
+	public void updateFTPDataSource(
 			AdvanceFTPDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		synchronized  (ftpDataSources) {
 			AdvanceFTPDataSource prev = ftpDataSources.get(dataSource.name);
 			if (prev == null) {
-				if (!hasUserRight(token, AdvanceUserRights.CREATE_FTP_DATA_SOURCE)) {
+				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.CREATE_FTP_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			} else {
-				if (!hasUserRight(token, AdvanceUserRights.MODIFY_FTP_DATA_SOURCE)) {
+				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.MODIFY_FTP_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
@@ -904,32 +840,24 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				u.createdBy = prev.createdBy;
 			} else {
 				u.createdAt = new Date();
-				u.createdBy = token.user.name;
+				u.createdBy = dataSource.modifiedBy;
 			}
 			u.modifiedAt = new Date();
-			u.modifiedBy = token.user.name;
 			ftpDataSources.put(u.name, u);
 		}
 	}
 
 	@Override
-	public void deleteFTPDataSource(AdvanceControlToken token, String ftpName)
+	public void deleteFTPDataSource(String ftpName)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_FTP_DATA_SOURCE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (ftpDataSources) {
 			ftpDataSources.remove(ftpName);
 		}
 	}
 
 	@Override
-	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources(
-			AdvanceControlToken token) throws IOException,
+	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources() throws IOException,
 			AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_LOCAL_FILE_DATA_SOURCES)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (localDataSources) {
 			List<AdvanceLocalFileDataSource> result = Lists.newArrayList();
 			for (AdvanceLocalFileDataSource e : localDataSources.values()) {
@@ -940,17 +868,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void updateLocalFileDataSource(AdvanceControlToken token,
+	public void updateLocalFileDataSource(
 			AdvanceLocalFileDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		synchronized  (localDataSources) {
 			AdvanceLocalFileDataSource prev = localDataSources.get(dataSource.name);
 			if (prev == null) {
-				if (!hasUserRight(token, AdvanceUserRights.CREATE_LOCAL_FILE_DATA_SOURCE)) {
+				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.CREATE_LOCAL_FILE_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			} else {
-				if (!hasUserRight(token, AdvanceUserRights.MODIFY_LOCAL_FILE_DATA_SOURCE)) {
+				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.MODIFY_LOCAL_FILE_DATA_SOURCE)) {
 					throw new AdvanceAccessDenied();
 				}
 			}
@@ -962,31 +890,24 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				u.createdBy = prev.createdBy;
 			} else {
 				u.createdAt = new Date();
-				u.createdBy = token.user.name;
+				u.createdBy = dataSource.modifiedBy;
 			}
 			u.modifiedAt = new Date();
-			u.modifiedBy = token.user.name;
 			localDataSources.put(u.name, u);
 		}
 	}
 
 	@Override
-	public void deleteLocalFileDataSource(AdvanceControlToken token, String fileName)
+	public void deleteLocalFileDataSource(String fileName)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_LOCAL_FILE_DATA_SOURCE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (localDataSources) {
 			localDataSources.remove(fileName);
 		}
 	}
 
 	@Override
-	public List<AdvanceKeyStore> queryKeyStores(AdvanceControlToken token)
+	public List<AdvanceKeyStore> queryKeyStores()
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_KEYSTORES)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (keystores) {
 			List<AdvanceKeyStore> result = Lists.newArrayList();
 			
@@ -999,41 +920,40 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 	/**
 	 * Check if the user of the given token has the expected rights.
-	 * @param token the token to test
+	 * @param userName the user name to test
 	 * @param expected the expected rights
 	 * @return true if the user has the expected right
 	 */
 	@Override
-	public boolean hasUserRight(AdvanceControlToken token, AdvanceUserRights expected) {
+	public boolean hasUserRight(String userName, AdvanceUserRights expected) {
 		synchronized (users) {
-			AdvanceUser u = users.get(token.user.name);
+			AdvanceUser u = users.get(userName);
 			return u.rights.contains(expected);
 		}
 	}
 	/**
 	 * Check if the user of the given token has the expected rights.
-	 * @param token the token to test
+	 * @param userName the user name
 	 * @param realm the target realm
 	 * @param expected the expected rights
 	 * @return true if the user has the expected right
 	 */
 	@Override
-	public boolean hasUserRight(AdvanceControlToken token, String realm, AdvanceUserRealmRights expected) {
+	public boolean hasUserRight(String userName, String realm, AdvanceUserRealmRights expected) {
 		synchronized (users) {
-			AdvanceUser u = users.get(token.user.name);
+			AdvanceUser u = users.get(userName);
 			return u.realmRights.containsEntry(realm, expected);
 		}
 	}
 	@Override
-	public void updateKeyStore(AdvanceControlToken token,
-			AdvanceKeyStore keyStore) throws IOException,
+	public void updateKeyStore(AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
 		KeystoreManager mgr = new KeystoreManager();
 		synchronized (keystores) {
 			AdvanceKeyStore e = keystores.get(keyStore.name);
 			try {
 				if (e == null) {
-					if (!hasUserRight(token, AdvanceUserRights.CREATE_KEYSTORE)) {
+					if (!hasUserRight(keyStore.modifiedBy, AdvanceUserRights.CREATE_KEYSTORE)) {
 						throw new AdvanceAccessDenied();
 					}
 					e = new AdvanceKeyStore();
@@ -1041,16 +961,16 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 					e.password = keyStore.password;
 					e.location = keyStore.location;
 					e.createdAt = new Date();
-					e.createdBy = token.user.name;
+					e.createdBy = keyStore.modifiedBy;
 					e.modifiedAt = new Date();
-					e.modifiedBy = token.user.name;
+					e.modifiedBy = keyStore.modifiedBy;
 					
 					mgr.create();
 					mgr.save(e.location, e.password);
 					
 					keystores.put(e.name, e);
 				} else {
-					if (!hasUserRight(token, AdvanceUserRights.MODIFY_KEYSTORE)) {
+					if (!hasUserRight(keyStore.modifiedBy, AdvanceUserRights.MODIFY_KEYSTORE)) {
 						throw new AdvanceAccessDenied();
 					}
 					
@@ -1070,7 +990,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 					}
 					
 					e.modifiedAt = new Date();
-					e.modifiedBy = token.user.name;
+					e.modifiedBy = keyStore.modifiedBy;
 
 					mgr.save(e.location, e.password);
 					
@@ -1082,11 +1002,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 	}
 
 	@Override
-	public void deleteKeyStore(AdvanceControlToken token, String keyStore)
+	public void deleteKeyStore(String keyStore)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.DELETE_KEYSTORE)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (keystores) {
 			AdvanceKeyStore e = keystores.get(keyStore);
 			if (e != null) {
@@ -1101,13 +1018,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 		}
 	}
 	@Override
-	public AdvanceKeyStore queryKeyStore(AdvanceControlToken token, String name)
+	public AdvanceKeyStore queryKeyStore(String name)
 			throws IOException, AdvanceControlException {
-		if (!hasUserRight(token, AdvanceUserRights.LIST_KEYSTORES)) {
-			throw new AdvanceAccessDenied();
-		}
 		synchronized (keystores) {
-			
 			AdvanceKeyStore e = keystores.get(name);
 			if (e != null) {
 				return e.copy();
@@ -1115,10 +1028,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				throw new AdvanceControlException("Keystore not found");
 			}
 		}
-	}
-	@Override
-	public AdvanceKeyStore queryKeyStore(String name) throws IOException {
-		return keystores.get(name);
 	}
 	@Override
 	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
@@ -1158,36 +1067,36 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore, AdvanceD
 				LOG.error("Missing group " + name + " in type " + type);
 			}
 			return result;
-		} else {
-			LOG.error("Missing group type: " + type);
 		}
+		LOG.error("Missing group type: " + type);
 		return null;
 	}
 	@Override
 	public XElement queryBlockState(String realm, String blockId)
 			throws IOException {
-		blockStates.get(realm);
+		Map<String, XElement> map = blockStates.get(realm);
+		if (map != null) {
+			XElement result = map.get(blockId);
+			if (result == null) {
+				LOG.error("Missing block " + blockId + " in realm " + realm);
+			}
+			return result;
+		}
+		LOG.error("Missing realm: " + realm);
 		return null;
 	}
 	@Override
 	public void updateBlockState(String realm, String blockId, XElement state)
 			throws IOException {
-		// TODO Auto-generated method stub
-		
+		Map<String, XElement> map = blockStates.get(realm);
+		if (map == null) {
+			map = Maps.newHashMap();
+			blockStates.put(realm, map);
+		}
+		map.put(blockId, state);
 	}
 	@Override
 	public XElement queryFlow(String realm) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public AdvanceUser queryUser(String userName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public List<AdvanceUser> queryUsers() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return dataflows.get(realm);
 	}
 }

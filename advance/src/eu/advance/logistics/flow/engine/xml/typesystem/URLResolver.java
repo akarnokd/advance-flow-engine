@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.xml.typesystem;
 
 import hu.akarnokd.reactive4java.base.Func1;
 
@@ -33,7 +33,6 @@ import javax.xml.stream.XMLStreamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Utility class to resolve XML schemas relative to a base URL.
