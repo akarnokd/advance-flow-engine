@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: eu.advance.logistics.flow.engine.controlcenter
+OpenIDE-Module-Layer: eu/advance/logistics/flow/engine/controlcenter/layer.xml
+OpenIDE-Module-Localizing-Bundle: eu/advance/logistics/flow/engine/controlcenter/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
