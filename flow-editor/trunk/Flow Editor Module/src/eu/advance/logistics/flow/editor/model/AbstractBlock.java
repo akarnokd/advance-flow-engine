@@ -65,8 +65,9 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
         if (id == null || id.isEmpty() || !parent.updateBlockId(this, id)) {
             return false;
         }
+        String old = this.id;
         this.id = id;
-        getFlowDiagram().fire(FlowDescriptionChange.BLOCK_RENAMED, this);
+        getFlowDiagram().fire(FlowDescriptionChange.BLOCK_RENAMED, this, old, id);
         return true;
     }
 
@@ -75,8 +76,7 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
         if (desc.id == null || inputParameters.containsKey(desc.id)) {
             desc.id = generateId(inputParameters.keySet(), "in");
         }
-        inputParameters.put(desc.id, param);
-        getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_CREATED, this, param);
+        addParameter(param);
         return param;
     }
 
@@ -89,8 +89,7 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
         if (desc.id == null || outputParameters.containsKey(desc.id)) {
             desc.id = generateId(outputParameters.keySet(), "out");
         }
-        outputParameters.put(desc.id, param);
-        getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_CREATED, this, param);
+        addParameter(param);
         return param;
     }
 
@@ -114,6 +113,16 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
 
     public Collection<BlockParameter> getOutputs() {
         return outputParameters.values();
+    }
+
+    public void addParameter(BlockParameter param) {
+        if (param.type == BlockParameter.Type.INPUT) {
+            inputParameters.put(param.getId(), param);
+        } else {
+            outputParameters.put(param.getId(), param);
+        }
+        getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_CREATED, this, param);
+
     }
 
     public void removeParameter(BlockParameter param) {
@@ -145,8 +154,9 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
 
     public void setLocation(Point point) {
         if (!Objects.equal(location, point)) {
+            Point old = this.location;
             location = point;
-            getFlowDiagram().fire(FlowDescriptionChange.BLOCK_MOVED, this);
+            getFlowDiagram().fire(FlowDescriptionChange.BLOCK_MOVED, this, old, location);
         }
     }
 

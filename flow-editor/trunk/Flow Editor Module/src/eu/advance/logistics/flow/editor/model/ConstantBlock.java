@@ -48,8 +48,9 @@ public class ConstantBlock extends AbstractBlock {
     }
 
     public void setConstant(AdvanceConstantBlock constant) {
+        AdvanceConstantBlock old = this.constant;
         this.constant = constant;
-        getFlowDiagram().fire(FlowDescriptionChange.CONSTANT_BLOCK_CHANGED, this);
+        getFlowDiagram().fire(FlowDescriptionChange.CONSTANT_BLOCK_CHANGED, this, old, constant);
     }
     
     public BlockParameter getParameter() {

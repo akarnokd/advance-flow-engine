@@ -99,8 +99,8 @@ class FlowSceneController implements FlowDescriptionListener {
                 scene.removePin((BlockParameter) params[1]);
                 scene.validate();
                 break;
-            case PARAMETER_CHANGED:
-                parameterChanged((BlockParameter) params[0]);
+            case PARAMETER_RENAMED:
+                parameterRenamed((BlockParameter) params[0]);
                 break;
             case CLOSED:
                 scene = null;
@@ -184,7 +184,7 @@ class FlowSceneController implements FlowDescriptionListener {
         scene.repaint();
     }
 
-    private void parameterChanged(BlockParameter param) {
+    private void parameterRenamed(BlockParameter param) {
         Widget w = scene.findWidget(param);
         if (w instanceof PinWidget) {
             ((PinWidget) w).setPinName(param.getDisplayName());
