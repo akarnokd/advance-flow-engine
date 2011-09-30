@@ -28,6 +28,8 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
+import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -65,6 +67,55 @@ public class HttpEngineControlListener {
 		String function = request.name;
 		if ("get-user".equals(function)) {
 			return HttpRemoteUtils.storeItem("user", ctrl.getUser());
+		} else
+		if ("query-blocks".equals(function)) {
+			return HttpRemoteUtils.storeList("blocks", "block", ctrl.queryBlocks());
+		} else
+		if ("query-schemas".equals(function)) {
+			return HttpRemoteUtils.storeList("schemas", "schema", ctrl.querySchemas());
+		} else
+		if ("query-version".equals(function)) {
+			return HttpRemoteUtils.storeItem("version", ctrl.queryVersion());
+		} else
+		if ("update-schema".equals(function)) {
+			ctrl.updateSchema(request.get("name"), request.children().get(0).copy());
+			return null;
+		} else
+		if ("query-schema".equals(function)) {
+			return HttpRemoteUtils.storeItem("schema", ctrl.querySchema(request.get("name")));
+		} else
+		if ("delete-key-entry".equals(function)) {
+			ctrl.deleteKeyEntry(request.get("keystore"), request.get("keyalias"));
+			return null;
+		} else
+		if ("generate-key".equals(function)) {
+			ctrl.generateKey(HttpRemoteUtils.parseItem(request, AdvanceGenerateKey.CREATOR));
+			return null;
+		} else
+		if ("export-certificate".equals(function)) {
+			XElement response = new XElement("certificate");
+			response.content = ctrl.exportCertificate(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
+			return response;
+		} else
+		if ("export-private-key".equals(function)) {
+			XElement response = new XElement("private-key");
+			response.content = ctrl.exportPrivateKey(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
+			return response;
+		} else
+		if ("import-certificate".equals(function)) {
+			ctrl.importCertificate(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
+			return null;
+		} else
+		if ("import-private-key".equals(function)) {
+			ctrl.importPrivateKey(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR),
+					request.childValue("private-key"), request.childValue("certificate"));
+			return null;
+		} else
+		if ("export-signing-request".equals(function)) {
+			XElement response = new XElement("signing-request");
+			response.content = ctrl.exportSigningRequest(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
+			return response;
+			
 		}
 		// TODO add control functions
 		// try datastore

@@ -163,7 +163,6 @@ public final class BuildJarRelease {
 	
 	/** Utility class. */
 	private BuildJarRelease() {
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * Loads an entire file from the filesystem.
