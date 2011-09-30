@@ -21,8 +21,13 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.AdvanceType;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The combination (e.g., union) of two types could not be created.
@@ -30,11 +35,15 @@ import eu.advance.logistics.flow.engine.model.AdvanceType;
  */
 public class CombinedTypeError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
-	public final AdvanceType left;
+	public AdvanceType left;
 	/** The right side of the binding. */
-	public final AdvanceType right;
+	public AdvanceType right;
+	/** Empty constructor. */
+	public CombinedTypeError() {
+		
+	}
 	/**
 	 * Constructor.
 	 * <p>The union of two types could not be created.</p>
@@ -50,5 +59,29 @@ public class CombinedTypeError implements AdvanceCompilationError {
 	@Override
 	public String toString() {
 		return "Combined type could not be created for wire " + binding.id + ": " + left + " vs. " + right;
+	}
+	@Override
+	public void load(XElement source) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void save(XElement destination) {
+		// TODO Auto-generated method stub
+		
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<CombinedTypeError> CREATOR = new Func0<CombinedTypeError>() {
+		@Override
+		public CombinedTypeError invoke() {
+			return new CombinedTypeError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(CombinedTypeError.class.getSimpleName(), CREATOR);
 	}
 }

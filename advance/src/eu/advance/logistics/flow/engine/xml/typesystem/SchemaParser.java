@@ -241,7 +241,7 @@ public final class SchemaParser {
 		}
 		
 		LinkedList<XElement> seqs = new LinkedList<XElement>();
-		seqs.addAll(typedef.children);
+		seqs.addAll(typedef.children());
 		while (seqs.size() > 0) {
 			XElement sequence = seqs.removeFirst();
 			if (sequence.namespace.equals(XElement.XSD)) {
@@ -253,7 +253,7 @@ public final class SchemaParser {
 						|| sequence.name.equals("group") // FIXME not sure
 						|| sequence.name.equals("all") // FIXME not sure
 				) {
-					seqs.addAll(0, sequence.children);
+					seqs.addAll(0, sequence.children());
 				} else
 				if (sequence.name.equals("simpleContent")) {
 					XElement restriction = sequence.childElement("restriction");
@@ -744,7 +744,7 @@ public final class SchemaParser {
 	static void analizeChildren(XElement element, XType elementType) {
 		// group all elements
 		Map<Pair<String, String>, List<XElement>> elementGroups = Maps.newHashMap();
-		for (XElement e : element.children) {
+		for (XElement e : element.children()) {
 			Pair<String, String> name = Pair.of(e.name, e.namespace);
 			List<XElement> elements = elementGroups.get(name);
 			if (elements == null) {

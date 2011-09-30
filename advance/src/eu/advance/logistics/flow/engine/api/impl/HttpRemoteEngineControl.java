@@ -29,6 +29,7 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
@@ -41,7 +42,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
-import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -52,6 +52,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	/** The communicator used to send and receive requests. */
 	protected HttpCommunicator comm;
+	/** The datastore interface. */
+	protected AdvanceDataStore datastore;
 	/**
 	 * Initialize the engine control with the given remote address and authentication
 	 * record.
@@ -60,6 +62,7 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 */
 	public HttpRemoteEngineControl(@NonNull URL remote, @NonNull AdvanceHttpAuthentication auth) {
 		init(remote, auth);
+		datastore = new HttpRemoteDataStore(comm);
 	}
 	/**
 	 * Convenience method to initialize the engine control with the given remote address
@@ -75,6 +78,15 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 		auth.password = password;
 		
 		init(remote, auth);
+		datastore = new HttpRemoteDataStore(comm);
+	}
+	/**
+	 * Initialize the control with the supplied communicator.
+	 * @param comm the communicator to use
+	 */
+	public HttpRemoteEngineControl(@NonNull HttpCommunicator comm) {
+		this.comm = comm;
+		datastore = new HttpRemoteDataStore(comm);
 	}
 	/**
 	 * Initialize the internal communicator with the given address and authentication.
@@ -95,157 +107,156 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	@Override
 	public List<AdvanceBlockRegistryEntry> queryBlocks() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-blocks"));
+		return HttpRemoteUtils.parseList(response, "block", AdvanceBlockRegistryEntry.CREATOR);
 	}
 	@Override
 	public List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-schemas"));
+		return HttpRemoteUtils.parseList(response, "schema", AdvanceSchemaRegistryEntry.CREATOR);
 	}
 	@Override
 	public AdvanceEngineVersion queryVersion() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-version"));
+		return HttpRemoteUtils.parseItem(response, AdvanceEngineVersion.CREATOR);
 	}
 	@Override
 	public void updateSchema(String name, XElement schema, String byUser)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		XElement query = HttpRemoteUtils.createRequest("update-schema", "name", name, "by-user", byUser);
+		query.add(schema.copy());
+		comm.send(query);
 	}
 	@Override
 	public void deleteKeyEntry(String keyStore, String keyAlias)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createRequest("delete-key-entry", "keystore", keyStore, "keyalias", keyAlias));
 	}
 	@Override
 	public void generateKey(AdvanceGenerateKey key) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createUpdate("generate-key", key));
 	}
 	@Override
 	public String exportCertificate(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createUpdate("export-certificate", request));
+		return response.content;
 	}
 	@Override
 	public String exportPrivateKey(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createUpdate("export-private-key", request));
+		return response.content;
 	}
 	@Override
 	public void importCertificate(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		XElement xrequest = new XElement("import-certificate");
+		xrequest.content = data;
+		comm.send(xrequest);
 	}
 	@Override
 	public void importPrivateKey(AdvanceKeyStoreExport request, String keyData,
 			String certData) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		XElement xrequest = new XElement("import-private-key");
+		xrequest.add("private-key").content = keyData;
+		xrequest.add("certificate").content = certData;
+		comm.send(xrequest);
 	}
 	@Override
 	public String exportSigningRequest(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createUpdate("export-signing-request", request));
+		return response.content;
 	}
 	@Override
 	public void importSigningResponse(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		XElement xrequest = new XElement("import-signing-response");
+		xrequest.content = data;
+		comm.send(xrequest);
 	}
 	@Override
 	public void testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createRequest("test-jdbc-data-source", "data-source-source", dataSourceName));
 	}
 	@Override
 	public void testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createRequest("test-jms-endpoint", "jms-name", jmsName));
 	}
 	@Override
 	public void testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createRequest("test-ftp-endpoint", "ftp-name", ftpName));
 	}
 	@Override
 	public List<AdvanceKeyEntry> queryKeys(String keyStore) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-keys", "keystore", keyStore));
+		return HttpRemoteUtils.parseList(response, "keyentry", AdvanceKeyEntry.CREATOR);
 	}
 	@Override
 	public AdvanceDataStore datastore() {
-		// TODO Auto-generated method stub
-		return null;
+		return datastore;
 	}
 	@Override
 	public void stopRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createRequest("stop-realm", "name", name, "by-user", byUser));
 	}
 	@Override
 	public void startRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createRequest("start-realm", "name", name, "by-user", byUser));
 	}
 	@Override
 	public AdvanceCompositeBlock queryFlow(String realm) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-flow", "realm", realm));
+		return AdvanceCompositeBlock.parseFlow(response);
 	}
 	@Override
 	public void updateFlow(String realm, AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		XElement request = HttpRemoteUtils.createRequest("update-flow", "realm", realm);
+		request.add(flow.serializeFlow());
+		comm.send(request);
 	}
 	@Override
-	public List<AdvanceCompilationError> verifyFlow(AdvanceCompositeBlock flow)
+	public AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		XElement request = HttpRemoteUtils.createRequest("verify-flow");
+		request.add(flow.serializeFlow());
+		return HttpRemoteUtils.parseItem(comm.query(request), AdvanceCompilationResult.CREATOR);
 	}
 	@Override
 	public Observable<AdvanceBlockDiagnostic> debugBlock(String realm,
 			String blockId) throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	@Override
 	public Observable<AdvanceParameterDiagnostic> debugParameter(String realm,
 			String blockId, String port, boolean isImput) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	@Override
 	public void injectValue(String realm, String blockId, String port,
 			XElement value) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		XElement request = HttpRemoteUtils.createRequest("inject-value", "realm", realm, "block-id", blockId, "port", port);
+		request.add(value.copy());
+		comm.send(request);
 	}
 	@Override
 	public void shutdown() throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		comm.send(HttpRemoteUtils.createRequest("shutdown"));
 	}
 
 }

@@ -21,13 +21,14 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
 import java.text.ParseException;
 import java.util.Date;
 
 import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.model.XSerializable;
-import eu.advance.logistics.flow.engine.xml.XsdDateTime;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 
@@ -42,6 +43,13 @@ public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry>
 	public String name;
 	/** The creation date. */
 	public Date createdAt;
+	/** Creates a new instance of this class. */
+	public static final Func0<AdvanceKeyEntry> CREATOR = new Func0<AdvanceKeyEntry>() {
+		@Override
+		public AdvanceKeyEntry invoke() {
+			return new AdvanceKeyEntry();
+		}
+	};
 	@Override
 	public AdvanceKeyEntry copy() {
 		AdvanceKeyEntry result = new AdvanceKeyEntry();
@@ -55,7 +63,7 @@ public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry>
 		type = AdvanceKeyType.valueOf(source.get("type"));
 		name = source.get("name");
 		try {
-			createdAt = XsdDateTime.parse(source.get("created-at"));
+			createdAt = XElement.parseDateTime(source.get("created-at"));
 		} catch (ParseException ex) {
 			LoggerFactory.getLogger(AdvanceKeyEntry.class).error(ex.toString(), ex);
 		}
@@ -64,6 +72,6 @@ public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry>
 	public void save(XElement destination) {
 		destination.set("type", type);
 		destination.set("name", name);
-		destination.set("created-at", XsdDateTime.format(createdAt));
+		destination.set("created-at", XElement.formatDateTime(createdAt));
 	}
 }

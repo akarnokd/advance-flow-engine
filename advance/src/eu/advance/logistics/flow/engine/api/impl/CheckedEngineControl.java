@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
@@ -240,7 +241,7 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public List<AdvanceCompilationError> verifyFlow(AdvanceCompositeBlock flow)
+	public AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;

@@ -35,9 +35,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Deque;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -54,7 +56,6 @@ import javax.xml.stream.XMLStreamWriter;
 import com.google.common.base.Objects;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.xml.XsdDateTime;
 
 /**
  * A simplified XML element model.
@@ -565,15 +566,7 @@ public class XElement implements Iterable<XElement> {
 	 * @param value the value, if null, the attribute will be removed
 	 */
 	public void set(@NonNull String name, Object value) {
-		if (value != null) {
-			if (value instanceof Date) {
-				attributes.put(new XAttributeName(name, null, null), XsdDateTime.format((Date)value));
-			} else {
-				attributes.put(new XAttributeName(name, null, null), value.toString());
-			}
-		} else {
-			attributes.remove(new XAttributeName(name, null, null));
-		}
+		set(name, null, value);
 	}
 	/**
 	 * Set an attribute value identified by a local name and namespace.
@@ -581,9 +574,13 @@ public class XElement implements Iterable<XElement> {
 	 * @param namespace the attribute namespace
 	 * @param value the value, if null, the attribute will be removed
 	 */
-	public void set(@NonNull String name, String namespace, String value) {
+	public void set(@NonNull String name, String namespace, Object value) {
 		if (value != null) {
-			attributes.put(new XAttributeName(name, namespace, null), value);
+			if (value instanceof Date) {
+				attributes.put(new XAttributeName(name, namespace, null), formatDateTime((Date)value));
+			} else {
+				attributes.put(new XAttributeName(name, namespace, null), value.toString());
+			}
 		} else {
 			attributes.remove(new XAttributeName(name, namespace, null));
 		}
@@ -876,5 +873,197 @@ public class XElement implements Iterable<XElement> {
 			return false;
 		}
 		return defaultValue;
+	}
+	/**
+	 * @return the attribute map
+	 */
+	public Map<XAttributeName, String> attributes() {
+		return attributes;
+	}
+	/**
+	 * Gregorian calendar for XSD dateTime.
+	 */
+	private static final ThreadLocal<GregorianCalendar> XSD_CALENDAR = new ThreadLocal<GregorianCalendar>() {
+		@Override
+		protected GregorianCalendar initialValue() {
+			return new GregorianCalendar();
+		}
+	};
+	/**
+	 * Convert the given date to string.
+	 * Always contains the milliseconds and timezone.
+	 * @param date the date, not null
+	 * @return the formatted date
+	 */
+	public static String formatDateTime(Date date) {
+		StringBuilder b = new StringBuilder(24);
+		
+		GregorianCalendar cal = XSD_CALENDAR.get();
+		cal.setTime(date);
+		
+		int value = 0;
+		
+		// Year-Month-Day
+		value = cal.get(GregorianCalendar.YEAR);
+		b.append(value);
+		b.append('-');
+		value = cal.get(GregorianCalendar.MONTH) + 1;
+		if (value < 10) {
+			b.append('0');
+		}
+		b.append(value);
+		b.append('-');
+		value = cal.get(GregorianCalendar.DATE);
+		if (value < 10) {
+			b.append('0');
+		}
+		b.append(value);
+		
+		b.append('T');
+		// hour:minute:second:milliseconds
+		value = cal.get(GregorianCalendar.HOUR_OF_DAY);
+		if (value < 10) {
+			b.append('0');
+		}
+		b.append(value);
+		b.append(':');
+		value = cal.get(GregorianCalendar.MINUTE);
+		if (value < 10) {
+			b.append('0');
+		}
+		b.append(value);
+		b.append(':');
+		value = cal.get(GregorianCalendar.SECOND);
+		if (value < 10) {
+			b.append('0');
+		}
+		b.append(value);
+		b.append('.');
+		
+		value = cal.get(GregorianCalendar.MILLISECOND);
+		// add leading zeros if needed
+		if (value < 100) {
+			b.append('0');
+		}
+		if (value < 10) {
+			b.append('0');
+		}
+		b.append(value);
+		
+		value = cal.get(GregorianCalendar.DST_OFFSET) + cal.get(GregorianCalendar.ZONE_OFFSET);
+		
+		if (value == 0) {
+			b.append('Z');
+		} else {
+			if (value < 0) {
+				b.append('-');
+				value = -value;
+			} else {
+				b.append('+');
+			}
+			int hour = value / 3600000;
+			int minute = value / 60000 % 60;
+			if (hour < 10) {
+				b.append('0');
+			}
+			b.append(hour);
+			b.append(':');
+			if (minute < 10) {
+				b.append('0');
+			}
+			b.append(minute);
+		}
+		
+		
+		return b.toString();
+	}
+	/**
+	 * Parse an XSD dateTime.
+	 * @param date the date string
+	 * @return the date
+	 * @throws ParseException format exception
+	 */
+	public static Date parseDateTime(String date) throws ParseException {
+		GregorianCalendar cal = XSD_CALENDAR.get();
+		cal.set(GregorianCalendar.MILLISECOND, 0);
+		// format yyyy-MM-dd'T'HH:mm:ss[.sss][zzzzz] no milliseconds no timezone
+		int offset = 0;
+		try {
+			offset = 0;
+			cal.set(GregorianCalendar.YEAR, Integer.parseInt(date.substring(offset, offset + 4)));
+			offset = 5;
+			cal.set(GregorianCalendar.MONTH, Integer.parseInt(date.substring(offset, offset + 2)) - 1);
+			offset = 8;
+			cal.set(GregorianCalendar.DATE, Integer.parseInt(date.substring(offset, offset + 2)));
+			offset = 11;
+			cal.set(GregorianCalendar.HOUR_OF_DAY, Integer.parseInt(date.substring(offset, offset + 2)));
+			offset = 14;
+			cal.set(GregorianCalendar.MINUTE, Integer.parseInt(date.substring(offset, offset + 2)));
+			offset = 17;
+			cal.set(GregorianCalendar.SECOND, Integer.parseInt(date.substring(offset, offset + 2)));
+			
+			if (date.length() > 19) {
+				offset = 19;
+				char c = date.charAt(offset);
+				// check milliseconds
+				if (c == '.') {
+					offset++;
+					int endOffset = offset;
+					// can be multiple
+					while (endOffset < date.length() && Character.isDigit(date.charAt(endOffset))) {
+						endOffset++;
+					}
+					int millisec = Integer.parseInt(date.substring(offset, endOffset));
+					int len = endOffset - offset - 1;
+					if (len >= 3) {
+						while (len-- >= 3) {
+							millisec /= 10;
+						}
+					} else {
+						while (++len < 3) {
+							millisec *= 10;
+						}
+					}
+					cal.set(GregorianCalendar.MILLISECOND, millisec);
+					if (date.length() > endOffset) {
+						offset = endOffset;
+						c = date.charAt(offset);
+					} else {
+						c = '\0';
+					}
+				}
+				if (c == 'Z') {
+					cal.set(GregorianCalendar.ZONE_OFFSET, 0);
+				} else
+				if (c == '-' || c == '+') {
+					int sign = c == '-' ? -1 : 1;
+					offset++;
+					int tzHour = Integer.parseInt(date.substring(offset, offset + 2));
+					offset += 3;
+					int tzMinute = Integer.parseInt(date.substring(offset, offset + 2));
+					cal.set(GregorianCalendar.ZONE_OFFSET, sign * (tzHour * 3600000 + tzMinute * 60000));
+				} else
+				if (c != '\0') {
+					throw new ParseException("Unknown milliseconds or timezone", offset);
+				}
+			}
+		} catch (NumberFormatException ex) {
+			throw new ParseException(ex.toString(), offset);
+		} catch (IndexOutOfBoundsException ex) {
+			throw new ParseException(ex.toString(), offset);
+		}
+		return cal.getTime();
+	}
+	/**
+	 * Set a multitude of attribute names and values.
+	 * @param nameValues the attribute name and attribute value pairs.
+	 */
+	public void set(Object... nameValues) {
+		if (nameValues.length % 2 != 0) {
+			throw new IllegalArgumentException("Names and values must be in pairs");
+		}
+		for (int i = 0; i < nameValues.length; i += 2) {
+			set((String)nameValues[i], nameValues[i + 1]);
+		}
 	}
 }

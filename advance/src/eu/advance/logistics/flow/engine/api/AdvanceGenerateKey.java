@@ -21,7 +21,9 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.util.DistinguishedName;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Request to generate a new key.
@@ -38,4 +40,27 @@ public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 	public DistinguishedName subjectDn;
 	/** The user who modifies the record. */
 	public String modifiedBy;
+	/** Creates a new instance of this class. */
+	public static final Func0<AdvanceGenerateKey> CREATOR = new Func0<AdvanceGenerateKey>() {
+		@Override
+		public AdvanceGenerateKey invoke() {
+			return new AdvanceGenerateKey();
+		}
+	};
+	@Override
+	public void load(XElement source) {
+		algorithm = source.get("algorithm");
+		keySize = source.getInt("keysize");
+		issuerDn = new DistinguishedName(source.get("issuer-dn"));
+		subjectDn = new DistinguishedName(source.get("subject-dn"));
+		modifiedBy = source.get("modified-by");
+		super.load(source);
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("algorithm", algorithm, "keysize", keySize, 
+				"issuer-dn", issuerDn, "subject-dn", subjectDn, "modified-by", modifiedBy);
+		super.save(destination);
+	}
+	
 }

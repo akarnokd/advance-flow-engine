@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -37,6 +38,13 @@ public class AdvanceEngineVersion implements XSerializable {
 	public int majorVersion;
 	/** @return the build number. When displayed, this should be a three digit zero padded number, e.g., 1 is 1.00.001. */
 	public int buildNumber;
+	/** Create a new instance of this class. */
+	public static final Func0<AdvanceEngineVersion> CREATOR = new Func0<AdvanceEngineVersion>() {
+		@Override
+		public AdvanceEngineVersion invoke() {
+			return new AdvanceEngineVersion();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		parse(source.get("version"));

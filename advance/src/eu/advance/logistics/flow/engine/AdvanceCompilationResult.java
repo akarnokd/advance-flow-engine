@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
 import java.util.List;
 import java.util.Map;
 
@@ -28,13 +30,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.error.GeneralCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceType;
+import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Record to store compiler errors, warnings and the computed types of various wires.
  * @author karnokd, 2011.09.28.
  */
-public class AdvanceCompilationResult {
+public class AdvanceCompilationResult implements XSerializable {
 	/**
 	 * The list of compilation errors.
 	 */
@@ -43,4 +48,48 @@ public class AdvanceCompilationResult {
 	 * The inferred wire types.
 	 */
 	public final Map<String, AdvanceType> wireTypes = Maps.newHashMap();
+	/** The map from error type to error class. */
+	protected static final Map<String, Func0<AdvanceCompilationError>> ERROR_LOOKUP;
+	static {
+		ERROR_LOOKUP = Maps.newHashMap();
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<AdvanceCompilationResult> CREATOR = new Func0<AdvanceCompilationResult>() {
+		@Override
+		public AdvanceCompilationResult invoke() {
+			return new AdvanceCompilationResult();
+		}
+	};
+	@Override
+	public void load(XElement source) {
+		for (XElement e : source.childElement("errors").childrenWithName("error")) {
+			Func0<AdvanceCompilationError> errFun = ERROR_LOOKUP.get(source.get("type"));
+			if (errFun == null) {
+				errors.add(new GeneralCompilationError(e));
+			} else {
+				AdvanceCompilationError err = errFun.invoke();
+				err.load(e);
+				errors.add(err);
+			}
+			
+		}
+		for (XElement e : source.childElement("wire-types").childrenWithName("wire-type")) {
+			AdvanceType at = new AdvanceType();
+			at.load(e.children().get(0));
+			wireTypes.put(e.get("wire-id"), at);
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		XElement errors = destination.add("errors");
+		for (AdvanceCompilationError e : this.errors) {
+			e.save(errors.add("error"));
+		}
+		XElement types = destination.add("wire-types");
+		for (Map.Entry<String, AdvanceType> e : this.wireTypes.entrySet()) {
+			XElement wt = types.add("wire-type");
+			wt.set("wire-id", e.getKey());
+			e.getValue().save(wt.add("type"));
+		}
+	}
 }
