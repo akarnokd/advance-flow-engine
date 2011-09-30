@@ -21,11 +21,15 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+
 /**
  * Request for exporting a certificate from a keystore.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceKeyStoreExport {
+public class AdvanceKeyStoreExport
+implements XSerializable, HasPassword {
 	/** The key store name. */
 	public String keyStore;
 	/** The key alias. */
@@ -36,4 +40,24 @@ public class AdvanceKeyStoreExport {
 	 * the current password, use {@code null}.</p>
 	 */
 	public char[] keyPassword;
+	@Override
+	public void load(XElement source) {
+		keyStore = source.get("keystore");
+		keyAlias = source.get("keyalias");
+		keyPassword = AdvanceCreateModifyInfo.getPassword(source, "password");
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("keystore", keyStore);
+		destination.set("keyalias", keyAlias);
+		AdvanceCreateModifyInfo.setPassword(destination, "password", keyPassword);
+	}
+	@Override
+	public char[] password() {
+		return keyPassword != null ? keyPassword.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		keyPassword = newPassword != null ? newPassword.clone() : null;
+	}
 }

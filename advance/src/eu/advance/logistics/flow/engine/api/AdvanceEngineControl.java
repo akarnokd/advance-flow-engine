@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.util.List;
 
 import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
-import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -213,11 +213,11 @@ public interface AdvanceEngineControl {
 	/**
 	 * Verify the given flow.
 	 * @param flow the flow to verify
-	 * @return the list of compilation errors.
+	 * @return the results of the compilation in terms of errors and computed types of wires
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to update a flow
 	 */
-	List<AdvanceCompilationError> verifyFlow(AdvanceCompositeBlock flow) throws IOException, AdvanceControlException;
+	AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow) throws IOException, AdvanceControlException;
 	/**
 	 * Ask for the observable sequence of block diagnostic messages for the given block within the given realm.
 	 * @param realm the realm

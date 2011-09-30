@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.model;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,11 +40,19 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The block registry entry of the block-registry.xml and xsd.
  * @author karnokd, 2011.07.05.
  */
-public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription implements XSerializable {
+public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription 
+implements XSerializable {
 	/** The implementation class. */
 	public String clazz;
 	/** The preferred scheduler. */
 	public SchedulerPreference scheduler;
+	/** Creates an instance of this class. */
+	public static final Func0<AdvanceBlockRegistryEntry> CREATOR = new Func0<AdvanceBlockRegistryEntry>() {
+		@Override
+		public AdvanceBlockRegistryEntry invoke() {
+			return new AdvanceBlockRegistryEntry();
+		}
+	};
 	@Override
 	public void load(XElement root) {
 		super.load(root);

@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
 /**
  * Utility class to resolve XML schemas relative to a base URL.
  * @author karnokd, 2011.09.28.

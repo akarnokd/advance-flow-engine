@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
@@ -61,7 +62,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
-import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
@@ -508,7 +508,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		
 	}
 	@Override
-	public List<AdvanceCompilationError> verifyFlow(
+	public AdvanceCompilationResult verifyFlow(
 			AdvanceCompositeBlock flow) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub

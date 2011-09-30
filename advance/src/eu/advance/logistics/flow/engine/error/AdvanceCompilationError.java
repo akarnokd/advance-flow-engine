@@ -21,10 +21,12 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import eu.advance.logistics.flow.engine.model.XSerializable;
+
 /**
  * A simple base interface for reporting various compilation problems.
  * @author karnokd, 2011.07.07.
  */
-public interface AdvanceCompilationError {
+public interface AdvanceCompilationError extends XSerializable {
 	
 }

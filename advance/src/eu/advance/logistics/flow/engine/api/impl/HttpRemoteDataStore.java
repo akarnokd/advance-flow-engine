@@ -81,6 +81,13 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 		init(remote, auth);
 	}
 	/**
+	 * Initialize the datastore with the supplied communicator.
+	 * @param comm the communicator instance
+	 */
+	public HttpRemoteDataStore(@NonNull HttpCommunicator comm) {
+		this.comm = comm;
+	}
+	/**
 	 * Initialize the internal communicator with the given address and authentication.
 	 * @param remote the remote address
 	 * @param auth the authentication record

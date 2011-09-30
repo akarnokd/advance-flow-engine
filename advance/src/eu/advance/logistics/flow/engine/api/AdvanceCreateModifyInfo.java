@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.util.Base64;
-import eu.advance.logistics.flow.engine.xml.XsdDateTime;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -81,13 +80,13 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	@Override
 	public void load(XElement source) {
 		try {
-			createdAt = XsdDateTime.parse(source.get("created-at"));
+			createdAt = XElement.parseDateTime(source.get("created-at"));
 		} catch (ParseException ex) {
 			LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
 		}
 		createdBy = source.get("created-by");
 		try {
-			modifiedAt = XsdDateTime.parse(source.get("modified-at"));
+			modifiedAt = XElement.parseDateTime(source.get("modified-at"));
 		} catch (ParseException ex) {
 			LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
 		}
@@ -95,9 +94,9 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	}
 	@Override
 	public void save(XElement destination) {
-		destination.set("created-at", XsdDateTime.format(createdAt));
+		destination.set("created-at", XElement.formatDateTime(createdAt));
 		destination.set("created-by", createdBy);
-		destination.set("modified-at", XsdDateTime.format(modifiedAt));
+		destination.set("modified-at", XElement.formatDateTime(modifiedAt));
 		destination.set("modified-by", modifiedBy);
 	}
 	/**

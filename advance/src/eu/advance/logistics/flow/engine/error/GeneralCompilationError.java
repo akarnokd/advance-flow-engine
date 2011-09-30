@@ -19,36 +19,31 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api;
+package eu.advance.logistics.flow.engine.error;
 
-import hu.akarnokd.reactive4java.base.Func0;
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * The schema registry used to ask the engine about known schemas.
- * @author karnokd, 2011.09.28.
+ * A general compilation error indicator when the error details are stored in XML.
+ * @author karnokd, 2011.09.30.
  */
-public class AdvanceSchemaRegistryEntry implements XSerializable {
-	/** The schema file name. */
-	public String name;
-	/** The schema content. */
-	public XElement schema;
-	/** Function to create a new instance of this class. */
-	public static final Func0<AdvanceSchemaRegistryEntry> CREATOR = new Func0<AdvanceSchemaRegistryEntry>() {
-		@Override
-		public AdvanceSchemaRegistryEntry invoke() {
-			return new AdvanceSchemaRegistryEntry();
-		}
-	};
+public class GeneralCompilationError implements AdvanceCompilationError {
+	/** The error contents. */
+	public XElement content;
+	/**
+	 * Constructor.
+	 * @param content the wrapped content
+	 */
+	public GeneralCompilationError(XElement content) {
+		this.content = content.copy();
+	}
 	@Override
 	public void load(XElement source) {
-		name = source.get("name");
-		schema = source.childElement("schema", XElement.XSD).copy();
+		source.add(content.copy());
 	}
 	@Override
 	public void save(XElement destination) {
-		destination.set("name", name);
-		destination.add(schema);
+		destination.set("type", getClass().getSimpleName());
+		content = destination.children().get(0).copy();
 	}
 }

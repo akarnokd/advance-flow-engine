@@ -72,9 +72,9 @@ public class XNavigator implements Navigator {
 			final XElement e = (XElement) contextNode;
 			if (e.content != null) {
 				return Iterators.concat(Iterators.singletonIterator(Pair.of(e, e.content)), 
-						e.children.iterator());
+						e.children().iterator());
 			}
-			return e.children.iterator();
+			return e.children().iterator();
 		}
 		return JaxenConstants.EMPTY_ITERATOR;
 	}
@@ -378,7 +378,7 @@ public class XNavigator implements Navigator {
 			final XElement e = (XElement) contextNode;
 			return 
 			Interactive.select(
-				Interactive.where(e.attributes.entrySet(), 
+				Interactive.where(e.attributes().entrySet(), 
 						new Func1<Map.Entry<XAttributeName, String>, Boolean>() {
 					@Override
 					public Boolean invoke(Entry<XAttributeName, String> input) {
@@ -412,15 +412,15 @@ public class XNavigator implements Navigator {
 				namespaces.put(e.prefix, e.namespace);
 			}
 			// select conventional attribute names
-			for (XAttributeName at : e.attributes.keySet()) {
+			for (XAttributeName at : e.attributes().keySet()) {
 				if (at.namespace == null || !at.namespace.startsWith("http://www.w3.org/2000/xmlns/")) {
 					namespaces.put(at.prefix, at.namespace);
 				}
 			}
 			// select namespace declaration attributes
-			for (XAttributeName at : e.attributes.keySet()) {
+			for (XAttributeName at : e.attributes().keySet()) {
 				if (at.namespace != null && !at.namespace.startsWith("http://www.w3.org/2000/xmlns/")) {
-					namespaces.put(at.name, e.attributes.get(at));
+					namespaces.put(at.name, e.attributes().get(at));
 				}
 			}
 			e = e.parent;
