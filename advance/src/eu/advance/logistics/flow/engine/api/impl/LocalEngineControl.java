@@ -47,7 +47,6 @@ import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
-import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
@@ -80,8 +79,6 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	protected final LocalDataStore datastore = new LocalDataStore();
 	/** The set of schema locations. */
 	protected final List<String> schemas;
-	/** The logged-in user. */
-	protected AdvanceUser user;
 	/**
 	 * Constructor initializing the configuration.
 	 * @param schemas the sequence of schemas
@@ -89,27 +86,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public LocalEngineControl(Iterable<String> schemas) {
 		this.schemas = Lists.newArrayList(schemas);
 	}
-	/**
-	 * Login with the given user credentials.
-	 * @param userName the user name
-	 * @param password the password
-	 * @throws AdvanceControlException the user cannot be found
-	 */
-	public void login(String userName,
-			char[] password) throws AdvanceControlException {
-		this.user = null;
-		synchronized (datastore.users) {
-			for (AdvanceUser u : datastore.users.values()) {
-				if (u.enabled && u.name.equals(userName) && Arrays.equals(password, u.password())) {
-					this.user = u.copy();
-				}
-			}
-		}
-		throw new AdvanceAccessDenied("Wrong user name or password");
-	}
 	@Override
 	public AdvanceUser getUser() throws IOException, AdvanceControlException {
-		return user;
+		throw new AdvanceControlException("The getUser() does not work at this level.");
 	}
 	@Override
 	public List<AdvanceBlockRegistryEntry> queryBlocks()
@@ -489,7 +468,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public Observable<AdvanceParameterDiagnostic> debugParameter(
 			String realm, String blockId,
-			String port, boolean isImput) throws IOException,
+			String port) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -545,24 +524,49 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		}
 	}
 	@Override
+	public AdvanceSchemaRegistryEntry querySchema(String name)
+			throws IOException, AdvanceControlException {
+		try {
+			for (String sd : schemas) {
+				File[] files = new File(sd).listFiles();
+				if (files != null) {
+					for (File f : files) {
+						if (f.getName().toLowerCase().endsWith(".xsd")) {
+							AdvanceSchemaRegistryEntry e = new AdvanceSchemaRegistryEntry();
+							e.name = f.getName();
+							e.schema = XElement.parseXML(f);
+							return e;
+						}
+					}
+				}
+			}
+		} catch (XMLStreamException ex) {
+			throw new IOException(ex);
+		}
+		return null;
+	}
+	@Override
 	public void updateSchema(String name,
-			XElement schema, String byUser) throws IOException, AdvanceControlException {
+			XElement schema) throws IOException, AdvanceControlException {
 		if (schemas.size() == 0) {
 			throw new AdvanceControlException("No place for schemas");
 		}
 		String sd = schemas.get(0);
 		File fname = new File(name);
 		File f = new File(sd, fname.getName());
-		if (f.canRead()) {
-			if (!datastore.hasUserRight(byUser, AdvanceUserRights.MODIFY_SCHEMA)) {
-				throw new AdvanceAccessDenied();
-			}
-		} else {
-			if (!datastore.hasUserRight(byUser, AdvanceUserRights.CREATE_SCHEMA)) {
-				throw new AdvanceAccessDenied();
-			}
-		}
 		schema.save(f);
+	}
+	@Override
+	public void deleteSchema(String name) throws IOException, AdvanceControlException {
+		if (schemas.size() == 0) {
+			throw new AdvanceControlException("No place for schemas");
+		}
+		String sd = schemas.get(0);
+		File fname = new File(name);
+		File f = new File(sd, fname.getName());
+		if (!f.delete()) {
+			LOG.error("Could not delete schema " + f);
+		}
 	}
 	@Override
 	public AdvanceEngineVersion queryVersion()

@@ -123,11 +123,17 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 		return HttpRemoteUtils.parseItem(response, AdvanceEngineVersion.CREATOR);
 	}
 	@Override
-	public void updateSchema(String name, XElement schema, String byUser)
+	public void updateSchema(String name, XElement schema)
 			throws IOException, AdvanceControlException {
-		XElement query = HttpRemoteUtils.createRequest("update-schema", "name", name, "by-user", byUser);
+		XElement query = HttpRemoteUtils.createRequest("update-schema", "name", name);
 		query.add(schema.copy());
 		comm.send(query);
+	}
+	@Override
+	public AdvanceSchemaRegistryEntry querySchema(String name)
+			throws IOException, AdvanceControlException {
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-schema", "name", name));
+		return HttpRemoteUtils.parseItem(response, AdvanceSchemaRegistryEntry.CREATOR);
 	}
 	@Override
 	public void deleteKeyEntry(String keyStore, String keyAlias)
@@ -242,7 +248,7 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public Observable<AdvanceParameterDiagnostic> debugParameter(String realm,
-			String blockId, String port, boolean isImput) throws IOException,
+			String blockId, String port) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
@@ -258,5 +264,9 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	public void shutdown() throws IOException, AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("shutdown"));
 	}
-
+	@Override
+	public void deleteSchema(String name) throws IOException,
+			AdvanceControlException {
+		comm.send(HttpRemoteUtils.createRequest("delete-schema", "name", name));
+	}
 }

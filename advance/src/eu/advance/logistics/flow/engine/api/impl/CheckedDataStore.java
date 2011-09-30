@@ -29,6 +29,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
@@ -163,13 +165,21 @@ public class CheckedDataStore implements AdvanceDataStore {
 	public List<AdvanceRealm> queryRealms() throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_REALMS);
-		return datastore.queryRealms();
+		List<AdvanceRealm> result = Lists.newArrayList();
+		AdvanceUser user = datastore.queryUser(userName);
+		for (AdvanceRealm r : datastore.queryRealms()) {
+			if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.LIST)) {
+				result.add(r);
+			}
+		}
+		return result;
 	}
 
 	@Override
 	public AdvanceRealm queryRealm(String realm) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_REALMS);
+		check(realm, AdvanceUserRealmRights.LIST);
 		return datastore.queryRealm(realm);
 	}
 

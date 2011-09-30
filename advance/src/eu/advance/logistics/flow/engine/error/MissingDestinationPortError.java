@@ -21,7 +21,12 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The destination port of the destination object cannot be found.
@@ -29,12 +34,39 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
  */
 public class MissingDestinationPortError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/**
 	 * Constructor.
 	 * @param binding the actual binding causing the problem
 	 */
 	public MissingDestinationPortError(AdvanceBlockBind binding) {
 		this.binding = binding;
+	}
+	/** Empty constructor. */
+	public MissingDestinationPortError() {
+		
+	}
+	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+	}
+	@Override
+	public void save(XElement destination) {
+		binding.save(destination.add("binding"));
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<MissingDestinationPortError> CREATOR = new Func0<MissingDestinationPortError>() {
+		@Override
+		public MissingDestinationPortError invoke() {
+			return new MissingDestinationPortError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(MissingDestinationPortError.class.getSimpleName(), CREATOR);
 	}
 }

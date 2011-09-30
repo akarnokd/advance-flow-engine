@@ -60,13 +60,6 @@ public interface AdvanceEngineControl {
 	List<AdvanceBlockRegistryEntry> queryBlocks() 
 	throws IOException, AdvanceControlException;
 	/**
-	 * Query the list of schemas known by the engine.
-	 * @return the list and value of the known schemas
-	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
-	 */
-	List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException, AdvanceControlException;
-	/**
 	 * Return the engine version infromation.
 	 * @return the engine version information
 	 * @throws IOException if a network error occurs
@@ -74,14 +67,35 @@ public interface AdvanceEngineControl {
 	 */
 	AdvanceEngineVersion queryVersion() throws IOException, AdvanceControlException;
 	/**
+	 * Query the list of schemas known by the engine.
+	 * @return the list and value of the known schemas
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
+	 */
+	List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException, AdvanceControlException;
+	/**
+	 * Query a concrete schema.
+	 * @param name the schema name
+	 * @return the schema as XElement
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
+	 */
+	AdvanceSchemaRegistryEntry querySchema(String name) throws IOException, AdvanceControlException; 
+	/**
 	 * Add or modify a new schema in the flow engine.
 	 * @param name the schema's filename (without path)
 	 * @param schema the schema content
-	 * @param byUser the user who is performing the change
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to add new schemas
 	 */
-	void updateSchema(String name, XElement schema, String byUser) throws IOException, AdvanceControlException;
+	void updateSchema(String name, XElement schema) throws IOException, AdvanceControlException;
+	/**
+	 * Delete the specified schema.
+	 * @param name the schema name
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to delete schemas
+	 */
+	void deleteSchema(String name) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a key entry from a keystore.
 	 * @param keyStore the key store name
@@ -232,12 +246,11 @@ public interface AdvanceEngineControl {
 	 * @param realm the realm
 	 * @param blockId the block unique identifier (as in the flow)
 	 * @param port the port name
-	 * @param isImput is this port an input port?
 	 * @return the observable of parameter messages
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the referenced parameter is missing
 	 */
-	Observable<AdvanceParameterDiagnostic> debugParameter(String realm, String blockId, String port, boolean isImput) throws IOException, AdvanceControlException;
+	Observable<AdvanceParameterDiagnostic> debugParameter(String realm, String blockId, String port) throws IOException, AdvanceControlException;
 	/**
 	 * Inject a value into the given  realm/block/input port.
 	 * @param realm the realm

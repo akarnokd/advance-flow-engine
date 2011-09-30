@@ -21,7 +21,12 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A wire is bound to a constant on its destination side.
@@ -29,7 +34,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
  */
 public class ConstantOutputError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/**
 	 * Constructor.
 	 * <p>A wire is bound to a constant on its destination side.</p>
@@ -37,5 +42,32 @@ public class ConstantOutputError implements AdvanceCompilationError {
 	 */
 	public ConstantOutputError(AdvanceBlockBind binding) {
 		this.binding = binding;
+	}
+	/** Empty constructor. */
+	public ConstantOutputError() {
+		
+	}
+	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+	}
+	@Override
+	public void save(XElement destination) {
+		binding.save(destination.add("binding"));
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<ConstantOutputError> CREATOR = new Func0<ConstantOutputError>() {
+		@Override
+		public ConstantOutputError invoke() {
+			return new ConstantOutputError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(ConstantOutputError.class.getSimpleName(), CREATOR);
 	}
 }

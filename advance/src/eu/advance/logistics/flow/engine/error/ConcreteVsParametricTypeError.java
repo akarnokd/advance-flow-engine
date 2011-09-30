@@ -21,8 +21,13 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.AdvanceType;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire binds a concrete type and a parametric type which cannot be in subtype relation.
@@ -30,11 +35,11 @@ import eu.advance.logistics.flow.engine.model.AdvanceType;
  */
 public class ConcreteVsParametricTypeError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
-	public final AdvanceType left;
+	public AdvanceType left;
 	/** The right side of the binding. */
-	public final AdvanceType right;
+	public AdvanceType right;
 	/**
 	 * Constructor.
 	 * <p>The wire binds a concrete type and a parametric type which cannot be in subtype relation.</p>
@@ -50,5 +55,38 @@ public class ConcreteVsParametricTypeError implements AdvanceCompilationError {
 	@Override
 	public String toString() {
 		return "Concrete vs Parametric type conflict on wire " + binding.id + ": " + left + " vs. " + right;
+	}
+	/** Empty constructor. */
+	public ConcreteVsParametricTypeError() {
+		
+	}
+	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+		left = new AdvanceType();
+		left.load(source.childElement("left-type"));
+		right = new AdvanceType();
+		right.load(source.childElement("right-type"));
+	}
+	@Override
+	public void save(XElement destination) {
+		binding.save(destination.add("binding"));
+		left.save(destination.add("left-type"));
+		right.save(destination.add("right-type"));
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<ConcreteVsParametricTypeError> CREATOR = new Func0<ConcreteVsParametricTypeError>() {
+		@Override
+		public ConcreteVsParametricTypeError invoke() {
+			return new ConcreteVsParametricTypeError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(ConcreteVsParametricTypeError.class.getSimpleName(), CREATOR);
 	}
 }

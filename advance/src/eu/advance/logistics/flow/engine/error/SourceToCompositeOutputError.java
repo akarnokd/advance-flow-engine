@@ -21,7 +21,12 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The source of the binding points to the output port of the enclosing composite's output port.
@@ -29,7 +34,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
  */
 public class SourceToCompositeOutputError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/**
 	 * Constructor.
 	 * <p>The source of the binding points to the output port of the enclosing composite's output port.</p>
@@ -37,6 +42,33 @@ public class SourceToCompositeOutputError implements AdvanceCompilationError {
 	 */
 	public SourceToCompositeOutputError(AdvanceBlockBind binding) {
 		this.binding = binding;
+	}
+	/** Empty constructor. */
+	public SourceToCompositeOutputError() {
+		
+	}
+	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+	}
+	@Override
+	public void save(XElement destination) {
+		binding.save(destination.add("binding"));
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<SourceToCompositeOutputError> CREATOR = new Func0<SourceToCompositeOutputError>() {
+		@Override
+		public SourceToCompositeOutputError invoke() {
+			return new SourceToCompositeOutputError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(SourceToCompositeOutputError.class.getSimpleName(), CREATOR);
 	}
 
 }

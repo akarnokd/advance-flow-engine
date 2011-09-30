@@ -21,7 +21,12 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire's source is bound to an input port of an block. 
@@ -29,7 +34,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
  */
 public class SourceToInputBindingError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/**
 	 * Constructor.
 	 * <p>The wire's source is bound to an input port of an block.</p>
@@ -37,5 +42,32 @@ public class SourceToInputBindingError implements AdvanceCompilationError {
 	 */
 	public SourceToInputBindingError(AdvanceBlockBind binding) {
 		this.binding = binding;
+	}
+	/** Empty constructor. */
+	public SourceToInputBindingError() {
+		
+	}
+	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+	}
+	@Override
+	public void save(XElement destination) {
+		binding.save(destination.add("binding"));
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<SourceToInputBindingError> CREATOR = new Func0<SourceToInputBindingError>() {
+		@Override
+		public SourceToInputBindingError invoke() {
+			return new SourceToInputBindingError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(SourceToInputBindingError.class.getSimpleName(), CREATOR);
 	}
 }

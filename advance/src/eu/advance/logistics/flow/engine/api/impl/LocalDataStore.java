@@ -53,7 +53,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
@@ -573,16 +572,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public void updateUser(AdvanceUser user)
 			throws IOException, AdvanceControlException {
 		synchronized (users) {
-			if (!users.containsKey(user.name)) {
-				if (!hasUserRight(user.modifiedBy, AdvanceUserRights.CREATE_USER)) {
-					throw new AdvanceAccessDenied();
-				}
-			} else {
-				if (!hasUserRight(user.modifiedBy, AdvanceUserRights.MODIFY_USER)) {
-					throw new AdvanceAccessDenied();
-				}
-			}
-
 			AdvanceUser prev = users.get(user.name);
 			AdvanceUser u = user.copy();
 			u.password(user.password() != null ? user.password().clone() : (prev != null ? prev.password() : null));
@@ -666,15 +655,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceJDBCDataSource dataSource) throws IOException,
 			AdvanceControlException {
 		synchronized (jdbcDataSources) {
-			if (!jdbcDataSources.containsKey(dataSource.name)) {
-				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.CREATE_JDBC_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			} else {
-				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.MODIFY_JDBC_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			}
 			AdvanceJDBCDataSource u = dataSource.copy();
 			AdvanceJDBCDataSource prev = jdbcDataSources.get(dataSource.name);
 			u.password(dataSource.password() != null ? dataSource.password().clone() : (prev != null ? prev.password() : null));
@@ -718,15 +698,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		
 		synchronized  (jmsEndpoints) {
 			AdvanceJMSEndpoint prev = jmsEndpoints.get(endpoint.name);
-			if (prev == null) {
-				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.CREATE_JMS_ENDPOINT)) {
-					throw new AdvanceAccessDenied();
-				}
-			} else {
-				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.MODIFY_JMS_ENDPOINT)) {
-					throw new AdvanceAccessDenied();
-				}
-			}
 			
 			AdvanceJMSEndpoint u = endpoint.copy();
 			u.password(endpoint.password() != null ? endpoint.password().clone() : (prev != null ? prev.password() : null));
@@ -770,15 +741,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceControlException {
 		synchronized  (webDataSources) {
 			AdvanceWebDataSource prev = webDataSources.get(endpoint.name);
-			if (prev == null) {
-				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.CREATE_WEB_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			} else {
-				if (!hasUserRight(endpoint.modifiedBy, AdvanceUserRights.MODIFY_WEB_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			}
 			
 			AdvanceWebDataSource u = endpoint.copy();
 			u.password(endpoint.password() != null ? endpoint.password().clone() : (prev != null ? prev.password() : null));
@@ -822,15 +784,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceControlException {
 		synchronized  (ftpDataSources) {
 			AdvanceFTPDataSource prev = ftpDataSources.get(dataSource.name);
-			if (prev == null) {
-				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.CREATE_FTP_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			} else {
-				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.MODIFY_FTP_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			}
 			
 			AdvanceFTPDataSource u = dataSource.copy();
 			u.password(dataSource.password() != null ? dataSource.password() : (prev != null ? prev.password() : null));
@@ -873,15 +826,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceControlException {
 		synchronized  (localDataSources) {
 			AdvanceLocalFileDataSource prev = localDataSources.get(dataSource.name);
-			if (prev == null) {
-				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.CREATE_LOCAL_FILE_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			} else {
-				if (!hasUserRight(dataSource.modifiedBy, AdvanceUserRights.MODIFY_LOCAL_FILE_DATA_SOURCE)) {
-					throw new AdvanceAccessDenied();
-				}
-			}
 			
 			AdvanceLocalFileDataSource u = dataSource.copy();
 			
@@ -953,9 +897,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceKeyStore e = keystores.get(keyStore.name);
 			try {
 				if (e == null) {
-					if (!hasUserRight(keyStore.modifiedBy, AdvanceUserRights.CREATE_KEYSTORE)) {
-						throw new AdvanceAccessDenied();
-					}
 					e = new AdvanceKeyStore();
 					e.name = keyStore.name;
 					e.password(keyStore.password());
@@ -970,9 +911,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					
 					keystores.put(e.name, e);
 				} else {
-					if (!hasUserRight(keyStore.modifiedBy, AdvanceUserRights.MODIFY_KEYSTORE)) {
-						throw new AdvanceAccessDenied();
-					}
 					
 					File f = new File(e.location);
 					if (f.exists()) {
