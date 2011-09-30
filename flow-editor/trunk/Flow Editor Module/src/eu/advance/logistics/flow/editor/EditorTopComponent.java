@@ -20,7 +20,9 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import eu.advance.logistics.flow.editor.undo.UndoRedoProxy;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.undo.UndoRedoListener;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import java.awt.BorderLayout;
 import java.beans.PropertyVetoException;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import javax.swing.JComponent;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.UndoRedo;
 import org.openide.cookies.SaveCookie;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -49,6 +52,7 @@ public final class EditorTopComponent extends TopComponent {
     private JComponent viewportView;
     private FlowDescriptionDataObject dataObject;
     private BreadcrumbView breadcrumbView = new BreadcrumbView();
+    private UndoRedoProxy undoRedoProxy = new UndoRedoProxy();
 
     public EditorTopComponent(FlowDescriptionDataObject dataObject) {
         this.dataObject = dataObject;
@@ -69,6 +73,8 @@ public final class EditorTopComponent extends TopComponent {
         breadcrumbView.populate(fd.getActiveBlock());
         fd.addListener(breadcrumbView);
 
+        fd.addListener(new UndoRedoListener(fd, undoRedoProxy));
+
         //associateLookup(Lookups.fixed(new Object[]{flowDiagramController}));
     }
 
@@ -88,6 +94,11 @@ public final class EditorTopComponent extends TopComponent {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane scrollpane;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public UndoRedo getUndoRedo() {
+        return undoRedoProxy;
+    }
 
     private FlowScene getScene() {
         return dataObject.getLookup().lookup(FlowScene.class);

@@ -18,20 +18,39 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.editor.model;
+package eu.advance.logistics.flow.editor.undo;
+
+import eu.advance.logistics.flow.editor.model.AbstractBlock;
 
 /**
  *
  * @author TTS
  */
-public enum FlowDescriptionChange {
+public class BlockRenamed extends UndoableEdit {
 
-    BLOCK_RENAMED, BLOCK_MOVED,
-    SIMPLE_BLOCK_ADDED, SIMPLE_BLOCK_REMOVED,
-    COMPOSITE_BLOCK_ADDED, COMPOSITE_BLOCK_REMOVED,
-    CONSTANT_BLOCK_ADDED, CONSTANT_BLOCK_REMOVED, CONSTANT_BLOCK_CHANGED,
-    ACTIVE_COMPOSITE_BLOCK_CHANGED,
-    BIND_CREATED, BIND_REMOVED, BIND_ERROR_MESSAGE,
-    PARAMETER_CREATED, PARAMETER_REMOVED, PARAMETER_RENAMED,
-    SAVING, CLOSED;
+    private AbstractBlock block;
+    private String oldName;
+    private String newName;
+
+    public BlockRenamed(AbstractBlock block, String oldName, String newName) {
+        this.block = block;
+        this.oldName = oldName;
+        this.newName = newName;
+    }
+
+    @Override
+    protected void restore(boolean redo) {
+        block.setId(redo ? newName : oldName);
+    }
+
+    @Override
+    public String getPresentationName() {
+        return "Rename block";
+    }
+
+    @Override
+    public void die() {
+        super.die();
+        block = null;
+    }
 }

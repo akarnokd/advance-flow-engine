@@ -18,20 +18,43 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.editor.model;
+package eu.advance.logistics.flow.editor.undo;
+
+import eu.advance.logistics.flow.editor.model.BlockBind;
+import eu.advance.logistics.flow.editor.model.CompositeBlock;
 
 /**
  *
  * @author TTS
  */
-public enum FlowDescriptionChange {
+public class BindCreated extends UndoableEdit {
 
-    BLOCK_RENAMED, BLOCK_MOVED,
-    SIMPLE_BLOCK_ADDED, SIMPLE_BLOCK_REMOVED,
-    COMPOSITE_BLOCK_ADDED, COMPOSITE_BLOCK_REMOVED,
-    CONSTANT_BLOCK_ADDED, CONSTANT_BLOCK_REMOVED, CONSTANT_BLOCK_CHANGED,
-    ACTIVE_COMPOSITE_BLOCK_CHANGED,
-    BIND_CREATED, BIND_REMOVED, BIND_ERROR_MESSAGE,
-    PARAMETER_CREATED, PARAMETER_REMOVED, PARAMETER_RENAMED,
-    SAVING, CLOSED;
+    private CompositeBlock parent;
+    private BlockBind bind;
+
+    public BindCreated(CompositeBlock parent, BlockBind bind) {
+        this.parent = parent;
+        this.bind = bind;
+    }
+
+    @Override
+    protected void restore(boolean redo) {
+        if (redo) {
+            parent.addBind(bind);
+        } else {
+            parent.removeBind(bind);
+        }
+    }
+
+    @Override
+    public String getPresentationName() {
+        return "Add connection";
+    }
+
+    @Override
+    public void die() {
+        super.die();
+        parent = null;
+        bind = null;
+    }
 }

@@ -65,9 +65,13 @@ public class CompositeBlock extends AbstractBlock {
         }
 
         BlockBind c = new BlockBind(this, bindId, src, dst);
-        binds.put(bindId, c);
-        getFlowDiagram().fire(FlowDescriptionChange.BIND_CREATED, this, c);
+        addBind(c);
         return c;
+    }
+    
+    public void addBind(BlockBind c) {
+        binds.put(c.id, c);
+        getFlowDiagram().fire(FlowDescriptionChange.BIND_CREATED, this, c);
     }
 
     public void removeBind(BlockBind bind) {
@@ -114,10 +118,14 @@ public class CompositeBlock extends AbstractBlock {
             throw new IllegalArgumentException(NbBundle.getBundle(CompositeBlock.class).getString("INVALID_ID") + blockId);
         }
         SimpleBlock block = new SimpleBlock(blockId, desc);
-        block.setParent(this);
-        children.put(blockId, block);
-        getFlowDiagram().fire(FlowDescriptionChange.SIMPLE_BLOCK_ADDED, this, block);
+        addBlock(block);
         return block;
+    }
+
+    public void addBlock(SimpleBlock block) {
+        block.setParent(this);
+        children.put(block.id, block);
+        getFlowDiagram().fire(FlowDescriptionChange.SIMPLE_BLOCK_ADDED, this, block);
     }
 
     public void removeBlock(SimpleBlock block) {
@@ -137,10 +145,14 @@ public class CompositeBlock extends AbstractBlock {
             throw new IllegalArgumentException(NbBundle.getBundle(CompositeBlock.class).getString("INVALID_ID") + blockId);
         }
         CompositeBlock block = new CompositeBlock(blockId);
-        block.setParent(this);
-        children.put(blockId, block);
-        getFlowDiagram().fire(FlowDescriptionChange.COMPOSITE_BLOCK_ADDED, this, block);
+        addComposite(block);
         return block;
+    }
+
+    public void addComposite(CompositeBlock block) {
+        block.setParent(this);
+        children.put(block.id, block);
+        getFlowDiagram().fire(FlowDescriptionChange.COMPOSITE_BLOCK_ADDED, this, block);
     }
 
     public void removeComposite(CompositeBlock block) {
@@ -164,10 +176,14 @@ public class CompositeBlock extends AbstractBlock {
             throw new IllegalArgumentException(NbBundle.getBundle(CompositeBlock.class).getString("INVALID_ID") + blockId);
         }
         ConstantBlock block = new ConstantBlock(blockId);
-        block.setParent(this);
-        children.put(blockId, block);
-        getFlowDiagram().fire(FlowDescriptionChange.CONSTANT_BLOCK_ADDED, this, block);
+        addConstant(block);
         return block;
+    }
+
+    public void addConstant(ConstantBlock block) {
+        block.setParent(this);
+        children.put(block.id, block);
+        getFlowDiagram().fire(FlowDescriptionChange.CONSTANT_BLOCK_ADDED, this, block);
     }
 
     public void removeConstant(ConstantBlock block) {

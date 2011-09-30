@@ -42,8 +42,9 @@ public class BlockParameter implements Comparable<BlockParameter> {
 
     public void setId(String id) {
         owner.updateId(this, id);
+        String old = id;
         description.id = id;
-        owner.getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_CHANGED, this);
+        owner.getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_RENAMED, this);
     }
 
     public String getId() {
