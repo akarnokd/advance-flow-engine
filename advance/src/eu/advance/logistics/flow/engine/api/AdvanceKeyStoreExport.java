@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -40,6 +41,13 @@ implements XSerializable, HasPassword {
 	 * the current password, use {@code null}.</p>
 	 */
 	public char[] keyPassword;
+	/** Creates a new instance of this class. */
+	public static final Func0<AdvanceKeyStoreExport> CREATOR = new Func0<AdvanceKeyStoreExport>() {
+		@Override
+		public AdvanceKeyStoreExport invoke() {
+			return new AdvanceKeyStoreExport();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		keyStore = source.get("keystore");
