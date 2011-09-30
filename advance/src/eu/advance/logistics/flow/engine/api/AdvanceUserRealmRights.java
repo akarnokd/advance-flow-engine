@@ -28,10 +28,6 @@ package eu.advance.logistics.flow.engine.api;
 public enum AdvanceUserRealmRights {
 	/** The user may see the realm in the listings. */
 	LIST,
-	/** Delete the realm. */
-	DELETE,
-	/** Rename the realm. */
-	RENAME,
 	/** Start a realm. */
 	START,
 	/** Stop a realm. */

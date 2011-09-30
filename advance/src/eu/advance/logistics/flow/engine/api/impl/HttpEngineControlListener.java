@@ -26,6 +26,7 @@ import java.io.IOException;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -37,14 +38,17 @@ public class HttpEngineControlListener {
 	/** The wrapped engine control. */
 	protected final AdvanceEngineControl control;
 	/** The wrapped datastore. */
-	protected final HttpDataStoreListener datastore;
+	protected final HttpDataStoreListener datastoreListener;
+	/** The datastore of the control. */
+	private final AdvanceDataStore datastore;
 	/**
 	 * Constructor. Wraps the given control.
 	 * @param control the control to wrap
 	 */
 	public HttpEngineControlListener(@NonNull AdvanceEngineControl control) {
 		this.control = control;
-		datastore = new HttpDataStoreListener(control.datastore());
+		datastore = control.datastore();
+		datastoreListener = new HttpDataStoreListener(datastore);
 	}
 	/**
 	 * Dispatch the incoming requests.
@@ -57,8 +61,13 @@ public class HttpEngineControlListener {
 	@Nullable
 	public XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException {
 		//throw new AdvanceControlException("Unknown request " + request);
+		AdvanceEngineControl ctrl = new CheckedEngineControl(control, userName);
+		String function = request.name;
+		if ("get-user".equals(function)) {
+			return HttpRemoteUtils.storeItem("user", ctrl.getUser());
+		}
 		// TODO add control functions
 		// try datastore
-		return datastore.dispatch(userName, request);
+		return datastoreListener.dispatch(userName, request);
 	}
 }

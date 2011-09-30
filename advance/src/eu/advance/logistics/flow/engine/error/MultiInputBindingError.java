@@ -21,7 +21,12 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * An input port is bound to multiple outputs at the same time.
@@ -29,12 +34,39 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
  */
 public class MultiInputBindingError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/**
 	 * Constructor.
 	 * @param binding the actual binding causing the problem
 	 */
 	public MultiInputBindingError(AdvanceBlockBind binding) {
 		this.binding = binding;
+	}
+	/** Empty constructor. */
+	public MultiInputBindingError() {
+		
+	}
+	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+	}
+	@Override
+	public void save(XElement destination) {
+		binding.save(destination.add("binding"));
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<MultiInputBindingError> CREATOR = new Func0<MultiInputBindingError>() {
+		@Override
+		public MultiInputBindingError invoke() {
+			return new MultiInputBindingError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(MultiInputBindingError.class.getSimpleName(), CREATOR);
 	}
 }

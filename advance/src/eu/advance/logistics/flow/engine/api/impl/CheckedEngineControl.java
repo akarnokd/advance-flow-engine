@@ -41,7 +41,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
-import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -54,6 +53,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 public class CheckedEngineControl implements AdvanceEngineControl {
 	/** The wrapped control. */
 	protected final AdvanceEngineControl control;
+	/** The datastore. */
+	protected final AdvanceDataStore datastore;
 	/** The target user name. */
 	protected final String userName;
 	/**
@@ -63,7 +64,22 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 */
 	protected void check(AdvanceUserRights expected) throws IOException, AdvanceAccessDenied {
-		if (!control.datastore().hasUserRight(userName, expected)) {
+		if (!datastore.hasUserRight(userName, expected)) {
+			throw new AdvanceAccessDenied();
+		}
+	}
+	/**
+	 * Check if the expected right is present for the user.
+	 * @param expected the expected rights
+	 * @throws AdvanceAccessDenied thrown if the user has no right
+	 * @throws IOException if a network error occurs
+	 */
+	protected void check(AdvanceUserRights... expected) throws IOException, AdvanceAccessDenied {
+		boolean allow = false;
+		for (AdvanceUserRights r : expected) {
+			allow |= datastore.hasUserRight(userName, r);
+		}
+		if (!allow) {
 			throw new AdvanceAccessDenied();
 		}
 	}
@@ -75,7 +91,7 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 */
 	protected void check(String realm, AdvanceUserRealmRights expected) throws IOException, AdvanceAccessDenied {
-		if (!control.datastore().hasUserRight(userName, realm, expected)) {
+		if (!datastore.hasUserRight(userName, realm, expected)) {
 			throw new AdvanceAccessDenied();
 		}
 	}
@@ -86,193 +102,202 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	 */
 	public CheckedEngineControl(AdvanceEngineControl control, String userName) {
 		this.control = control;
+		this.datastore = control.datastore();
 		this.userName = userName;
 	}
 	@Override
 	public AdvanceUser getUser() throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		return datastore.queryUser(userName);
 	}
 
 	@Override
 	public List<AdvanceBlockRegistryEntry> queryBlocks() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_BLOCKS);
+		return control.queryBlocks();
 	}
 
 	@Override
 	public List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_SCHEMAS);
+		return control.querySchemas();
 	}
 
 	@Override
 	public AdvanceEngineVersion queryVersion() throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		return control.queryVersion();
 	}
 
 	@Override
-	public void updateSchema(String name, XElement schema, String byUser)
+	public void updateSchema(String name, XElement schema)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.CREATE_SCHEMA, AdvanceUserRights.MODIFY_SCHEMA);
+		control.updateSchema(name, schema);
 	}
-
+	@Override
+	public AdvanceSchemaRegistryEntry querySchema(String name)
+			throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_SCHEMAS);
+		return control.querySchema(name);
+	}
+	@Override
+	public void deleteSchema(String name) throws IOException,
+			AdvanceControlException {
+		check(AdvanceUserRights.DELETE_SCHEMA);
+		control.deleteSchema(name);
+	}
 	@Override
 	public void deleteKeyEntry(String keyStore, String keyAlias)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.DELETE_KEY);
+		control.deleteKeyEntry(keyStore, keyAlias);
 	}
 
 	@Override
 	public void generateKey(AdvanceGenerateKey key) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.GENERATE_KEY);
+		control.generateKey(key);
 	}
 
 	@Override
 	public String exportCertificate(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.EXPORT_CERTIFICATE);
+		return control.exportCertificate(request);
 	}
 
 	@Override
 	public String exportPrivateKey(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.EXPORT_PRIVATE_KEY);
+		return control.exportPrivateKey(request);
 	}
 
 	@Override
 	public void importCertificate(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.IMPORT_CERTIFICATE);
+		control.importCertificate(request, data);
 	}
 
 	@Override
 	public void importPrivateKey(AdvanceKeyStoreExport request, String keyData,
 			String certData) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.IMPORT_PRIVATE_KEY);
+		control.importPrivateKey(request, keyData, certData);
 	}
 
 	@Override
 	public String exportSigningRequest(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.EXPORT_CERTIFICATE);
+		return control.exportSigningRequest(request);
 	}
 
 	@Override
 	public void importSigningResponse(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.IMPORT_CERTIFICATE);
+		control.importSigningResponse(request, data);
 	}
 
 	@Override
 	public void testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
+		control.testJDBCDataSource(dataSourceName);
 	}
 
 	@Override
 	public void testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.LIST_JMS_ENDPOINTS);
+		control.testJMSEndpoint(jmsName);
 	}
 
 	@Override
 	public void testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.LIST_FTP_DATA_SOURCES);
+		control.testFTPDataSource(ftpName);
 	}
 
 	@Override
 	public List<AdvanceKeyEntry> queryKeys(String keyStore) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(AdvanceUserRights.LIST_KEYS);
+		return control.queryKeys(keyStore);
 	}
 
 	@Override
 	public AdvanceDataStore datastore() {
-		// TODO Auto-generated method stub
-		return null;
+		return new CheckedDataStore(datastore, userName);
 	}
 
 	@Override
 	public void stopRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(name, AdvanceUserRealmRights.STOP);
+		control.stopRealm(name, userName);
 	}
 
 	@Override
 	public void startRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(name, AdvanceUserRealmRights.START);
+		control.startRealm(name, userName);
 	}
 
 	@Override
 	public AdvanceCompositeBlock queryFlow(String realm) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(realm, AdvanceUserRealmRights.READ);
+		return control.queryFlow(realm);
 	}
 
 	@Override
 	public void updateFlow(String realm, AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(realm, AdvanceUserRealmRights.WRITE);
+		control.updateFlow(realm, flow);
 	}
 
 	@Override
 	public AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		// FIXME verify flow right?
+		return control.verifyFlow(flow);
 	}
 
 	@Override
 	public Observable<AdvanceBlockDiagnostic> debugBlock(String realm,
 			String blockId) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(realm, AdvanceUserRealmRights.DEBUG);
+		return control.debugBlock(realm, blockId);
 	}
 
 	@Override
 	public Observable<AdvanceParameterDiagnostic> debugParameter(String realm,
-			String blockId, String port, boolean isImput) throws IOException,
+			String blockId, String port) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		check(realm, AdvanceUserRealmRights.DEBUG);
+		return control.debugParameter(realm, blockId, port);
 	}
 
 	@Override
 	public void injectValue(String realm, String blockId, String port,
 			XElement value) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(realm, AdvanceUserRealmRights.DEBUG);
+		control.injectValue(realm, blockId, port, value);
 	}
 
 	@Override
 	public void shutdown() throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-
+		check(AdvanceUserRights.SHUTDOWN);
+		control.shutdown();
 	}
 
 }

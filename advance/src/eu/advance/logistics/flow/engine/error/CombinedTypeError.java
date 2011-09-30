@@ -40,10 +40,6 @@ public class CombinedTypeError implements AdvanceCompilationError {
 	public AdvanceType left;
 	/** The right side of the binding. */
 	public AdvanceType right;
-	/** Empty constructor. */
-	public CombinedTypeError() {
-		
-	}
 	/**
 	 * Constructor.
 	 * <p>The union of two types could not be created.</p>
@@ -60,15 +56,24 @@ public class CombinedTypeError implements AdvanceCompilationError {
 	public String toString() {
 		return "Combined type could not be created for wire " + binding.id + ": " + left + " vs. " + right;
 	}
-	@Override
-	public void load(XElement source) {
-		// TODO Auto-generated method stub
+	/** Empty constructor. */
+	public CombinedTypeError() {
 		
 	}
 	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+		left = new AdvanceType();
+		left.load(source.childElement("left-type"));
+		right = new AdvanceType();
+		right.load(source.childElement("right-type"));
+	}
+	@Override
 	public void save(XElement destination) {
-		// TODO Auto-generated method stub
-		
+		binding.save(destination.add("binding"));
+		left.save(destination.add("left-type"));
+		right.save(destination.add("right-type"));
 	}
 	/** Creates a new instance of this class. */
 	public static final Func0<CombinedTypeError> CREATOR = new Func0<CombinedTypeError>() {

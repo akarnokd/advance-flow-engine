@@ -21,7 +21,12 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
+import java.util.Map;
+
 import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The source port of the source object cannot be found.
@@ -29,7 +34,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
  */
 public class MissingSourcePortError implements AdvanceCompilationError {
 	/** The wire identifier. */
-	public final AdvanceBlockBind binding;
+	public AdvanceBlockBind binding;
 	/**
 	 * Constructor.
 	 * <p>The source port of the source object cannot be found.</p>
@@ -37,6 +42,33 @@ public class MissingSourcePortError implements AdvanceCompilationError {
 	 */
 	public MissingSourcePortError(AdvanceBlockBind binding) {
 		this.binding = binding;
+	}
+	/** Empty constructor. */
+	public MissingSourcePortError() {
+		
+	}
+	@Override
+	public void load(XElement source) {
+		binding = new AdvanceBlockBind();
+		binding.load(source.childElement("binding"));
+	}
+	@Override
+	public void save(XElement destination) {
+		binding.save(destination.add("binding"));
+	}
+	/** Creates a new instance of this class. */
+	public static final Func0<MissingSourcePortError> CREATOR = new Func0<MissingSourcePortError>() {
+		@Override
+		public MissingSourcePortError invoke() {
+			return new MissingSourcePortError();
+		}
+	};
+	/**
+	 * Register this class in the supplied map.
+	 * @param map the map from error type name to function to create an instance
+	 */
+	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
+		map.put(MissingSourcePortError.class.getSimpleName(), CREATOR);
 	}
 
 }

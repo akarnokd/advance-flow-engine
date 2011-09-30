@@ -123,5 +123,9 @@ public enum AdvanceUserRights {
 	/** Add a new schema. */
 	CREATE_SCHEMA,
 	/** Modify an existing schema. */
-	MODIFY_SCHEMA
+	MODIFY_SCHEMA,
+	/** Delete a schema. */
+	DELETE_SCHEMA,
+	/** Shut down the engine. */
+	SHUTDOWN
 }
