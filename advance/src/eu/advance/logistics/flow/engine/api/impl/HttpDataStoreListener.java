@@ -29,6 +29,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
+import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
@@ -45,7 +46,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * and delegate it properly to an AdvanceDataStore object.
  * @author karnokd, 2011.09.27.
  */
-public class HttpDataStoreListener {
+public class HttpDataStoreListener implements AdvanceHttpListener  {
 	/** The wrapped datastore. */
 	protected final AdvanceDataStore datastore;
 	/**
@@ -64,6 +65,7 @@ public class HttpDataStoreListener {
 	 * @throws AdvanceControlException if the user has no right to execute the request or it is malformed
 	 */
 	@Nullable
+	@Override
 	public XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException {
 		AdvanceDataStore ds = new CheckedDataStore(datastore, userName);
 		String function = request.name;

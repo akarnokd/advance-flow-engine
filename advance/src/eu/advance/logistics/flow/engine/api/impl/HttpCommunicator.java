@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -53,7 +54,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * with none, basic or certificate authentication.
  * @author karnokd, 2011.09.27.
  */
-public class HttpCommunicator {
+public class HttpCommunicator implements AdvanceXMLCommunicator {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(HttpCommunicator.class);
 	/** The authentication record. */
@@ -127,6 +128,7 @@ public class HttpCommunicator {
 	 * @param message the message to send
 	 * @throws IOException on error
 	 */
+	@Override
 	public void send(XElement message) throws IOException {
 		HttpURLConnection c = prepare();
 		try {
@@ -161,6 +163,7 @@ public class HttpCommunicator {
 	 * @return the message returned
 	 * @throws IOException on error
 	 */
+	@Override
 	public XElement query(XElement message) throws IOException {
 		HttpURLConnection c = prepare();
 		try {
@@ -193,6 +196,7 @@ public class HttpCommunicator {
 	 * @return the message returned
 	 * @throws IOException on error
 	 */
+	@Override
 	public XElement query() throws IOException {
 		HttpURLConnection c = prepare();
 		try {

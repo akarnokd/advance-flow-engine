@@ -21,40 +21,32 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import java.io.IOException;
+
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * The base exception for the ADVANCE Flow Engine Control API.
- * @author karnokd, 2011.09.19.
+ * Base interface for classes that communicate via XML based messages.
+ * @author karnokd, 2011.10.03.
  */
-public class AdvanceControlException extends Exception {
-	/** */
-	private static final long serialVersionUID = -8958246930488574550L;
-
+public interface AdvanceXMLCommunicator {
 	/**
-	 * Default constructor. 
+	 * Send a query and wait for the response.
+	 * @param request the request XML
+	 * @return the response XML
+	 * @throws IOException if a network error occurred
 	 */
-	public AdvanceControlException() {
-	}
-
+	XElement query(XElement request) throws IOException;
 	/**
-	 * @param message the exception message
+	 * Query for a (default) response without sending a query message.
+	 * @return the response XML
+	 * @throws IOException if a network error occurs
 	 */
-	public AdvanceControlException(String message) {
-		super(message);
-	}
-
+	XElement query() throws IOException;
 	/**
-	 * @param cause the exception clause
+	 * Send a request that doesn't return a response (other than acknowledgement).
+	 * @param request the request XML
+	 * @throws IOException if a network error occurred
 	 */
-	public AdvanceControlException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 * @param message the exception message
-	 * @param cause the exception clause
-	 */
-	public AdvanceControlException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	void send(XElement request) throws IOException;
 }

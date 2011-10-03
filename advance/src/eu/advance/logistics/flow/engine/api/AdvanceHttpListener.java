@@ -21,40 +21,25 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import java.io.IOException;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * The base exception for the ADVANCE Flow Engine Control API.
- * @author karnokd, 2011.09.19.
+ * Base interface for the capability to dispatch an XML message and the logged-in user name.
+ * @author karnokd, 2011.10.03.
  */
-public class AdvanceControlException extends Exception {
-	/** */
-	private static final long serialVersionUID = -8958246930488574550L;
-
+public interface AdvanceHttpListener {
 	/**
-	 * Default constructor. 
+	 * Dispatch a {@code request} under the given {@code userName}.
+	 * @param userName the logged-in user name
+	 * @param request the request XML
+	 * @return the response XML or null if no response.
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user rights are inadequate
 	 */
-	public AdvanceControlException() {
-	}
-
-	/**
-	 * @param message the exception message
-	 */
-	public AdvanceControlException(String message) {
-		super(message);
-	}
-
-	/**
-	 * @param cause the exception clause
-	 */
-	public AdvanceControlException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 * @param message the exception message
-	 * @param cause the exception clause
-	 */
-	public AdvanceControlException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	@Nullable
+	XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException;
 }

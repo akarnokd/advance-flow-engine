@@ -164,24 +164,27 @@ public interface AdvanceEngineControl {
 	/**
 	 * Test the JDBC data source connection.
 	 * @param dataSourceName the data source identifier
+	 * @return the test result
 	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user is not allowed to test the connection or the test failed
+	 * @throws AdvanceControlException if the user is not allowed to test the connection
 	 */
-	void testJDBCDataSource(String dataSourceName) throws IOException, AdvanceControlException;
+	DataStoreTestResult testJDBCDataSource(String dataSourceName) throws IOException, AdvanceControlException;
 	/**
 	 * Test a JMS endpoint configuration.
 	 * @param jmsName the identifier of the JMS enpoint to test.
+	 * @return the test result
 	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user is not allowed to test the connection or the test failed
+	 * @throws AdvanceControlException if the user is not allowed to test the connection
 	 */
-	void testJMSEndpoint(String jmsName) throws IOException, AdvanceControlException;
+	DataStoreTestResult testJMSEndpoint(String jmsName) throws IOException, AdvanceControlException;
 	/**
 	 * Test the FTP data source.
 	 * @param ftpName the data source identifier
+	 * @return the test result
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to test FTP data sources
 	 */
-	void testFTPDataSource(String ftpName) throws IOException, AdvanceControlException;
+	DataStoreTestResult testFTPDataSource(String ftpName) throws IOException, AdvanceControlException;
 	/**
 	 * List the keys of the given keystore.
 	 * @param keyStore the keystore name
