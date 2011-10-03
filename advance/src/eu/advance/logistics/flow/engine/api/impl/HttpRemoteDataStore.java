@@ -46,6 +46,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -55,7 +56,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class HttpRemoteDataStore implements AdvanceDataStore {
 	/** The communicator used to send and receive requests. */
-	protected HttpCommunicator comm;
+	protected AdvanceXMLCommunicator comm;
 	/**
 	 * Initialize the datastore with the given remote address and authentication
 	 * record.
@@ -84,7 +85,7 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	 * Initialize the datastore with the supplied communicator.
 	 * @param comm the communicator instance
 	 */
-	public HttpRemoteDataStore(@NonNull HttpCommunicator comm) {
+	public HttpRemoteDataStore(@NonNull AdvanceXMLCommunicator comm) {
 		this.comm = comm;
 	}
 	/**
@@ -93,9 +94,10 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	 * @param auth the authentication record
 	 */
 	private void init(@NonNull URL remote, @NonNull AdvanceHttpAuthentication auth) {
-		comm = new HttpCommunicator();
+		HttpCommunicator comm = new HttpCommunicator();
 		comm.url = remote;
 		comm.authentication = auth;
+		this.comm = comm;
 	}
 	@Override
 	public List<AdvanceRealm> queryRealms()

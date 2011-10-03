@@ -23,20 +23,27 @@ package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
+import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The listener for Enginge control messages coming through the HTTP XML interface.
  * @author karnokd, 2011.09.29.
  */
-public class HttpEngineControlListener {
+public class HttpEngineControlListener implements AdvanceHttpListener {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(HttpEngineControlListener.class);
 	/** The wrapped engine control. */
 	protected final AdvanceEngineControl control;
 	/** The wrapped datastore. */
@@ -61,10 +68,12 @@ public class HttpEngineControlListener {
 	 * @throws AdvanceControlException if the wrapped control throws it.
 	 */
 	@Nullable
+	@Override
 	public XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException {
 		//throw new AdvanceControlException("Unknown request " + request);
 		AdvanceEngineControl ctrl = new CheckedEngineControl(control, userName);
 		String function = request.name;
+		LOG.debug(function);
 		if ("get-user".equals(function)) {
 			return HttpRemoteUtils.storeItem("user", ctrl.getUser());
 		} else
@@ -115,9 +124,73 @@ public class HttpEngineControlListener {
 			XElement response = new XElement("signing-request");
 			response.content = ctrl.exportSigningRequest(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
 			return response;
-			
+		} else
+		if ("import-signing-response".equals(function)) {
+			ctrl.importSigningResponse(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
+			return null;
+		} else
+		if ("test-jdbc-data-source".equals(function)) {
+			XElement result = new XElement("datastore-test-result");
+			result.content = ctrl.testJDBCDataSource(request.get("dataSourceName")).toString();
+			return result;
+		} else
+		if ("test-jms-endpoint".equals(function)) {
+			XElement result = new XElement("datastore-test-result");
+			result.content = ctrl.testJMSEndpoint(request.get("jms-name")).toString();
+			return result;
+		} else
+		if ("test-ftp-data-source".equals(function)) {
+			XElement result = new XElement("datastore-test-result");
+			result.content =  ctrl.testFTPDataSource(request.get("jms-name")).toString();
+			return result;
+		} else
+		if ("query-keys".equals(function)) {
+			return HttpRemoteUtils.storeList("keys", "keyentry", ctrl.queryKeys(request.get("keystore")));
+		} else
+		if ("stop-realm".equals(function)) {
+			ctrl.stopRealm(request.get("name"), request.get("by-user"));
+			return null;
+		} else
+		if ("start-realm".equals(function)) {
+			ctrl.startRealm(request.get("name"), request.get("by-user"));
+			return null;
+		} else
+		if ("query-flow".equals(function)) {
+			return AdvanceCompositeBlock.serializeFlow(ctrl.queryFlow(request.get("realm")));
+		} else
+		if ("update-flow".equals(function)) {
+			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(request.children().get(0));
+			ctrl.updateFlow(request.get("realm"), flow);
+			return null;
+		} else
+		if ("verify-flow".equals(function)) {
+			return HttpRemoteUtils.storeItem("compilation-result", 
+					ctrl.verifyFlow(AdvanceCompositeBlock.parseFlow(request.children().get(0))));
+		} else
+		if ("debug-block".equals(function)) {
+			LOG.error("debug-block not supported");
+			return null;
+		} else
+		if ("debug-parameter".equals(function)) {
+			LOG.error("debug-parameter not supported");
+			return null;
+		} else
+		if ("inject-value".equals(function)) {
+			String realm = request.get("realm");
+			String blockId = request.get("block-id");
+			String port = request.get("port");
+			XElement value = request.children().get(0);
+			ctrl.injectValue(realm, blockId, port, value);
+			return null;
+		} else
+		if ("shutdown".equals(function)) {
+			ctrl.shutdown();
+			return null;
+		} else
+		if ("delete-schema".equals(function)) {
+			ctrl.deleteSchema(request.get("name"));
+			return null;
 		}
-		// TODO add control functions
 		// try datastore
 		return datastoreListener.dispatch(userName, request);
 	}

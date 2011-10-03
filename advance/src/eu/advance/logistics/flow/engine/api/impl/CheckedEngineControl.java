@@ -41,6 +41,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
+import eu.advance.logistics.flow.engine.api.DataStoreTestResult;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -205,24 +206,24 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void testJDBCDataSource(String dataSourceName) throws IOException,
+	public DataStoreTestResult testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
-		control.testJDBCDataSource(dataSourceName);
+		return control.testJDBCDataSource(dataSourceName);
 	}
 
 	@Override
-	public void testJMSEndpoint(String jmsName) throws IOException,
+	public DataStoreTestResult testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_JMS_ENDPOINTS);
-		control.testJMSEndpoint(jmsName);
+		return control.testJMSEndpoint(jmsName);
 	}
 
 	@Override
-	public void testFTPDataSource(String ftpName) throws IOException,
+	public DataStoreTestResult testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_FTP_DATA_SOURCES);
-		control.testFTPDataSource(ftpName);
+		return control.testFTPDataSource(ftpName);
 	}
 
 	@Override

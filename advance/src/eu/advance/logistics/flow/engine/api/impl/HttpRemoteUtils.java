@@ -118,9 +118,7 @@ public final class HttpRemoteUtils {
 	 * @return the created XElement
 	 */
 	public static XElement storeItem(String itemName, XSerializable source) {
-		XElement result = new XElement(itemName);
-		source.save(result);
-		return result;
+		return createUpdate(itemName, source);
 	}
 
 }

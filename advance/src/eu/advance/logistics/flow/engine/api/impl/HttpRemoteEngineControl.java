@@ -42,6 +42,8 @@ import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
+import eu.advance.logistics.flow.engine.api.DataStoreTestResult;
 import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -51,7 +53,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	/** The communicator used to send and receive requests. */
-	protected HttpCommunicator comm;
+	protected AdvanceXMLCommunicator comm;
 	/** The datastore interface. */
 	protected AdvanceDataStore datastore;
 	/**
@@ -84,7 +86,7 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 * Initialize the control with the supplied communicator.
 	 * @param comm the communicator to use
 	 */
-	public HttpRemoteEngineControl(@NonNull HttpCommunicator comm) {
+	public HttpRemoteEngineControl(@NonNull AdvanceXMLCommunicator comm) {
 		this.comm = comm;
 		datastore = new HttpRemoteDataStore(comm);
 	}
@@ -94,9 +96,10 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 * @param auth the authentication record
 	 */
 	private void init(@NonNull URL remote, @NonNull AdvanceHttpAuthentication auth) {
-		comm = new HttpCommunicator();
+		HttpCommunicator comm = new HttpCommunicator();
 		comm.url = remote;
 		comm.authentication = auth;
+		this.comm = comm;
 	}
 
 	@Override
@@ -182,23 +185,27 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	public void importSigningResponse(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
 		XElement xrequest = new XElement("import-signing-response");
+		request.save(xrequest);
 		xrequest.content = data;
 		comm.send(xrequest);
 	}
 	@Override
-	public void testJDBCDataSource(String dataSourceName) throws IOException,
+	public DataStoreTestResult testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("test-jdbc-data-source", "data-source-source", dataSourceName));
+		XElement result = comm.query(HttpRemoteUtils.createRequest("test-jdbc-data-source", "data-source-source", dataSourceName));
+		return DataStoreTestResult.valueOf(result.content);
 	}
 	@Override
-	public void testJMSEndpoint(String jmsName) throws IOException,
+	public DataStoreTestResult testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("test-jms-endpoint", "jms-name", jmsName));
+		XElement result = comm.query(HttpRemoteUtils.createRequest("test-jms-endpoint", "jms-name", jmsName));
+		return DataStoreTestResult.valueOf(result.content);
 	}
 	@Override
-	public void testFTPDataSource(String ftpName) throws IOException,
+	public DataStoreTestResult testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("test-ftp-endpoint", "ftp-name", ftpName));
+		XElement result = comm.query(HttpRemoteUtils.createRequest("test-ftp-endpoint", "ftp-name", ftpName));
+		return DataStoreTestResult.valueOf(result.content);
 	}
 	@Override
 	public List<AdvanceKeyEntry> queryKeys(String keyStore) throws IOException,

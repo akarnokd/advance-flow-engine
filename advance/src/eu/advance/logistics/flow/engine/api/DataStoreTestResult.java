@@ -21,40 +21,19 @@
 
 package eu.advance.logistics.flow.engine.api;
 
-
 /**
- * The base exception for the ADVANCE Flow Engine Control API.
- * @author karnokd, 2011.09.19.
+ * The result of testing JDBC, JMS, FTP and other resources.
+ * @author karnokd, 2011.10.03.
  */
-public class AdvanceControlException extends Exception {
-	/** */
-	private static final long serialVersionUID = -8958246930488574550L;
-
-	/**
-	 * Default constructor. 
-	 */
-	public AdvanceControlException() {
-	}
-
-	/**
-	 * @param message the exception message
-	 */
-	public AdvanceControlException(String message) {
-		super(message);
-	}
-
-	/**
-	 * @param cause the exception clause
-	 */
-	public AdvanceControlException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 * @param message the exception message
-	 * @param cause the exception clause
-	 */
-	public AdvanceControlException(String message, Throwable cause) {
-		super(message, cause);
-	}
+public enum DataStoreTestResult {
+	/** The test succeded. */
+	SUCCESS,
+	/** No driver was found. */
+	MISSING_DRIVER,
+	/** The connection was refused. */
+	CONNECTION_REFUSED,
+	/** The supplied credentials are invalid. */
+	INVALID_CREDENTIALS,
+	/** Other network error. */
+	NETWORK_ERROR
 }
