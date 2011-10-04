@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.reactive.Observer;
+
 import java.io.IOException;
 
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -49,4 +51,13 @@ public interface AdvanceXMLCommunicator {
 	 * @throws IOException if a network error occurred
 	 */
 	void send(XElement request) throws IOException;
+	/**
+	 * Receive XML responses continuously.
+	 * The returned data should be a complete XML, but its parsing is done per each of the root's children,
+	 * e.g., an XML of &lt;a>&lt;b/>&lt;b/>&lt/a> will produce two b elements
+	 * @param request the request to send the response messages or exceptions
+	 * @param observer the callback to send
+	 * @throws IOException
+	 */
+	void receive(XElement request, Observer<XElement> observer);
 }

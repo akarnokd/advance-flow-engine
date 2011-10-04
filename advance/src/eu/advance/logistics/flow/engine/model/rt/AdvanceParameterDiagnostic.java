@@ -22,30 +22,70 @@
 package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Option;
+
+import java.text.ParseException;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The diagnostic port for advance regular ports.
  * @author karnokd, 2011.06.22.
  */
-public final class AdvanceParameterDiagnostic {
+public final class AdvanceParameterDiagnostic implements XSerializable {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceParameterDiagnostic.class);
+	/** The realm. */
+	public String realm;
 	/** The affected block. */
-	public final AdvanceBlock block;
+	public String blockId;
 	/** The affected port. */
-	public final AdvancePort port;
+	public String port;
 	/** The possible copy of the value within the port. */
-	public final Option<XElement> value;
+	public Option<XElement> value;
 	/** The timestamp when the port received this value. */
-	public final long timestamp = System.currentTimeMillis();
+	public Date timestamp = new Date();
 	/**
 	 * Constructor.
-	 * @param block the affected block
+	 * @param realm the realm
+	 * @param blockId the affected block
 	 * @param port the affected port
 	 * @param value the value
 	 */
-	public AdvanceParameterDiagnostic(AdvanceBlock block, AdvancePort port, Option<XElement> value) {
-		this.block = block;
+	public AdvanceParameterDiagnostic(String realm, String blockId, String port, Option<XElement> value) {
+		this.realm = realm;
+		this.blockId = blockId;
 		this.port = port;
 		this.value = value;
+	}
+	@Override
+	public void load(XElement source) {
+		realm = source.get("realm");
+		blockId = source.get("block-id");
+		port = source.get("port");
+		try {
+			timestamp = XElement.parseDateTime(source.get("timestamp"));
+		} catch (ParseException ex) {
+			LOG.error(ex.toString(), ex);
+		}
+		if (source.children().size() >= 1) {
+			value = Option.some(source.children().get(0).copy());
+		} else {
+			value = Option.none();
+		}
+	}
+	@Override
+	public void save(XElement destination) {
+		destination.set("realm", realm);
+		destination.set("block-id", blockId);
+		destination.set("port", port);
+		destination.set("timestamp", timestamp);
+		if (value instanceof Option.Some<?>) {
+			destination.add(value.value().copy());
+		}
 	}
 }

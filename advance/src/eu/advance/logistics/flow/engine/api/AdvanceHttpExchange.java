@@ -24,19 +24,34 @@ package eu.advance.logistics.flow.engine.api;
 import java.io.IOException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Base interface for the capability to dispatch an XML message and the logged-in user name.
- * @author karnokd, 2011.10.03.
+ * The interface to provide information about the request and give opportunities for direct
+ * or streaming responses.
+ * @author karnokd, 2011.10.04.
  */
-public interface AdvanceHttpListener {
-	/**
-	 * Dispatch a {@code request} under the given {@code userName}.
-	 * @param exch the request-response exchange
-	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user rights are inadequate
+public interface AdvanceHttpExchange {
+	/** @return the logged-in user name. */
+	@NonNull 
+	String userName();
+	/** @return the request object. */
+	@NonNull 
+	XElement request();
+	/** 
+	 * Indicate that there will be multiple responses.
+	 * @throws IOException if the multiresponse could not be sent 
 	 */
-	@Nullable
-	void dispatch(@NonNull AdvanceHttpExchange exch) throws IOException, AdvanceControlException;
+	void startMany() throws IOException;
+	/**
+	 * Send the next response XML.
+	 * @param value the value to send
+	 * @throws IOException if a network error occurs
+	 */
+	void next(XElement value) throws IOException;
+	/**
+	 * Indicate the completion of the multiple responses response.
+	 * @throws IOException if a network error occurs
+	 */
+	void finishMany() throws IOException;
 }

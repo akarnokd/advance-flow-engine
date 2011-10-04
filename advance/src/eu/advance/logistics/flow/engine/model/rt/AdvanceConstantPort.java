@@ -71,7 +71,7 @@ public class AdvanceConstantPort implements AdvancePort {
 				Reactive.materialize(this), new Func1<Option<XElement>, AdvanceParameterDiagnostic>() {
 			@Override
 			public AdvanceParameterDiagnostic invoke(Option<XElement> param1) {
-				return new AdvanceParameterDiagnostic(parent, AdvanceConstantPort.this, param1);
+				return new AdvanceParameterDiagnostic("", parent.description.id, name, param1);
 			}
 		});
 	}

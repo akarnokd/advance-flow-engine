@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.reactive4java.reactive.Observer;
+
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -32,9 +34,12 @@ import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
+import eu.advance.logistics.flow.engine.api.AdvanceHttpExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -59,121 +64,171 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		datastore = control.datastore();
 		datastoreListener = new HttpDataStoreListener(datastore);
 	}
-	/**
-	 * Dispatch the incoming requests.
-	 * @param userName the logged-in user
-	 * @param request the raw request XML
-	 * @return the optional response XML
-	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the wrapped control throws it.
-	 */
 	@Nullable
 	@Override
-	public XElement dispatch(@NonNull String userName, @NonNull XElement request) throws IOException, AdvanceControlException {
-		//throw new AdvanceControlException("Unknown request " + request);
+	public void dispatch(@NonNull final AdvanceHttpExchange exch) throws IOException, AdvanceControlException {
+		XElement request = exch.request();
+		String userName = exch.userName();
 		AdvanceEngineControl ctrl = new CheckedEngineControl(control, userName);
 		String function = request.name;
 		LOG.debug(function);
 		if ("get-user".equals(function)) {
-			return HttpRemoteUtils.storeItem("user", ctrl.getUser());
+			exch.next(HttpRemoteUtils.storeItem("user", ctrl.getUser()));
 		} else
 		if ("query-blocks".equals(function)) {
-			return HttpRemoteUtils.storeList("blocks", "block", ctrl.queryBlocks());
+			exch.next(HttpRemoteUtils.storeList("blocks", "block", ctrl.queryBlocks()));
 		} else
 		if ("query-schemas".equals(function)) {
-			return HttpRemoteUtils.storeList("schemas", "schema", ctrl.querySchemas());
+			exch.next(HttpRemoteUtils.storeList("schemas", "schema", ctrl.querySchemas()));
 		} else
 		if ("query-version".equals(function)) {
-			return HttpRemoteUtils.storeItem("version", ctrl.queryVersion());
+			exch.next(HttpRemoteUtils.storeItem("version", ctrl.queryVersion()));
 		} else
 		if ("update-schema".equals(function)) {
 			ctrl.updateSchema(request.get("name"), request.children().get(0).copy());
-			return null;
 		} else
 		if ("query-schema".equals(function)) {
-			return HttpRemoteUtils.storeItem("schema", ctrl.querySchema(request.get("name")));
+			exch.next(HttpRemoteUtils.storeItem("schema", ctrl.querySchema(request.get("name"))));
 		} else
 		if ("delete-key-entry".equals(function)) {
 			ctrl.deleteKeyEntry(request.get("keystore"), request.get("keyalias"));
-			return null;
+			
 		} else
 		if ("generate-key".equals(function)) {
 			ctrl.generateKey(HttpRemoteUtils.parseItem(request, AdvanceGenerateKey.CREATOR));
-			return null;
+			
 		} else
 		if ("export-certificate".equals(function)) {
 			XElement response = new XElement("certificate");
 			response.content = ctrl.exportCertificate(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
-			return response;
+			exch.next(response);
 		} else
 		if ("export-private-key".equals(function)) {
 			XElement response = new XElement("private-key");
 			response.content = ctrl.exportPrivateKey(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
-			return response;
+			exch.next(response);
 		} else
 		if ("import-certificate".equals(function)) {
 			ctrl.importCertificate(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
-			return null;
+			
 		} else
 		if ("import-private-key".equals(function)) {
 			ctrl.importPrivateKey(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR),
 					request.childValue("private-key"), request.childValue("certificate"));
-			return null;
+			
 		} else
 		if ("export-signing-request".equals(function)) {
 			XElement response = new XElement("signing-request");
 			response.content = ctrl.exportSigningRequest(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
-			return response;
+			exch.next(response);
 		} else
 		if ("import-signing-response".equals(function)) {
 			ctrl.importSigningResponse(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
-			return null;
+			
 		} else
 		if ("test-jdbc-data-source".equals(function)) {
 			XElement result = new XElement("datastore-test-result");
 			result.content = ctrl.testJDBCDataSource(request.get("dataSourceName")).toString();
-			return result;
+			exch.next(result);
 		} else
 		if ("test-jms-endpoint".equals(function)) {
 			XElement result = new XElement("datastore-test-result");
 			result.content = ctrl.testJMSEndpoint(request.get("jms-name")).toString();
-			return result;
+			exch.next(result);
 		} else
 		if ("test-ftp-data-source".equals(function)) {
 			XElement result = new XElement("datastore-test-result");
 			result.content =  ctrl.testFTPDataSource(request.get("jms-name")).toString();
-			return result;
+			exch.next(result);
 		} else
 		if ("query-keys".equals(function)) {
-			return HttpRemoteUtils.storeList("keys", "keyentry", ctrl.queryKeys(request.get("keystore")));
+			exch.next(HttpRemoteUtils.storeList("keys", "keyentry", ctrl.queryKeys(request.get("keystore"))));
 		} else
 		if ("stop-realm".equals(function)) {
 			ctrl.stopRealm(request.get("name"), request.get("by-user"));
-			return null;
+			
 		} else
 		if ("start-realm".equals(function)) {
 			ctrl.startRealm(request.get("name"), request.get("by-user"));
-			return null;
+			
 		} else
 		if ("query-flow".equals(function)) {
-			return AdvanceCompositeBlock.serializeFlow(ctrl.queryFlow(request.get("realm")));
+			exch.next(AdvanceCompositeBlock.serializeFlow(ctrl.queryFlow(request.get("realm"))));
 		} else
 		if ("update-flow".equals(function)) {
 			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(request.children().get(0));
 			ctrl.updateFlow(request.get("realm"), flow);
-			return null;
+			
 		} else
 		if ("verify-flow".equals(function)) {
-			return HttpRemoteUtils.storeItem("compilation-result", 
-					ctrl.verifyFlow(AdvanceCompositeBlock.parseFlow(request.children().get(0))));
+			exch.next(HttpRemoteUtils.storeItem("compilation-result", 
+					ctrl.verifyFlow(AdvanceCompositeBlock.parseFlow(request.children().get(0)))));
 		} else
 		if ("debug-block".equals(function)) {
-			LOG.error("debug-block not supported");
-			return null;
+			final String realm = request.get("realm");
+			exch.startMany();
+			ctrl.debugBlock(request.get("realm"), request.get("block-id")).register(new Observer<AdvanceBlockDiagnostic>() {
+				@Override
+				public void error(Throwable ex) {
+					LOG.error(ex.toString(), ex);
+					try {
+						exch.finishMany();
+					} catch (IOException exc) {
+						LOG.error(exc.toString(), exc);
+					}
+				}
+				@Override
+				public void finish() {
+					try {
+						exch.finishMany();
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+				@Override
+				public void next(AdvanceBlockDiagnostic value) {
+					value.realm = realm;
+					try {
+						exch.next(HttpRemoteUtils.storeItem("block-diagnostic", value));
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+			});
 		} else
 		if ("debug-parameter".equals(function)) {
-			LOG.error("debug-parameter not supported");
-			return null;
+			final String realm = request.get("realm");
+			exch.startMany();
+			ctrl.debugParameter(realm, request.get("block-id"), request.get("port"))
+			.register(new Observer<AdvanceParameterDiagnostic>() {
+				@Override
+				public void error(Throwable ex) {
+					LOG.error(ex.toString(), ex);
+					try {
+						exch.finishMany();
+					} catch (IOException exc) {
+						LOG.error(exc.toString(), exc);
+					}
+				}
+				@Override
+				public void finish() {
+					try {
+						exch.finishMany();
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+				@Override
+				public void next(AdvanceParameterDiagnostic value) {
+					try {
+						value.realm = realm;
+						exch.next(HttpRemoteUtils.storeItem("parameter-diagnostic", value));
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+			});
+			
 		} else
 		if ("inject-value".equals(function)) {
 			String realm = request.get("realm");
@@ -181,20 +236,18 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 			String port = request.get("port");
 			XElement value = request.children().get(0);
 			ctrl.injectValue(realm, blockId, port, value);
-			return null;
 		} else
 		if ("shutdown".equals(function)) {
 			ctrl.shutdown();
-			return null;
 		} else
 		if ("delete-schema".equals(function)) {
 			ctrl.deleteSchema(request.get("name"));
-			return null;
 		} else
 		if ("query-compilation-result".equals(function)) {
-			return HttpRemoteUtils.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm")));
+			exch.next(HttpRemoteUtils.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm"))));
+		} else {
+			// try datastore
+			datastoreListener.dispatch(exch);
 		}
-		// try datastore
-		return datastoreListener.dispatch(userName, request);
 	}
 }
