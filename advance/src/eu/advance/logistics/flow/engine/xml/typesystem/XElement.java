@@ -248,11 +248,10 @@ public class XElement implements Iterable<XElement> {
 		return null;
 	}
 	/**
-	 * XML parzolása inputstream-ből és lightweight XElement formába.
-	 * Nem zárja be az inputstreamet.
-	 * @param in az InputStream objektum
-	 * @return az XElement objektum
-	 * @throws XMLStreamException kivétel esetén
+	 * Parse XML from the input stream. Does not close the stream.
+	 * @param in the InputStream object
+	 * @return the parsed XElement tree
+	 * @throws XMLStreamException if an error occurs
 	 */
 	public static XElement parseXML(InputStream in) throws XMLStreamException {
 		XMLInputFactory inf = XMLInputFactory.newInstance();
@@ -261,11 +260,26 @@ public class XElement implements Iterable<XElement> {
 	}
 	/**
 	 * Parse an XML from the given XML Stream reader.
+	 * Closes the {@code in} stream.
 	 * @param in the XMLStreamReader
 	 * @return the parsed XElement tree
 	 * @throws XMLStreamException if an error occurs
 	 */
-	private static XElement parseXML(XMLStreamReader in) throws XMLStreamException {
+	public static XElement parseXML(XMLStreamReader in) throws XMLStreamException {
+		XElement root = parseXMLFragment(in);
+		in.close();
+		return root;
+	}
+	/**
+	 * Parses the stream until the end element of the start element is reached, then
+	 * returns. The method can be used to parse streamed fragment XML on a per node basis.
+	 * It does not close the {@code in} reader.
+	 * @param in the input reader
+	 * @return the parsed XElement tree
+	 * @throws XMLStreamException if an error occurs
+	 */
+	public static XElement parseXMLFragment(XMLStreamReader in)
+			throws XMLStreamException {
 		XElement node = null;
 		XElement root = null;
 		final StringBuilder emptyBuilder = new StringBuilder();
@@ -323,25 +337,27 @@ public class XElement implements Iterable<XElement> {
 				}
 				break;
 			case XMLStreamConstants.END_ELEMENT:
-				// ha volt szöveg, akkor hozzárendeljük a csomópont értékéhez
+				// if text was found, assign the accumulated text to the node
 				if (b != null) {
 					node.content = b.toString();
 				}
 				if (node != null) {
 					node = node.parent;
 				}
-				// kiszedjük a szülőjének builderjét
+				// return to the parent's builded
 				b = stack.pop();
-				// ha ez az üres, akkor a szülőnek (még) nem volt szöveges tartalma
+				// if the parent had no text so far
 				if (b == emptyBuilder) {
 					b = null;
+				}
+				if (stack.isEmpty()) {
+					return root;
 				}
 				break;
 			default:
 				// ignore others.
 			}
 		}
-		in.close();
 		return root;
 	}
 	/**
@@ -740,6 +756,7 @@ public class XElement implements Iterable<XElement> {
 	}
 	/**
 	 * Save this XML into the given output stream.
+	 * Does not close the given stream
 	 * @param stream the output stream
 	 * @throws IOException on error
 	 */
@@ -749,11 +766,12 @@ public class XElement implements Iterable<XElement> {
 			out.println("<?xml version='1.0' encoding='UTF-8'?>");
 			out.print(toString());
 		} finally {
-			out.close();
+			out.flush();
 		}
 	}
 	/**
 	 * Save this XML into the given writer.
+	 * Does not close the writer.
 	 * @param stream the output writer
 	 * @throws IOException on error
 	 */
@@ -763,7 +781,7 @@ public class XElement implements Iterable<XElement> {
 			out.println("<?xml version='1.0' encoding='UTF-8'?>");
 			out.print(toString());
 		} finally {
-			out.close();
+			out.flush();
 		}
 	}
 	/**

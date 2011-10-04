@@ -21,11 +21,14 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.reactive4java.reactive.Observer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -37,7 +40,9 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -248,6 +253,51 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 			}
 		} finally {		
 			c.disconnect();
+		}
+	}
+	@Override
+	public void receive(XElement request, Observer<XElement> observer) {
+		try {
+			HttpURLConnection c = prepare();
+			try {
+				c.setRequestMethod("POST");
+				c.setRequestProperty("Content-Type", "text/xml;charset=utf-8");
+				c.connect();
+				
+				OutputStream out = c.getOutputStream();
+				try {
+					request.save(out);
+				} finally {
+					out.close();
+				}
+				InputStream in = c.getInputStream();
+				try {
+					XMLInputFactory inf = XMLInputFactory.newInstance();
+					XMLStreamReader ir = inf.createXMLStreamReader(in);
+					try {
+						ir.nextTag();
+						while (ir.hasNext()) {
+							XElement e = XElement.parseXMLFragment(ir);
+							observer.next(e);
+						}
+						observer.finish();
+					} finally {
+						ir.close();
+					}
+				} finally {
+					in.close();
+				}
+			} finally {		
+				c.disconnect();
+			}
+		} catch (MalformedURLException ex) {
+			LOG.error(ex.toString(), ex);
+			observer.error(ex);
+		} catch (IOException ex) {
+			LOG.error(ex.toString(), ex);
+			observer.error(ex);
+		} catch (XMLStreamException ex) {
+			observer.error(ex);
 		}
 	}
 }

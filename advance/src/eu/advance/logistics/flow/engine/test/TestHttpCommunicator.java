@@ -21,13 +21,14 @@
 
 package eu.advance.logistics.flow.engine.test;
 
+import hu.akarnokd.reactive4java.reactive.Observer;
+
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -55,37 +56,21 @@ public class TestHttpCommunicator implements AdvanceXMLCommunicator {
 	}
 	@Override
 	public XElement query() throws IOException {
-		try {
-			XElement response = listener.dispatch(userName, new XElement(""));
-			if (response == null) {
-				return new XElement("");
-			}
-			return response;
-		} catch (AdvanceControlException ex) {
-			throw new IOException(ex);
-		}
+		// TODO implement
+		return null;
 	}
 	@Override
 	public XElement query(XElement request) throws IOException {
-		try {
-			XElement response = listener.dispatch(userName, request);
-			if (response == null) {
-				return new XElement("");
-			}
-			return response;
-		} catch (AdvanceControlException ex) {
-			throw new IOException(ex);
-		}
+		// TODO implement
+		return null;
 	}
 	@Override
 	public void send(XElement request) throws IOException {
-		try {
-			XElement response = listener.dispatch(userName, new XElement("")); 
-			if (response != null) {
-				LOG.error("Response?! " + response);
-			}
-		} catch (AdvanceControlException ex) {
-			throw new IOException(ex);
-		}
+		// TODO implement
+	}
+	@Override
+	public void receive(XElement request, Observer<XElement> observer) {
+		// TODO Auto-generated method stub
+		
 	}
 }

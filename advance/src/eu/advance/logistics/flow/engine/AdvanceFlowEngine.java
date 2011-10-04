@@ -21,7 +21,6 @@
 
 package eu.advance.logistics.flow.engine;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,6 +59,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceHttpExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.impl.HttpEngineControlListener;
@@ -179,23 +179,65 @@ public class AdvanceFlowEngine implements Runnable {
 		return new HttpHandler() {
 			@Override
 			public void handle(HttpExchange request) throws IOException {
+				XElement xrequest = null;
 				InputStream in = request.getRequestBody();
 				try {
-					XElement xrequest = XElement.parseXML(in);
-					
-					String userName = (String)request.getAttribute(LOGIN_USERNAME);
-					
-					XElement xresponse = engineListener.dispatch(userName, xrequest);
-					if (xresponse == null) {
-						sendResponse(request, 200, "");
-					} else {
-						sendResponse(request, 200, xresponse);
-					}
+					xrequest = XElement.parseXML(in);
 				} catch (XMLStreamException ex) {
+					LOG.error(ex.toString(), ex);
 					sendResponse(request, 400, ex.toString());
+					return;
+				} finally {
+					in.close();
+				}
+				final XElement frequest = xrequest;
+				try {
+					final String userName = (String)request.getAttribute(LOGIN_USERNAME);
+					
+					request.getResponseHeaders().add("Content-Type", "text/xml;charset=utf-8");
+					final OutputStream out = request.getResponseBody();
+					try {
+						engineListener.dispatch(new AdvanceHttpExchange() {
+							/** Is there a multiple response? */
+							private boolean multiResponse;
+							@Override
+							public void next(XElement value) throws IOException {
+								value.save(out);
+							}
+							
+							@Override
+							public void finishMany() throws IOException {
+								if (multiResponse) {
+									out.write("</multiple-fragments>".getBytes("UTF-8"));
+								} else {
+									LOG.error("startMany was not called!");
+								}
+							}
+							
+							@Override
+							public String userName() {
+								return userName;
+							}
+							
+							@Override
+							public XElement request() {
+								return frequest;
+							}
+							
+							@Override
+							public void startMany() throws IOException {
+								multiResponse = true;
+								out.write("<?xml version='1.0' encoding='UTF-8'?><multiple-fragments>".getBytes("UTF-8"));
+							}
+						});
+					} finally {
+						out.close();
+					}
 				} catch (IOException ex) {
+					LOG.error(ex.toString(), ex);
 					sendResponse(request, 500, ex.toString());
 				} catch (AdvanceControlException ex) {
+					LOG.error(ex.toString(), ex);
 					sendResponse(request, 403, ex.toString());
 				}
 			}
@@ -213,25 +255,6 @@ public class AdvanceFlowEngine implements Runnable {
 				OutputStream out = exch.getResponseBody();
 				try {
 					out.write(msg);
-				} finally {
-					out.close();
-				}
-			}
-			/**
-			 * Send back an XML.
-			 * @param exch the exchange object
-			 * @param code the response code
-			 * @param message the XML message
-			 * @throws IOException on error
-			 */
-			void sendResponse(HttpExchange exch, int code, XElement message) throws IOException {
-				exch.getResponseHeaders().add("Content-Type", "text/xml;charset=utf-8");
-				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-				message.save(bout);
-				exch.sendResponseHeaders(code, bout.size());
-				OutputStream out = exch.getResponseBody();
-				try {
-					bout.writeTo(out);
 				} finally {
 					out.close();
 				}

@@ -189,7 +189,7 @@ public abstract class AdvanceBlock {
 		
 		@Override
 		public void error(Throwable ex) {
-			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(ex)));
 		}
 
 		@Override
@@ -209,7 +209,7 @@ public abstract class AdvanceBlock {
 
 		@Override
 		public void error(Throwable ex) {
-			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(ex)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(ex)));
 		}
 
 		@Override
@@ -244,7 +244,7 @@ public abstract class AdvanceBlock {
 	 * @param scheduler the scheduler
 	 */
 	void invokeBody(List<XElement> value, Scheduler scheduler) {
-		diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.START)));
+		diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.some(AdvanceBlockState.START)));
 		try {
 			// prepare input parameters
 			Map<String, XElement> funcIn = Maps.newHashMap();
@@ -261,7 +261,7 @@ public abstract class AdvanceBlock {
 			invoke(funcIn);
 			
 		} catch (Throwable t) {
-			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(t)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(t)));
 		}
 	}
 	/**
@@ -272,7 +272,7 @@ public abstract class AdvanceBlock {
 		boolean valid = true;
 		for (int i = 0; i < outputs.size(); i++) {
 			if (!funcOut.containsKey(outputs.get(i).name)) {
-				diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
+				diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
 				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
 				valid = false;
 			}
@@ -282,7 +282,7 @@ public abstract class AdvanceBlock {
 				AdvanceBlockPort p = outputs.get(i);
 				p.next(funcOut.get(p.name));
 			}						
-			diagnostic.next(new AdvanceBlockDiagnostic(AdvanceBlock.this, Option.some(AdvanceBlockState.FINISH)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.some(AdvanceBlockState.FINISH)));
 		}
 
 	}
