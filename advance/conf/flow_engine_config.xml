@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flow-engine-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../schemas/flow-engine-config.xsd">
+	<listener cert-auth-port="8443" server-keyalias="advance-server" basic-auth-port="8444" server-password="YWR2YW5jZQ==" server-keystore="DEFAULT" client-keystore="DEFAULT"/>
 	<block-registry file="schemas/block-registry.xml"/>
 	<datastore driver="LOCAL" url="conf/datastore.xml"/>
 	<keystore name="DEFAULT" file="conf/keystore" password="YWR2YW5jZQ=="/>

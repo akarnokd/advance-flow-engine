@@ -2,27 +2,27 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/annotations.jar" sourcepath="war/WEB-INF/lib/annotations.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jxl5.jar" sourcepath="war/WEB-INF/lib/jxl5.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/log4j-1.2.16.jar" sourcepath="war/WEB-INF/lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/joda-time-1.6.2.jar" sourcepath="war/WEB-INF/lib/joda-time-1.6.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jsr166y.jar" sourcepath="war/WEB-INF/lib/jsr166y.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/monetdb-1.17-jdbc.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="war/WEB-INF/lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/extra166y.jar" sourcepath="war/WEB-INF/lib/extra166y.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r09-gwt.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r09.jar" sourcepath="war/WEB-INF/lib/guava-r09.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.16-bin.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/reactive4java-0.94.jar" sourcepath="war/WEB-INF/lib/reactive4java-0.94.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/reactive4java-gwt-0.94.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jaxen-1.1.3.jar" sourcepath="war/WEB-INF/lib/jaxen-1.1.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/bcprov-jdk16-146.jar" sourcepath="war/WEB-INF/lib/bcprov-jdk16-146.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/httpclient-4.1.2.jar" sourcepath="war/WEB-INF/lib/httpclient-4.1.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jsch-0.1.44.jar" sourcepath="war/WEB-INF/lib/jsch-0.1.44.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-codec-1.4.jar" sourcepath="war/WEB-INF/lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/javamail.jar" sourcepath="war/WEB-INF/lib/javamail.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jms-1.1.jar" sourcepath="war/WEB-INF/lib/jms-1.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-net-3.0.1.jar" sourcepath="war/WEB-INF/lib/commons-net-3.0.1.jar"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/annotations.jar" sourcepath="lib/annotations.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk16-146.jar" sourcepath="lib/bcprov-jdk16-146.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar" sourcepath="lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-net-3.0.1.jar" sourcepath="lib/commons-net-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/extra166y.jar" sourcepath="lib/extra166y.jar"/>
+	<classpathentry kind="lib" path="lib/guava-r09-gwt.jar" sourcepath="lib/guava-r09-gwt.jar"/>
+	<classpathentry kind="lib" path="lib/guava-r09.jar" sourcepath="lib/guava-r09.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar" sourcepath="lib/httpclient-4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/javamail.jar" sourcepath="lib/javamail.jar"/>
+	<classpathentry kind="lib" path="lib/jaxen-1.1.3.jar" sourcepath="lib/jaxen-1.1.3.jar"/>
+	<classpathentry kind="lib" path="lib/jms-1.1.jar" sourcepath="lib/jms-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-1.6.2.jar" sourcepath="lib/joda-time-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar" sourcepath="lib/jsch-0.1.44.jar"/>
+	<classpathentry kind="lib" path="lib/jsr166y.jar" sourcepath="lib/jsr166y.jar"/>
+	<classpathentry kind="lib" path="lib/jsr305.jar" sourcepath="lib/jsr305.jar"/>
+	<classpathentry kind="lib" path="lib/jxl5.jar" sourcepath="lib/jxl5.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar" sourcepath="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/monetdb-1.17-jdbc.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.16-bin.jar"/>
+	<classpathentry kind="lib" path="lib/reactive4java-0.94.jar" sourcepath="lib/reactive4java-0.94.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
