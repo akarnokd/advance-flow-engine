@@ -1,1 +1,18 @@
-Advance Flow Engine README.
+Advance Flow Engine README
+==========================
+
+Higly volatile development. Expect frequent changes, refactorings and so on.
+
+Version 0.01.087 Notes
+----------------------
+
+2011-10-04 13:00 CET
+
+Drastical refactoring of classes. The class names remained the same, but their location has changed.
+This helps removing any package cyclic dependency and makes a more clear grouping of the code.
+
+The SVN now contains a generated Javadoc of the Flow Engine.
+
+All NetBeans and GWT related files have been removed and cleaned. Libraries are moved to the
+/lib directory. 
+
