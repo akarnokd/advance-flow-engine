@@ -19,8 +19,10 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
+package eu.advance.logistics.flow.engine.model.fd;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -29,52 +31,70 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.util.Strings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
- * The block reference for the {@code flow-description.xsd} used within composite blocks.
- * @author karnokd, 2011.06.21.
+ * @author karnokd, 2011.06.24.
  */
-public class AdvanceBlockReference implements XSerializable {
+public class AdvanceConstantBlock implements XSerializable {
 	/** The unique identifier of this block among the current level of blocks. */
 	@NonNull
 	public String id;
-	/** The block type identifier referencing a block description. */
+	/** The content type of this block. */
 	@NonNull
-	public String type;
-	/** The user-entered documentation of this composite block. */
+	public URI typeURI;
+	/** The type. */
+	@NonNull
+	public XType type;
+	/** Optional display text for this attribute. Can be used as a key into a translation table. */
+	@Nullable
+	public String displayName;
+	/** The constant value. */
+	@NonNull
+	public XElement value;
+	/** The user-entered documentation of this parameter. */
 	@Nullable
 	public String documentation;
-	/** The parent block of this composite block. */
-	public AdvanceCompositeBlock parent;
-	/** The user-entered keywords for easier finding of this block. */
+	/** The user-entered keywords for easier finding of this parameter. */
 	public final List<String> keywords = Lists.newArrayList();
 	/** The visual properties for the Flow Editor. */
 	public final AdvanceBlockVisuals visuals = new AdvanceBlockVisuals();
 	/**
-	 * Load a block reference from an XML element which conforms the {@code flow-description.xsd}.
-	 * @param source the element of a input or output
+	 * Load a parameter description from an XML element which conforms the {@code block-description.xsd}.
+	 * @param source the root element of an input/output node.
 	 */
 	@Override
 	public void load(XElement source) {
 		id = source.get("id");
-		type = source.get("type");
+		displayName = source.get("displayname");
+		String t = source.get("type");
+		if (t != null) {
+			try {
+				typeURI = new URI(t);
+			} catch (URISyntaxException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
 		documentation = source.get("documentation");
 		String kw = source.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
+		value = source.children().iterator().next();
 		visuals.load(source);
 	}
 	@Override
 	public void save(XElement destination) {
 		destination.set("id", id);
-		destination.set("type", type);
+		destination.set("type", typeURI);
 		destination.set("documentation", documentation);
 		if (keywords.size() > 0) {
 			destination.set("keywords", Strings.join(keywords, ","));
 		} else {
 			destination.set("keywords", null);
 		}
+		destination.add(value.copy());
 		visuals.save(destination);
 	}
 }

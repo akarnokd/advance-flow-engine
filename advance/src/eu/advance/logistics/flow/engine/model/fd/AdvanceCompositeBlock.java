@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
+package eu.advance.logistics.flow.engine.model.fd;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +33,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.util.Strings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The composite block description for the flow description of {@code flow-description.xsd}.

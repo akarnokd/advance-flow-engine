@@ -19,29 +19,14 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
-
-import hu.akarnokd.reactive4java.base.Option;
-
-
 /**
- * The diagnostic port for the ADVANCE blocks.
- * @author karnokd, 2011.06.22.
+ * The flow-description record classes and exceptions thrown when parsing a flow XML.
+ * <p>To parse a flow XML conforming the {@code schemas/flow-description.xsd}, use the
+ * <pre><code>
+ * AdvanceCompositeBlock.parseFlow(XElement.parseXML("flow.xml"));
+ * </code></pre>
+ * </p>
+ * <p>To serialize a flow, call the {@code serializeFlow() } instance method on a composite block.</p>
  */
-public final class AdvanceBlockDiagnostic {
-	/** The affected block. */
-	public final AdvanceBlock block;
-	/** The possible copy of the value within the port. */
-	public final Option<AdvanceBlockState> state;
-	/** The timestamp when the port received this value. */
-	public final long timestamp = System.currentTimeMillis();
-	/**
-	 * Constructor.
-	 * @param block the affected block
-	 * @param state the block state
-	 */
-	public AdvanceBlockDiagnostic(AdvanceBlock block, Option<AdvanceBlockState> state) {
-		this.block = block;
-		this.state = state;
-	}
-}
+package eu.advance.logistics.flow.engine.model.fd;
+

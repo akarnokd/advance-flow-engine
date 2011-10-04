@@ -31,9 +31,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.SchedulerPreference;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.rt.SchedulerPreference;
 
 /**
  * Class that locates and creates blocks based on their name.

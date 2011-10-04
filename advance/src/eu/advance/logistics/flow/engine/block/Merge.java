@@ -31,11 +31,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import eu.advance.logistics.flow.engine.AdvanceBlock;
-import eu.advance.logistics.flow.engine.AdvanceConstantPort;
-import eu.advance.logistics.flow.engine.AdvancePort;
-import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.SchedulerPreference;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import eu.advance.logistics.flow.engine.model.rt.SchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**

@@ -19,5 +19,8 @@
  *
  */
 
+/**
+ * Compilation error classes.
+ */
 package eu.advance.logistics.flow.engine.error;
 

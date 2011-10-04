@@ -19,5 +19,8 @@
  *
  */
 
+/**
+ * The Flow Engine base API interfaces and default record classes.
+ */
 package eu.advance.logistics.flow.engine.api;
 

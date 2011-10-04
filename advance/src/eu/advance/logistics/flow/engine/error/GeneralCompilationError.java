@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**

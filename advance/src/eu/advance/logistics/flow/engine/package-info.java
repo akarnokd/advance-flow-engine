@@ -18,6 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
+/**
+ * The Flow Engine main classes, the Flow Engine Compiler and the Flow Engine Configuration classes. 
+ */
 package eu.advance.logistics.flow.engine;
 

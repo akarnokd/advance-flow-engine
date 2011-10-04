@@ -22,8 +22,8 @@
 package eu.advance.logistics.flow.engine.api;
 
 import hu.akarnokd.reactive4java.base.Func0;
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Definition of a Java Messaging Service endpoint.

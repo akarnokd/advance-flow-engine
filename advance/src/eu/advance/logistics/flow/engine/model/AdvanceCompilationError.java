@@ -18,8 +18,15 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-/**
- * Some utility classes, including KeyStore management, String utils, Reactive4Java extensions, etc.
- */
-package eu.advance.logistics.flow.engine.util;
 
+package eu.advance.logistics.flow.engine.model;
+
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+
+/**
+ * A simple base interface for reporting various compilation problems.
+ * @author karnokd, 2011.07.07.
+ */
+public interface AdvanceCompilationError extends XSerializable {
+	
+}

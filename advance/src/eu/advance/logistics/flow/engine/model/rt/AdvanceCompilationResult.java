@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Func0;
 
@@ -29,28 +29,12 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
-import eu.advance.logistics.flow.engine.error.CombinedTypeError;
-import eu.advance.logistics.flow.engine.error.ConcreteVsParametricTypeError;
-import eu.advance.logistics.flow.engine.error.ConstantOutputError;
-import eu.advance.logistics.flow.engine.error.DestinationToCompositeInputError;
-import eu.advance.logistics.flow.engine.error.DestinationToCompositeOutputError;
-import eu.advance.logistics.flow.engine.error.DestinationToOutputError;
+import eu.advance.logistics.flow.engine.error.ErrorLookup;
 import eu.advance.logistics.flow.engine.error.GeneralCompilationError;
-import eu.advance.logistics.flow.engine.error.IncompatibleBaseTypesError;
-import eu.advance.logistics.flow.engine.error.IncompatibleTypesError;
-import eu.advance.logistics.flow.engine.error.MissingDestinationError;
-import eu.advance.logistics.flow.engine.error.MissingDestinationPortError;
-import eu.advance.logistics.flow.engine.error.MissingSourceError;
-import eu.advance.logistics.flow.engine.error.MissingSourcePortError;
-import eu.advance.logistics.flow.engine.error.MultiInputBindingError;
-import eu.advance.logistics.flow.engine.error.SourceToCompositeInputError;
-import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
-import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
-import eu.advance.logistics.flow.engine.error.TypeMismatchError;
-import eu.advance.logistics.flow.engine.model.AdvanceType;
-import eu.advance.logistics.flow.engine.model.XSerializable;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Record to store compiler errors, warnings and the computed types of various wires.
@@ -65,28 +49,6 @@ public class AdvanceCompilationResult implements XSerializable {
 	 * The inferred wire types.
 	 */
 	public final Map<String, AdvanceType> wireTypes = Maps.newHashMap();
-	/** The map from error type to error class. */
-	protected static final Map<String, Func0<? extends AdvanceCompilationError>> ERROR_LOOKUP;
-	static {
-		ERROR_LOOKUP = Maps.newHashMap();
-		CombinedTypeError.register(ERROR_LOOKUP);
-		ConcreteVsParametricTypeError.register(ERROR_LOOKUP);
-		ConstantOutputError.register(ERROR_LOOKUP);
-		DestinationToCompositeInputError.register(ERROR_LOOKUP);
-		DestinationToCompositeOutputError.register(ERROR_LOOKUP);
-		DestinationToOutputError.register(ERROR_LOOKUP);
-		IncompatibleBaseTypesError.register(ERROR_LOOKUP);
-		IncompatibleTypesError.register(ERROR_LOOKUP);
-		MissingDestinationError.register(ERROR_LOOKUP);
-		MissingDestinationPortError.register(ERROR_LOOKUP);
-		MissingSourceError.register(ERROR_LOOKUP);
-		MissingSourcePortError.register(ERROR_LOOKUP);
-		MultiInputBindingError.register(ERROR_LOOKUP);
-		SourceToCompositeInputError.register(ERROR_LOOKUP);
-		SourceToCompositeOutputError.register(ERROR_LOOKUP);
-		SourceToInputBindingError.register(ERROR_LOOKUP);
-		TypeMismatchError.register(ERROR_LOOKUP);
-	}
 	/** Creates a new instance of this class. */
 	public static final Func0<AdvanceCompilationResult> CREATOR = new Func0<AdvanceCompilationResult>() {
 		@Override
@@ -97,7 +59,7 @@ public class AdvanceCompilationResult implements XSerializable {
 	@Override
 	public void load(XElement source) {
 		for (XElement e : source.childElement("errors").childrenWithName("error")) {
-			Func0<? extends AdvanceCompilationError> errFun = ERROR_LOOKUP.get(source.get("type"));
+			Func0<? extends AdvanceCompilationError> errFun = ErrorLookup.get(source.get("type"));
 			if (errFun == null) {
 				errors.add(new GeneralCompilationError(e));
 			} else {

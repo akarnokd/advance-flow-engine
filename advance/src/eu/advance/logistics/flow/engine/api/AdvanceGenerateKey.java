@@ -30,13 +30,13 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
-	/** @return the key algorithm. */
+	/** The key algorithm. */
 	public String algorithm;
-	/** @return the key bit size. */
+	/** The key bit size. */
 	public int keySize;
-	/** @return the issuer's distinguished name. */
+	/** The issuer's distinguished name. */
 	public DistinguishedName issuerDn;
-	/** @return the subject's distinguished name. */
+	/** The subject's distinguished name. */
 	public DistinguishedName subjectDn;
 	/** The user who modifies the record. */
 	public String modifiedBy;

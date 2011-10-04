@@ -18,18 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
-package eu.advance.logistics.flow.engine.model;
-
 /**
- * The enum representing the kind of an Advance type.
- * @author karnokd, 2011.07.07.
+ * The runtime related base classes of the Flow Engine.
  */
-public enum AdvanceTypeKind {
-	/** A concrete and exact type, e.g., advance:integer and such. */
-	CONCRETE_TYPE,
-	/** A concrete basetype with one or more generic type parameter, such as advance:collection. */
-	PARAMETRIC_TYPE,
-	/** An arbitrary type variable with optional type constraints. */
-	VARIABLE_TYPE
-}
+package eu.advance.logistics.flow.engine.model.rt;
+

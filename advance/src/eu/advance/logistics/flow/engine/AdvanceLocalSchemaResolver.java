@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import eu.advance.logistics.flow.engine.model.UnresolvableSchemaURIException;
+import eu.advance.logistics.flow.engine.model.fd.UnresolvableSchemaURIException;
 import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;

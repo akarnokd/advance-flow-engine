@@ -19,29 +19,34 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
-
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+package eu.advance.logistics.flow.engine.model.fd;
 
 /**
- * Record to store visualization properties of a block, constant or composite block.
- * @author karnokd, 2011.09.28.
+ * A duplicate identifier was found in the descriptions. 
+ * @author karnokd, 2011.07.07.
  */
-public class AdvanceBlockVisuals implements XSerializable {
-	/** The location on screen. */
-	public int x;
-	/** The location on screen. */
-	public int y;
-	@Override
-	public void load(XElement source) {
-		x = source.getInt("x", 0);
-		y = source.getInt("y", 0);
+public class DuplicateIdentifierException extends RuntimeException {
+	/** */
+	private static final long serialVersionUID = 4323213617722459290L;
+	/** The path to the identifier. */
+	public final String path;
+	/** The identifier value. */
+	public final String identifier;
+	/**
+	 * Constructor.
+	 * @param path the path to the identifier
+	 * @param identifier the identifier
+	 */
+	public DuplicateIdentifierException(String path, String identifier) {
+		this.path = path;
+		this.identifier = identifier;
 	}
-
 	@Override
-	public void save(XElement destination) {
-		destination.set("x", x);
-		destination.set("y", y);
+	public String toString() {
+		return path + " " + identifier;
 	}
-
+	@Override
+	public String getMessage() {
+		return toString();
+	}
 }

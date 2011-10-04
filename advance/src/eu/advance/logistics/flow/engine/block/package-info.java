@@ -19,5 +19,8 @@
  *
  */
 
+/**
+ * Block implementations used by the Flow Engine and runtime.
+ */
 package eu.advance.logistics.flow.engine.block;
 

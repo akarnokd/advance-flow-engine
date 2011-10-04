@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
+package eu.advance.logistics.flow.engine.model.fd;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +28,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The type variable definition of an Advance block.

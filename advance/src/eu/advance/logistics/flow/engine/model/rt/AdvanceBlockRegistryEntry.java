@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
+package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Func0;
 
@@ -34,7 +34,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The block registry entry of the block-registry.xml and xsd.

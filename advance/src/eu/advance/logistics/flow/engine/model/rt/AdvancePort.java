@@ -19,34 +19,21 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
+package eu.advance.logistics.flow.engine.model.rt;
+
+import hu.akarnokd.reactive4java.reactive.Observable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
- * A duplicate identifier was found in the descriptions. 
- * @author karnokd, 2011.07.07.
+ * Generic interface to describe ports.
+ * @author karnokd, 2011.06.24.
  */
-public class DuplicateIdentifierException extends RuntimeException {
-	/** */
-	private static final long serialVersionUID = 4323213617722459290L;
-	/** The path to the identifier. */
-	public final String path;
-	/** The identifier value. */
-	public final String identifier;
-	/**
-	 * Constructor.
-	 * @param path the path to the identifier
-	 * @param identifier the identifier
-	 */
-	public DuplicateIdentifierException(String path, String identifier) {
-		this.path = path;
-		this.identifier = identifier;
-	}
-	@Override
-	public String toString() {
-		return path + " " + identifier;
-	}
-	@Override
-	public String getMessage() {
-		return toString();
-	}
+public interface AdvancePort extends Observable<XElement> {
+	/** @return the port name. */
+	String name();
+	/** @return the parent advance block. */
+	AdvanceBlock parent();
+	/** @return the value type of the port. */
+	XType type();
 }

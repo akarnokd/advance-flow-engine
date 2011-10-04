@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.model.rt;
 
 /**
  * The ADVANCE block state used by the block diagnostic port.
