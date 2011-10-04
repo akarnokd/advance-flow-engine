@@ -178,7 +178,7 @@ public final class BuildJarRelease {
 	 * @throws IOException on error
 	 */
 	private static void addMainContent(ZipOutputStream zout) throws IOException {
-		processDirectory(".\\war\\WEB-INF\\classes\\", ".\\war\\WEB-INF\\classes", zout, new FilenameFilter() {
+		processDirectory(".\\bin\\", ".\\bin", zout, new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
 				String path = dir.getAbsolutePath().replace("\\", "/");
