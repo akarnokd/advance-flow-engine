@@ -84,7 +84,7 @@ public class AdvanceFlowEngine implements Runnable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The version of the flow engine. */
-	public static final String VERSION = "0.01.086";
+	public static final String VERSION = "0.01.087";
 	/** The configuration. */
 	private AdvanceEngineConfig config;
 	/** The basic server. */
@@ -101,7 +101,19 @@ public class AdvanceFlowEngine implements Runnable {
 		try {
 			XElement xconfig = XElement.parseXML("conf/flow_engine_config.xml");
 			config.initialize(xconfig);
-			engineListener = new HttpEngineControlListener(new LocalEngineControl(config.schemas));
+			LocalEngineControl control = new LocalEngineControl(config.schemas) {
+				@Override
+				public void shutdown() throws IOException,
+						AdvanceControlException {
+					LOG.info("Shutting down basic server.");
+					basicServer.stop(5);
+					LOG.info("Shutting down certificate server.");
+					certServer.stop(5);
+					LOG.info("Server listeners shut down.");
+					super.shutdown();
+				}
+			};
+			engineListener = new HttpEngineControlListener(control);
 			initListeners();
 		} catch (IOException ex) {
 			LOG.error(ex.toString(), ex);
