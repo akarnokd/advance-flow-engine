@@ -85,7 +85,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	/** The logger object. */
 	private static final Logger LOG = LoggerFactory.getLogger(LocalEngineControl.class);
 	/** The local data store. */
-	protected final LocalDataStore datastore = new LocalDataStore();
+	protected final AdvanceDataStore datastore;
 	/** The set of schema locations. */
 	protected final List<String> schemas;
 	/** The flow compiler. */
@@ -102,13 +102,15 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	protected final Map<String, AdvanceCompilationResult> realmVerifications = Maps.newConcurrentMap();
 	/**
 	 * Constructor initializing the configuration.
+	 * @param datastore the backing datastore to use
 	 * @param schemas the sequence of schemas
 	 * @param compiler the compiler used to (re)compile a realm
 	 * @param executor the flow executor
 	 */
-	public LocalEngineControl(Iterable<String> schemas, 
+	public LocalEngineControl(AdvanceDataStore datastore, Iterable<String> schemas, 
 			AdvanceFlowCompiler compiler,
 			AdvanceFlowExecutor executor) {
+		this.datastore = datastore;
 		this.schemas = Lists.newArrayList(schemas);
 		this.compiler = compiler;
 		this.executor = executor;
@@ -132,35 +134,33 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public List<AdvanceKeyEntry> queryKeys(
 			String keyStore) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(keyStore);
-			KeystoreManager mgr = new KeystoreManager();
-			try {
-				List<AdvanceKeyEntry> result = Lists.newArrayList();
-				mgr.load(e.location, e.password());
-				KeyStore ks = mgr.getKeyStore();
-				Enumeration<String> aliases = ks.aliases();
-				while (aliases.hasMoreElements()) {
-					String alias = aliases.nextElement();
-					
-					AdvanceKeyEntry k = new AdvanceKeyEntry();
-					if (ks.isKeyEntry(alias)) {
-						k.type = AdvanceKeyType.PRIVATE_KEY;
-					} else
-					if (ks.isCertificateEntry(alias)) {
-						k.type = AdvanceKeyType.CERTIFICATE;
-					}
-					k.name = alias;
-					k.createdAt = ks.getCreationDate(alias);
-					
-					result.add(k);
+		AdvanceKeyStore e = datastore.queryKeyStore(keyStore);
+		KeystoreManager mgr = new KeystoreManager();
+		try {
+			List<AdvanceKeyEntry> result = Lists.newArrayList();
+			mgr.load(e.location, e.password());
+			KeyStore ks = mgr.getKeyStore();
+			Enumeration<String> aliases = ks.aliases();
+			while (aliases.hasMoreElements()) {
+				String alias = aliases.nextElement();
+				
+				AdvanceKeyEntry k = new AdvanceKeyEntry();
+				if (ks.isKeyEntry(alias)) {
+					k.type = AdvanceKeyType.PRIVATE_KEY;
+				} else
+				if (ks.isCertificateEntry(alias)) {
+					k.type = AdvanceKeyType.CERTIFICATE;
 				}
-				return result;
-			} catch (KeystoreFault ex) {
-				throw new AdvanceControlException(ex);
-			} catch (KeyStoreException ex) {
-				throw new AdvanceControlException(ex);
+				k.name = alias;
+				k.createdAt = ks.getCreationDate(alias);
+				
+				result.add(k);
 			}
+			return result;
+		} catch (KeystoreFault ex) {
+			throw new AdvanceControlException(ex);
+		} catch (KeyStoreException ex) {
+			throw new AdvanceControlException(ex);
 		}
 	}
 
@@ -168,55 +168,51 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public void deleteKeyEntry(String keyStore,
 			String keyAlias) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					mgr.getKeyStore().deleteEntry(keyAlias);
-					mgr.save(e.location, e.password());
-				} catch (KeyStoreException ex) {
-					throw new AdvanceControlException(ex);
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				mgr.getKeyStore().deleteEntry(keyAlias);
+				mgr.save(e.location, e.password());
+			} catch (KeyStoreException ex) {
+				throw new AdvanceControlException(ex);
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
 	@Override
 	public void generateKey(AdvanceGenerateKey key)
 			throws IOException, AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(key.keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					
-					KeyPair kp = mgr.generateKeyPair(key.algorithm, key.keySize);
-					Certificate cert = mgr.createX509Certificate(kp, 12, 
-							key.issuerDn.toString(), key.subjectDn.toString(), 
-							"http://www.advance-logistics.eu", // FIXME maybe parametrize 
-							"MD5withRSA"); // FIXME maybe parametrize
-					
-					mgr.getKeyStore().setKeyEntry(key.keyAlias, kp.getPrivate(), key.keyPassword, new Certificate[] { cert });
-					
-					mgr.save(e.location, e.password());
-					e.modifiedAt = new Date();
-					e.modifiedBy = key.modifiedBy;
-					
-				} catch (KeyStoreException ex) {
-					throw new AdvanceControlException(ex);
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(key.keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				
+				KeyPair kp = mgr.generateKeyPair(key.algorithm, key.keySize);
+				Certificate cert = mgr.createX509Certificate(kp, 12, 
+						key.issuerDn.toString(), key.subjectDn.toString(), 
+						"http://www.advance-logistics.eu", // FIXME maybe parametrize 
+						"MD5withRSA"); // FIXME maybe parametrize
+				
+				mgr.getKeyStore().setKeyEntry(key.keyAlias, kp.getPrivate(), key.keyPassword, new Certificate[] { cert });
+				
+				mgr.save(e.location, e.password());
+				e.modifiedAt = new Date();
+				e.modifiedBy = key.modifiedBy;
+				
+			} catch (KeyStoreException ex) {
+				throw new AdvanceControlException(ex);
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
@@ -224,21 +220,19 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public String exportCertificate(
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					mgr.exportCertificate(request.keyAlias, out, false);
-					return out.toString("UTF-8");
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				mgr.exportCertificate(request.keyAlias, out, false);
+				return out.toString("UTF-8");
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
@@ -246,21 +240,19 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public String exportPrivateKey(
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					mgr.exportPrivateKey(request.keyAlias, request.keyPassword, out, false);
-					return out.toString("UTF-8");
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				mgr.exportPrivateKey(request.keyAlias, request.keyPassword, out, false);
+				return out.toString("UTF-8");
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
@@ -268,20 +260,18 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public void importCertificate(
 			AdvanceKeyStoreExport request, String data) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					mgr.importCertificate(request.keyAlias, new ByteArrayInputStream(data.getBytes("UTF-8")));
-					mgr.save(e.location, e.password());
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				mgr.importCertificate(request.keyAlias, new ByteArrayInputStream(data.getBytes("UTF-8")));
+				mgr.save(e.location, e.password());
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
@@ -289,23 +279,21 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public void importPrivateKey(
 			AdvanceKeyStoreExport request, String keyData, String certData) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					mgr.importPrivateKey(request.keyAlias, request.keyPassword, 
-							new ByteArrayInputStream(keyData.getBytes("UTF-8")),
-							new ByteArrayInputStream(certData.getBytes("UTF-8"))
-					);
-					mgr.save(e.location, e.password());
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				mgr.importPrivateKey(request.keyAlias, request.keyPassword, 
+						new ByteArrayInputStream(keyData.getBytes("UTF-8")),
+						new ByteArrayInputStream(certData.getBytes("UTF-8"))
+				);
+				mgr.save(e.location, e.password());
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
@@ -313,19 +301,17 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public String exportSigningRequest(
 			AdvanceKeyStoreExport request) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					return mgr.createRSASigningRequest(request.keyAlias, request.keyPassword);
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				return mgr.createRSASigningRequest(request.keyAlias, request.keyPassword);
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
@@ -333,21 +319,19 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public void importSigningResponse(
 			AdvanceKeyStoreExport request, String data) throws IOException,
 			AdvanceControlException {
-		synchronized (datastore.keystores) {
-			AdvanceKeyStore e = datastore.keystores.get(request.keyStore);
-			if (e != null) {
-				KeystoreManager mgr = new KeystoreManager();
-				try {
-					mgr.load(e.location, e.password());
-					mgr.installReply(request.keyAlias, request.keyPassword, new ByteArrayInputStream(data.getBytes("UTF-8")), 
-							true); // FIXME not sure
-					mgr.save(e.location, e.password());
-				} catch (KeystoreFault ex) {
-					throw new AdvanceControlException(ex);
-				}
-			} else {
-				throw new AdvanceControlException("Keystore not found");
+		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
+		if (e != null) {
+			KeystoreManager mgr = new KeystoreManager();
+			try {
+				mgr.load(e.location, e.password());
+				mgr.installReply(request.keyAlias, request.keyPassword, new ByteArrayInputStream(data.getBytes("UTF-8")), 
+						true); // FIXME not sure
+				mgr.save(e.location, e.password());
+			} catch (KeystoreFault ex) {
+				throw new AdvanceControlException(ex);
 			}
+		} else {
+			throw new AdvanceControlException("Keystore not found");
 		}
 	}
 
@@ -392,43 +376,13 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		u.enabled = true;
 		u.passwordLogin = true;
 		u.rights.addAll(Arrays.asList(AdvanceUserRights.values()));
-		
-		synchronized (datastore.users) {
-			datastore.users.put(u.name, u);
+		try {
+			datastore.updateUser(u);
+		} catch (IOException ex) {
+			LOG.error(ex.toString(), ex);
+		} catch (AdvanceControlException ex) {
+			LOG.error(ex.toString(), ex);
 		}
-	}
-	/**
-	 * Load database from disk.
-	 */
-	public void load() {
-		File dsFile = new File("datastore.xml");
-		datastore.load(dsFile.toString());
-	}
-	/**
-	 * Load a password encrypted data store.
-	 * @param password the password
-	 */
-	public void loadEncrypted(char[] password) {
-		File dsFile = new File("datastore.xml");
-		datastore.loadEncrypted(dsFile.toString(), password);
-	}
-	
-	/**
-	 * Save a password encrypted data store.
-	 * @param password the password
-	 */
-	public void saveEncrypted(char[] password) {
-		File dsFile = new File("datastore.xml");
-		backupDataStore(dsFile);
-		datastore.saveEncrypted(dsFile.toString(), password);
-	}
-	/**
-	 * Save database to disk.
-	 */
-	public void save() {
-		File dsFile = new File("datastore.xml");
-		backupDataStore(dsFile);
-		datastore.save(dsFile.toString());
 	}
 	@Override
 	public DataStoreTestResult testJDBCDataSource(String dataSourceName)
@@ -451,36 +405,32 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public void stopRealm(String name, String byUser)
 			throws IOException, AdvanceControlException {
-		synchronized (datastore.realms) {
-			AdvanceRealm r = datastore.realms.get(name);
-			if (r != null) {
-				if (r.status == AdvanceRealmStatus.RUNNING) {
-					r.modifiedAt = new Date();
-					tryShutdownRealm(r, AdvanceRealmStatus.STOPPED);
-				} else {
-					throw new AdvanceControlException("Realm not running");
-				}
+		AdvanceRealm r = datastore.queryRealm(name);
+		if (r != null) {
+			if (r.status == AdvanceRealmStatus.RUNNING) {
+				r.modifiedAt = new Date();
+				tryShutdownRealm(r, AdvanceRealmStatus.STOPPED);
 			} else {
-				throw new AdvanceControlException("Realm not found");
+				throw new AdvanceControlException("Realm not running");
 			}
+		} else {
+			throw new AdvanceControlException("Realm not found");
 		}
 	}
 
 	@Override
 	public void startRealm(String name, String byUser)
 			throws IOException, AdvanceControlException {
-		synchronized (datastore.realms) {
-			AdvanceRealm r = datastore.realms.get(name);
-			if (r != null) {
-				if (r.status == AdvanceRealmStatus.STOPPED) {
-					r.modifiedBy = byUser;
-					tryStartRealm(r);
-				} else {
-					throw new AdvanceControlException("Realm not stopped");
-				}
+		AdvanceRealm r = datastore.queryRealm(name);
+		if (r != null) {
+			if (r.status == AdvanceRealmStatus.STOPPED) {
+				r.modifiedBy = byUser;
+				tryStartRealm(r);
 			} else {
-				throw new AdvanceControlException("Realm not found");
+				throw new AdvanceControlException("Realm not stopped");
 			}
+		} else {
+			throw new AdvanceControlException("Realm not found");
 		}
 	}
 	@Override
@@ -501,8 +451,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public AdvanceCompositeBlock queryFlow(
 			String realm) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		return AdvanceCompositeBlock.parseFlow(datastore.queryFlow(realm));
 	}
 	@Override
 	public void updateFlow(String realm,
@@ -515,8 +464,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public AdvanceCompilationResult verifyFlow(
 			AdvanceCompositeBlock flow) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		return compiler.verify(flow);
 	}
 	@Override
 	public void injectValue(String realm,
