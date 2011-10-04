@@ -102,7 +102,7 @@ public class AdvanceFlowEngine implements Runnable {
 			XElement xconfig = XElement.parseXML("conf/flow_engine_config.xml");
 			config.initialize(xconfig);
 			AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, config.blockResolver, config.schedulerMap);
-			LocalEngineControl control = new LocalEngineControl(config.schemas, compiler, compiler) {
+			LocalEngineControl control = new LocalEngineControl(config.localDataStore, config.schemas, compiler, compiler) {
 				@Override
 				public void shutdown() throws IOException,
 						AdvanceControlException {
