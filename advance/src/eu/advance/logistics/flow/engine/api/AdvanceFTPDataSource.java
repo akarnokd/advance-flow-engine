@@ -22,8 +22,8 @@
 package eu.advance.logistics.flow.engine.api;
 
 import hu.akarnokd.reactive4java.base.Func0;
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The FTP data source record.
@@ -31,25 +31,25 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo 
 implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
-	/** @return the name used by blocks to reference this data source. */
+	/** The name used by blocks to reference this data source. */
 	public String name;
-	/** @return the protocol enumeration. */
+	/** The protocol enumeration. */
 	public AdvanceFTPProtocols protocol;
-	/** @return the FTP address. */
+	/** The FTP address. */
 	public String address;
-	/** @return the remote base directory. */
+	/** The remote base directory. */
 	public String remoteDirectory;
-	/** @return the user name used to login. */
+	/** The user name used to login. */
 	public String user;
-	/** 
+	/**
+	 * The password used to login. 
 	 * <p>Note that passwords are never returned from the 
 	 * control API calls and are always {@code null}.</p> 
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
-	 * @return the password used to login. 
 	 */
 	private char[] password;
-	/** @return the connection should be passive? */
+	/** The connection should be passive? */
 	public boolean passive;
 	/** The function to create a new instance of this class. */
 	public static final Func0<AdvanceFTPDataSource> CREATOR = new Func0<AdvanceFTPDataSource>() {

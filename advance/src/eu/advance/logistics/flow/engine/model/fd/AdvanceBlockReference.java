@@ -19,45 +19,63 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
+package eu.advance.logistics.flow.engine.model.fd;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.util.Strings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
- * The input or output parameter description of a flow composite block element.
+ * The block reference for the {@code flow-description.xsd} used within composite blocks.
  * @author karnokd, 2011.06.21.
  */
-public class AdvanceCompositeBlockParameterDescription extends
-		AdvanceBlockParameterDescription implements XSerializable {
-	/** The user-entered keywords for easier finding of this parameter. */
+public class AdvanceBlockReference implements XSerializable {
+	/** The unique identifier of this block among the current level of blocks. */
+	@NonNull
+	public String id;
+	/** The block type identifier referencing a block description. */
+	@NonNull
+	public String type;
+	/** The user-entered documentation of this composite block. */
+	@Nullable
+	public String documentation;
+	/** The parent block of this composite block. */
+	public AdvanceCompositeBlock parent;
+	/** The user-entered keywords for easier finding of this block. */
 	public final List<String> keywords = Lists.newArrayList();
-	
+	/** The visual properties for the Flow Editor. */
+	public final AdvanceBlockVisuals visuals = new AdvanceBlockVisuals();
 	/**
-	 * Load a parameter description from an XML element which conforms the {@code flow-description.xsd}.
-	 * @param root the element of a input or output
+	 * Load a block reference from an XML element which conforms the {@code flow-description.xsd}.
+	 * @param source the element of a input or output
 	 */
 	@Override
-	public void load(XElement root) {
-		super.load(root);
-		documentation = root.get("documentation");
-		String kw = root.get("keywords");
+	public void load(XElement source) {
+		id = source.get("id");
+		type = source.get("type");
+		documentation = source.get("documentation");
+		String kw = source.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
+		visuals.load(source);
 	}
 	@Override
 	public void save(XElement destination) {
-		super.save(destination);
+		destination.set("id", id);
+		destination.set("type", type);
 		destination.set("documentation", documentation);
 		if (keywords.size() > 0) {
 			destination.set("keywords", Strings.join(keywords, ","));
 		} else {
 			destination.set("keywords", null);
 		}
+		visuals.save(destination);
 	}
 }

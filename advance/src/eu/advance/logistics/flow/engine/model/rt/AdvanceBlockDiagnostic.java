@@ -19,33 +19,29 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Option;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+
 
 /**
- * The diagnostic port for advance regular ports.
+ * The diagnostic port for the ADVANCE blocks.
  * @author karnokd, 2011.06.22.
  */
-public final class AdvanceParameterDiagnostic {
+public final class AdvanceBlockDiagnostic {
 	/** The affected block. */
 	public final AdvanceBlock block;
-	/** The affected port. */
-	public final AdvancePort port;
 	/** The possible copy of the value within the port. */
-	public final Option<XElement> value;
+	public final Option<AdvanceBlockState> state;
 	/** The timestamp when the port received this value. */
 	public final long timestamp = System.currentTimeMillis();
 	/**
 	 * Constructor.
 	 * @param block the affected block
-	 * @param port the affected port
-	 * @param value the value
+	 * @param state the block state
 	 */
-	public AdvanceParameterDiagnostic(AdvanceBlock block, AdvancePort port, Option<XElement> value) {
+	public AdvanceBlockDiagnostic(AdvanceBlock block, Option<AdvanceBlockState> state) {
 		this.block = block;
-		this.port = port;
-		this.value = value;
+		this.state = state;
 	}
 }

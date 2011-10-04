@@ -102,6 +102,14 @@ public final class BuildJarRelease {
 			} finally {
 				zout.close();
 			}
+			zout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream("advance-flow-engine-javadoc-" + AdvanceFlowEngine.VERSION + ".zip"), 1024 * 1024));
+			try {
+				zout.setLevel(9);
+				processDirectory(".\\test\\javadoc\\", ".\\test\\javadoc", zout, null);
+				
+			} finally {
+				zout.close();
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

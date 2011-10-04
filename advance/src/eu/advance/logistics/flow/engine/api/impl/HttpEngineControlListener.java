@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
-import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**

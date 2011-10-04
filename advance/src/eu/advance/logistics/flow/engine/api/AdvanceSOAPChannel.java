@@ -30,8 +30,8 @@ import java.net.URL;
 
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Describes a SOAP communication channel.

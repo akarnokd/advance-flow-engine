@@ -36,8 +36,8 @@ import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.HasPassword;
 import eu.advance.logistics.flow.engine.api.impl.HttpDataStoreListener;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteDataStore;
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Test methods of HttpRemoteDataStore and HttpDataStoreListener.

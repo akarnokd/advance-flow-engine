@@ -22,8 +22,8 @@
 package eu.advance.logistics.flow.engine;
 
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The listener configuration record for the engine.

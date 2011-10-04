@@ -25,7 +25,8 @@ import hu.akarnokd.reactive4java.base.Func0;
 
 import java.util.Map;
 
-import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**

@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
@@ -43,11 +43,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.model.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.model.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.AdvanceConstantBlock;
-import eu.advance.logistics.flow.engine.model.SchedulerPreference;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.util.ReactiveEx;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 

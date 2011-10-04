@@ -28,22 +28,22 @@ import java.util.Date;
 
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The creation/modification time and user information.
  * @author karnokd, 2011.09.19.
  */
 public class AdvanceCreateModifyInfo implements XSerializable {
-	/** @return the creation timestamp of the object. */
+	/** The creation timestamp of the object. */
 	public Date createdAt;
-	/** @return the last modification timestamp of the object. */
+	/** The last modification timestamp of the object. */
 	public Date modifiedAt;
-	/** @return The user who created the object. */
+	/** The user who created the object. */
 	public String createdBy;
-	/** @return The user who modified the object the last time. */
+	/** The user who modified the object the last time. */
 	public String modifiedBy;
 	/**
 	 * Returns the password characters from the encoded attribute in the given source element.

@@ -27,8 +27,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import eu.advance.logistics.flow.engine.model.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Utility classes to create and parse XMLs used in the remote HTTP communications.

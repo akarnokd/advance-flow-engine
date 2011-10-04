@@ -26,11 +26,11 @@ import hu.akarnokd.reactive4java.reactive.Observable;
 import java.io.IOException;
 import java.util.List;
 
-import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
-import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**

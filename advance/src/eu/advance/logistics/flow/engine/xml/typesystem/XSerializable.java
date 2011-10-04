@@ -19,14 +19,23 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.error;
+package eu.advance.logistics.flow.engine.xml.typesystem;
 
-import eu.advance.logistics.flow.engine.model.XSerializable;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * A simple base interface for reporting various compilation problems.
- * @author karnokd, 2011.07.07.
+ * Common interface to denote objects which can be serialized and deserialized into XElements.
+ * @author karnok, Jul 6, 2011
  */
-public interface AdvanceCompilationError extends XSerializable {
-	
+public interface XSerializable {
+	/**
+	 * Load the contents from the given source.
+	 * @param source the source XElement
+	 */
+	void load(@NonNull XElement source);
+	/**
+	 * Save the contents into the given destination.
+	 * @param destination the destination XElement
+	 */
+	void save(@NonNull XElement destination);
 }

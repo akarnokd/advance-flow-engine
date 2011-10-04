@@ -42,14 +42,15 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 
 import eu.advance.logistics.flow.engine.AdvanceCompiler.TypeRelation;
-import eu.advance.logistics.flow.engine.error.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.error.CombinedTypeError;
 import eu.advance.logistics.flow.engine.error.ConcreteVsParametricTypeError;
 import eu.advance.logistics.flow.engine.error.IncompatibleBaseTypesError;
 import eu.advance.logistics.flow.engine.error.IncompatibleTypesError;
-import eu.advance.logistics.flow.engine.model.AdvanceBlockBind;
-import eu.advance.logistics.flow.engine.model.AdvanceType;
-import eu.advance.logistics.flow.engine.model.AdvanceTypeKind;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 

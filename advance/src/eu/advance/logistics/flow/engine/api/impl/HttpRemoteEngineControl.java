@@ -28,9 +28,6 @@ import java.net.URL;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
@@ -44,8 +41,11 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.api.DataStoreTestResult;
-import eu.advance.logistics.flow.engine.model.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**

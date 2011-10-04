@@ -19,24 +19,17 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+package eu.advance.logistics.flow.engine.model.fd;
 
 /**
- * Common interface to denote objects which can be serialized and deserialized into XElements.
- * @author karnok, Jul 6, 2011
+ * The enum representing the kind of an Advance type.
+ * @author karnokd, 2011.07.07.
  */
-public interface XSerializable {
-	/**
-	 * Load the contents from the given source.
-	 * @param source the source XElement
-	 */
-	void load(@NonNull XElement source);
-	/**
-	 * Save the contents into the given destination.
-	 * @param destination the destination XElement
-	 */
-	void save(@NonNull XElement destination);
+public enum AdvanceTypeKind {
+	/** A concrete and exact type, e.g., advance:integer and such. */
+	CONCRETE_TYPE,
+	/** A concrete basetype with one or more generic type parameter, such as advance:collection. */
+	PARAMETRIC_TYPE,
+	/** An arbitrary type variable with optional type constraints. */
+	VARIABLE_TYPE
 }

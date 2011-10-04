@@ -18,8 +18,31 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-/**
- * Some utility classes, including KeyStore management, String utils, Reactive4Java extensions, etc.
- */
-package eu.advance.logistics.flow.engine.util;
 
+package eu.advance.logistics.flow.engine.model.fd;
+
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+
+/**
+ * Record to store visualization properties of a block, constant or composite block.
+ * @author karnokd, 2011.09.28.
+ */
+public class AdvanceBlockVisuals implements XSerializable {
+	/** The location on screen. */
+	public int x;
+	/** The location on screen. */
+	public int y;
+	@Override
+	public void load(XElement source) {
+		x = source.getInt("x", 0);
+		y = source.getInt("y", 0);
+	}
+
+	@Override
+	public void save(XElement destination) {
+		destination.set("x", x);
+		destination.set("y", y);
+	}
+
+}

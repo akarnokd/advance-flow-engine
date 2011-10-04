@@ -18,6 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
+/**
+ * The XML type-system related classes, the XElement parser and the SchemaParser classes.
+ */
 package eu.advance.logistics.flow.engine.xml.typesystem;
 

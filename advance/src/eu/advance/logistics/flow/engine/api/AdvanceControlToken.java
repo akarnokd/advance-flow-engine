@@ -28,8 +28,8 @@ import java.net.URI;
  * @author karnokd, 2011.09.19.
  */
 public class AdvanceControlToken {
-	/** @return the URI address off the remote Flow Engine. */
+	/** The URI address off the remote Flow Engine. */
 	public URI target;
-	/** @return the user's settings. */
+	/** The user's settings. */
 	public AdvanceUser user;
 }

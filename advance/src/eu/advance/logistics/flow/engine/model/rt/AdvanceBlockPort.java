@@ -19,12 +19,12 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.reactive4java.reactive.DefaultObservable;
 import hu.akarnokd.reactive4java.reactive.Observable;
-import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.Closeable;
@@ -33,35 +33,32 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
-
 /**
- * A special port which returns a constant value.
- * @author karnokd, 2011.06.24.
+ * @author karnokd, 2011.06.22.
  */
-public class AdvanceConstantPort implements AdvancePort {
+public class AdvanceBlockPort extends DefaultObservable<XElement> implements AdvancePort {
 	/** The logger. */
-	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceConstantPort.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlockPort.class);
 	/** The parent base block. */
 	public final AdvanceBlock parent;
 	/** The parameter name. */
 	public final String name;
 	/** The schema definition. */
 	public XType type;
+	/** The observer registration to another output port. */
+	private Closeable observer;
 	/** The diagnostic observable port. */
 	private Observable<AdvanceParameterDiagnostic> diagnostic;
-	/** The single element to return to observers. */
-	@NonNull
-	public XElement value;
 	/**
 	 * Constructor.
 	 * @param parent the parent block used for diagnostic purposes
 	 * @param name the parameter name
 	 */
-	public AdvanceConstantPort(final AdvanceBlock parent, final String name) {
+	public AdvanceBlockPort(final AdvanceBlock parent, final String name) {
+		super(false, false);
 		this.parent = parent;
 		this.name = name;
 	}
@@ -71,7 +68,7 @@ public class AdvanceConstantPort implements AdvancePort {
 				Reactive.materialize(this), new Func1<Option<XElement>, AdvanceParameterDiagnostic>() {
 			@Override
 			public AdvanceParameterDiagnostic invoke(Option<XElement> param1) {
-				return new AdvanceParameterDiagnostic(parent, AdvanceConstantPort.this, param1);
+				return new AdvanceParameterDiagnostic(parent, AdvanceBlockPort.this, param1);
 			}
 		});
 	}
@@ -80,6 +77,25 @@ public class AdvanceConstantPort implements AdvancePort {
 	 */
 	public Observable<AdvanceParameterDiagnostic> getDiagnosticPort() {
 		return diagnostic;
+	}
+	/**
+	 * Connect to an output parameter.
+	 * @param obs the the observable
+	 */
+	public void connect(Observable<XElement> obs) {
+		disconnect();
+		observer = obs.register(this);
+	}
+	/** Disconnect from the observed output parameter. */
+	public void disconnect() {
+		if (observer != null) {
+			try {
+				observer.close();
+				observer = null;
+			} catch (IOException ex) {
+				LOG.error("", ex);
+			}
+		}
 	}
 	@Override
 	public String name() {
@@ -92,15 +108,5 @@ public class AdvanceConstantPort implements AdvancePort {
 	@Override
 	public XType type() {
 		return type;
-	}
-	@Override
-	public Closeable register(Observer<? super XElement> observer) {
-		observer.next(value); // FIXME scheduling dimension might be required
-		return new Closeable() {
-			@Override
-			public void close() throws IOException {
-				// NO OP
-			}
-		};
 	}
 }

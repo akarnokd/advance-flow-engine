@@ -19,5 +19,8 @@
  *
  */
 
+/**
+ * Default implementations of the Flow Engine API with local and remote options.
+ */
 package eu.advance.logistics.flow.engine.api.impl;
 

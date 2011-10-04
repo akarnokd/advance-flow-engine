@@ -19,5 +19,9 @@
  *
  */
 
+/**
+ * The common classes between the flow-description (fd) and runtime (rt) classes.
+ * (To break dependency cycles.)
+ */
 package eu.advance.logistics.flow.engine.model;
 

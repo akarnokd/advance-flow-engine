@@ -18,6 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
+/**
+ * Unit, algorithm and concept testing package.
+ */
 package eu.advance.logistics.flow.engine.test;
 

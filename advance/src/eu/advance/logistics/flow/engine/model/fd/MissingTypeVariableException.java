@@ -19,39 +19,34 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model;
-
-import java.net.URI;
+package eu.advance.logistics.flow.engine.model.fd;
 
 /**
- * The exception thrown when the specified schema uri cannot be properly resolved.
- * @author karnokd, 2011.06.22.
+ * A missing type variable identifier was found in the descriptions. 
+ * @author karnokd, 2011.07.07.
  */
-public class UnresolvableSchemaURIException extends RuntimeException {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1874430876536751248L;
-	/** The schema URI. */
-	public final URI schemaURI;
+public class MissingTypeVariableException extends RuntimeException {
+	/** */
+	private static final long serialVersionUID = 4323213617722459290L;
+	/** The path to the identifier. */
+	public final String path;
+	/** The identifier value. */
+	public final String identifier;
 	/**
 	 * Constructor.
-	 * @param schemaURI the schema uri causing the problem
+	 * @param path the path to the identifier
+	 * @param identifier the identifier
 	 */
-	public UnresolvableSchemaURIException(URI schemaURI) {
-		this.schemaURI = schemaURI;
+	public MissingTypeVariableException(String path, String identifier) {
+		this.path = path;
+		this.identifier = identifier;
 	}
-	/**
-	 * Constructor.
-	 * @param schemaURI the schema uri causing the problem
-	 * @param exception the exception raised
-	 */
-	public UnresolvableSchemaURIException(URI schemaURI, Throwable exception) {
-		super(exception);
-		this.schemaURI = schemaURI;
-	}	
+	@Override
+	public String toString() {
+		return path + " " + identifier;
+	}
 	@Override
 	public String getMessage() {
-		return "" + schemaURI;
+		return toString();
 	}
 }
