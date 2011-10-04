@@ -181,13 +181,6 @@ public class AdvanceEngineConfig {
 	 * Terminate and close everything.
 	 */
 	public void close() {
-		if (localDataStore != null) {
-			if (jdbcDataStore.password() != null) {
-				localDataStore.saveEncrypted(jdbcDataStore.url, jdbcDataStore.password());
-			} else {
-				localDataStore.save(jdbcDataStore.url);
-			}
-		}
 		for (ExecutorService s : schedulerMapExecutors.values()) {
 			s.shutdown();
 		}
@@ -196,6 +189,13 @@ public class AdvanceEngineConfig {
 				s.awaitTermination(0, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException ex) {
 				LOG.warn(ex.toString(), ex);
+			}
+		}
+		if (localDataStore != null) {
+			if (jdbcDataStore.password() != null) {
+				localDataStore.saveEncrypted(jdbcDataStore.url, jdbcDataStore.password());
+			} else {
+				localDataStore.save(jdbcDataStore.url);
 			}
 		}
 		

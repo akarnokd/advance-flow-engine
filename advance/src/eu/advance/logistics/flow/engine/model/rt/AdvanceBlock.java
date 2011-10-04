@@ -335,4 +335,21 @@ public abstract class AdvanceBlock {
 		}
 		return null;
 	}
+	/**
+	 * Called after the block has been detached and done() has been called in
+	 * case the engine is shut down (but not when the realm is stopped).
+	 * @return if a non-null value is returned, it indicates the state to be saved
+	 */
+	public XElement saveState() {
+		return null;
+	}
+	/**
+	 * Called before the observer of the run() method is signalled in case
+	 * the engine is restarted after a shutdown (but not when the realm was manually stopped)
+	 * and the saveState() returned an object.
+	 * @param state the state to restore
+	 */
+	public void restoreState(XElement state) {
+		
+	}
 }

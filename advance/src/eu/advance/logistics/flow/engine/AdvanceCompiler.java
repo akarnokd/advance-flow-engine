@@ -38,6 +38,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
+import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeOutputError;
@@ -71,7 +73,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
  * The ADVANCE block compiler which turns the the flow description into runnable advance blocks.
  * @author karnokd, 2011.06.27.
  */
-public final class AdvanceCompiler {
+public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowExecutor {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The cache for schema uri to types. */
@@ -80,14 +82,27 @@ public final class AdvanceCompiler {
 	protected final AdvanceSchemaResolver schemaResolver;
 	/** The block resolver. */
 	protected final AdvanceBlockResolver blockResolver;
+	/** The map of various schedulers. */
+	protected final Map<SchedulerPreference, Scheduler> schedulers;
 	/**
 	 * Constructor.
 	 * @param schemaResolver the schema resolver
 	 * @param blockResolver the block resolver
+	 * @param schedulers the schedulers for the blocks
 	 */
-	public AdvanceCompiler(AdvanceSchemaResolver schemaResolver, AdvanceBlockResolver blockResolver) {
+	public AdvanceCompiler(
+			AdvanceSchemaResolver schemaResolver, 
+			AdvanceBlockResolver blockResolver,
+			Map<SchedulerPreference, Scheduler> schedulers) {
 		this.schemaResolver = schemaResolver;
 		this.blockResolver = blockResolver;
+		this.schedulers = schedulers;
+	}
+	@Override
+	public List<AdvanceBlock> compile(AdvanceCompositeBlock flow) {
+		List<AdvanceBlock> result = Lists.newArrayList();
+		compile(flow, result);
+		return result;
 	}
 	/**
 	 * Compile the composite block.
@@ -136,9 +151,9 @@ public final class AdvanceCompiler {
 	/**
 	 * Run the flow graph.
 	 * @param flow the list of blocks
-	 * @param schedulers the available schedulers
 	 */
-	public void run(List<AdvanceBlock> flow, Map<SchedulerPreference, Scheduler> schedulers) {
+	@Override
+	public void run(Iterable<? extends AdvanceBlock> flow) {
 		// arm
 		List<Observer<Void>> notifycations = Lists.newLinkedList();
 		for (AdvanceBlock ab : flow) {
@@ -153,7 +168,8 @@ public final class AdvanceCompiler {
 	 * Terminate the blocks' connections and observations.
 	 * @param flow the flow
 	 */
-	public void done(List<AdvanceBlock> flow) {
+	@Override
+	public void done(Iterable<? extends AdvanceBlock> flow) {
 		for (AdvanceBlock ab : flow) {
 			ab.done();
 		}
@@ -272,6 +288,7 @@ public final class AdvanceCompiler {
 	 * @param enclosingBlock the most outer block
 	 * @return the compilation result
 	 */
+	@Override
 	public AdvanceCompilationResult verify(
 			AdvanceCompositeBlock enclosingBlock) {
 		AdvanceCompilationResult result = new AdvanceCompilationResult();

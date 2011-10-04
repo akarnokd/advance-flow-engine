@@ -88,4 +88,8 @@ public class AdvanceCompilationResult implements XSerializable {
 			e.getValue().save(wt.add("type"));
 		}
 	}
+	/** @return true if the compilation finished without error. */
+	public boolean success() {
+		return errors.isEmpty();
+	}
 }

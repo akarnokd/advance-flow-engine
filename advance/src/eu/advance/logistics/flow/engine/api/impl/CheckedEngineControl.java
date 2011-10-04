@@ -300,5 +300,10 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 		check(AdvanceUserRights.SHUTDOWN);
 		control.shutdown();
 	}
-
+	@Override
+	public AdvanceCompilationResult queryCompilationResult(String realm)
+			throws IOException, AdvanceControlException {
+		check(realm, AdvanceUserRealmRights.READ);
+		return control.queryCompilationResult(realm);
+	}
 }

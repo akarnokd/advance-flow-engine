@@ -127,9 +127,8 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void renameRealm(String realm,
-			String newName, String byUser) throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("rename-realm", "realm", realm, "new-realm", newName));
+	public void updateRealm(AdvanceRealm realm) throws IOException, AdvanceControlException {
+		comm.send(HttpRemoteUtils.createUpdate("update-realm", realm));
 	}
 
 	@Override

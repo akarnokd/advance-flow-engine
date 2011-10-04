@@ -21,21 +21,21 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+
 /**
- * The status enumeration of the ADVANCE Flow Engine Realm.
- * @author karnokd, 2011.09.19.
+ * Describes the ability to execute and terminate a list of blocks.
+ * @author karnokd, 2011.10.04.
  */
-public enum AdvanceRealmStatus {
-	/** The realm is stopped. */
-	STOPPED,
-	/** The realm is about to stop. */
-	STOPPING,
-	/** The realm is executing a flow. */
-	RUNNING,
-	/** The realm is about to run. */
-	STARTING,
-	/** Indicates the realm was running when the last shutdown happened and will automatically resume. */
-	RESUME,
-	/** The realm failed the verification. */
-	ERROR
+public interface AdvanceFlowExecutor {
+	/**
+	 * Execute the given sequence of blocks.
+	 * @param blocks the sequence of blocks
+	 */
+	void run(Iterable<? extends AdvanceBlock> blocks);
+	/**
+	 * Terminate the given sequence of blocks.
+	 * @param blocks the sequence of blocks
+	 */
+	void done(Iterable<? extends AdvanceBlock> blocks);
 }

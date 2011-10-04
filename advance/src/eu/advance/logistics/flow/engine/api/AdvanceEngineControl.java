@@ -270,4 +270,14 @@ public interface AdvanceEngineControl {
 	 * @throws AdvanceControlException if the user is not allowed to shut down the engine
 	 */
 	void shutdown() throws IOException, AdvanceControlException;
+	/**
+	 * Return the compilation result of the given realm.
+	 * This function may be used to find out why a server-side verification failed
+	 * or to query the compilation result after a flow upload and realm startup.
+	 * @param realm the realm to query
+	 * @return the compilation result or null if no compilation was performed since the last startup of the engine
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to read a flow
+	 */
+	AdvanceCompilationResult queryCompilationResult(String realm) throws IOException, AdvanceControlException;
 }

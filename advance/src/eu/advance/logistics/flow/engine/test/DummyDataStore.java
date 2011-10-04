@@ -113,7 +113,7 @@ public class DummyDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void renameRealm(String realm, String newName, String byUser)
+	public void updateRealm(AdvanceRealm realm)
 			throws IOException, AdvanceControlException {
 		// NO operation
 	}

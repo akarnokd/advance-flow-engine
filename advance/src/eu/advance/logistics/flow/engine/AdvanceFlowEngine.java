@@ -101,7 +101,8 @@ public class AdvanceFlowEngine implements Runnable {
 		try {
 			XElement xconfig = XElement.parseXML("conf/flow_engine_config.xml");
 			config.initialize(xconfig);
-			LocalEngineControl control = new LocalEngineControl(config.schemas) {
+			AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, config.blockResolver, config.schedulerMap);
+			LocalEngineControl control = new LocalEngineControl(config.schemas, compiler, compiler) {
 				@Override
 				public void shutdown() throws IOException,
 						AdvanceControlException {
@@ -111,6 +112,7 @@ public class AdvanceFlowEngine implements Runnable {
 					certServer.stop(5);
 					LOG.info("Server listeners shut down.");
 					super.shutdown();
+					config.close();
 				}
 			};
 			engineListener = new HttpEngineControlListener(control);

@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -42,12 +43,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
+import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
+import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
@@ -59,11 +63,15 @@ import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.DataStoreTestResult;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -80,12 +88,30 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	protected final LocalDataStore datastore = new LocalDataStore();
 	/** The set of schema locations. */
 	protected final List<String> schemas;
+	/** The flow compiler. */
+	protected final AdvanceFlowCompiler compiler;
+	/** The flow executor. */
+	protected final AdvanceFlowExecutor executor;
+	/**
+	 * The realm runtimes.
+	 */
+	protected final Map<String, List<AdvanceBlock>> realmRuntime = Maps.newConcurrentMap();
+	/**
+	 * The output of the realm verification.
+	 */
+	protected final Map<String, AdvanceCompilationResult> realmVerifications = Maps.newConcurrentMap();
 	/**
 	 * Constructor initializing the configuration.
 	 * @param schemas the sequence of schemas
+	 * @param compiler the compiler used to (re)compile a realm
+	 * @param executor the flow executor
 	 */
-	public LocalEngineControl(Iterable<String> schemas) {
+	public LocalEngineControl(Iterable<String> schemas, 
+			AdvanceFlowCompiler compiler,
+			AdvanceFlowExecutor executor) {
 		this.schemas = Lists.newArrayList(schemas);
+		this.compiler = compiler;
+		this.executor = executor;
 	}
 	@Override
 	public AdvanceUser getUser() throws IOException, AdvanceControlException {
@@ -429,9 +455,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceRealm r = datastore.realms.get(name);
 			if (r != null) {
 				if (r.status == AdvanceRealmStatus.RUNNING) {
-					r.status = AdvanceRealmStatus.STOPPED;
 					r.modifiedAt = new Date();
-					r.modifiedBy = byUser;
+					tryShutdownRealm(r, AdvanceRealmStatus.STOPPED);
 				} else {
 					throw new AdvanceControlException("Realm not running");
 				}
@@ -448,9 +473,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceRealm r = datastore.realms.get(name);
 			if (r != null) {
 				if (r.status == AdvanceRealmStatus.STOPPED) {
-					r.status = AdvanceRealmStatus.RUNNING;
-					r.modifiedAt = new Date();
 					r.modifiedBy = byUser;
+					tryStartRealm(r);
 				} else {
 					throw new AdvanceControlException("Realm not stopped");
 				}
@@ -498,8 +522,35 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public void injectValue(String realm,
 			String blockId, String port, XElement value) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		AdvanceRealm r = datastore.queryRealm(realm);
+		if (r == null) {
+			throw new AdvanceControlException("Missing realm " + realm);
+		}
+		if (r.status != AdvanceRealmStatus.RUNNING) {
+			throw new AdvanceControlException("Realm " + realm + " is not running");
+		}
+		List<AdvanceBlock> blocks = realmRuntime.get(realm);
+		if (blocks == null) {
+			throw new AdvanceControlException("Realm " + realm + " is not compiled");
+		}
+		for (AdvanceBlock b : blocks) {
+			AdvanceBlockDescription desc = b.getDescription();
+			if (desc.id.equals(blockId)) {
+				for (AdvancePort p : b.inputs) {
+					if (p.name().equals(port)) {
+						if (p instanceof AdvanceBlockPort) {
+							AdvanceBlockPort bp = (AdvanceBlockPort) p;
+							bp.next(value);
+							return;
+						} else {
+							throw new AdvanceControlException("The port is constant bound.");
+						}
+					}
+				}
+				throw new AdvanceControlException("Port not found");
+			}
+		}
+		throw new AdvanceControlException("Block not found");
 	}
 	@Override
 	public List<AdvanceSchemaRegistryEntry> querySchemas(
@@ -576,9 +627,92 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		result.parse(AdvanceFlowEngine.VERSION);
 		return result;
 	}
+	/**
+	 * Initialize and start the flows of each realm when the engine starts.
+	 * @throws IOException not likely
+	 * @throws AdvanceControlException not likely
+	 */
+	public void startup() throws IOException, AdvanceControlException {
+		for (AdvanceRealm r : datastore.queryRealms()) {
+			if (r.status == AdvanceRealmStatus.RESUME) {
+				tryStartRealm(r);
+			}
+		}
+	}
+	/**
+	 * Tries to start a realm.
+	 * @param r the realm object
+	 * @throws IOException on datastore error
+	 * @throws AdvanceControlException on datastore error
+	 */
+	private void tryStartRealm(AdvanceRealm r) throws IOException,
+			AdvanceControlException {
+		r.status = AdvanceRealmStatus.STARTING;
+		r.modifiedAt = new Date();
+		datastore.updateRealm(r);
+		
+		
+		XElement xflow = datastore.queryFlow(r.name);
+		AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(xflow);
+		AdvanceCompilationResult verify = compiler.verify(flow);
+		realmVerifications.put(r.name, verify);
+		if (verify.success()) {
+			List<AdvanceBlock> blocks = compiler.compile(flow);
+			realmRuntime.put(r.name, blocks);
+			for (AdvanceBlock b : blocks) {
+				XElement state = datastore.queryBlockState(r.name, b.getDescription().id);
+				if (state != null) {
+					b.restoreState(state);
+				}
+			}
+			executor.run(blocks);
+			r.status = AdvanceRealmStatus.RUNNING;
+			r.modifiedAt = new Date();
+			datastore.updateRealm(r);
+		} else {
+			r.status = AdvanceRealmStatus.ERROR;
+			r.modifiedAt = new Date();
+			datastore.updateRealm(r);
+		}
+	}
 	@Override
 	public void shutdown() throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
+		for (AdvanceRealm r : datastore.queryRealms()) {
+			if (r.status == AdvanceRealmStatus.RUNNING) {
+				tryShutdownRealm(r, AdvanceRealmStatus.RESUME);
+			}
+		}
+	}
+	/**
+	 * Try to shut down a realm.
+	 * @param r the realm object
+	 * @param afterStatus what should be the after status of the realm?
+	 * @throws IOException on datastore error
+	 * @throws AdvanceControlException on datastore error
+	 */
+	private void tryShutdownRealm(AdvanceRealm r, AdvanceRealmStatus afterStatus) throws IOException,
+			AdvanceControlException {
+		r.status = AdvanceRealmStatus.STOPPING;
+		r.modifiedAt = new Date();
+		datastore.updateRealm(r);
 		
+		List<AdvanceBlock> blocks = realmRuntime.remove(r.name);
+		if (blocks == null) {
+			LOG.warn("Realm is empty: " + r.name);
+		} else {
+			executor.done(blocks);
+			for (AdvanceBlock b : blocks) {
+				XElement state = b.saveState();
+				datastore.updateBlockState(r.name, b.getDescription().id, state);
+			}
+		}
+		r.status = afterStatus;
+		r.modifiedAt = new Date();
+		datastore.updateRealm(r);
+	}
+	@Override
+	public AdvanceCompilationResult queryCompilationResult(String realm)
+			throws IOException, AdvanceControlException {
+		return realmVerifications.get(realm);
 	}
 }
