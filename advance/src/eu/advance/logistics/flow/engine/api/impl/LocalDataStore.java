@@ -467,17 +467,20 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	}
 
 	@Override
-	public void renameRealm(String name,
-			String newName, String byUser) throws IOException, AdvanceControlException {
+	public void updateRealm(AdvanceRealm realm) throws IOException, AdvanceControlException {
 		synchronized (realms) {
-			AdvanceRealm r = realms.get(name);
-			if (r != null) {
-				r.name = newName;
-				r.modifiedAt = new Date();
-				r.modifiedBy = byUser;
+			AdvanceRealm prev = realms.get(realm.name);
+			AdvanceRealm next = realm.copy();
+			if (prev != null) {
+				next.createdAt = prev.createdAt;
+				next.createdBy = prev.createdBy;
+				next.modifiedAt = new Date();
 			} else {
-				throw new AdvanceControlException("Realm not found");
+				next.createdAt = new Date();
+				next.createdBy = next.modifiedBy;
+				next.modifiedAt = new Date();
 			}
+			realms.put(next.name, next);
 		}		
 	}
 	@Override
@@ -1015,9 +1018,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		Map<String, XElement> map = blockStates.get(realm);
 		if (map != null) {
 			XElement result = map.get(blockId);
-			if (result == null) {
-				LOG.error("Missing block " + blockId + " in realm " + realm);
-			}
 			return result;
 		}
 		LOG.error("Missing realm: " + realm);
@@ -1031,7 +1031,11 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			map = Maps.newHashMap();
 			blockStates.put(realm, map);
 		}
-		map.put(blockId, state);
+		if (state == null) {
+			map.remove(blockId);
+		} else {
+			map.put(blockId, state);
+		}
 	}
 	@Override
 	public XElement queryFlow(String realm) throws IOException {

@@ -276,4 +276,10 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		comm.send(HttpRemoteUtils.createRequest("delete-schema", "name", name));
 	}
+	@Override
+	public AdvanceCompilationResult queryCompilationResult(String realm)
+			throws IOException, AdvanceControlException {
+		XElement response = comm.query(HttpRemoteUtils.createRequest("query-compilation-result", "realm", realm));
+		return HttpRemoteUtils.parseItem(response, AdvanceCompilationResult.CREATOR);
+	}
 }

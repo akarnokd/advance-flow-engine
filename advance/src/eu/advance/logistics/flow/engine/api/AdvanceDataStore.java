@@ -67,14 +67,12 @@ public interface AdvanceDataStore {
 	 */
 	void deleteRealm(String realm) throws IOException, AdvanceControlException;
 	/**
-	 * Rename the given realm.
+	 * Update the properties of the given realm.
 	 * @param realm the original realm name
-	 * @param newName the new realm name
-	 * @param byUser the user who changed the object
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to rename the realm
 	 */
-	void renameRealm(String realm, String newName, String byUser) throws IOException, AdvanceControlException;
+	void updateRealm(AdvanceRealm realm) throws IOException, AdvanceControlException;
 	/**
 	 * Query the list of users.
 	 * @return the list of users
@@ -350,7 +348,7 @@ public interface AdvanceDataStore {
 	 * Save the block state.
 	 * @param realm the target realm
 	 * @param blockId the target block identifier
-	 * @param state the state XElement
+	 * @param state the state XElement or null
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */

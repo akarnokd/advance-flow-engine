@@ -77,8 +77,8 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void renameRealm(String realm, String newName, String byUser)
-			throws IOException, AdvanceControlException {
+	public void updateRealm(AdvanceRealm realm) throws IOException,
+			AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -282,70 +282,75 @@ public class JDBCDataStore implements AdvanceDataStore {
 
 	@Override
 	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
-			throws IOException {
+			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException {
+	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException,
+			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException {
+	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException,
+			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public AdvanceFTPDataSource queryFTPDataSource(String name)
-			throws IOException {
+			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public AdvanceWebDataSource queryWebDataSource(String name)
-			throws IOException {
+			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public AdvanceLocalFileDataSource queryLocalFileDataSource(String name)
-			throws IOException {
+			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Set<String> queryNotificationGroup(
-			AdvanceNotificationGroupType type, String name) throws IOException {
+			AdvanceNotificationGroupType type, String name) throws IOException,
+			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public XElement queryBlockState(String realm, String blockId)
-			throws IOException {
+			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void updateBlockState(String realm, String blockId, XElement state)
-			throws IOException {
+			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public XElement queryFlow(String realm) throws IOException {
+	public XElement queryFlow(String realm) throws IOException,
+			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
 			AdvanceControlException {

@@ -190,6 +190,9 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		if ("delete-schema".equals(function)) {
 			ctrl.deleteSchema(request.get("name"));
 			return null;
+		} else
+		if ("query-compilation-result".equals(function)) {
+			return HttpRemoteUtils.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm")));
 		}
 		// try datastore
 		return datastoreListener.dispatch(userName, request);

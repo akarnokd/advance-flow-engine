@@ -198,10 +198,10 @@ public class CheckedDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void renameRealm(String realm, String newName, String byUser) throws IOException,
+	public void updateRealm(AdvanceRealm realm) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.MODIFY_REALM);
-		datastore.renameRealm(realm, newName, userName);
+		datastore.updateRealm(changeModifiedBy(realm));
 	}
 
 	@Override

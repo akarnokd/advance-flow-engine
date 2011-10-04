@@ -35,6 +35,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
+import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
@@ -83,8 +84,8 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			ds.deleteRealm(request.get("realm"));
 			return null;
 		} else
-		if ("rename-realm".equals(function)) {
-			ds.renameRealm(request.get("realm"), request.get("new-realm"), userName);
+		if ("update-realm".equals(function)) {
+			ds.updateRealm(HttpRemoteUtils.parseItem(request, AdvanceRealm.CREATOR));
 			return null;
 		} else
 		if ("query-users".equals(function)) {
