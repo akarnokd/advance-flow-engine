@@ -68,6 +68,40 @@ public final class BuildJarRelease {
 			} finally {
 				zout.close();
 			}
+			zout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream("advance-flow-engine-" + AdvanceFlowEngine.VERSION + ".zip"), 1024 * 1024));
+			try {
+				zout.setLevel(9);
+				processDirectory(".\\", ".\\conf", zout, null);
+				processDirectory(".\\", ".\\schemas", zout, new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".xsd");
+					}
+				});
+				addFile("LICENSE.txt", "LICENSE.txt", zout);
+				addFile("README.txt", "README.txt", zout);
+				addFile("advance-flow-engine-" + AdvanceFlowEngine.VERSION + ".jar", "advance-flow-engine-" + AdvanceFlowEngine.VERSION + ".jar", zout);
+				
+			} finally {
+				zout.close();
+			}
+			zout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream("advance-flow-engine-full-" + AdvanceFlowEngine.VERSION + ".zip"), 1024 * 1024));
+			try {
+				zout.setLevel(9);
+				processDirectory(".\\", ".\\conf", zout, null);
+				processDirectory(".\\", ".\\schemas", zout, new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".xsd");
+					}
+				});
+				addFile("LICENSE.txt", "LICENSE.txt", zout);
+				addFile("README.txt", "README.txt", zout);
+				addFile("advance-flow-engine-full-" + AdvanceFlowEngine.VERSION + ".jar", "advance-flow-engine-full-" + AdvanceFlowEngine.VERSION + ".jar", zout);
+				
+			} finally {
+				zout.close();
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -85,7 +119,7 @@ public final class BuildJarRelease {
 				"guava-r09-gwt",
 				"monetdb-1.17-jdbc"
 		);
-		File[] files = new File("war/WEB-INF/lib").listFiles();
+		File[] files = new File("lib").listFiles();
 		Set<String> memory = Sets.newHashSet();
 		if (files != null) {
 			for (File f : files) {
@@ -147,18 +181,24 @@ public final class BuildJarRelease {
 		processDirectory(".\\war\\WEB-INF\\classes\\", ".\\war\\WEB-INF\\classes", zout, new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				return dir.getAbsolutePath().replace("\\", "/").contains("eu/advance/logistics/flow/engine") && !name.contains("BuildJarRelease");
+				String path = dir.getAbsolutePath().replace("\\", "/");
+				return path.contains("eu/advance/logistics/flow/engine") 
+						&& !name.contains("BuildJarRelease")
+						&& !path.contains("eu/advance/logistics/flow/engine/test")
+						;
 			}
 		});
 		processDirectory(".\\src\\", ".\\src", zout, new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
+				String path = dir.getAbsolutePath().replace("\\", "/");
 				return name.endsWith(".java") 
-						&& dir.getAbsolutePath().replace("\\", "/").contains("eu/advance/logistics/flow/engine") 
-						&& !name.contains("BuildJarRelease");
+						&& path.contains("eu/advance/logistics/flow/engine") 
+						&& !name.contains("BuildJarRelease")
+						&& !path.contains("eu/advance/logistics/flow/engine/test")
+						;
 			}
 		});
-		processDirectory(".\\", ".\\schemas", zout, null);
 	}
 	
 	/** Utility class. */

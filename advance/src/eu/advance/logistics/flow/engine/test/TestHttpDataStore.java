@@ -119,7 +119,14 @@ public class TestHttpDataStore {
 	 */
 	@Test
 	public void testQueryRealm() {
-		fail("Not yet implemented");
+		try {
+			AdvanceRealm r = ds.queryRealm("Test");
+			assertTrue(testEquals(r, DummyDataStore.createTestRealm()));
+		} catch (IOException ex) {
+			fail("IOException " + ex);
+		} catch (AdvanceControlException ex) {
+			fail("IOException " + ex);
+		}
 	}
 
 	/**
