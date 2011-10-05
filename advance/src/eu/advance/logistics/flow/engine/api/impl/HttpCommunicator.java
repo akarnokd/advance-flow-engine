@@ -21,20 +21,23 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.reactive4java.base.Scheduler;
+import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Observer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -52,6 +55,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
+import eu.advance.logistics.flow.engine.util.ReactiveEx;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -66,6 +70,8 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 	public AdvanceHttpAuthentication authentication;
 	/** The endpoint URL. */
 	public URL url;
+	/** The encryption protocol. */
+	public String baseProtocol = "TLS";
 	/**
 	 * Prepare the connection.
 	 * @return the connection object
@@ -96,7 +102,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 					kmf.init(ks, authentication.password);
 				}
 				
-				SSLContext ctx = SSLContext.getInstance("TLS"); // FIXME maybe parametrize?
+				SSLContext ctx = SSLContext.getInstance(baseProtocol);
 				ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 				
 				conn.setSSLSocketFactory(ctx.getSocketFactory());
@@ -256,48 +262,88 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 		}
 	}
 	@Override
-	public void receive(XElement request, Observer<XElement> observer) {
-		try {
-			HttpURLConnection c = prepare();
-			try {
-				c.setRequestMethod("POST");
-				c.setRequestProperty("Content-Type", "text/xml;charset=utf-8");
-				c.connect();
-				
-				OutputStream out = c.getOutputStream();
+	public Observable<XElement> receive(final XElement request, final Scheduler scheduler) {
+		return new Observable<XElement>() {
+			@Override
+			public Closeable register(final Observer<? super XElement> observer) {
 				try {
-					request.save(out);
-				} finally {
-					out.close();
-				}
-				InputStream in = c.getInputStream();
-				try {
-					XMLInputFactory inf = XMLInputFactory.newInstance();
-					XMLStreamReader ir = inf.createXMLStreamReader(in);
+					final HttpURLConnection c = prepare();
 					try {
-						ir.nextTag();
-						while (ir.hasNext()) {
-							XElement e = XElement.parseXMLFragment(ir);
-							observer.next(e);
+						c.setRequestMethod("POST");
+						c.setRequestProperty("Content-Type", "text/xml;charset=utf-8");
+						c.connect();
+						
+						OutputStream out = c.getOutputStream();
+						try {
+							request.save(out);
+						} finally {
+							out.close();
 						}
-						observer.finish();
-					} finally {
-						ir.close();
+						final AtomicBoolean closed = new AtomicBoolean();
+						final InputStream in = c.getInputStream();
+						final Closeable cs = scheduler.schedule(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									try {
+										XMLInputFactory inf = XMLInputFactory.newInstance();
+										XMLStreamReader ir = inf.createXMLStreamReader(in);
+										try {
+											ir.nextTag();
+											while (ir.hasNext()) {
+												XElement e = XElement.parseXMLFragment(ir);
+												observer.next(e);
+											}
+											observer.finish();
+										} finally {
+											ir.close();
+										}
+									} finally {
+										in.close();
+									}
+								} catch (IOException ex) {
+									LOG.error(ex.toString(), ex);
+									if (!closed.get()) {
+										observer.error(ex);
+									}
+								} catch (XMLStreamException ex) {
+									LOG.error(ex.toString(), ex);
+									if (!closed.get()) {
+										observer.error(ex);
+									}
+								} finally {
+									c.disconnect();
+								}
+							}
+						});
+						return new Closeable() {
+							@Override
+							public void close() throws IOException {
+								closed.set(true);
+								try {
+									cs.close();
+								} catch (IOException ex) {
+									LOG.warn(ex.toString(), ex);
+								}
+								try {
+									in.close();
+								} catch (IOException ex) {
+									LOG.warn(ex.toString(), ex);
+								}
+								c.disconnect();
+							}
+						};
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+						observer.error(ex);
+						return ReactiveEx.emptyCloseable();
 					}
-				} finally {
-					in.close();
+				} catch (IOException ex) {
+					LOG.error(ex.toString(), ex);
+					observer.error(ex);
+					return ReactiveEx.emptyCloseable();
 				}
-			} finally {		
-				c.disconnect();
 			}
-		} catch (MalformedURLException ex) {
-			LOG.error(ex.toString(), ex);
-			observer.error(ex);
-		} catch (IOException ex) {
-			LOG.error(ex.toString(), ex);
-			observer.error(ex);
-		} catch (XMLStreamException ex) {
-			observer.error(ex);
-		}
+		};
 	}
 }

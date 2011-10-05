@@ -22,7 +22,9 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import hu.akarnokd.reactive4java.reactive.Observable;
+import hu.akarnokd.reactive4java.reactive.Observer;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -46,6 +48,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
+import eu.advance.logistics.flow.engine.util.NewThreadScheduler;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -247,18 +250,72 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 		request.add(flow.serializeFlow());
 		return HttpRemoteUtils.parseItem(comm.query(request), AdvanceCompilationResult.CREATOR);
 	}
+	/**
+	 * {@inheritDoc}
+	 * <p>Remark: registering to this observable starts the HTTP message exchange and receives
+	 * the records in the caller's thread. 
+	 * Consider using the {@link hu.akarnokd.reactive4java.reactive.Reactive#registerOn(Observable, hu.akarnokd.reactive4java.base.Scheduler)}</p>
+	 */
 	@Override
-	public Observable<AdvanceBlockDiagnostic> debugBlock(String realm,
-			String blockId) throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+	public Observable<AdvanceBlockDiagnostic> debugBlock(final String realm,
+			final String blockId) throws IOException, AdvanceControlException {
+		return new Observable<AdvanceBlockDiagnostic>() {
+			@Override
+			public Closeable register(final
+					Observer<? super AdvanceBlockDiagnostic> observer) {
+				
+				return comm.receive(HttpRemoteUtils.createRequest(
+						"debug-block", "realm", realm, "block-id", blockId), new NewThreadScheduler())
+					.register(
+						new Observer<XElement>() {
+					@Override
+					public void error(Throwable ex) {
+						observer.error(ex);
+					}
+					@Override
+					public void finish() {
+						observer.finish();
+					}
+					@Override
+					public void next(XElement value) {
+						observer.next(HttpRemoteUtils.parseItem(value, AdvanceBlockDiagnostic.CREATOR));
+					};
+				});
+			}
+		};
 	}
+	/**
+	 * {@inheritDoc}
+	 * <p>Remark: registering to this observable starts the HTTP message exchange and receives
+	 * the records in the caller's thread. 
+	 * Consider using the {@link hu.akarnokd.reactive4java.reactive.Reactive#registerOn(Observable, hu.akarnokd.reactive4java.base.Scheduler)}</p>
+	 */
 	@Override
-	public Observable<AdvanceParameterDiagnostic> debugParameter(String realm,
-			String blockId, String port) throws IOException,
+	public Observable<AdvanceParameterDiagnostic> debugParameter(final String realm,
+			final String blockId, final String port) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		return new Observable<AdvanceParameterDiagnostic>() {
+			@Override
+			public Closeable register(final
+					Observer<? super AdvanceParameterDiagnostic> observer) {
+				return comm.receive(HttpRemoteUtils.createRequest(
+						"debug-block", "realm", realm, "block-id", blockId, "port", port), new NewThreadScheduler())
+				.register(new Observer<XElement>() {
+					@Override
+					public void error(Throwable ex) {
+						observer.error(ex);
+					}
+					@Override
+					public void finish() {
+						observer.finish();
+					}
+					@Override
+					public void next(XElement value) {
+						observer.next(HttpRemoteUtils.parseItem(value, AdvanceParameterDiagnostic.CREATOR));
+					};
+				});
+			}
+		};
 	}
 	@Override
 	public void injectValue(String realm, String blockId, String port,

@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
-import eu.advance.logistics.flow.engine.api.AdvanceHttpExchange;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
@@ -66,7 +66,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 	}
 	@Nullable
 	@Override
-	public void dispatch(@NonNull final AdvanceHttpExchange exch) throws IOException, AdvanceControlException {
+	public void dispatch(@NonNull final AdvanceXMLExchange exch) throws IOException, AdvanceControlException {
 		XElement request = exch.request();
 		String userName = exch.userName();
 		AdvanceEngineControl ctrl = new CheckedEngineControl(control, userName);

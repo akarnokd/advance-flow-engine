@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * or streaming responses.
  * @author karnokd, 2011.10.04.
  */
-public interface AdvanceHttpExchange {
+public interface AdvanceXMLExchange {
 	/** @return the logged-in user name. */
 	@NonNull 
 	String userName();

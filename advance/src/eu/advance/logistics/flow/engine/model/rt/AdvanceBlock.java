@@ -47,7 +47,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
-import eu.advance.logistics.flow.engine.util.ReactiveEx;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -171,7 +170,7 @@ public abstract class AdvanceBlock {
 	protected Observer<Void> runReactiveBlock(final Scheduler scheduler,
 			List<AdvancePort> reactivePorts) {
 		functionClose.add(Reactive.observeOn(
-				ReactiveEx.combine(reactivePorts), scheduler).register(new InvokeObserver<List<XElement>>() {
+				Reactive.combine(reactivePorts), scheduler).register(new InvokeObserver<List<XElement>>() {
 			@Override
 			public void next(List<XElement> value) {
 				invokeBody(value, scheduler);

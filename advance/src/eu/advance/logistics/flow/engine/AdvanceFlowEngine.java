@@ -59,7 +59,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.AdvanceHttpExchange;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.impl.HttpEngineControlListener;
@@ -178,7 +178,7 @@ public class AdvanceFlowEngine implements Runnable {
 	protected HttpHandler createHandler() {
 		return new HttpHandler() {
 			@Override
-			public void handle(HttpExchange request) throws IOException {
+			public void handle(final HttpExchange request) throws IOException {
 				XElement xrequest = null;
 				InputStream in = request.getRequestBody();
 				try {
@@ -197,11 +197,17 @@ public class AdvanceFlowEngine implements Runnable {
 					request.getResponseHeaders().add("Content-Type", "text/xml;charset=utf-8");
 					final OutputStream out = request.getResponseBody();
 					try {
-						engineListener.dispatch(new AdvanceHttpExchange() {
+						engineListener.dispatch(new AdvanceXMLExchange() {
 							/** Is there a multiple response? */
 							private boolean multiResponse;
+							/** Send out the headers? */
+							private boolean first;
 							@Override
 							public void next(XElement value) throws IOException {
+								if (first) {
+									request.sendResponseHeaders(200, 0);
+									first = false;
+								}
 								value.save(out);
 							}
 							
@@ -227,6 +233,10 @@ public class AdvanceFlowEngine implements Runnable {
 							@Override
 							public void startMany() throws IOException {
 								multiResponse = true;
+								if (first) {
+									request.sendResponseHeaders(200, 0);
+									first = false;
+								}
 								out.write("<?xml version='1.0' encoding='UTF-8'?><multiple-fragments>".getBytes("UTF-8"));
 							}
 						});
@@ -235,7 +245,6 @@ public class AdvanceFlowEngine implements Runnable {
 					}
 				} catch (IOException ex) {
 					LOG.error(ex.toString(), ex);
-					sendResponse(request, 500, ex.toString());
 				} catch (AdvanceControlException ex) {
 					LOG.error(ex.toString(), ex);
 					sendResponse(request, 403, ex.toString());

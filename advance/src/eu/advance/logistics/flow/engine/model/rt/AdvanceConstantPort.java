@@ -95,7 +95,7 @@ public class AdvanceConstantPort implements AdvancePort {
 	}
 	@Override
 	public Closeable register(Observer<? super XElement> observer) {
-		observer.next(value); // FIXME scheduling dimension might be required
+		observer.next(value);
 		return new Closeable() {
 			@Override
 			public void close() throws IOException {

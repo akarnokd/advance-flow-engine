@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.model.rt;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import hu.akarnokd.reactive4java.base.Option;
 
 import java.text.ParseException;
@@ -49,6 +50,17 @@ public final class AdvanceParameterDiagnostic implements XSerializable {
 	public Option<XElement> value;
 	/** The timestamp when the port received this value. */
 	public Date timestamp = new Date();
+	/** Creates a new instance of this class. */
+	public static final Func0<AdvanceParameterDiagnostic> CREATOR = new Func0<AdvanceParameterDiagnostic>() {
+		@Override
+		public AdvanceParameterDiagnostic invoke() {
+			return new AdvanceParameterDiagnostic();
+		}
+	};
+	/** Creates an empty object to be filled in by load(). */
+	private AdvanceParameterDiagnostic() {
+		
+	}
 	/**
 	 * Constructor.
 	 * @param realm the realm

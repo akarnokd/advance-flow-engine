@@ -29,7 +29,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceHttpExchange;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
@@ -60,7 +60,7 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 	}
 	@Nullable
 	@Override
-	public void dispatch(@NonNull AdvanceHttpExchange exch) throws IOException, AdvanceControlException {
+	public void dispatch(@NonNull AdvanceXMLExchange exch) throws IOException, AdvanceControlException {
 		XElement request = exch.request();
 		String userName = exch.userName();
 		AdvanceDataStore ds = new CheckedDataStore(datastore, userName);
