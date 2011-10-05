@@ -42,7 +42,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
-import eu.advance.logistics.flow.engine.api.DataStoreTestResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
@@ -193,22 +192,22 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 		comm.send(xrequest);
 	}
 	@Override
-	public DataStoreTestResult testJDBCDataSource(String dataSourceName) throws IOException,
+	public String testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
 		XElement result = comm.query(HttpRemoteUtils.createRequest("test-jdbc-data-source", "data-source-source", dataSourceName));
-		return DataStoreTestResult.valueOf(result.content);
+		return result.content;
 	}
 	@Override
-	public DataStoreTestResult testJMSEndpoint(String jmsName) throws IOException,
+	public String testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
 		XElement result = comm.query(HttpRemoteUtils.createRequest("test-jms-endpoint", "jms-name", jmsName));
-		return DataStoreTestResult.valueOf(result.content);
+		return result.content;
 	}
 	@Override
-	public DataStoreTestResult testFTPDataSource(String ftpName) throws IOException,
+	public String testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
 		XElement result = comm.query(HttpRemoteUtils.createRequest("test-ftp-endpoint", "ftp-name", ftpName));
-		return DataStoreTestResult.valueOf(result.content);
+		return result.content;
 	}
 	@Override
 	public List<AdvanceKeyEntry> queryKeys(String keyStore) throws IOException,

@@ -131,5 +131,26 @@ public class JMSPoolManager implements PoolManager<JMSConnection> {
 			throw new MultiIOException(lst);
 		}
 	}
-
+	/**
+	 * Test if the supplied data source can be accessed.
+	 * @param endpoint the endpoint settings
+	 * @return the error message or empty string
+	 */
+	public static String test(@NonNull AdvanceJMSEndpoint endpoint) {
+		JMSPoolManager mgr = new JMSPoolManager(endpoint);
+		try {
+			JMSConnection conn = mgr.create();
+			try {
+				if (mgr.verify(conn)) {
+					return "";
+				}
+				return "Verification failed on JMS connection due unknown reasons";
+			} finally {
+				mgr.close(conn);
+			}
+		} catch (Exception ex) {
+			LOG.error(ex.toString(), ex);
+			return ex.toString();
+		}
+	}
 }

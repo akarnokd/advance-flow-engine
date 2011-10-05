@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 
 /**
@@ -82,5 +83,26 @@ public class JDBCPoolManager implements PoolManager<Connection> {
 	public void close(Connection obj) throws Exception {
 		obj.close();
 	}
-	
+	/**
+	 * Test if the supplied data source can be accessed.
+	 * @param ds the datasource
+	 * @return the test results
+	 */
+	public static String test(@NonNull AdvanceJDBCDataSource ds) {
+		JDBCPoolManager mgr = new JDBCPoolManager(ds);
+		try {
+			Connection conn = mgr.create();
+			try {
+				if (mgr.verify(conn)) {
+					return "";
+				}
+				return "Verification failed on JDBC connection due unknown reasons";
+			} finally {
+				mgr.close(conn);
+			}
+		} catch (Exception ex) {
+			LOG.error(ex.toString(), ex);
+			return ex.toString();
+		}
+	}
 }
