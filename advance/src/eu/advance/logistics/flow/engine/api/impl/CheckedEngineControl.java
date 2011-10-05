@@ -38,7 +38,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
-import eu.advance.logistics.flow.engine.api.DataStoreTestResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
@@ -206,21 +205,21 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public DataStoreTestResult testJDBCDataSource(String dataSourceName) throws IOException,
+	public String testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
 		return control.testJDBCDataSource(dataSourceName);
 	}
 
 	@Override
-	public DataStoreTestResult testJMSEndpoint(String jmsName) throws IOException,
+	public String testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_JMS_ENDPOINTS);
 		return control.testJMSEndpoint(jmsName);
 	}
 
 	@Override
-	public DataStoreTestResult testFTPDataSource(String ftpName) throws IOException,
+	public String testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_FTP_DATA_SOURCES);
 		return control.testFTPDataSource(ftpName);

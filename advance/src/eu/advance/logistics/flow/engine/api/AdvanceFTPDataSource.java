@@ -51,6 +51,8 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
 	private char[] password;
 	/** The connection should be passive? */
 	public boolean passive;
+	/** The keystore used to trust the server. */
+	public String keyStore;
 	/** The function to create a new instance of this class. */
 	public static final Func0<AdvanceFTPDataSource> CREATOR = new Func0<AdvanceFTPDataSource>() {
 		@Override
@@ -67,7 +69,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
 		user = source.get("user");
 		password = getPassword(source, "password");
 		passive = source.getBoolean("passive");
-		
+		keyStore = source.get("keystore");
 		super.load(source);
 	}
 	@Override
@@ -80,6 +82,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
 		destination.set("user", user);
 		setPassword(destination, "password", password);
 		destination.set("passive", passive);
+		destination.set("keystore", keyStore);
 		
 		super.save(destination);
 	}
@@ -94,6 +97,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
 		result.user = user;
 		result.passive = passive;
 		result.password = password != null ? password.clone() : null;
+		result.keyStore = keyStore;
 		
 		assignTo(result);
 		

@@ -77,7 +77,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 	 * @return the connection object
 	 * @throws IOException a keystore related error occurs
 	 */
-	protected HttpURLConnection prepare() throws IOException {
+	public HttpURLConnection prepare() throws IOException {
 		boolean isHttps = "https".equals(url.getProtocol());
 		if (authentication.loginType == AdvanceWebLoginType.CERTIFICATE && !isHttps) {
 			throw new IllegalStateException("Certificate login works only with HTTPS endpoint!");

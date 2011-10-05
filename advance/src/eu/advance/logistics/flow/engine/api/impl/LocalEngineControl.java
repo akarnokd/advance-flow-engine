@@ -62,7 +62,8 @@ import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
-import eu.advance.logistics.flow.engine.api.DataStoreTestResult;
+import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
+import eu.advance.logistics.flow.engine.comm.JMSPoolManager;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
@@ -387,19 +388,17 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		}
 	}
 	@Override
-	public DataStoreTestResult testJDBCDataSource(String dataSourceName)
+	public String testJDBCDataSource(String dataSourceName)
 			throws IOException, AdvanceControlException {
-		// FIXME implement
-		throw new UnsupportedOperationException();
+		return JDBCPoolManager.test(datastore.queryJDBCDataSource(dataSourceName));
 	}
 	@Override
-	public DataStoreTestResult testJMSEndpoint(String jmsName)
+	public String testJMSEndpoint(String jmsName)
 			throws IOException, AdvanceControlException {
-		// FIXME implement
-		throw new UnsupportedOperationException();
+		return JMSPoolManager.test(datastore.queryJMSEndpoint(jmsName));
 	}
 	@Override
-	public DataStoreTestResult testFTPDataSource(String ftpName)
+	public String testFTPDataSource(String ftpName)
 			throws IOException, AdvanceControlException {
 		// FIXME implement
 		throw new UnsupportedOperationException();
