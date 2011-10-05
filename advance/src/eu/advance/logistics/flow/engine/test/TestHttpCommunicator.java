@@ -21,7 +21,8 @@
 
 package eu.advance.logistics.flow.engine.test;
 
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Scheduler;
+import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.IOException;
 
@@ -69,8 +70,8 @@ public class TestHttpCommunicator implements AdvanceXMLCommunicator {
 		// TODO implement
 	}
 	@Override
-	public void receive(XElement request, Observer<XElement> observer) {
+	public Observable<XElement> receive(XElement request, Scheduler scheduler) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 }

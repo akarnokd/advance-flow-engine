@@ -269,7 +269,8 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	@Override
 	public AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
-		// FIXME verify flow right?
+		check(AdvanceUserRights.LIST_BLOCKS);
+		check(AdvanceUserRights.LIST_SCHEMAS);
 		return control.verifyFlow(flow);
 	}
 

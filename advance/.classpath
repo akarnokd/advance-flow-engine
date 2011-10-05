@@ -9,8 +9,6 @@
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar" sourcepath="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-net-3.0.1.jar" sourcepath="lib/commons-net-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extra166y.jar" sourcepath="lib/extra166y.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r09-gwt.jar" sourcepath="lib/guava-r09-gwt.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r09.jar" sourcepath="lib/guava-r09.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar" sourcepath="lib/httpclient-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/javamail.jar" sourcepath="lib/javamail.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen-1.1.3.jar" sourcepath="lib/jaxen-1.1.3.jar"/>
@@ -25,5 +23,6 @@
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.16-bin.jar"/>
 	<classpathentry kind="lib" path="lib/reactive4java-0.94.jar" sourcepath="lib/reactive4java-0.94.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava-10.0.jar" sourcepath="lib/guava-10.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

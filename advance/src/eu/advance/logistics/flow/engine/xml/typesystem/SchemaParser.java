@@ -259,7 +259,6 @@ public final class SchemaParser {
 					XElement restriction = sequence.childElement("restriction");
 					if (restriction != null) {
 						XCapability cap = new XCapability();
-						// FIXME interpretation?!
 						cap.name = c.name;
 						cap.cardinality = XCardinality.ONE;
 						c.complexType.capabilities.add(cap);
@@ -272,7 +271,6 @@ public final class SchemaParser {
 							XElement simpleBase = findType(base, "simpleType", types);
 							if (simpleBase != null) {
 								XCapability cap = new XCapability();
-								// FIXME interpretation?!
 								cap.name = c.name;
 								cap.cardinality = XCardinality.ONE;
 								setSimpleType(cap, simpleBase, types);
@@ -296,7 +294,6 @@ public final class SchemaParser {
 					XElement restriction = sequence.childElement("restriction");
 					if (restriction != null) {
 						XCapability cap = new XCapability();
-						// FIXME interpretation?!
 						cap.name = c.name;
 						cap.cardinality = XCardinality.ONE;
 						c.complexType.capabilities.add(cap);
@@ -309,7 +306,6 @@ public final class SchemaParser {
 							XElement simpleBase = findType(base, "simpleType", types);
 							if (simpleBase != null) {
 								XCapability cap = new XCapability();
-								// FIXME interpretation?!
 								cap.name = c.name;
 								cap.cardinality = XCardinality.ONE;
 								setSimpleType(cap, simpleBase, types);
@@ -414,7 +410,7 @@ public final class SchemaParser {
 					XCapability c1 = new XCapability();
 					c1.name = new XName();
 					c1.valueType = primitiveType;
-					c1.cardinality = XCardinality.ZERO_OR_MANY; // FIXME list numericity unknown
+					c1.cardinality = XCardinality.ZERO_OR_MANY;
 					c.complexType.capabilities.add(c1);
 				} else {
 					// find among children
@@ -432,7 +428,7 @@ public final class SchemaParser {
 			} else {
 				XElement union = typedef.childElement("union", XElement.XSD);
 				if (union != null) {
-					c.valueType = XValueType.STRING; // FIXME, almost always comes to a common strung
+					c.valueType = XValueType.STRING;
 				} else {
 					throw new AssertionError("Strange simpleType : " + typedef.get("name"));
 				}

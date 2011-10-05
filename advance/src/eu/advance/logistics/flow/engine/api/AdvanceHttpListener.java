@@ -38,5 +38,5 @@ public interface AdvanceHttpListener {
 	 * @throws AdvanceControlException if the user rights are inadequate
 	 */
 	@Nullable
-	void dispatch(@NonNull AdvanceHttpExchange exch) throws IOException, AdvanceControlException;
+	void dispatch(@NonNull AdvanceXMLExchange exch) throws IOException, AdvanceControlException;
 }

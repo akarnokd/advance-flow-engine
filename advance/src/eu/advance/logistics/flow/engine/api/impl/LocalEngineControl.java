@@ -197,10 +197,11 @@ public class LocalEngineControl implements AdvanceEngineControl {
 				KeyPair kp = mgr.generateKeyPair(key.algorithm, key.keySize);
 				Certificate cert = mgr.createX509Certificate(kp, 12, 
 						key.issuerDn.toString(), key.subjectDn.toString(), 
-						"http://www.advance-logistics.eu", // FIXME maybe parametrize 
-						"MD5withRSA"); // FIXME maybe parametrize
+						key.domain,  
+						key.algorithm); 
 				
-				mgr.getKeyStore().setKeyEntry(key.keyAlias, kp.getPrivate(), key.keyPassword, new Certificate[] { cert });
+				mgr.getKeyStore().setKeyEntry(key.keyAlias, kp.getPrivate(), key.keyPassword, 
+						new Certificate[] { cert });
 				
 				mgr.save(e.location, e.password());
 				e.modifiedAt = new Date();
@@ -324,7 +325,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			KeystoreManager mgr = new KeystoreManager();
 			try {
 				mgr.load(e.location, e.password());
-				mgr.installReply(request.keyAlias, request.keyPassword, new ByteArrayInputStream(data.getBytes("UTF-8")), 
+				mgr.installReply(request.keyAlias, request.keyPassword, 
+						new ByteArrayInputStream(data.getBytes("UTF-8")), 
 						true); // FIXME not sure
 				mgr.save(e.location, e.password());
 			} catch (KeystoreFault ex) {

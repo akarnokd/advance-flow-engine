@@ -21,7 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Scheduler;
+import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.IOException;
 
@@ -54,10 +55,12 @@ public interface AdvanceXMLCommunicator {
 	/**
 	 * Receive XML responses continuously.
 	 * The returned data should be a complete XML, but its parsing is done per each of the root's children,
-	 * e.g., an XML of &lt;a>&lt;b/>&lt;b/>&lt/a> will produce two b elements
+	 * e.g., an XML of &lt;a>&lt;b/>&lt;b/>&lt/a> will produce two b elements.
+	 * Observers should throw a CancellationException to stop the reception
 	 * @param request the request to send the response messages or exceptions
-	 * @param observer the callback to send
+	 * @param scheduler where the blocking wait occurs
+	 * @return the closeable to terminate the streaming
 	 * @throws IOException
 	 */
-	void receive(XElement request, Observer<XElement> observer);
+	Observable<XElement> receive(XElement request, Scheduler scheduler);
 }

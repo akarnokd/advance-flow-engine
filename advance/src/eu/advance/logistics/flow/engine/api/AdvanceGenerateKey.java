@@ -38,6 +38,8 @@ public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 	public DistinguishedName issuerDn;
 	/** The subject's distinguished name. */
 	public DistinguishedName subjectDn;
+	/** The domain name. */
+	public String domain;
 	/** The user who modifies the record. */
 	public String modifiedBy;
 	/** Creates a new instance of this class. */
@@ -53,13 +55,14 @@ public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 		keySize = source.getInt("keysize");
 		issuerDn = new DistinguishedName(source.get("issuer-dn"));
 		subjectDn = new DistinguishedName(source.get("subject-dn"));
+		domain = source.get("domain");
 		modifiedBy = source.get("modified-by");
 		super.load(source);
 	}
 	@Override
 	public void save(XElement destination) {
 		destination.set("algorithm", algorithm, "keysize", keySize, 
-				"issuer-dn", issuerDn, "subject-dn", subjectDn, "modified-by", modifiedBy);
+				"issuer-dn", issuerDn, "subject-dn", subjectDn, "domain", domain, "modified-by", modifiedBy);
 		super.save(destination);
 	}
 	
