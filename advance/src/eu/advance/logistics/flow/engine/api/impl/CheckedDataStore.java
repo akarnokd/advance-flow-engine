@@ -470,5 +470,16 @@ public class CheckedDataStore implements AdvanceDataStore {
 		check(realm, AdvanceUserRealmRights.READ);
 		return datastore.queryFlow(realm);
 	}
-
+	@Override
+	public void deleteBlockStates(String realm) throws IOException,
+			AdvanceControlException {
+		check(realm, AdvanceUserRealmRights.DEBUG);
+		datastore.deleteBlockStates(realm);
+	}
+	@Override
+	public void updateFlow(String realm, XElement flow) throws IOException,
+			AdvanceControlException {
+		check(realm, AdvanceUserRealmRights.WRITE);
+		datastore.updateFlow(realm, flow);
+	}
 }

@@ -223,10 +223,11 @@ public interface AdvanceEngineControl {
 	 * Update a flow in a the given realm.
 	 * @param realm the target realm
 	 * @param flow the new flow to upload
+	 * @param byUser the user who modifies the realm
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to update a flow
 	 */
-	void updateFlow(String realm, AdvanceCompositeBlock flow) throws IOException, AdvanceControlException;
+	void updateFlow(String realm, AdvanceCompositeBlock flow, String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Verify the given flow.
 	 * @param flow the flow to verify

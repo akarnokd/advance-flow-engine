@@ -396,4 +396,16 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 				XSerializables.createRequest("query-soap-channels")), 
 				"channel", AdvanceSOAPChannel.CREATOR);
 	}
+	@Override
+	public void deleteBlockStates(String realm) throws IOException,
+			AdvanceControlException {
+		comm.send(XSerializables.createRequest("delete-block-states", "realm", realm));
+	}
+	@Override
+	public void updateFlow(String realm, XElement flow) throws IOException,
+			AdvanceControlException {
+		XElement request = XSerializables.createRequest("update-flow", "realm", realm);
+		request.add(flow.copy());
+		comm.send(request);
+	}
 }

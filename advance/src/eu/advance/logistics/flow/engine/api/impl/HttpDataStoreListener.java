@@ -203,6 +203,12 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 		} else
 		if ("query-soap-channels".equals(function)) {
 			exch.next(XSerializables.storeList("soap-channels", "channel", ds.querySOAPChannels()));
+		} else
+		if ("update-flow".equals(function)) {
+			ds.updateFlow(request.get("realm"), request.children().get(0).copy());
+		} else
+		if ("delete-block-states".equals(function)) {
+			ds.deleteBlockStates(request.get("realm"));
 		} else {
 			throw new AdvanceControlException("Unknown request " + request);
 		}
