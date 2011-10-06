@@ -146,10 +146,10 @@ public class TestHttpDataStore {
 	}
 
 	/**
-	 * Test method for {@link eu.advance.logistics.flow.engine.api.impl.HttpRemoteDataStore#renameRealm(java.lang.String, java.lang.String, java.lang.String)}.
+	 * Test method for {@link eu.advance.logistics.flow.engine.api.impl.HttpRemoteDataStore#updateRealm(eu.advance.logistics.flow.engine.api.AdvanceRealm)}.
 	 */
 	@Test
-	public void testRenameRealm() {
+	public void testUpdateRealm() {
 		fail("Not yet implemented");
 	}
 

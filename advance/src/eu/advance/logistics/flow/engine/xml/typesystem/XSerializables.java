@@ -122,7 +122,7 @@ public final class XSerializables {
 	}
 	/**
 	 * Convert a sequence of XElements into an XSerializable object instance via help of the {@code creator} function.
-	 * @param <T> the object 
+	 * @param <T> the object type
 	 * @param source the source stream of XElements
 	 * @param creator the function to create the XSerializable object
 	 * @return the sequence of XSerializable objects
@@ -133,6 +133,123 @@ public final class XSerializables {
 			public T invoke(XElement param1) {
 				T result = creator.invoke();
 				result.load(param1);
+				return result;
+			}
+		});
+	}
+	/**
+	 * Convert the sequence of XSerializable objects into XElements.
+	 * @param <T> the object type
+	 * @param source the source of XSerializable objects
+	 * @param elementName the element name to use for the generated XElements
+	 * @param namespace the target namespace
+	 * @return the sequence of XElements
+	 */
+	public static <T extends XSerializable> Observable<XElement> serialize(
+			Observable<T> source, 
+			final String elementName, final String namespace) {
+		return Reactive.select(source, new Func1<T, XElement>() {
+			@Override
+			public XElement invoke(T param1) {
+				XElement e = new XElement(elementName);
+				e.namespace = namespace;
+				param1.save(e);
+				return e;
+			}
+		});
+	}
+	/**
+	 * Convert the sequence of XSerializable objects into XElements.
+	 * @param <T> the object type
+	 * @param source the source of XSerializable objects
+	 * @param elementName the element name to use for the generated XElements
+	 * @return the sequence of XElements
+	 */
+	public static <T extends XSerializable> Observable<XElement> serialize(
+			Observable<T> source, 
+			final String elementName) {
+		return Reactive.select(source, new Func1<T, XElement>() {
+			@Override
+			public XElement invoke(T param1) {
+				XElement e = new XElement(elementName);
+				param1.save(e);
+				return e;
+			}
+		});
+	}
+	/**
+	 * Parse a sequence of a sequence of XElements (e.g., list of XElements) into a sequence.
+	 * of list of an XSerializable objects
+	 * @param <T> the object type
+	 * @param source the source sequence
+	 * @param creator the object creator
+	 * @return the parsed sequence
+	 */
+	public static <T extends XSerializable> Observable<List<T>> parseList(
+			Observable<? extends Iterable<XElement>> source, 
+			final Func0<T> creator) {
+		return Reactive.select(source, new Func1<Iterable<XElement>, List<T>>() {
+			@Override
+			public List<T> invoke(Iterable<XElement> param1) {
+				List<T> result = Lists.newArrayList();
+				for (XElement e : param1) {
+					T obj = creator.invoke();
+					obj.load(e);
+					result.add(obj);
+				}
+				return result;
+			}
+		});
+	}
+	/**
+	 * Serialize a sequence of sequence of XSerializable objects into a sequence of list
+	 * of XElements.
+	 * @param <T> the object type
+	 * @param source the source sequence
+	 * @param elementName the element name 
+	 * @return the sequence of list of XElements
+	 */
+	public static <T extends XSerializable> Observable<List<XElement>> serializeList(
+			Observable<? extends Iterable<T>> source,
+			final String elementName
+			) {
+		return Reactive.select(source, new Func1<Iterable<T>, List<XElement>>() {
+			@Override
+			public List<XElement> invoke(Iterable<T> param1) {
+				List<XElement> result = Lists.newArrayList();
+				for (T e : param1) {
+					XElement x = new XElement(elementName);
+					e.save(x);
+					result.add(x);
+				}
+				return result;
+			}
+		});
+	}
+	/**
+	 * Serialize a sequence of sequence of XSerializable objects into a sequence of list
+	 * of XElements.
+	 * @param <T> the object type
+	 * @param source the source sequence
+	 * @param elementName the element name 
+	 * @param namespace the element namespace
+	 * @return the sequence of list of XElements
+	 */
+	public static <T extends XSerializable> Observable<List<XElement>> serializeList(
+			Observable<? extends Iterable<T>> source,
+			final String elementName,
+			final String namespace
+			) {
+		return Reactive.select(source, new Func1<Iterable<T>, List<XElement>>() {
+			@Override
+			public List<XElement> invoke(Iterable<T> param1) {
+				List<XElement> result = Lists.newArrayList();
+				for (T e : param1) {
+					XElement x = new XElement(elementName);
+					x.namespace = namespace;
+					e.save(x);
+					result.add(x);
+				}
 				return result;
 			}
 		});
