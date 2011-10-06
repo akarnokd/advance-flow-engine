@@ -362,10 +362,25 @@ public interface AdvanceDataStore {
 	 */
 	XElement queryFlow(String realm) throws IOException, AdvanceControlException;
 	/**
+	 * Update the flow descriptor in the given realm.
+	 * @param realm the target realm
+	 * @param flow the flow descriptor XML
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
+	 */
+	void updateFlow(String realm, XElement flow) throws IOException, AdvanceControlException;
+	/**
 	 * Return the list of SOAP channels.
 	 * @return the channel properties
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */
 	List<AdvanceSOAPChannel> querySOAPChannels() throws IOException, AdvanceControlException;
+	/**
+	 * Delete the block states of all blocks in the specified realm.
+	 * @param realm the target realm
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right
+	 */
+	void deleteBlockStates(String realm) throws IOException, AdvanceControlException;
 }

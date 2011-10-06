@@ -357,4 +357,16 @@ public class JDBCDataStore implements AdvanceDataStore {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public void deleteBlockStates(String realm) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void updateFlow(String realm, XElement flow) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
 }

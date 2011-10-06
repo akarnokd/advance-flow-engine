@@ -158,7 +158,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		} else
 		if ("update-flow".equals(function)) {
 			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(request.children().get(0));
-			ctrl.updateFlow(request.get("realm"), flow);
+			ctrl.updateFlow(request.get("realm"), flow, request.get("by-user"));
 			
 		} else
 		if ("verify-flow".equals(function)) {

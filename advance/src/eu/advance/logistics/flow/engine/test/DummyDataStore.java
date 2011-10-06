@@ -468,5 +468,14 @@ public class DummyDataStore implements AdvanceDataStore {
 			AdvanceControlException {
 		return Lists.newArrayList(createTestSOAP());
 	}
-
+	@Override
+	public void deleteBlockStates(String realm) throws IOException,
+			AdvanceControlException {
+		// NO operation
+	}
+	@Override
+	public void updateFlow(String realm, XElement flow) throws IOException,
+			AdvanceControlException {
+		// NO operation
+	}
 }

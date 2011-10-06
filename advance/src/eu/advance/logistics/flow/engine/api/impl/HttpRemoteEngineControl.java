@@ -237,9 +237,9 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 		return AdvanceCompositeBlock.parseFlow(response);
 	}
 	@Override
-	public void updateFlow(String realm, AdvanceCompositeBlock flow)
+	public void updateFlow(String realm, AdvanceCompositeBlock flow, String byUser)
 			throws IOException, AdvanceControlException {
-		XElement request = XSerializables.createRequest("update-flow", "realm", realm);
+		XElement request = XSerializables.createRequest("update-flow", "realm", realm, "by-user", byUser);
 		request.add(flow.serializeFlow());
 		comm.send(request);
 	}

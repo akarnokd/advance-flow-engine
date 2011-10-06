@@ -62,6 +62,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
+import eu.advance.logistics.flow.engine.comm.FTPPoolManager;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.comm.JMSPoolManager;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
@@ -400,8 +401,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public String testFTPDataSource(String ftpName)
 			throws IOException, AdvanceControlException {
-		// FIXME implement
-		throw new UnsupportedOperationException();
+		return FTPPoolManager.test(datastore.queryFTPDataSource(ftpName), datastore);
 	}
 	@Override
 	public void stopRealm(String name, String byUser)
@@ -438,16 +438,42 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public Observable<AdvanceBlockDiagnostic> debugBlock(
 			String realm, String blockId)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		List<AdvanceBlock> blocks = realmRuntime.get(realm);
+		if (blocks != null) {
+			for (AdvanceBlock b : blocks) {
+				if (b.getDescription().id.equals(blockId)) {
+					return b.getDiagnosticPort();
+				}
+			}
+			throw new AdvanceControlException("Missing block " + blockId + " in realm " + realm);
+		}
+		throw new AdvanceControlException("Missing realm " + realm);
 	}
 	@Override
 	public Observable<AdvanceParameterDiagnostic> debugParameter(
 			String realm, String blockId,
 			String port) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+		List<AdvanceBlock> blocks = realmRuntime.get(realm);
+		if (blocks != null) {
+			for (AdvanceBlock b : blocks) {
+				if (b.getDescription().id.equals(blockId)) {
+					for (AdvancePort p : b.inputs) {
+						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
+							return ((AdvanceBlockPort)p).getDiagnosticPort();
+						}
+					}
+					for (AdvancePort p : b.outputs) {
+						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
+							return ((AdvanceBlockPort)p).getDiagnosticPort();
+						}
+					}
+					throw new AdvanceControlException("Missing port " + port + " on block " + blockId + " in realm " + realm);
+				}
+			}
+			throw new AdvanceControlException("Missing block " + blockId + " in realm " + realm);
+		}
+		throw new AdvanceControlException("Missing realm " + realm);
 	}
 	@Override
 	public AdvanceCompositeBlock queryFlow(
@@ -456,10 +482,28 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public void updateFlow(String realm,
-			AdvanceCompositeBlock flow) throws IOException,
+			AdvanceCompositeBlock flow, String byUser) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		AdvanceRealm r = datastore.queryRealm(realm);
+		AdvanceRealmStatus rs = r.status;
+		// stop realm if running
+		if (r.status == AdvanceRealmStatus.RUNNING) {
+			stopRealm(realm, byUser);
+		} else {
+			r.modifiedBy = byUser;
+			datastore.updateRealm(r);
+		}
+		// clear previous flow
+		realmRuntime.remove(realm);
+		realmVerifications.remove(realm);
+		datastore.deleteBlockStates(realm);
+	
+		// set new flow
+		datastore.updateFlow(realm, flow.serializeFlow());
+		// resume if previously running
+		if (rs == AdvanceRealmStatus.RUNNING) {
+			startRealm(realm, byUser);
+		}
 	}
 	@Override
 	public AdvanceCompilationResult verifyFlow(

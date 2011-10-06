@@ -1050,4 +1050,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		}
 		return result;
 	}
+	@Override
+	public void deleteBlockStates(String realm) throws IOException,
+			AdvanceControlException {
+		synchronized (blockStates) {
+			blockStates.remove(realm);
+		}
+	}
+	@Override
+	public void updateFlow(String realm, XElement flow) throws IOException,
+			AdvanceControlException {
+		synchronized (dataflows) {
+			dataflows.put(realm, flow);
+		}
+	}
 }

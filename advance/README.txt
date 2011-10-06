@@ -3,6 +3,14 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.01.097 Notes
+----------------------
+
+Some refactorings and added support classes.
+
+Updated library versions.
+
+
 Version 0.01.087 Notes
 ----------------------
 

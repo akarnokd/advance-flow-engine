@@ -259,10 +259,10 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void updateFlow(String realm, AdvanceCompositeBlock flow)
+	public void updateFlow(String realm, AdvanceCompositeBlock flow, String byUser)
 			throws IOException, AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.WRITE);
-		control.updateFlow(realm, flow);
+		control.updateFlow(realm, flow, userName);
 	}
 
 	@Override
