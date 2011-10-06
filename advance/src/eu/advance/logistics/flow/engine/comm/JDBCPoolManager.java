@@ -46,7 +46,7 @@ public class JDBCPoolManager implements PoolManager<Connection> {
 	 * @param ds the connection settings
 	 */
 	public JDBCPoolManager(AdvanceJDBCDataSource ds) {
-		this.ds = ds;
+		this.ds = ds.copy();
 	}
 	@Override
 	public Connection create() throws Exception {

@@ -60,7 +60,7 @@ public class JMSPoolManager implements PoolManager<JMSConnection> {
 	 * @param endpoint the endpoint configuration
 	 */
 	public JMSPoolManager(@NonNull AdvanceJMSEndpoint endpoint) {
-		this.endpoint = endpoint;
+		this.endpoint = endpoint.copy();
 	}
 	@Override
 	public JMSConnection create() throws Exception {

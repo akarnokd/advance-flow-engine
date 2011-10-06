@@ -19,27 +19,27 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.impl;
+package eu.advance.logistics.flow.engine.xml.typesystem;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.reactive.Observable;
+import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
- * Utility classes to create and parse XMLs used in the remote HTTP communications.
+ * Utility classes to handle XSerializable object creation and conversion.
  * @author karnokd, 2011.09.29.
  */
-public final class HttpRemoteUtils {
-
+public final class XSerializables {
 	/**
 	 * Utility class.
 	 */
-	private HttpRemoteUtils() {
+	private XSerializables() {
 	}
 	/**
 	 * Create a request with the given function and name-value pairs.
@@ -120,5 +120,21 @@ public final class HttpRemoteUtils {
 	public static XElement storeItem(String itemName, XSerializable source) {
 		return createUpdate(itemName, source);
 	}
-
+	/**
+	 * Convert a sequence of XElements into an XSerializable object instance via help of the {@code creator} function.
+	 * @param <T> the object 
+	 * @param source the source stream of XElements
+	 * @param creator the function to create the XSerializable object
+	 * @return the sequence of XSerializable objects
+	 */
+	public static <T extends XSerializable> Observable<T> parse(Observable<XElement> source, final Func0<T> creator) {
+		return Reactive.select(source, new Func1<XElement, T>() {
+			@Override
+			public T invoke(XElement param1) {
+				T result = creator.invoke();
+				result.load(param1);
+				return result;
+			}
+		});
+	}
 }

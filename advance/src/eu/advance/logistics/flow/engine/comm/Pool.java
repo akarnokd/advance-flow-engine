@@ -22,96 +22,26 @@
 package eu.advance.logistics.flow.engine.comm;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.annotation.concurrent.GuardedBy;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 
 /**
- * Represents a generic pooling object which supplies a limited number of objects.
+ * Represents a generic pooling object which supplies and takes back objects.
  * @author karnokd, 2011.10.05.
  * @param <T> the pooled object type
  */
-public class Pool<T> implements Closeable {
-	/** The available pool of objects. */
-	protected final BlockingQueue<T> objects;
-	/** The storage of all created objects. */
-	@GuardedBy("allObjects")
-	protected final Set<T> allObjects = Sets.newHashSet();
-	/** The target pool size. */
-	protected final int poolSize;
-	/** The manager of the pool objects. */
-	protected final PoolManager<T> manager;
+public interface Pool<T> extends Closeable {
 	/**
-	 * Creates a pool with the given size.
-	 * @param poolSize the pool size
-	 * @param manager the pool manager
+	 * Retrieve an object from the pool.
+	 * @return the object retrieved
+	 * @throws Exception if the object could not be supplied
 	 */
-	public Pool(int poolSize, 
-			PoolManager<T> manager) {
-		this.poolSize = poolSize;
-		this.manager = manager;
-		
-		objects = new LinkedBlockingQueue<T>(poolSize);
-	}
+	@NonNull
+	T get() throws Exception;
 	/**
-	 * @return ask for a pool object and wait for one if necessary.
-	 * @throws Exception if the wait
-	 */
-	public T get() throws Exception {
-		synchronized (allObjects) {
-			if (allObjects.size() < poolSize) {
-				T obj = manager.create();
-				allObjects.add(obj);
-				return obj;
-			}
-		}
-		T obj = objects.take();
-		if (manager.verify(obj)) {
-			return obj;
-		}
-		// create a new one instead
-		synchronized (allObjects) {
-			allObjects.remove(obj);
-			obj = manager.create();
-			allObjects.add(obj);
-			return obj;
-		}
-	}
-	/**
-	 * Return a pool object.
+	 * Return an object to the pool.
 	 * @param obj the object to return
 	 */
-	public void put(T obj) {
-		synchronized (allObjects) {
-			if (!allObjects.contains(obj)) {
-				throw new IllegalArgumentException("obj is not managed by this pool");
-			}			
-		}
-		objects.add(obj);
-	}
-	@Override
-	public void close() throws IOException {
-		List<Exception> exc = Lists.newArrayList();
-		synchronized (allObjects) {
-			for (T obj : allObjects) {
-				try {
-					manager.close(obj);
-				} catch (Exception ex) {
-					exc.add(ex);
-				}
-			}
-			allObjects.clear();
-		}
-		if (exc.size() > 0) {
-			throw new MultiIOException(exc);
-		}
-	}
+	void put(@NonNull T obj);
 }

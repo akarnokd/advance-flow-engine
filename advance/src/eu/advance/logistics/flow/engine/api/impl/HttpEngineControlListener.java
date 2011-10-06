@@ -41,6 +41,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
  * The listener for Enginge control messages coming through the HTTP XML interface.
@@ -73,57 +74,57 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		String function = request.name;
 		LOG.debug(function);
 		if ("get-user".equals(function)) {
-			exch.next(HttpRemoteUtils.storeItem("user", ctrl.getUser()));
+			exch.next(XSerializables.storeItem("user", ctrl.getUser()));
 		} else
 		if ("query-blocks".equals(function)) {
-			exch.next(HttpRemoteUtils.storeList("blocks", "block", ctrl.queryBlocks()));
+			exch.next(XSerializables.storeList("blocks", "block", ctrl.queryBlocks()));
 		} else
 		if ("query-schemas".equals(function)) {
-			exch.next(HttpRemoteUtils.storeList("schemas", "schema", ctrl.querySchemas()));
+			exch.next(XSerializables.storeList("schemas", "schema", ctrl.querySchemas()));
 		} else
 		if ("query-version".equals(function)) {
-			exch.next(HttpRemoteUtils.storeItem("version", ctrl.queryVersion()));
+			exch.next(XSerializables.storeItem("version", ctrl.queryVersion()));
 		} else
 		if ("update-schema".equals(function)) {
 			ctrl.updateSchema(request.get("name"), request.children().get(0).copy());
 		} else
 		if ("query-schema".equals(function)) {
-			exch.next(HttpRemoteUtils.storeItem("schema", ctrl.querySchema(request.get("name"))));
+			exch.next(XSerializables.storeItem("schema", ctrl.querySchema(request.get("name"))));
 		} else
 		if ("delete-key-entry".equals(function)) {
 			ctrl.deleteKeyEntry(request.get("keystore"), request.get("keyalias"));
 			
 		} else
 		if ("generate-key".equals(function)) {
-			ctrl.generateKey(HttpRemoteUtils.parseItem(request, AdvanceGenerateKey.CREATOR));
+			ctrl.generateKey(XSerializables.parseItem(request, AdvanceGenerateKey.CREATOR));
 			
 		} else
 		if ("export-certificate".equals(function)) {
 			XElement response = new XElement("certificate");
-			response.content = ctrl.exportCertificate(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
+			response.content = ctrl.exportCertificate(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR));
 			exch.next(response);
 		} else
 		if ("export-private-key".equals(function)) {
 			XElement response = new XElement("private-key");
-			response.content = ctrl.exportPrivateKey(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
+			response.content = ctrl.exportPrivateKey(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR));
 			exch.next(response);
 		} else
 		if ("import-certificate".equals(function)) {
-			ctrl.importCertificate(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
+			ctrl.importCertificate(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
 			
 		} else
 		if ("import-private-key".equals(function)) {
-			ctrl.importPrivateKey(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR),
+			ctrl.importPrivateKey(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR),
 					request.childValue("private-key"), request.childValue("certificate"));
 			
 		} else
 		if ("export-signing-request".equals(function)) {
 			XElement response = new XElement("signing-request");
-			response.content = ctrl.exportSigningRequest(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR));
+			response.content = ctrl.exportSigningRequest(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR));
 			exch.next(response);
 		} else
 		if ("import-signing-response".equals(function)) {
-			ctrl.importSigningResponse(HttpRemoteUtils.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
+			ctrl.importSigningResponse(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
 			
 		} else
 		if ("test-jdbc-data-source".equals(function)) {
@@ -142,7 +143,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 			exch.next(result);
 		} else
 		if ("query-keys".equals(function)) {
-			exch.next(HttpRemoteUtils.storeList("keys", "keyentry", ctrl.queryKeys(request.get("keystore"))));
+			exch.next(XSerializables.storeList("keys", "keyentry", ctrl.queryKeys(request.get("keystore"))));
 		} else
 		if ("stop-realm".equals(function)) {
 			ctrl.stopRealm(request.get("name"), request.get("by-user"));
@@ -161,7 +162,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 			
 		} else
 		if ("verify-flow".equals(function)) {
-			exch.next(HttpRemoteUtils.storeItem("compilation-result", 
+			exch.next(XSerializables.storeItem("compilation-result", 
 					ctrl.verifyFlow(AdvanceCompositeBlock.parseFlow(request.children().get(0)))));
 		} else
 		if ("debug-block".equals(function)) {
@@ -189,7 +190,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 				public void next(AdvanceBlockDiagnostic value) {
 					value.realm = realm;
 					try {
-						exch.next(HttpRemoteUtils.storeItem("block-diagnostic", value));
+						exch.next(XSerializables.storeItem("block-diagnostic", value));
 					} catch (IOException ex) {
 						LOG.error(ex.toString(), ex);
 					}
@@ -222,7 +223,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 				public void next(AdvanceParameterDiagnostic value) {
 					try {
 						value.realm = realm;
-						exch.next(HttpRemoteUtils.storeItem("parameter-diagnostic", value));
+						exch.next(XSerializables.storeItem("parameter-diagnostic", value));
 					} catch (IOException ex) {
 						LOG.error(ex.toString(), ex);
 					}
@@ -244,7 +245,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 			ctrl.deleteSchema(request.get("name"));
 		} else
 		if ("query-compilation-result".equals(function)) {
-			exch.next(HttpRemoteUtils.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm"))));
+			exch.next(XSerializables.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm"))));
 		} else {
 			// try datastore
 			datastoreListener.dispatch(exch);

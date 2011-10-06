@@ -34,12 +34,12 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
- * Record class representing a file or directory on a remote (s)FTP(s) site.
+ * Record class representing a file or directory on a local or remote (s)FTP(s) site.
  * @author karnokd, 2011.10.05.
  */
-public class FTPFileInfo implements XSerializable, Copyable<FTPFileInfo> {
+public class FileInfo implements XSerializable, Copyable<FileInfo> {
 	/** The logger. */
-	protected static final Logger LOG = LoggerFactory.getLogger(FTPFileInfo.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(FileInfo.class);
 	/** Is it a directory? */
 	public boolean isDirectory;
 	/** The name. */
@@ -49,10 +49,10 @@ public class FTPFileInfo implements XSerializable, Copyable<FTPFileInfo> {
 	/** The related time (e.g., last modify). */
 	public Date time;
 	/** Creates a new instance of this class. */
-	public static final Func0<FTPFileInfo> CREATOR = new Func0<FTPFileInfo>() {
+	public static final Func0<FileInfo> CREATOR = new Func0<FileInfo>() {
 		@Override
-		public FTPFileInfo invoke() {
-			return new FTPFileInfo();
+		public FileInfo invoke() {
+			return new FileInfo();
 		}
 	};
 	@Override
@@ -71,8 +71,8 @@ public class FTPFileInfo implements XSerializable, Copyable<FTPFileInfo> {
 		destination.set("dir", isDirectory, "name", name, "length", length, "time", time);
 	}
 	@Override
-	public FTPFileInfo copy() {
-		FTPFileInfo result = new FTPFileInfo();
+	public FileInfo copy() {
+		FileInfo result = new FileInfo();
 		
 		result.isDirectory = isDirectory;
 		result.name = name;

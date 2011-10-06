@@ -14,7 +14,6 @@
 	<classpathentry kind="lib" path="lib/jaxen-1.1.3.jar" sourcepath="lib/jaxen-1.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/jms-1.1.jar" sourcepath="lib/jms-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.2.jar" sourcepath="lib/joda-time-1.6.2.jar"/>
-	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar" sourcepath="lib/jsch-0.1.44.jar"/>
 	<classpathentry kind="lib" path="lib/jsr166y.jar" sourcepath="lib/jsr166y.jar"/>
 	<classpathentry kind="lib" path="lib/jsr305.jar" sourcepath="lib/jsr305.jar"/>
 	<classpathentry kind="lib" path="lib/jxl5.jar" sourcepath="lib/jxl5.jar"/>
@@ -24,5 +23,6 @@
 	<classpathentry kind="lib" path="lib/reactive4java-0.94.jar" sourcepath="lib/reactive4java-0.94.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/guava-10.0.jar" sourcepath="lib/guava-10.0.jar"/>
+	<classpathentry kind="lib" path="lib/j2ssh-0.2.9.jar" sourcepath="lib/j2ssh-0.2.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
