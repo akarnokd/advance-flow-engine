@@ -48,6 +48,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
  * A datastore which connects to a remote datastore via HTTP(s) and
@@ -102,72 +103,72 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	@Override
 	public List<AdvanceRealm> queryRealms()
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-realms"));
-		return HttpRemoteUtils.parseList(response, "realm", AdvanceRealm.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-realms"));
+		return XSerializables.parseList(response, "realm", AdvanceRealm.CREATOR);
 	}
 	
 
 	@Override
 	public AdvanceRealm queryRealm(String realm)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-realm", "realm", realm));
-		return HttpRemoteUtils.parseItem(response, AdvanceRealm.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-realm", "realm", realm));
+		return XSerializables.parseItem(response, AdvanceRealm.CREATOR);
 	}
 
 	@Override
 	public void createRealm(String realm, String byUser)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("create-realm", "realm", realm));
+		comm.send(XSerializables.createRequest("create-realm", "realm", realm));
 	}
 
 	@Override
 	public void deleteRealm(String realm)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-realm", "realm", realm));
+		comm.send(XSerializables.createRequest("delete-realm", "realm", realm));
 	}
 
 	@Override
 	public void updateRealm(AdvanceRealm realm) throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-realm", realm));
+		comm.send(XSerializables.createUpdate("update-realm", realm));
 	}
 
 	@Override
 	public List<AdvanceUser> queryUsers()
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-users"));
-		return HttpRemoteUtils.parseList(response, "user", AdvanceUser.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-users"));
+		return XSerializables.parseList(response, "user", AdvanceUser.CREATOR);
 	}
 
 	@Override
 	public AdvanceUser queryUser(String userName)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-user", "user-name", userName));
-		return HttpRemoteUtils.parseItem(response, AdvanceUser.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-user", "user-name", userName));
+		return XSerializables.parseItem(response, AdvanceUser.CREATOR);
 	}
 
 	@Override
 	public void enableUser(String userName,
 			boolean enabled, String byUser) throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("enable-user", "user-name", userName, "enabled", enabled));
+		comm.send(XSerializables.createRequest("enable-user", "user-name", userName, "enabled", enabled));
 	}
 
 	@Override
 	public void deleteUser(String userName, String byUser)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-user", "user-name", userName));
+		comm.send(XSerializables.createRequest("delete-user", "user-name", userName));
 	}
 
 	@Override
 	public void updateUser(AdvanceUser user)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-user", user));
+		comm.send(XSerializables.createUpdate("update-user", user));
 	}
 
 	@Override
 	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
 			throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-notification-groups"));
+		XElement response = comm.query(XSerializables.createRequest("query-notification-groups"));
 		return LocalDataStore.parseGroups(response);
 	}
 
@@ -182,129 +183,129 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	@Override
 	public List<AdvanceJDBCDataSource> queryJDBCDataSources() throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-jdbc-data-sources"));
-		return HttpRemoteUtils.parseList(response, "jdbc-source", AdvanceJDBCDataSource.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-jdbc-data-sources"));
+		return XSerializables.parseList(response, "jdbc-source", AdvanceJDBCDataSource.CREATOR);
 	}
 
 	@Override
 	public void updateJDBCDataSource(
 			AdvanceJDBCDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-jdbc-data-source", dataSource));
+		comm.send(XSerializables.createUpdate("update-jdbc-data-source", dataSource));
 	}
 
 	@Override
 	public void deleteJDBCDataSource(String dataSourceName)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-jdbc-data-source", "data-source-name", dataSourceName));
+		comm.send(XSerializables.createRequest("delete-jdbc-data-source", "data-source-name", dataSourceName));
 	}
 
 	@Override
 	public List<AdvanceJMSEndpoint> queryJMSEndpoints()
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-jms-endpoints"));
-		return HttpRemoteUtils.parseList(response, "endpoint", AdvanceJMSEndpoint.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-jms-endpoints"));
+		return XSerializables.parseList(response, "endpoint", AdvanceJMSEndpoint.CREATOR);
 	}
 
 	@Override
 	public void updateJMSEndpoint(
 			AdvanceJMSEndpoint endpoint) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-jms-endpoint", endpoint));
+		comm.send(XSerializables.createUpdate("update-jms-endpoint", endpoint));
 	}
 
 	@Override
 	public void deleteJMSEndpoint(String jmsName)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-jms-endpoint", "jms-name", jmsName));
+		comm.send(XSerializables.createRequest("delete-jms-endpoint", "jms-name", jmsName));
 	}
 
 	@Override
 	public List<AdvanceWebDataSource> queryWebDataSources() throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-web-data-sources"));
-		return HttpRemoteUtils.parseList(response, "web-source", AdvanceWebDataSource.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-web-data-sources"));
+		return XSerializables.parseList(response, "web-source", AdvanceWebDataSource.CREATOR);
 	}
 
 	@Override
 	public void updateWebDataSource(
 			AdvanceWebDataSource endpoint) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-web-data-source", endpoint));
+		comm.send(XSerializables.createUpdate("update-web-data-source", endpoint));
 	}
 
 	@Override
 	public void deleteWebDataSource(String webName)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-web-data-source", "web-name", webName));
+		comm.send(XSerializables.createRequest("delete-web-data-source", "web-name", webName));
 	}
 
 	@Override
 	public List<AdvanceFTPDataSource> queryFTPDataSources() throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-ftp-data-sources"));
-		return HttpRemoteUtils.parseList(response, "ftp-source", AdvanceFTPDataSource.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-ftp-data-sources"));
+		return XSerializables.parseList(response, "ftp-source", AdvanceFTPDataSource.CREATOR);
 	}
 
 	@Override
 	public void updateFTPDataSource(
 			AdvanceFTPDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-ftp-data-source", dataSource));
+		comm.send(XSerializables.createUpdate("update-ftp-data-source", dataSource));
 	}
 
 	@Override
 	public void deleteFTPDataSource(String ftpName)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-ftp-data-source", "ftp-name", ftpName));
+		comm.send(XSerializables.createRequest("delete-ftp-data-source", "ftp-name", ftpName));
 	}
 
 	@Override
 	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources(
 			) throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-local-file-data-sources"));
-		return HttpRemoteUtils.parseList(response, "local-source", AdvanceLocalFileDataSource.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-local-file-data-sources"));
+		return XSerializables.parseList(response, "local-source", AdvanceLocalFileDataSource.CREATOR);
 	}
 
 	@Override
 	public void updateLocalFileDataSource(
 			AdvanceLocalFileDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-local-file-data-source", dataSource));
+		comm.send(XSerializables.createUpdate("update-local-file-data-source", dataSource));
 	}
 
 	@Override
 	public void deleteLocalFileDataSource(String fileName)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-local-file-data-source", "file-name", fileName));
+		comm.send(XSerializables.createRequest("delete-local-file-data-source", "file-name", fileName));
 	}
 
 	@Override
 	public List<AdvanceKeyStore> queryKeyStores()
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-keystores"));
-		return HttpRemoteUtils.parseList(response, "keystore", AdvanceKeyStore.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-keystores"));
+		return XSerializables.parseList(response, "keystore", AdvanceKeyStore.CREATOR);
 	}
 
 	@Override
 	public AdvanceKeyStore queryKeyStore(String name)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-keystore", "name", name));
-		return HttpRemoteUtils.parseItem(response, AdvanceKeyStore.CREATOR);
+		XElement response = comm.query(XSerializables.createRequest("query-keystore", "name", name));
+		return XSerializables.parseItem(response, AdvanceKeyStore.CREATOR);
 	}
 
 	@Override
 	public boolean hasUserRight(String userName,
 			AdvanceUserRights expected) throws IOException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("has-user-right", "expected", expected));
+		XElement response = comm.query(XSerializables.createRequest("has-user-right", "expected", expected));
 		return "true".equals(response.content);
 	}
 
 	@Override
 	public boolean hasUserRight(String userName, String realm,
 			AdvanceUserRealmRights expected) throws IOException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("has-user-realm-right", "realm", realm, "expected", expected));
+		XElement response = comm.query(XSerializables.createRequest("has-user-realm-right", "realm", realm, "expected", expected));
 		return "true".equals(response.content);
 	}
 
@@ -312,18 +313,18 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	public void updateKeyStore(
 			AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
-		comm.send(HttpRemoteUtils.createUpdate("update-keystore", keyStore));
+		comm.send(XSerializables.createUpdate("update-keystore", keyStore));
 	}
 
 	@Override
 	public void deleteKeyStore(String keyStore)
 			throws IOException, AdvanceControlException {
-		comm.send(HttpRemoteUtils.createRequest("delete-keystore", "keystore", keyStore));
+		comm.send(XSerializables.createRequest("delete-keystore", "keystore", keyStore));
 	}
 	@Override
 	public Set<String> queryNotificationGroup(
 			AdvanceNotificationGroupType type, String name) throws IOException {
-		XElement response = comm.query(HttpRemoteUtils.createRequest("query-notification-group", "type", type, "name", name));
+		XElement response = comm.query(XSerializables.createRequest("query-notification-group", "type", type, "name", name));
 		Set<String> result = Sets.newHashSet();
 		for (XElement x : response.childrenWithName("contact")) {
 			result.add(x.get("value"));
@@ -333,66 +334,66 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	@Override
 	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
 			throws IOException {
-		return HttpRemoteUtils.parseItem(comm.query(
-				HttpRemoteUtils.createRequest("query-jdbc-data-source", "name", name)), 
+		return XSerializables.parseItem(comm.query(
+				XSerializables.createRequest("query-jdbc-data-source", "name", name)), 
 				AdvanceJDBCDataSource.CREATOR);
 	}
 	@Override
 	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException {
-		return HttpRemoteUtils.parseItem(comm.query(
-				HttpRemoteUtils.createRequest("query-jms-endpoint", "name", name)), 
+		return XSerializables.parseItem(comm.query(
+				XSerializables.createRequest("query-jms-endpoint", "name", name)), 
 				AdvanceJMSEndpoint.CREATOR);
 	}
 	@Override
 	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException {
-		return HttpRemoteUtils.parseItem(comm.query(
-				HttpRemoteUtils.createRequest("query-soap-channel", "name", name)), 
+		return XSerializables.parseItem(comm.query(
+				XSerializables.createRequest("query-soap-channel", "name", name)), 
 				AdvanceSOAPChannel.CREATOR);
 	}
 	@Override
 	public AdvanceFTPDataSource queryFTPDataSource(String name)
 			throws IOException {
-		return HttpRemoteUtils.parseItem(comm.query(
-				HttpRemoteUtils.createRequest("query-ftp-data-source", "name", name)), 
+		return XSerializables.parseItem(comm.query(
+				XSerializables.createRequest("query-ftp-data-source", "name", name)), 
 				AdvanceFTPDataSource.CREATOR);
 	}
 	@Override
 	public AdvanceWebDataSource queryWebDataSource(String name)
 			throws IOException {
-		return HttpRemoteUtils.parseItem(comm.query(
-				HttpRemoteUtils.createRequest("query-web-data-source", "name", name)), 
+		return XSerializables.parseItem(comm.query(
+				XSerializables.createRequest("query-web-data-source", "name", name)), 
 				AdvanceWebDataSource.CREATOR);
 	}
 	@Override
 	public AdvanceLocalFileDataSource queryLocalFileDataSource(String name)
 			throws IOException {
-		return HttpRemoteUtils.parseItem(comm.query(
-				HttpRemoteUtils.createRequest("query-local-file-data-source", "name", name)), 
+		return XSerializables.parseItem(comm.query(
+				XSerializables.createRequest("query-local-file-data-source", "name", name)), 
 				AdvanceLocalFileDataSource.CREATOR);
 	}
 	@Override
 	public XElement queryBlockState(String realm, String blockId)
 			throws IOException {
 		return comm.query(
-				HttpRemoteUtils.createRequest("query-block-state", "realm", realm, "block-id", blockId));
+				XSerializables.createRequest("query-block-state", "realm", realm, "block-id", blockId));
 	}
 	@Override
 	public void updateBlockState(String realm, String blockId, XElement state)
 			throws IOException {
-		XElement request = HttpRemoteUtils.createRequest("update-block-state", "realm", realm, "block-id", blockId);
+		XElement request = XSerializables.createRequest("update-block-state", "realm", realm, "block-id", blockId);
 		request.add(state);
 		comm.send(request);
 	}
 	@Override
 	public XElement queryFlow(String realm) throws IOException {
 		return comm.query(
-				HttpRemoteUtils.createRequest("query-flow", "realm", realm));
+				XSerializables.createRequest("query-flow", "realm", realm));
 	}
 	@Override
 	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
 			AdvanceControlException {
-		return HttpRemoteUtils.parseList(comm.query(
-				HttpRemoteUtils.createRequest("query-soap-channels")), 
+		return XSerializables.parseList(comm.query(
+				XSerializables.createRequest("query-soap-channels")), 
 				"channel", AdvanceSOAPChannel.CREATOR);
 	}
 }

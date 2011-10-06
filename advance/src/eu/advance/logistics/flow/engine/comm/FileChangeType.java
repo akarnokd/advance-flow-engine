@@ -21,27 +21,15 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
-import java.io.Closeable;
-import java.io.IOException;
-
-import eu.advance.logistics.flow.engine.api.AdvanceFTPProtocols;
-
 /**
- * Represents an FTP(s) or an SFTP connection with standard file and directory functions.
- * @author karnokd, 2011.10.05.
+ * Enumeration of file change types.
+ * @author karnokd, 2011.10.06.
  */
-public interface FTPConnection extends Closeable, FileAccess {
-	/** @return the protocol used by this connection. */
-	AdvanceFTPProtocols protocol();
-	/** 
-	 * @return the current directory.
-	 * @throws IOException if a network eror occurs 
-	 */
-	String currentDir() throws IOException;
-	/**
-	 * Change the directory.
-	 * @param newDir the new directory
-	 * @throws IOException if a network error occurs 
-	 */
-	void changeDir(String newDir) throws IOException;
+public enum FileChangeType {
+	/** The file is new. */
+	NEW,
+	/** The file has been modified. */
+	MODIFIED,
+	/** The file has been deleted. */
+	DELETED
 }

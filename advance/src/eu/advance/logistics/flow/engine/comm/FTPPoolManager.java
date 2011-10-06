@@ -210,11 +210,11 @@ public class FTPPoolManager implements PoolManager<FTPConnection> {
 			}
 
 			@Override
-			public List<FTPFileInfo> list() throws IOException {
-				List<FTPFileInfo> result = Lists.newArrayList();
+			public List<FileInfo> list() throws IOException {
+				List<FileInfo> result = Lists.newArrayList();
 				for (FTPFile f : client.listFiles()) {
 					if (f != null) {
-						FTPFileInfo fi = new FTPFileInfo();
+						FileInfo fi = new FileInfo();
 						fi.name = f.getName();
 						fi.length = f.getSize();
 						fi.isDirectory = f.isDirectory();
@@ -376,13 +376,13 @@ public class FTPPoolManager implements PoolManager<FTPConnection> {
 			}
 
 			@Override
-			public List<FTPFileInfo> list() throws IOException {
-				List<FTPFileInfo> result = Lists.newArrayList();
+			public List<FileInfo> list() throws IOException {
+				List<FileInfo> result = Lists.newArrayList();
 				List<?> list = sftp.ls();
 				for (Object o : list) {
 					SftpFile f = (SftpFile)o;
 					if (f.isDirectory() || f.isFile()) {
-						FTPFileInfo fi = new FTPFileInfo();
+						FileInfo fi = new FileInfo();
 						fi.name = f.getFilename();
 						fi.isDirectory = f.isDirectory();
 						fi.length = f.getAttributes().getSize().longValue();
