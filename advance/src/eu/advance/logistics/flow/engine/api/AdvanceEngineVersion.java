@@ -59,8 +59,11 @@ public class AdvanceEngineVersion implements XSerializable {
 	 */
 	public void parse(String versionString) {
 		int idx1 = versionString.indexOf('.');
-		int idx2 = versionString.indexOf('.');
-		if (idx1 < 0 || idx2 < 0) {
+		if (idx1 < 0) {
+			throw new IllegalArgumentException("Version format error: " + versionString);
+		}
+		int idx2 = versionString.indexOf('.', idx1 + 1);
+		if (idx2 < 0) {
 			throw new IllegalArgumentException("Version format error: " + versionString);
 		}
 		majorVersion = Integer.parseInt(versionString.substring(0, idx1));
@@ -73,5 +76,9 @@ public class AdvanceEngineVersion implements XSerializable {
 	 */
 	public String format() {
 		return String.format("%d.%02d.%03d", majorVersion, minorVersion, buildNumber);
+	}
+	@Override
+	public String toString() {
+		return format();
 	}
 }

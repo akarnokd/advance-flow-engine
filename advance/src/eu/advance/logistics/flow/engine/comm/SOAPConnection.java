@@ -23,17 +23,48 @@ package eu.advance.logistics.flow.engine.comm;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collection;
+
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Represents a SOAP connection.
  * @author karnokd, 2011.10.06.
  */
 public class SOAPConnection implements Closeable {
-
+	/** The SOAP envelope namespace. */
+	public static final String SOAP_NAMESPACE = "http://www.w3.org/2003/05/soap-envelope";
+	/** The SOAP encoding style namespace. */
+	public static final String SOAP_ENCODING = "http://www.w3.org/2003/05/soap-encoding";
+	/** The WS-Addressing namespace. */
+	public static final String WSA_NAMESPACE = "http://schemas.xmlsoap.org/ws/2004/08/addressing";
 	@Override
 	public void close() throws IOException {
 		// TODO Auto-generated method stub
 
 	}
+	/**
+	 * Create a low-level SOAP envelope message.
+	 * @param body the message body
+	 * @param headers the optional collection of headers.
+	 * @return the envelope object
+	 */
+	public static XElement createSOAPEnvelope(XElement body, Collection<XElement> headers) {
+		XElement envelope = new XElement("Envelope", SOAP_NAMESPACE);
+		envelope.prefix = "SOAP-ENV";
+		
+		if (headers.size() > 0) {
+			XElement header = envelope.add("Header", SOAP_NAMESPACE);
+			header.prefix = "SOAP-ENV";
+			for (XElement h : headers) {
+				header.add(h.copy());
+			}
+		}
+		
+		XElement xbody = envelope.add("Body", SOAP_NAMESPACE);
+		xbody.prefix = "SOAP-ENV";
+		xbody.add(body.copy());
 
+		return envelope;
+	}
 }
