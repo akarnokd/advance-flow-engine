@@ -124,4 +124,10 @@ public class LocalConnection implements FileAccess {
 		}
 		return result;
 	}
+	@Override
+	public void rename(String file, String newName) throws IOException {
+		if (!new File(file).renameTo(new File(newName))) {
+			throw new IOException("Rename failed: " + file + " -> " + newName);
+		}
+	}
 }

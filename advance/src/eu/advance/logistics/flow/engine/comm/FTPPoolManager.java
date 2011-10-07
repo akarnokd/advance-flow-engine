@@ -173,9 +173,18 @@ public class FTPPoolManager implements PoolManager<FTPConnection> {
 		return new FTPConnection() {
 			@Override
 			public void close() throws IOException {
-				client.disconnect();
+				try {
+					if (client.logout()) {
+						LOG.warn("Logout failed");
+					}
+				} finally {
+					client.disconnect();
+				}
 			}
-
+			@Override
+			public void rename(String file, String newName) throws IOException {
+				client.rename(file, newName);
+			}
 			@Override
 			public AdvanceFTPProtocols protocol() {
 				return client instanceof FTPSClient ? AdvanceFTPProtocols.FTPS : AdvanceFTPProtocols.FTP;
@@ -347,7 +356,10 @@ public class FTPPoolManager implements PoolManager<FTPConnection> {
 					throw deferred;
 				}
 			}
-
+			@Override
+			public void rename(String file, String newName) throws IOException {
+				sftp.rename(file, newName);
+			}
 			@Override
 			public AdvanceFTPProtocols protocol() {
 				return AdvanceFTPProtocols.SFTP;

@@ -47,6 +47,7 @@ import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
+import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
@@ -80,9 +81,9 @@ public class AdvanceEngineConfig {
 	/** The local keystores. */
 	public final Map<String, AdvanceKeyStore> keystores = Maps.newHashMap();
 	/** The scheduler mappings. */
-	protected final EnumMap<SchedulerPreference, Scheduler> schedulerMap = new EnumMap<SchedulerPreference, Scheduler>(SchedulerPreference.class);
+	public final EnumMap<SchedulerPreference, Scheduler> schedulerMap = new EnumMap<SchedulerPreference, Scheduler>(SchedulerPreference.class);
 	/** The backing executor services to allow peaceful shutdown. */
-	protected final EnumMap<SchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<SchedulerPreference, ExecutorService>(SchedulerPreference.class);
+	public final EnumMap<SchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<SchedulerPreference, ExecutorService>(SchedulerPreference.class);
 	/**
 	 * Create the lookup.
 	 * @param blockRegistry The block registry to use
@@ -320,5 +321,9 @@ public class AdvanceEngineConfig {
 			}
 			
 		});
+	}
+	/** @return the datastore object. */
+	public AdvanceDataStore datastore() {
+		return localDataStore;
 	}
 }

@@ -49,4 +49,11 @@ public interface FileAccess {
 	 * @throws IOException if a network error occurs
 	 */
 	List<FileInfo> list() throws IOException;
+	/**
+	 * Try renaming a file.
+	 * @param file the current name
+	 * @param newName the new name
+	 * @throws IOException if the rename fails
+	 */
+	void rename(String file, String newName) throws IOException;
 }

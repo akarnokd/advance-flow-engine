@@ -129,6 +129,15 @@ public class XElement implements Iterable<XElement> {
 		this.name = name;
 	}
 	/**
+	 * Constructor. Sets the name and namespace.
+	 * @param name the element name
+	 * @param namespace the element namespace
+	 */
+	public XElement(String name, String namespace) {
+		this.name = name;
+		this.namespace = namespace;
+	}
+	/**
 	 * Retrieve the first attribute which has the given local attribute name.
 	 * @param attributeName the attribute name
 	 * @return the attribute value or null if no such attribute
@@ -1082,6 +1091,13 @@ public class XElement implements Iterable<XElement> {
 		}
 		for (int i = 0; i < nameValues.length; i += 2) {
 			set((String)nameValues[i], nameValues[i + 1]);
+		}
+	}
+	/** Breaks the link with its parent XElement if any. */
+	public void detach() {
+		if (parent != null) {
+			parent.children.remove(this);
+			parent = null;
 		}
 	}
 }
