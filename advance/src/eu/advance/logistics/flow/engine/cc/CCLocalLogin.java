@@ -26,6 +26,8 @@ import hu.akarnokd.reactive4java.base.Func0;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -49,6 +51,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -161,9 +165,11 @@ public class CCLocalLogin extends JDialog {
 	/** The opened engine. */
 	protected AdvanceEngineControl engine;
 	/** The new user field. */
-	private JTextField newUser;
+	protected JTextField newUser;
 	/** The new path field. */
-	private JTextField newPath;
+	protected JTextField newPath;
+	/** The login button. */
+	protected JButton login;
 	/**
 	 * Create the GUI.
 	 * @param labels the label manager.
@@ -202,6 +208,15 @@ public class CCLocalLogin extends JDialog {
 					int idx = table.convertRowIndexToModel(i);
 					newPath.setText(rows.get(idx).path);
 					newUser.setText(rows.get(idx).user);
+					enableLoginIf();
+				}
+			}
+		});
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() > 1) {
+					doLogin();
 				}
 			}
 		});
@@ -217,6 +232,34 @@ public class CCLocalLogin extends JDialog {
 			}
 		});
 		newUser = new JTextField();
+		DocumentListener dl = new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				enableLoginIf();
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				enableLoginIf();
+			}
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				enableLoginIf();
+			}
+		};
+		newPath.getDocument().addDocumentListener(dl);
+		newUser.getDocument().addDocumentListener(dl);
+		newPath.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doLogin();
+			}
+		});
+		newUser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doLogin();
+			}
+		});
 		
 		JLabel newPathLabel = new JLabel(labels.get("Path:"));
 		JLabel newUserLabel = new JLabel(labels.get("User:"));
@@ -229,13 +272,15 @@ public class CCLocalLogin extends JDialog {
 			}
 		});
 		
-		JButton login = new JButton(labels.get("Login"));
+		login = new JButton(labels.get("Login"));
 		login.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doLogin();
 			}
 		});
+		login.setEnabled(false);
+		
 		JButton close = new JButton(labels.get("Close"));
 		close.addActionListener(new ActionListener() {
 			@Override
@@ -315,6 +360,10 @@ public class CCLocalLogin extends JDialog {
 		loadConfig();
 		GUIUtils.autoResizeColWidth(table, model);
 		pack();
+	}
+	/** Enable login if both path and user fields are non-empty. */
+	void enableLoginIf() {
+		login.setEnabled(!newPath.getText().isEmpty() && !newUser.getText().isEmpty());
 	}
 	/** Browse for config file. */
 	void doBrowse() {
@@ -435,6 +484,7 @@ public class CCLocalLogin extends JDialog {
 		u.createdBy = "setup";
 		u.modifiedAt = new Date();
 		u.modifiedBy = "setup";
+		u.email = "admin@advance-logistics.eu";
 		try {
 			ds.updateUser(u);
 		} catch (IOException ex) {
