@@ -28,6 +28,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
@@ -209,6 +210,18 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 		} else
 		if ("delete-block-states".equals(function)) {
 			ds.deleteBlockStates(request.get("realm"));
+		} else
+		if ("query-email-boxes".equals(function)) {
+			exch.next(XSerializables.storeList("email-boxes", "email-box", ds.queryEmailBoxes()));
+		} else
+		if ("query-email-box".equals(function)) {
+			exch.next(XSerializables.storeItem("email-box", ds.queryEmailBox(request.get("name"))));
+		} else
+		if ("update-email-box".equals(function)) {
+			ds.updateEmailBox(XSerializables.parseItem(request, AdvanceEmailBox.CREATOR));
+		} else
+		if ("delete-email-box".equals(function)) {
+			ds.deleteEmailBox(request.get("name"));
 		} else {
 			throw new AdvanceControlException("Unknown request " + request);
 		}

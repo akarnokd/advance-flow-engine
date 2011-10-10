@@ -55,6 +55,7 @@ import com.google.common.collect.Sets;
 
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
@@ -110,6 +111,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public final Map<String, XElement> dataflows = Maps.newHashMap();
 	/** The map from realm to block-id to an arbitrary XML used to persist block states between restarts. */
 	public final Map<String, Map<String, XElement>> blockStates = Maps.newHashMap();
+	/** The email boxes. */
+	public final Map<String, AdvanceEmailBox> emailBoxes = Maps.newHashMap();
 	/** Clear all records from the maps. */
 	protected void clear() {
 		users.clear();
@@ -124,7 +127,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		localDataSources.clear();
 		dataflows.clear();
 		blockStates.clear();
-	}
+		emailBoxes.clear();	}
 	/**
 	 * Add a contact to the given notification type and group.
 	 * @param type the notification group type
@@ -1062,6 +1065,38 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceControlException {
 		synchronized (dataflows) {
 			dataflows.put(realm, flow);
+		}
+	}
+	@Override
+	public void deleteEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		synchronized (emailBoxes) {
+			emailBoxes.remove(name);
+		}
+	}
+	@Override
+	public AdvanceEmailBox queryEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		synchronized (emailBoxes) {
+			return emailBoxes.get(name);
+		}
+	}
+	@Override
+	public List<AdvanceEmailBox> queryEmailBoxes() throws IOException,
+			AdvanceControlException {
+		synchronized (emailBoxes) {
+			List<AdvanceEmailBox> result = Lists.newArrayList();
+			for (AdvanceEmailBox b : emailBoxes.values()) {
+				result.add(b.copy());
+			}
+			return result;
+		}
+	}
+	@Override
+	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
+			AdvanceControlException {
+		synchronized (emailBoxes) {
+			emailBoxes.put(box.name, box.copy());
 		}
 	}
 }

@@ -27,8 +27,8 @@ import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Pair;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,9 +41,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,17 +55,19 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.xml.stream.XMLStreamException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.AdvanceCompiler;
-import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
@@ -73,9 +79,9 @@ import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The main window of the engine control center.
@@ -92,9 +98,18 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 	protected URL engineURL;
 	/** The engine version. */
 	protected AdvanceEngineVersion version;
+	/** The logged in user. */
+	protected AdvanceUser user;
 	/** The config file. */
 	protected final	File configFile = new File("advance-flow-engine-control-center-config.xml");
-
+	/** The menus to enable with rights. */
+	public Multimap<JMenuItem, AdvanceUserRights> menusToEnable = HashMultimap.create();
+	/** The conencted URL. */
+	private JLabel urlLabel;
+	/** The connected version. */
+	private JLabel verLabel;
+	/** The connected user. */
+	private JLabel userLabel;
 	/**
 	 * Returns a label for the given key.
 	 * @param key the key
@@ -231,6 +246,10 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 				LOG.error(ex.toString(), ex);
 			}
 		}
+		engine = null;
+		engineURL = null;
+		user = null;
+		version = null;
 	}
 	/**
 	 * Constructor. Initializes the main window.
@@ -275,36 +294,91 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 		addItem(fromMethod(this, "doExit"), "Engine", "Exit");
 		
 		addItem(fromMethod(this, "doManageLocalKeyStores"), "Keystores", "Manage local keystores...");
-		addItem(fromMethod(this, "doManageKeyStores"), "Keystores", "Manage engine keystores...");
+		menusToEnable.put(addItem(fromMethod(this, "doManageKeyStores"), "Keystores", "Manage engine keystores..."), AdvanceUserRights.LIST_KEYSTORES);
 		
-		addItem(fromMethod(this, "doDownloadFlow"), "Flow", "Download...");
-		addItem(fromMethod(this, "doUploadFlow"), "Flow", "Upload...");
-		addItem(fromMethod(this, "doVerifyFlow"), "Flow", "Verify...");
-		addItem(fromMethod(this, "doDebugFlow"), "Flow", "Debug...");
-		addItem(fromMethod(this, "doLastCompilationResult"), "Flow", "Last compilation result...");
+		menusToEnable.put(addItem(fromMethod(this, "doDownloadFlow"), "Flow", "Download..."), AdvanceUserRights.LIST_KEYSTORES);
+		menusToEnable.put(addItem(fromMethod(this, "doUploadFlow"), "Flow", "Upload..."), AdvanceUserRights.LIST_REALMS);
+		menusToEnable.put(addItem(fromMethod(this, "doVerifyFlow"), "Flow", "Verify..."), AdvanceUserRights.LIST_REALMS);
+		menusToEnable.put(addItem(fromMethod(this, "doDebugFlow"), "Flow", "Debug..."), AdvanceUserRights.LIST_REALMS);
+		menusToEnable.put(addItem(fromMethod(this, "doLastCompilationResult"), "Flow", "Last compilation result..."), AdvanceUserRights.LIST_REALMS);
 		
-		addItem(fromMethod(this, "doManageRealms"), "Administration", "Manage realms...");
-		addItem(fromMethod(this, "doManageUsers"), "Administration", "Manage users...");
-		addItem(fromMethod(this, "doManageNotificationGroups"), "Administration", "Manage notification groups...");
+		menusToEnable.put(addItem(fromMethod(this, "doManageRealms"), "Administration", "Manage realms..."), AdvanceUserRights.LIST_REALMS);
+		menusToEnable.put(addItem(fromMethod(this, "doManageUsers"), "Administration", "Manage users..."), AdvanceUserRights.LIST_USERS);
+		menusToEnable.put(addItem(fromMethod(this, "doManageNotificationGroups"), "Administration", "Manage notification groups..."), AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
 		
-		addItem(fromMethod(this, "doJDBCDataSources"), "Data sources", "JDBC...");
-		addItem(fromMethod(this, "doSOAPDataSources"), "Data sources", "SOAP...");
-		addItem(fromMethod(this, "doJMSDataSources"), "Data sources", "JMS...");
-		addItem(fromMethod(this, "doWebDataSources"), "Data sources", "Web...");
-		addItem(fromMethod(this, "doFTPDataSources"), "Data sources", "FTP...");
-		addItem(fromMethod(this, "doLocalDataSources"), "Data sources", "Local...");
-		addItem(fromMethod(this, "doEmailDataSources"), "Data sources", "Email...");
+		menusToEnable.put(addItem(fromMethod(this, "doJDBCDataSources"), "Data sources", "JDBC..."), AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
+		menusToEnable.put(addItem(fromMethod(this, "doSOAPDataSources"), "Data sources", "SOAP..."), AdvanceUserRights.LIST_SOAP_CHANNELS);
+		menusToEnable.put(addItem(fromMethod(this, "doJMSDataSources"), "Data sources", "JMS..."), AdvanceUserRights.LIST_JMS_ENDPOINTS);
+		menusToEnable.put(addItem(fromMethod(this, "doWebDataSources"), "Data sources", "Web..."), AdvanceUserRights.LIST_WEB_DATA_SOURCES);
+		menusToEnable.put(addItem(fromMethod(this, "doFTPDataSources"), "Data sources", "FTP..."), AdvanceUserRights.LIST_FTP_DATA_SOURCES);
+		menusToEnable.put(addItem(fromMethod(this, "doLocalDataSources"), "Data sources", "Local..."), AdvanceUserRights.LIST_LOCAL_FILE_DATA_SOURCES);
+		menusToEnable.put(addItem(fromMethod(this, "doEmailDataSources"), "Data sources", "Email..."), AdvanceUserRights.LIST_EMAIL);
 		
 		ImageIcon icon = new ImageIcon(getClass().getResource("advlogo_192x128.png"));
 		JLabel label = new JLabel(icon);
 		
-		Container c = getContentPane();
-		c.setLayout(new BorderLayout());
+		JPanel cp = new JPanel();
 		
-		c.add(label, BorderLayout.CENTER);
+		Container c = getContentPane();
+		c.setLayout(new GridBagLayout());
+		c.add(cp);
+		
+		GroupLayout gl = new GroupLayout(cp);
+		cp.setLayout(gl);
+		
+		gl.setAutoCreateContainerGaps(true);
+		gl.setAutoCreateGaps(true);
 
-		openLocalEngine(new File("conf/flow_engine_config.xml"));
-		doAfterOpen();
+		JLabel urlLabel0 = new JLabel(get("Engine:"));
+		JLabel verLabel0 = new JLabel(get("Version:"));
+		JLabel userLabel0 = new JLabel(get("User:"));
+		
+		urlLabel = new JLabel();
+		verLabel = new JLabel();
+		userLabel = new JLabel();
+		
+		gl.setHorizontalGroup(
+			gl.createParallelGroup(Alignment.CENTER)
+			.addGroup(
+				gl.createSequentialGroup()
+				.addGroup(
+					gl.createParallelGroup()
+					.addComponent(urlLabel0)
+					.addComponent(verLabel0)
+					.addComponent(userLabel0)
+				)
+				.addGroup(
+					gl.createParallelGroup()
+					.addComponent(urlLabel)
+					.addComponent(verLabel)
+					.addComponent(userLabel)
+				)
+			)
+			.addComponent(label)
+		);
+		
+		gl.setVerticalGroup(
+			gl.createSequentialGroup()
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(urlLabel0)
+				.addComponent(urlLabel)
+			)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(verLabel0)
+				.addComponent(verLabel)
+			)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(userLabel0)
+				.addComponent(userLabel)
+			)
+			.addComponent(label)
+		);
+		
+		
+		enableDisableMenus();
 	}
 	/**
 	 * Create an action from a local declared method name.
@@ -393,37 +467,6 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 		JMenu m = new JMenu(name);
 		parent.add(m);
 		return m;
-	}
-	/**
-	 * Open a local engine.
-	 * @param file the engine configuration file
-	 * @return if the opening was successful
-	 */
-	protected boolean openLocalEngine(File file) {
-		disconnectEngine();
-		final AdvanceEngineConfig config = new AdvanceEngineConfig();
-		try {
-			config.initialize(XElement.parseXML(file));
-			
-			AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, 
-					config.blockResolver, config.schedulerMap);
-			engine = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler) {
-				@Override
-				public void shutdown() throws IOException,
-						AdvanceControlException {
-					super.shutdown();
-					config.close();
-				}
-			};
-			
-			engineURL = file.toURI().toURL();
-			return true;
-		} catch (IOException ex) {
-			errorMessage(ex.toString());
-		} catch (XMLStreamException ex) {
-			errorMessage(ex.toString());
-		}
-		return false;
 	}
 	/**
 	 * Display an error dialog with the message.
@@ -963,7 +1006,6 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		f.showCreateDelete(false);
 		displayFrame(f, "Download Flow");
 	}
 	/**
@@ -1001,7 +1043,91 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		f.showCreateDelete(false);
 		displayFrame(f, "Upload Flow");
+	}
+	/**
+	 * Create the email data sources listing.
+	 */
+	void doEmailDataSources() {
+		final GenericListingFrame<AdvanceEmailBox> f = new GenericListingFrame<AdvanceEmailBox>(this);
+		f.setCellTitleFunction(from(
+				"Name", String.class, 
+				"Address", String.class,
+				"Created", String.class, 
+				"Modified", String.class 
+				));
+		f.setCellValueFunction(new Func2<AdvanceEmailBox, Integer, Object>() {
+			@Override
+			public Object invoke(AdvanceEmailBox param1, Integer param2) {
+				switch (param2) {
+				case 0: 
+					return param1.name;
+				case 1:
+					return param1.sendAddress + " " + param1.receiveAddress;
+				case 2:
+					return createdAtBy(param1);
+				case 3:
+					return modifiedAtBy(param1);
+				default:
+					return null;
+				}
+			}
+		});
+		f.setRetrieveFunction(new Action1<String>() {
+			@Override
+			public void invoke(String value) {
+				GUIUtils.getWorker(new ListWorkItem<AdvanceEmailBox>(f) {
+					@Override
+					public List<AdvanceEmailBox> retrieve() throws Exception {
+						return engine.datastore().queryEmailBoxes();
+					}
+				}).execute();
+			}
+		});
+		f.setColumnCount(4);
+		displayFrame(f, "Email boxes");
+	}
+	/**
+	 * Login into a local engine.
+	 */
+	void doLocalLogin() {
+		CCLocalLogin login = new CCLocalLogin(this);
+		login.setLocationRelativeTo(null);
+		if (login.display()) {
+			disconnectEngine();
+			engine = login.takeEngine();
+			engineURL = login.takeEngineURL();
+			try {
+				version = engine.queryVersion();
+				user = engine.getUser();
+				
+				enableDisableMenus();
+			} catch (Exception ex) {
+				LOG.error(ex.toString(), ex);
+				errorMessage(ex.toString());
+			}
+
+			urlLabel.setText(engineURL.toString());
+			verLabel.setText(version.toString());
+			userLabel.setText(user.name + " <" + user.email + ">");
+		}
+	}
+	/**
+	 * Enable/disable menus based on the user settings.
+	 */
+	void enableDisableMenus() {
+		for (Map.Entry<JMenuItem, Collection<AdvanceUserRights>> e : menusToEnable.asMap().entrySet()) {
+			JMenuItem mi = e.getKey();
+			if (user != null) {
+				for (AdvanceUserRights r : e.getValue()) {
+					if (user.rights.contains(r)) {
+						mi.setEnabled(true);
+						break;
+					}
+				}
+			} else {
+				mi.setEnabled(false);
+			}
+		}
 	}
 }

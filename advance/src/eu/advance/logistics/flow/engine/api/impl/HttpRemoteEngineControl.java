@@ -40,7 +40,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
@@ -78,7 +78,7 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 */
 	public HttpRemoteEngineControl(@NonNull URL remote, @NonNull String username, @NonNull char[] password) {
 		AdvanceHttpAuthentication auth = new AdvanceHttpAuthentication();
-		auth.loginType = AdvanceWebLoginType.BASIC;
+		auth.loginType = AdvanceLoginType.BASIC;
 		auth.name = username;
 		auth.password = password;
 		

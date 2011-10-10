@@ -127,5 +127,13 @@ public enum AdvanceUserRights {
 	/** Delete a schema. */
 	DELETE_SCHEMA,
 	/** Shut down the engine. */
-	SHUTDOWN
+	SHUTDOWN,
+	/** List email boxes. */
+	LIST_EMAIL,
+	/** Create new email entry. */
+	CREATE_EMAIL,
+	/** Update email entry. */
+	UPDATE_EMAIL,
+	/** Delete email entry. */
+	DELETE_EMAIL
 }

@@ -27,9 +27,12 @@ import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Pair;
 
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +48,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * A generic listing frame containing engine information, a
@@ -55,6 +63,8 @@ import com.google.common.collect.Lists;
  * @param <T> the record element type
  */
 public class GenericListingFrame<T> extends JFrame {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(GenericListingFrame.class);
 	/** */
 	private static final long serialVersionUID = -1243838082987540876L;
 	/** Function to retrieve a cell value for the given element. */
@@ -109,14 +119,14 @@ public class GenericListingFrame<T> extends JFrame {
 			return getCellTitle.invoke(column).first;
 		}
 	};
-	/**
-	 * Create a new object.
-	 */
-	protected JButton create;
-	/**
-	 * Delete the selected objects.
-	 */
-	protected JButton delete;
+	/** First extra button. */
+	protected JButton extra1;
+	/** Second extra button. */
+	protected JButton extra2;
+	/** Third extra button. */
+	protected JButton extra3;
+	/** The extra button array. */
+	protected JButton[] extra;
 	/** The filter. */
 	protected JTextField filter;
 	/** The help button. */
@@ -135,6 +145,8 @@ public class GenericListingFrame<T> extends JFrame {
 	protected JLabel filterLabel;
 	/** The listing date. */
 	protected JLabel listDate;
+	/** The record count label. */
+	private JLabel countLabel;
 	/**
 	 * Initialize the contents.
 	 * @param labels the label manager
@@ -157,21 +169,20 @@ public class GenericListingFrame<T> extends JFrame {
 		engineLabel = new JLabel(labels.get("Engine:"));
 		versionLabel = new JLabel(labels.get("Version:"));
 		filterLabel = new JLabel(labels.get("Filter:"));
-		JLabel countLabel = new JLabel() {
-			/** */
-			private static final long serialVersionUID = -9023089297548383203L;
-
-			@Override
-			public String getText() {
-				return labels.format("Records: %d", rows != null ? rows.size() : 0);
-			}
-		};
+		countLabel = new JLabel();
 		
 		topSeparator = new JSeparator(JSeparator.HORIZONTAL);
 		bottomSeparator = new JSeparator(JSeparator.HORIZONTAL);
 		
-		create = new JButton(labels.get("Create..."));
-		delete = new JButton(labels.get("Delete"));
+		extra1 = new JButton();
+		extra1.setVisible(false);
+		extra2 = new JButton();
+		extra2.setVisible(false);
+		extra3 = new JButton();
+		extra3.setVisible(false);
+		
+		extra = new JButton[] { extra1, extra2, extra3 };
+		
 		filter = new JTextField();
 		filter.addActionListener(new ActionListener() {
 			@Override
@@ -192,6 +203,12 @@ public class GenericListingFrame<T> extends JFrame {
 		Dimension r = help.getPreferredSize();
 		
 		close = new JButton("Close");
+		close.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
 		
 		listDate = new JLabel();
 		
@@ -227,8 +244,9 @@ public class GenericListingFrame<T> extends JFrame {
 				gl.createSequentialGroup()
 				.addComponent(refresh)
 				.addGap(30)
-				.addComponent(create)
-				.addComponent(delete)
+				.addComponent(extra1)
+				.addComponent(extra2)
+				.addComponent(extra3)
 				.addGap(30)
 				.addComponent(close)
 			)
@@ -262,8 +280,9 @@ public class GenericListingFrame<T> extends JFrame {
 			.addGroup(
 				gl.createParallelGroup(Alignment.CENTER)
 				.addComponent(refresh)
-				.addComponent(create)
-				.addComponent(delete)
+				.addComponent(extra1)
+				.addComponent(extra2)
+				.addComponent(extra3)
 				.addComponent(close)
 			)
 		);
@@ -307,6 +326,7 @@ public class GenericListingFrame<T> extends JFrame {
 		this.rows = Lists.newArrayList(rows);
 		model.fireTableDataChanged();
 		listDate.setText("@ " + new Date());
+		countLabel.setText(labels.format("Records: %d", rows != null ? this.rows.size() : 0));
 	}
 	/**
 	 * Set the column count.
@@ -359,11 +379,33 @@ public class GenericListingFrame<T> extends JFrame {
 		model.fireTableStructureChanged();
 	}
 	/**
-	 * Show the create and delete buttons?
-	 * @param visible visible
+	 * Set the name and action on the given extra button and show it.
+	 * @param index the button index (zero based)
+	 * @param title the title label
+	 * @param action the action
 	 */
-	public void showCreateDelete(boolean visible) {
-		create.setVisible(visible);
-		delete.setVisible(visible);
+	public void setExtraButton(int index, String title, ActionListener action) {
+		extra[index].setText(labels.get(title));
+		extra[index].addActionListener(action);
+		extra[index].setVisible(true);
+	}
+	/**
+	 * Set the help uri to browse when clicking on the help button.
+	 * @param helpURI the URI
+	 */
+	public void setHelpURI(@NonNull final URI helpURI) {
+		help.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (Desktop.isDesktopSupported()) {
+					Desktop d = Desktop.getDesktop();
+					try {
+						d.browse(helpURI);
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+			}
+		});
 	}
 }

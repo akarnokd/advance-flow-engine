@@ -32,6 +32,7 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
@@ -45,7 +46,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
@@ -76,7 +77,7 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	 */
 	public HttpRemoteDataStore(@NonNull URL remote, @NonNull String username, @NonNull char[] password) {
 		AdvanceHttpAuthentication auth = new AdvanceHttpAuthentication();
-		auth.loginType = AdvanceWebLoginType.BASIC;
+		auth.loginType = AdvanceLoginType.BASIC;
 		auth.name = username;
 		auth.password = password;
 		
@@ -407,5 +408,27 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 		XElement request = XSerializables.createRequest("update-flow", "realm", realm);
 		request.add(flow.copy());
 		comm.send(request);
+	}
+	@Override
+	public void deleteEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		comm.send(XSerializables.createRequest("delete-email-box", "name", name));
+	}
+	@Override
+	public AdvanceEmailBox queryEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		XElement response = comm.query(XSerializables.createRequest("query-email-box", "name", name));
+		return XSerializables.parseItem(response, AdvanceEmailBox.CREATOR);
+	}
+	@Override
+	public List<AdvanceEmailBox> queryEmailBoxes() throws IOException,
+			AdvanceControlException {
+		XElement response = comm.query(XSerializables.createRequest("query-email-boxes"));
+		return XSerializables.parseList(response, "email-box", AdvanceEmailBox.CREATOR);
+	}
+	@Override
+	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
+			AdvanceControlException {
+		comm.send(XSerializables.createUpdate("update-email-box", box));
 	}
 }
