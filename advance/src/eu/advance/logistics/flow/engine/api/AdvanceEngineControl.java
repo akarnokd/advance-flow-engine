@@ -26,6 +26,8 @@ import hu.akarnokd.reactive4java.reactive.Observable;
 import java.io.IOException;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
@@ -57,6 +59,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the blocks.
 	 */
+	@NonNull 
 	List<AdvanceBlockRegistryEntry> queryBlocks() 
 	throws IOException, AdvanceControlException;
 	/**
@@ -65,6 +68,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not authenticated
 	 */
+	@NonNull 
 	AdvanceEngineVersion queryVersion() throws IOException, AdvanceControlException;
 	/**
 	 * Query the list of schemas known by the engine.
@@ -72,6 +76,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
 	 */
+	@NonNull 
 	List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException, AdvanceControlException;
 	/**
 	 * Query a concrete schema.
@@ -80,7 +85,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
 	 */
-	AdvanceSchemaRegistryEntry querySchema(String name) throws IOException, AdvanceControlException; 
+	@NonNull 
+	AdvanceSchemaRegistryEntry querySchema(@NonNull String name) throws IOException, AdvanceControlException; 
 	/**
 	 * Add or modify a new schema in the flow engine.
 	 * @param name the schema's filename (without path)
@@ -88,14 +94,14 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to add new schemas
 	 */
-	void updateSchema(String name, XElement schema) throws IOException, AdvanceControlException;
+	void updateSchema(@NonNull String name, @NonNull XElement schema) throws IOException, AdvanceControlException;
 	/**
 	 * Delete the specified schema.
 	 * @param name the schema name
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete schemas
 	 */
-	void deleteSchema(String name) throws IOException, AdvanceControlException;
+	void deleteSchema(@NonNull String name) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a key entry from a keystore.
 	 * @param keyStore the key store name
@@ -103,14 +109,14 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete a key
 	 */
-	void deleteKeyEntry(String keyStore, String keyAlias) throws IOException, AdvanceControlException;;
+	void deleteKeyEntry(@NonNull String keyStore, @NonNull String keyAlias) throws IOException, AdvanceControlException;;
 	/**
 	 * Generate a new key with the given properties.
 	 * @param key the key generation properties
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to generate a key
 	 */
-	void generateKey(AdvanceGenerateKey key) throws IOException, AdvanceControlException;
+	void generateKey(@NonNull AdvanceGenerateKey key) throws IOException, AdvanceControlException;
 	/**
 	 * Export a certificate from a designated key store.
 	 * @param request represents the key store and key alias to export
@@ -118,7 +124,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to export
 	 */
-	String exportCertificate(AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
+	@NonNull 
+	String exportCertificate(@NonNull AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
 	/**
 	 * Export a private key from a designated key store.
 	 * @param request represents the key store and key alias to export
@@ -126,7 +133,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to export
 	 */
-	String exportPrivateKey(AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
+	@NonNull 
+	String exportPrivateKey(@NonNull AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
 	/**
 	 * Import a certificate into a designated key store.
 	 * @param request represents the key store and key alias to import
@@ -134,7 +142,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to export
 	 */
-	void importCertificate(AdvanceKeyStoreExport request, String data) throws IOException, AdvanceControlException;
+	void importCertificate(@NonNull AdvanceKeyStoreExport request, @NonNull String data) throws IOException, AdvanceControlException;
 	/**
 	 * Import a private key into a designated key store.
 	 * @param request represents the key store and key alias to import
@@ -144,7 +152,7 @@ public interface AdvanceEngineControl {
 	 * @throws AdvanceControlException if the user is not allowed to export
 	 */
 	void importPrivateKey(
-			AdvanceKeyStoreExport request, String keyData, String certData) throws IOException, AdvanceControlException;
+			@NonNull AdvanceKeyStoreExport request, @NonNull String keyData, @NonNull String certData) throws IOException, AdvanceControlException;
 	/**
 	 * Export a signing request of the given private key.
 	 * @param request represents the key store and key alias to export
@@ -152,7 +160,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to export
 	 */
-	String exportSigningRequest(AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
+	@NonNull 
+	String exportSigningRequest(@NonNull AdvanceKeyStoreExport request) throws IOException, AdvanceControlException;
 	/**
 	 * Import a signing response into the designated key store.
 	 * @param request represents the key store and key alias to export
@@ -160,7 +169,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to export
 	 */
-	void importSigningResponse(AdvanceKeyStoreExport request, String data) throws IOException, AdvanceControlException;
+	@NonNull 
+	void importSigningResponse(@NonNull AdvanceKeyStoreExport request, @NonNull String data) throws IOException, AdvanceControlException;
 	/**
 	 * Test the JDBC data source connection.
 	 * @param dataSourceName the data source identifier
@@ -168,7 +178,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to test the connection
 	 */
-	String testJDBCDataSource(String dataSourceName) throws IOException, AdvanceControlException;
+	@NonNull 
+	String testJDBCDataSource(@NonNull String dataSourceName) throws IOException, AdvanceControlException;
 	/**
 	 * Test a JMS endpoint configuration.
 	 * @param jmsName the identifier of the JMS enpoint to test.
@@ -176,7 +187,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to test the connection
 	 */
-	String testJMSEndpoint(String jmsName) throws IOException, AdvanceControlException;
+	@NonNull 
+	String testJMSEndpoint(@NonNull String jmsName) throws IOException, AdvanceControlException;
 	/**
 	 * Test the FTP data source.
 	 * @param ftpName the data source identifier
@@ -184,7 +196,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to test FTP data sources
 	 */
-	String testFTPDataSource(String ftpName) throws IOException, AdvanceControlException;
+	@NonNull 
+	String testFTPDataSource(@NonNull String ftpName) throws IOException, AdvanceControlException;
 	/**
 	 * List the keys of the given keystore.
 	 * @param keyStore the keystore name
@@ -192,8 +205,10 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException i fthe user is not allowed to list the keys
 	 */
-	List<AdvanceKeyEntry> queryKeys(String keyStore) throws IOException, AdvanceControlException;
+	@NonNull
+	List<AdvanceKeyEntry> queryKeys(@NonNull String keyStore) throws IOException, AdvanceControlException;
 	/** @return the datastore interface. */
+	@NonNull
 	AdvanceDataStore datastore();
 	/**
 	 * Stop a realm's execution.
@@ -202,7 +217,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to stop the realm or other problems arise
 	 */
-	void stopRealm(String name, String byUser) throws IOException, AdvanceControlException;
+	void stopRealm(@NonNull String name, @NonNull String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Start a realm's execution.
 	 * @param name the realm's name
@@ -210,7 +225,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to start the realm or other problems arise
 	 */
-	void startRealm(String name, String byUser) throws IOException, AdvanceControlException;
+	void startRealm(@NonNull String name, @NonNull String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the current flow, if any, from the given realm.
 	 * @param realm the target realm
@@ -218,7 +233,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to query the flow
 	 */
-	AdvanceCompositeBlock queryFlow(String realm) throws IOException, AdvanceControlException;
+	@Nullable 
+	AdvanceCompositeBlock queryFlow(@NonNull String realm) throws IOException, AdvanceControlException;
 	/**
 	 * Update a flow in a the given realm.
 	 * @param realm the target realm
@@ -227,7 +243,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to update a flow
 	 */
-	void updateFlow(String realm, AdvanceCompositeBlock flow, String byUser) throws IOException, AdvanceControlException;
+	void updateFlow(@NonNull String realm, @NonNull AdvanceCompositeBlock flow, @NonNull String byUser) throws IOException, AdvanceControlException;
 	/**
 	 * Verify the given flow.
 	 * @param flow the flow to verify
@@ -235,7 +251,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to update a flow
 	 */
-	AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow) throws IOException, AdvanceControlException;
+	@NonNull 
+	AdvanceCompilationResult verifyFlow(@NonNull AdvanceCompositeBlock flow) throws IOException, AdvanceControlException;
 	/**
 	 * Ask for the observable sequence of block diagnostic messages for the given block within the given realm.
 	 * @param realm the realm
@@ -244,7 +261,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the block is missing
 	 */
-	Observable<AdvanceBlockDiagnostic> debugBlock(String realm, String blockId) throws IOException, AdvanceControlException;
+	@NonNull 
+	Observable<AdvanceBlockDiagnostic> debugBlock(@NonNull String realm, @NonNull String blockId) throws IOException, AdvanceControlException;
 	/**
 	 * Ask for the observable sequence of port messages of the given port/block/realm.
 	 * @param realm the realm
@@ -254,7 +272,8 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the referenced parameter is missing
 	 */
-	Observable<AdvanceParameterDiagnostic> debugParameter(String realm, String blockId, String port) throws IOException, AdvanceControlException;
+	@NonNull 
+	Observable<AdvanceParameterDiagnostic> debugParameter(@NonNull String realm, @NonNull String blockId, @NonNull String port) throws IOException, AdvanceControlException;
 	/**
 	 * Inject a value into the given  realm/block/input port.
 	 * @param realm the realm
@@ -264,7 +283,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to debug a realm or the referenced object is missing
 	 */
-	void injectValue(String realm, String blockId, String port, XElement value) throws IOException, AdvanceControlException;
+	void injectValue(@NonNull String realm, @NonNull String blockId, @NonNull String port, @NonNull XElement value) throws IOException, AdvanceControlException;
 	/** 
 	 * Shut down the flow engine.
 	 * @throws IOException if a network error occurs
@@ -280,5 +299,6 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to read a flow
 	 */
-	AdvanceCompilationResult queryCompilationResult(String realm) throws IOException, AdvanceControlException;
+	@Nullable 
+	AdvanceCompilationResult queryCompilationResult(@NonNull String realm) throws IOException, AdvanceControlException;
 }

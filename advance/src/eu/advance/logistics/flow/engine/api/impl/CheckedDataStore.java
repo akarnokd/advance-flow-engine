@@ -35,6 +35,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
@@ -481,5 +482,29 @@ public class CheckedDataStore implements AdvanceDataStore {
 			AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.WRITE);
 		datastore.updateFlow(realm, flow);
+	}
+	@Override
+	public void deleteEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		check(AdvanceUserRights.DELETE_EMAIL);
+		datastore.deleteEmailBox(name);
+	}
+	@Override
+	public AdvanceEmailBox queryEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		check(AdvanceUserRights.LIST_EMAIL);
+		return clearPassword(datastore.queryEmailBox(name));
+	}
+	@Override
+	public List<AdvanceEmailBox> queryEmailBoxes() throws IOException,
+			AdvanceControlException {
+		check(AdvanceUserRights.LIST_EMAIL);
+		return clearPassword(datastore.queryEmailBoxes());
+	}
+	@Override
+	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
+			AdvanceControlException {
+		check(AdvanceUserRights.CREATE_EMAIL, AdvanceUserRights.UPDATE_EMAIL);
+		datastore.updateEmailBox(box);
 	}
 }

@@ -42,7 +42,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceWebDataSource> {
 	/** The URL. */
 	public URL url;
 	/** The login type enumeration. */
-	public AdvanceWebLoginType loginType;
+	public AdvanceLoginType loginType;
 	/** The keystore name if the loginType is CERTIFICATE. */
 	public String keyStore;
 	/** The user or key alias name. */
@@ -71,7 +71,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceWebDataSource> {
 		} catch (MalformedURLException ex) {
 			LoggerFactory.getLogger(AdvanceWebDataSource.class).error(ex.toString(), ex);
 		}
-		loginType = AdvanceWebLoginType.valueOf(source.get("login-type"));
+		loginType = AdvanceLoginType.valueOf(source.get("login-type"));
 		keyStore = source.get("keystore");
 		userOrKeyAlias = source.get("user-or-key");
 		password = getPassword(source, "password");

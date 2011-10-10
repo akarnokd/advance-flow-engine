@@ -31,7 +31,6 @@ import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
@@ -61,7 +60,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.comm.FTPPoolManager;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.comm.JMSPoolManager;
@@ -363,29 +361,6 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			if (!dsFile.renameTo(dsFileBackup1)) {
 				LOG.warn("Could not rename file " + dsFile + " into " + dsFileBackup1);
 			}
-		}
-	}
-	/**
-	 * Initialize the datastore with the first admin record.
-	 */
-	public void initialize() {
-		AdvanceUser u = new AdvanceUser();
-		u.name = "admin";
-		u.password("admin".toCharArray());
-		u.thousandSeparator = ',';
-		u.decimalSeparator = '.';
-		u.dateFormat = "yyyy-MM-dd";
-		u.dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-		u.numberFormat = "#,###";
-		u.enabled = true;
-		u.passwordLogin = true;
-		u.rights.addAll(Arrays.asList(AdvanceUserRights.values()));
-		try {
-			datastore.updateUser(u);
-		} catch (IOException ex) {
-			LOG.error(ex.toString(), ex);
-		} catch (AdvanceControlException ex) {
-			LOG.error(ex.toString(), ex);
 		}
 	}
 	@Override

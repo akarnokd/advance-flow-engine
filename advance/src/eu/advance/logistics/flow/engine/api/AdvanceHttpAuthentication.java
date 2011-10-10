@@ -33,7 +33,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 public class AdvanceHttpAuthentication {
 	/** The login type. */
 	@NonNull
-	public AdvanceWebLoginType loginType;
+	public AdvanceLoginType loginType;
 	/** The certificate store to verify the HTTPS server. */
 	@Nullable
 	public KeyStore certStore;

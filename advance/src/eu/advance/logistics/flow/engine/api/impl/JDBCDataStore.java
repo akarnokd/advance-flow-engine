@@ -28,6 +28,7 @@ import java.util.Set;
 
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
@@ -365,6 +366,30 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 	@Override
 	public void updateFlow(String realm, XElement flow) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void deleteEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public AdvanceEmailBox queryEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<AdvanceEmailBox> queryEmailBoxes() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		

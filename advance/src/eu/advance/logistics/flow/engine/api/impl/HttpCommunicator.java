@@ -51,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
-import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
@@ -79,7 +79,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 	 */
 	public HttpURLConnection prepare() throws IOException {
 		boolean isHttps = "https".equals(url.getProtocol());
-		if (authentication.loginType == AdvanceWebLoginType.CERTIFICATE && !isHttps) {
+		if (authentication.loginType == AdvanceLoginType.CERTIFICATE && !isHttps) {
 			throw new IllegalStateException("Certificate login works only with HTTPS endpoint!");
 		}
 		try {
@@ -91,12 +91,12 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 				tmf.init(authentication.certStore);
 				
 				HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
-				if (authentication.loginType == AdvanceWebLoginType.BASIC) {
+				if (authentication.loginType == AdvanceLoginType.BASIC) {
 					StringBuilder userPass = new StringBuilder();
 					userPass.append(authentication.name).append(":").append(authentication.password);
 					conn.setRequestProperty("Authorization", "Basic " + Base64.encodeBytes(userPass.toString().getBytes("UTF-8")));
 				} else
-				if (authentication.loginType == AdvanceWebLoginType.CERTIFICATE) {
+				if (authentication.loginType == AdvanceLoginType.CERTIFICATE) {
 					KeyStore ks = KeystoreManager.singleKey(authentication.authStore, authentication.name, authentication.password);
 					kmf = KeyManagerFactory.getInstance("SunX509");
 					kmf.init(ks, authentication.password);
@@ -112,7 +112,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 				c = conn;
 			} else {
 				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-				if (authentication.loginType == AdvanceWebLoginType.BASIC) {
+				if (authentication.loginType == AdvanceLoginType.BASIC) {
 					StringBuilder userPass = new StringBuilder();
 					userPass.append(authentication.name).append(":").append(authentication.password);
 					conn.setRequestProperty("Authorization", "Basic " + Base64.encodeBytes(userPass.toString().getBytes("UTF-8")));

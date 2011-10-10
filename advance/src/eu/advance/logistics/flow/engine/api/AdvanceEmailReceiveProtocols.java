@@ -22,14 +22,18 @@
 package eu.advance.logistics.flow.engine.api;
 
 /**
- * The web based login types enumeration.
- * @author karnokd, 2011.09.20.
+ * The enumeration of email box protocols.
+ * @author karnokd, 2011.10.10.
  */
-public enum AdvanceWebLoginType {
-	/** No login required. */
+public enum AdvanceEmailReceiveProtocols {
+	/** The box will not receive emails. */
 	NONE,
-	/** Basic username/password scheme. */
-	BASIC,
-	/** Client certificate. */
-	CERTIFICATE
+	/** Post Office Protocol v3. */
+	POP3,
+	/** Post Office Protocol v3 over SSL. */ 
+	POP3S,
+	/** IMAP. */
+	IMAP,
+	/** IMAP over SSL. */
+	IMAPS
 }

@@ -43,6 +43,7 @@ import com.google.common.collect.Sets;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPProtocols;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
@@ -59,7 +60,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceWebLoginType;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -259,7 +260,7 @@ public class DummyDataStore implements AdvanceDataStore {
 		} catch (MalformedURLException ex) {
 			LOG.error(ex.toString(), ex);
 		}
-		r.loginType = AdvanceWebLoginType.NONE;
+		r.loginType = AdvanceLoginType.NONE;
 		setCreator(r);
 		return r;
 	}
@@ -477,5 +478,29 @@ public class DummyDataStore implements AdvanceDataStore {
 	public void updateFlow(String realm, XElement flow) throws IOException,
 			AdvanceControlException {
 		// NO operation
+	}
+	@Override
+	public void deleteEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public AdvanceEmailBox queryEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<AdvanceEmailBox> queryEmailBoxes() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
 	}
 }
