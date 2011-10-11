@@ -30,7 +30,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceJMSEndpoint> {
+implements XSerializable, HasPassword, Copyable<AdvanceJMSEndpoint>, Identifiable<String> {
 	/** The name used by blocks to reference this endpoint. */
 	public String name;
 	/** The JMS driver. */
@@ -111,5 +111,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceJMSEndpoint> {
 	@Override
 	public void password(char[] newPassword) {
 		password = newPassword != null ? newPassword.clone() : null;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

@@ -30,7 +30,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
+implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifiable<String> {
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The protocol enumeration. */
@@ -110,5 +110,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource> {
 	@Override
 	public void password(char[] newPassword) {
 		password = newPassword != null ? newPassword.clone() : null;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

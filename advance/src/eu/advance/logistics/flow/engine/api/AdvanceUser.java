@@ -37,7 +37,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.19.
  */
 public class AdvanceUser extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceUser> {
+implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<String> {
 	/** Is the user enabled? */
 	public boolean enabled;
 	/** The user's name. */
@@ -183,5 +183,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceUser> {
 	@Override
 	public void password(char[] newPassword) {
 		password = newPassword != null ? newPassword.clone() : null;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

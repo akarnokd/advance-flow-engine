@@ -38,7 +38,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel> {
+implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiable<String> {
 	/** The name used to reference this channel from blocks. */
 	public String name;
 	/** The endpoint URL. */
@@ -124,5 +124,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel> {
 	@Override
 	public void password(char[] newPassword) {
 		password = newPassword != null ? newPassword.clone() : null;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

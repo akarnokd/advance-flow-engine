@@ -72,7 +72,7 @@ public interface AdvanceDataStore {
 	void deleteRealm(@NonNull String realm) throws IOException, AdvanceControlException;
 	/**
 	 * Update the properties of the given realm.
-	 * @param realm the original realm name
+	 * @param realm the realm record
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to rename the realm
 	 */

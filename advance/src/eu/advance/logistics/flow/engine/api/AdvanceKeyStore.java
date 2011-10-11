@@ -30,7 +30,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceKeyStore extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceKeyStore> {
+implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<String> {
 	/** The key store name. */
 	public String name;
 	/** The key store location on disk. */
@@ -84,5 +84,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore> {
 	@Override
 	public void password(char[] newPassword) {
 		password = newPassword != null ? newPassword.clone() : null;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

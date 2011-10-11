@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.10.10.
  */
 public class AdvanceEmailBox extends AdvanceCreateModifyInfo implements 
-XSerializable, HasPassword, Copyable<AdvanceEmailBox> {
+XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 	/** The identifier for referencing this box. */
 	public String name;
 	/** The receive protocol. */
@@ -111,5 +111,9 @@ XSerializable, HasPassword, Copyable<AdvanceEmailBox> {
 		result.password = password();
 		
 		return result;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }
