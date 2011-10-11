@@ -27,6 +27,7 @@ import hu.akarnokd.reactive4java.reactive.Observer;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -38,9 +39,9 @@ import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
@@ -65,7 +66,8 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 * @param remote the remote datastore URL
 	 * @param auth the authentication record
 	 */
-	public HttpRemoteEngineControl(@NonNull URL remote, @NonNull AdvanceHttpAuthentication auth) {
+	public HttpRemoteEngineControl(@NonNull URL remote, 
+			@NonNull AdvanceHttpAuthentication auth) {
 		init(remote, auth);
 		datastore = new HttpRemoteDataStore(comm);
 	}
@@ -76,11 +78,36 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 * @param username the username
 	 * @param password the password
 	 */
-	public HttpRemoteEngineControl(@NonNull URL remote, @NonNull String username, @NonNull char[] password) {
+	public HttpRemoteEngineControl(@NonNull URL remote, 
+			@NonNull String username, @NonNull char[] password) {
 		AdvanceHttpAuthentication auth = new AdvanceHttpAuthentication();
 		auth.loginType = AdvanceLoginType.BASIC;
 		auth.name = username;
 		auth.password = password;
+		
+		init(remote, auth);
+		datastore = new HttpRemoteDataStore(comm);
+	}
+	/**
+	 * Convenience method to initialize the engine control with the given remote address
+	 * and BASIC authentication mode.
+	 * @param remote the remote address
+	 * @param username the username
+	 * @param password the password
+	 * @param trustedCertStore the certificate store to verify the server's public key.
+	 */
+	public HttpRemoteEngineControl(@NonNull URL remote, 
+			@NonNull String username, 
+			@NonNull char[] password,
+			@NonNull KeyStore trustedCertStore) {
+		if (!remote.getProtocol().equals("https") && trustedCertStore != null) {
+			throw new IllegalArgumentException("Use HTTPS remote address!");
+		}
+		AdvanceHttpAuthentication auth = new AdvanceHttpAuthentication();
+		auth.loginType = AdvanceLoginType.BASIC;
+		auth.name = username;
+		auth.password = password;
+		auth.certStore = trustedCertStore;
 		
 		init(remote, auth);
 		datastore = new HttpRemoteDataStore(comm);
