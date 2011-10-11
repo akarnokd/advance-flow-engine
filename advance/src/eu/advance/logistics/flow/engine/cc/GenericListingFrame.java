@@ -27,18 +27,18 @@ import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Pair;
 
 import java.awt.Container;
-import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URI;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -52,8 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * A generic listing frame containing engine information, a
@@ -75,16 +73,14 @@ public class GenericListingFrame<T> extends JFrame {
 	 * Action to retrieve a list of elements in respect to the supplied filter.
 	 */
 	protected Action1<? super String> retrieve;
+	/** Display the given item. */
+	protected Action1<? super T> displayItem;
 	/** The column count. */
 	protected int columnCount;
 	/** The rows. */
 	protected List<T> rows;
 	/** The table. */
 	protected JTable table;
-	/** The engine url. */
-	protected JLabel engineURL;
-	/** The engine version. */
-	protected JLabel engineVersion;
 	/** The label manager. */
 	protected final LabelManager labels;
 	/** The refersh button. */
@@ -129,24 +125,20 @@ public class GenericListingFrame<T> extends JFrame {
 	protected JButton[] extra;
 	/** The filter. */
 	protected JTextField filter;
-	/** The help button. */
-	protected JButton help;
 	/** Close this window. */
 	protected JButton close;
 	/** The top separator. */
 	protected JSeparator topSeparator;
-	/** The bottom separator. */
-	protected JSeparator bottomSeparator;
-	/** Engine URL label. */
-	protected JLabel engineLabel;
-	/** Version label. */
-	protected JLabel versionLabel;
 	/** The filter label. */
 	protected JLabel filterLabel;
 	/** The listing date. */
 	protected JLabel listDate;
 	/** The record count label. */
 	private JLabel countLabel;
+	/** The engine info panel. */
+	public final EngineInfoPanel engineInfo;
+	/** The help panel. */
+	public final HelpPanel help;
 	/**
 	 * Initialize the contents.
 	 * @param labels the label manager
@@ -158,6 +150,25 @@ public class GenericListingFrame<T> extends JFrame {
 		table.setAutoCreateRowSorter(true);
 		JScrollPane tableScroll = new JScrollPane(table);
 		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() > 1) {
+					doDisplaySelectedItem();
+				}
+			}
+
+		});
+		table.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					doDisplaySelectedItem();
+					e.consume();
+				}
+			}
+		});
+		
 		Container c = getContentPane();
 		
 		GroupLayout gl = new GroupLayout(c);
@@ -166,13 +177,10 @@ public class GenericListingFrame<T> extends JFrame {
 		gl.setAutoCreateContainerGaps(true);
 		gl.setAutoCreateGaps(true);
 		
-		engineLabel = new JLabel(labels.get("Engine:"));
-		versionLabel = new JLabel(labels.get("Version:"));
 		filterLabel = new JLabel(labels.get("Filter:"));
 		countLabel = new JLabel();
 		
 		topSeparator = new JSeparator(JSeparator.HORIZONTAL);
-		bottomSeparator = new JSeparator(JSeparator.HORIZONTAL);
 		
 		extra1 = new JButton();
 		extra1.setVisible(false);
@@ -190,8 +198,6 @@ public class GenericListingFrame<T> extends JFrame {
 				refresh();
 			}
 		});
-		engineURL = new JLabel();
-		engineVersion = new JLabel();
 		refresh = new JButton(labels.get("Refresh"));
 		refresh.addActionListener(new ActionListener() {
 			@Override
@@ -199,8 +205,6 @@ public class GenericListingFrame<T> extends JFrame {
 				refresh();
 			}
 		});
-		help = new JButton(new ImageIcon(getClass().getResource("help.png")));
-		Dimension r = help.getPreferredSize();
 		
 		close = new JButton("Close");
 		close.addActionListener(new ActionListener() {
@@ -212,16 +216,12 @@ public class GenericListingFrame<T> extends JFrame {
 		
 		listDate = new JLabel();
 		
+		engineInfo = new EngineInfoPanel(labels);
+		help = new HelpPanel();
+		
 		gl.setHorizontalGroup(
 			gl.createParallelGroup(Alignment.CENTER)
-			.addGroup(
-				gl.createSequentialGroup()
-				.addComponent(engineLabel)
-				.addComponent(engineURL)
-				.addGap(50)
-				.addComponent(versionLabel)
-				.addComponent(engineVersion)
-			)
+			.addComponent(engineInfo)
 			.addComponent(topSeparator)
 			.addGroup(
 				gl.createSequentialGroup()
@@ -235,11 +235,7 @@ public class GenericListingFrame<T> extends JFrame {
 				.addGap(30)
 				.addComponent(listDate)
 			)
-			.addGroup(
-				gl.createSequentialGroup()
-				.addComponent(help, r.height, r.height, r.height)
-				.addComponent(bottomSeparator, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-			)
+			.addComponent(help)
 			.addGroup(
 				gl.createSequentialGroup()
 				.addComponent(refresh)
@@ -253,13 +249,7 @@ public class GenericListingFrame<T> extends JFrame {
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
-			.addGroup(
-				gl.createParallelGroup(Alignment.BASELINE)
-				.addComponent(engineLabel)
-				.addComponent(engineURL)
-				.addComponent(versionLabel)
-				.addComponent(engineVersion)
-			)
+			.addComponent(engineInfo)
 			.addComponent(topSeparator)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
@@ -272,11 +262,7 @@ public class GenericListingFrame<T> extends JFrame {
 				.addComponent(countLabel)
 				.addComponent(listDate)
 			)
-			.addGroup(
-				gl.createParallelGroup(Alignment.CENTER)
-				.addComponent(help, r.height, r.height, r.height)
-				.addComponent(bottomSeparator, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-			)
+			.addComponent(help)
 			.addGroup(
 				gl.createParallelGroup(Alignment.CENTER)
 				.addComponent(refresh)
@@ -288,6 +274,18 @@ public class GenericListingFrame<T> extends JFrame {
 		);
 		
 		pack();
+	}
+	/**
+	 * Display the selected item.
+	 */
+	void doDisplaySelectedItem() {
+		int idx = table.getSelectedRow();
+		if (idx >= 0) {
+			idx = table.convertRowIndexToModel(idx);
+			if (displayItem != null) {
+				displayItem.invoke(rows.get(idx));
+			}
+		}
 	}
 	/**
 	 * Retrieve the rows and update the view.
@@ -340,24 +338,21 @@ public class GenericListingFrame<T> extends JFrame {
 	 * @param url the URL
 	 */
 	public void setEngineURL(String url) {
-		engineURL.setText(url);
+		engineInfo.setEngineURL(url);
 	}
 	/**
 	 * Set the engine version text.
 	 * @param version the version text
 	 */
 	public void setEngineVersion(String version) {
-		engineVersion.setText(version);
+		engineInfo.setEngineVersion(version);
 	}
 	/**
 	 * Show engine info labels?
 	 * @param visible visible?
 	 */
 	public void showEngineInfo(boolean visible) {
-		engineLabel.setVisible(visible);
-		engineURL.setVisible(visible);
-		versionLabel.setVisible(visible);
-		engineVersion.setVisible(visible);
+		engineInfo.setVisible(visible);
 		topSeparator.setVisible(visible);
 	}
 	/**
@@ -389,23 +384,43 @@ public class GenericListingFrame<T> extends JFrame {
 		extra[index].addActionListener(action);
 		extra[index].setVisible(true);
 	}
+	/** @return the list of selected items. */
+	public List<T> getSelectedItems() {
+		List<T> result = Lists.newArrayList();
+		int[] indices = table.getSelectedRows();
+		for (int idx : indices) {
+			int j = table.convertRowIndexToModel(idx);
+			result.add(rows.get(j));
+		}
+		return result;
+	}
 	/**
-	 * Set the help uri to browse when clicking on the help button.
-	 * @param helpURI the URI
+	 * Remove the specific items from the rows.
+	 * @param toRemove the items to remove
 	 */
-	public void setHelpURI(@NonNull final URI helpURI) {
-		help.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (Desktop.isDesktopSupported()) {
-					Desktop d = Desktop.getDesktop();
-					try {
-						d.browse(helpURI);
-					} catch (IOException ex) {
-						LOG.error(ex.toString(), ex);
-					}
-				}
-			}
-		});
+	public void removeItems(Collection<T> toRemove) {
+		rows.removeAll(toRemove);
+		model.fireTableDataChanged();
+	}
+	/**
+	 * Set the action to display the selected item.
+	 * @param displayItem the action
+	 */
+	public void setDisplayItem(Action1<? super T> displayItem) {
+		this.displayItem = displayItem;
+	}
+	/**
+	 * Return the displayed row objects according to the sorting and filtering.
+	 * @return the list of items
+	 */
+	public List<T> getRows() {
+		List<T> result = Lists.newArrayList();
+		
+		for (int i = 0; i < table.getRowCount(); i++) {
+			int idx = table.convertRowIndexToModel(i);
+			result.add(rows.get(idx));
+		}
+		
+		return result;
 	}
 }

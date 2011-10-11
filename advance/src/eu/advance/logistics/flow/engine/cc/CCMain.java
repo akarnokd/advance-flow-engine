@@ -81,15 +81,15 @@ import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
+import eu.advance.logistics.flow.engine.api.Identifiable;
 
 /**
  * The main window of the engine control center.
  * @author karnokd, 2011.10.07.
  */
-public class ControlCenterMain extends JFrame implements LabelManager {
+public class CCMain extends JFrame implements LabelManager {
 	/** The logger. */
-	protected static final Logger LOG = LoggerFactory.getLogger(ControlCenterMain.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(CCMain.class);
 	/** */
 	private static final long serialVersionUID = 4606185730689523838L;
 	/** The engine control. */
@@ -110,6 +110,8 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 	private JLabel verLabel;
 	/** The connected user. */
 	private JLabel userLabel;
+	/** We opened a local engine. */
+	protected boolean localEngine;
 	/**
 	 * Returns a label for the given key.
 	 * @param key the key
@@ -229,15 +231,22 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 	 * Exit the application.
 	 */
 	void doExit() {
-		disconnectEngine();
-		saveConfig();
-		dispose();
+		try {
+			disconnectEngine();
+		} finally {
+			try {
+				saveConfig();
+			} finally {
+				dispose();
+			}
+		}
+		
 	}
 	/**
 	 * Disconnect from the current engine.
 	 */
 	void disconnectEngine() {
-		if (engine != null && engine instanceof LocalEngineControl) {
+		if (engine != null && localEngine) {
 			try {
 				engine.shutdown();
 			} catch (AdvanceControlException ex) {
@@ -254,7 +263,7 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 	/**
 	 * Constructor. Initializes the main window.
 	 */
-	public ControlCenterMain() {
+	public CCMain() {
 		super();
 		setTitle(format("ADVANCE Flow Engine Control Center v%s", AdvanceFlowEngine.VERSION));
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -279,7 +288,7 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				ControlCenterMain f = new ControlCenterMain();
+				CCMain f = new CCMain();
 				f.setVisible(true);
 			}
 		});
@@ -469,22 +478,15 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 		return m;
 	}
 	/**
-	 * Display an error dialog with the message.
-	 * @param text the message
-	 */
-	void errorMessage(String text) {
-		JOptionPane.showMessageDialog(this, text, get("Error"), JOptionPane.ERROR_MESSAGE);
-	}
-	/**
 	 * Perform actions after opening a connection to an engine.
 	 */
 	void doAfterOpen() {
 		try {
 			version = engine.queryVersion();
 		} catch (IOException ex) {
-			errorMessage(ex.toString());
+			GUIUtils.errorMessage(ex);
 		} catch (AdvanceControlException ex) {
-			errorMessage(ex.toString());
+			GUIUtils.errorMessage(ex);
 		}
 	}
 	/**
@@ -620,7 +622,7 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 				frame.setRows(list);
 				frame.autoSizeTable();
 			} else {
-				errorMessage(error.toString());
+				GUIUtils.errorMessage(error);
 			}
 		}
 	}
@@ -632,12 +634,19 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 	void displayFrame(final GenericListingFrame<?> f, String title) {
 		f.setTitle(get(title));
 		f.fireTableStructureChanged();
-		f.setEngineURL(engineURL.toString());
-		f.setEngineVersion(version.toString());
+		setEngineInfo(f.engineInfo);
 		f.pack();
 		f.setLocationRelativeTo(this);
 		f.setVisible(true);
 		f.refresh();
+	}
+	/**
+	 * Set the engine information.
+	 * @param panel the panel
+	 */
+	void setEngineInfo(EngineInfoPanel panel) {
+		panel.setEngineURL(engineURL.toString());
+		panel.setEngineVersion(version.toString());
 	}
 	/**
 	 * The string representation of a create info.
@@ -886,6 +895,60 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
+		f.setExtraButton(0, "Create...", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CCDetailDialog<?> d = createWebDialog(CCMain.this, f.getRows(), null);
+				setEngineInfo(d.engineInfo);
+				d.pack();
+				d.setLocationRelativeTo(f);
+				d.setVisible(true);
+			}
+		});
+		f.setDisplayItem(new Action1<AdvanceWebDataSource>() {
+			@Override
+			public void invoke(AdvanceWebDataSource value) {
+				CCDetailDialog<?> d = createWebDialog(CCMain.this, f.getRows(), value);
+				setEngineInfo(d.engineInfo);
+				d.pack();
+				d.setLocationRelativeTo(f);
+				d.setVisible(true);
+			}
+		});
+		f.setExtraButton(1, "Delete", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(f, get("Are you sure?"), 
+						get("Delete"), JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
+					final List<AdvanceWebDataSource> sel = f.getSelectedItems();
+					GUIUtils.getWorker(new WorkItem() {
+						/** The exception. */
+						protected Throwable t;
+						@Override
+						public void done() {
+							if (t != null) {
+								GUIUtils.errorMessage(t);
+								f.refresh();
+							} else {
+								f.removeItems(sel);
+							}
+						}
+						@Override
+						public void run() {
+							try {
+								for (AdvanceWebDataSource e : sel) {
+									engine.datastore().deleteWebDataSource(e.name);
+								}
+							} catch (Throwable t) {
+								this.t = t;
+								LOG.error(t.toString(), t);
+							}
+						}
+					}).execute();
+				}
+				
+			}
+		});
 		displayFrame(f, "Manage Web data sources");
 	}
 	/**
@@ -1100,11 +1163,11 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 			try {
 				version = engine.queryVersion();
 				user = engine.getUser();
-				
+				localEngine = true;
 				enableDisableMenus();
 			} catch (Exception ex) {
 				LOG.error(ex.toString(), ex);
-				errorMessage(ex.toString());
+				GUIUtils.errorMessage(ex);
 			}
 
 			urlLabel.setText(engineURL.toString());
@@ -1129,5 +1192,164 @@ public class ControlCenterMain extends JFrame implements LabelManager {
 				mi.setEnabled(false);
 			}
 		}
+	}
+	/**
+	 * Construct a web dialog.
+	 * @param labels the label manager
+	 * @param list the available list
+	 * @param selected the selected item or null to indicate a new item should be created
+	 * @return the dialog created
+	 */
+	CCDetailDialog<AdvanceWebDataSource> createWebDialog(LabelManager labels, 
+			final List<AdvanceWebDataSource> list, final AdvanceWebDataSource selected) {
+		final CCWebDetails wd = new CCWebDetails(labels);
+		final CCDetailDialog<AdvanceWebDataSource> dialog = new CCDetailDialog<AdvanceWebDataSource>(labels, wd);
+		dialog.setTitle(labels.get("Web Data Source Details"));
+		dialog.pager.setItemName(new Func1<AdvanceWebDataSource, String>() {
+			@Override
+			public String invoke(AdvanceWebDataSource param1) {
+				return param1.name + " [" + param1.url + "]";
+			}
+		});
+		dialog.pager.setItems(list);
+		
+		final Action0 retrieveAction = new Action0() {
+			@Override
+			public void invoke() {
+				final String name = dialog.pager.getSelectedItem().name; 
+				dialog.pager.setEnabled(false);
+				GUIUtils.getWorker(new WorkItem() {
+					/** The error. */
+					Throwable t;
+					/** The data. */
+					AdvanceWebDataSource e;
+					@Override
+					public void run() {
+						try {
+							e = engine.datastore().queryWebDataSource(name);
+						} catch (Throwable t) {
+							this.t = t;
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else {
+							wd.load(e);
+							dialog.createModify.set(e);
+							dialog.pack();
+						}
+						dialog.pager.setEnabled(true);
+					}
+				}).execute();
+			}
+		};
+		
+		dialog.pager.setSelect(new Action1<AdvanceWebDataSource>() {
+			@Override
+			public void invoke(AdvanceWebDataSource value) {
+				retrieveAction.invoke();
+			}
+		});
+		dialog.buttons.showRefresh(selected != null);
+		dialog.showPager(selected != null);
+		if (selected == null) {
+			dialog.showCreateModify(false);
+		} else {
+			dialog.pager.setSelectedItem(selected);
+			wd.name.setEnabled(false);
+		}
+		dialog.buttons.setClose(new Action0() {
+			@Override
+			public void invoke() {
+				dialog.dispose();
+			}
+		});
+		dialog.buttons.setRefresh(new Action0() {
+			@Override
+			public void invoke() {
+				retrieveAction.invoke();
+			}
+		});
+		
+		dialog.buttons.setSave(createWebSaver(wd, dialog, false));
+		dialog.buttons.setSaveAndClose(createWebSaver(wd, dialog, true));
+		
+		return dialog;
+	}
+	/**
+	 * Create a web saver action.
+	 * @param wd the details panel.
+	 * @param dialog the dialog
+	 * @param close close dialog
+	 * @return the action
+	 */
+	Action0 createWebSaver(final CCWebDetails wd, 
+			final CCDetailDialog<AdvanceWebDataSource> dialog, 
+			final boolean close) {
+		return new Action0() {
+			@Override
+			public void invoke() {
+				final AdvanceWebDataSource e = wd.save();
+				if (e == null) {
+					return;
+				}
+				
+				GUIUtils.getWorker(new WorkItem() {
+					/** The exception. */
+					protected Throwable t;
+					@Override
+					public void run() {
+						try {
+							engine.datastore().updateWebDataSource(e);
+						} catch (Throwable t) {
+							LOG.error(t.toString(), t);
+							this.t = t;
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else {
+							if (close) {
+								dialog.dispose();
+							} else {
+								wd.name.setEditable(false);
+								dialog.showCreateModify(true);
+								dialog.showPager(true);
+								dialog.buttons.showRefresh(true);
+								dialog.pack();
+								updatePager(dialog.pager, e);
+							}
+						}
+					}
+				}).execute();
+			}
+		};
+	}
+	/**
+	 * Update a pager by adding the given item if not exists then selecting
+	 * that item.
+	 * @param <K> the item identifier type
+	 * @param <T> the element type
+	 * @param pager the pager
+	 * @param item the item to select
+	 */
+	<K, T extends Identifiable<K>> void updatePager(Pager<T> pager, T item) {
+		List<T> list = pager.getItems();
+		boolean found = false;
+		for (T s : list) {
+			if (s.id().equals(item.id())) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			list.add(item);
+		}
+		pager.setItems(list);
+		pager.setSelectedItem(item);
 	}
 }
