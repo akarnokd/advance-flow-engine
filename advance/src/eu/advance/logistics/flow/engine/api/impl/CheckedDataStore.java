@@ -149,7 +149,8 @@ public class CheckedDataStore implements AdvanceDataStore {
 	 * @return the {@code obj} itself
 	 */
 	protected <T extends AdvanceCreateModifyInfo & Copyable<T>> T changeModifiedBy(T obj) {
-		obj.copy().modifiedBy = userName;
+		obj = obj.copy();
+		obj.modifiedBy = userName;
 		return obj;
 	}
 	/**

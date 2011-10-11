@@ -36,7 +36,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceWebDataSource extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceWebDataSource> {
+implements XSerializable, HasPassword, Copyable<AdvanceWebDataSource>, Identifiable<String> {
 	/** The data source name as used by the blocks. */
 	public String name;
 	/** The URL. */
@@ -113,5 +113,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceWebDataSource> {
 	@Override
 	public void password(char[] newPassword) {
 		password = newPassword != null ? newPassword.clone() : null;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

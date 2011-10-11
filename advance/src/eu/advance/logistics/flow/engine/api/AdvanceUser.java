@@ -115,6 +115,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceUser> {
 	}
 	@Override
 	public void save(XElement destination) {
+		destination.set("name", name);
 		destination.set("enabled", enabled);
 		destination.set("email", email);
 		destination.set("pager", pager);

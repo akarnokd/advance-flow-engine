@@ -22,14 +22,19 @@
 package eu.advance.logistics.flow.engine.cc;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JRadioButtonMenuItem;
@@ -43,11 +48,16 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * GUI utility classes.
  * @author karnokd, 2011.10.07.
  */
 public final class GUIUtils {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(GUIUtils.class);
 	/** The utilities. */
 	private GUIUtils() {
 		
@@ -252,5 +262,45 @@ public final class GUIUtils {
 				}
 			}
 		};
+	}
+	/**
+	 * Create an action listener which invokes the given parameterless method on the supplied object.
+	 * @param instance the instance to use
+	 * @param methodName the method name
+	 * @return the actionlistener
+	 */
+	public static ActionListener createFromMethod(final Object instance, final String methodName) {
+		try {
+			final Method m = instance.getClass().getDeclaredMethod(methodName);
+			return new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					try {
+						m.invoke(instance);
+					} catch (InvocationTargetException ex) {
+						LOG.error(ex.toString(), ex);
+					} catch (IllegalAccessException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+			};
+		} catch (NoSuchMethodException ex) {
+			LOG.error(ex.toString(), ex);
+			return null;
+		}
+	}
+	/**
+	 * Display an error dialog with the message.
+	 * @param text the message
+	 */
+	public static void errorMessage(String text) {
+		JOptionPane.showMessageDialog(null, text, "Error", JOptionPane.ERROR_MESSAGE);
+	}
+	/**
+	 * Display an error dialog with the exception.
+	 * @param t the exception
+	 */
+	public static void errorMessage(Throwable t) {
+		JOptionPane.showMessageDialog(null, t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 	}
 }

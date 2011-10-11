@@ -104,9 +104,9 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	 * @param other the other record
 	 */
 	public void assignTo(AdvanceCreateModifyInfo other) {
-		other.createdAt = new Date(createdAt.getTime());
+		other.createdAt = createdAt != null ? new Date(createdAt.getTime()) : null;
 		other.createdBy = createdBy;
-		other.modifiedAt = new Date(modifiedAt.getTime());
+		other.modifiedAt = modifiedAt != null ? new Date(modifiedAt.getTime()) : null;
 		other.modifiedBy = modifiedBy;
 	}
 }
