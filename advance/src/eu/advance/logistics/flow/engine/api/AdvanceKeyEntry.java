@@ -36,7 +36,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * Properties of a concrete key in a key store.
  * @author karnokd, 2011.09.20.
  */
-public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry> {
+public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry>, Identifiable<String> {
 	/** The key type. */
 	public AdvanceKeyType type;
 	/** The key name. */
@@ -73,5 +73,9 @@ public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry>
 		destination.set("type", type);
 		destination.set("name", name);
 		destination.set("created-at", XElement.formatDateTime(createdAt));
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

@@ -109,4 +109,10 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 		other.modifiedAt = modifiedAt != null ? new Date(modifiedAt.getTime()) : null;
 		other.modifiedBy = modifiedBy;
 	}
+	@Override
+	public String toString() {
+		XElement root = new XElement(getClass().getSimpleName());
+		save(root);
+		return root.toString();
+	}
 }

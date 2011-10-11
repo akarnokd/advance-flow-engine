@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.19.
  */
 public class AdvanceRealm extends AdvanceCreateModifyInfo 
-implements XSerializable, Copyable<AdvanceRealm> {
+implements XSerializable, Copyable<AdvanceRealm>, Identifiable<String> {
 	/** The realm status. */
 	public AdvanceRealmStatus status;
 	/** The name of the realm. */
@@ -66,5 +66,9 @@ implements XSerializable, Copyable<AdvanceRealm> {
 		assignTo(result);
 		
 		return result;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }

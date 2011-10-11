@@ -30,7 +30,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource> {
+implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource>, Identifiable<String> {
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The JDBC driver. */
@@ -103,5 +103,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource> {
 	@Override
 	public void password(char[] newPassword) {
 		password = newPassword != null ? newPassword.clone() : null;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }
