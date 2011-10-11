@@ -3,6 +3,16 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.02.103 Notes
+----------------------
+
+Added E-mail related datastore classes.
+
+Started on Flow Engine Control Center.
+
+Fixed a few minor model bugs.
+
+
 Version 0.01.097 Notes
 ----------------------
 
