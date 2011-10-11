@@ -86,9 +86,11 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 			HttpURLConnection c = null;
 			if (isHttps) {
 				KeyManagerFactory kmf = null;
-				
-				TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-				tmf.init(authentication.certStore);
+				TrustManagerFactory tmf = null;
+				if (authentication.certStore != null) {
+					tmf = TrustManagerFactory.getInstance("SunX509");
+					tmf.init(authentication.certStore);
+				}
 				
 				HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
 				if (authentication.loginType == AdvanceLoginType.BASIC) {
@@ -103,7 +105,8 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 				}
 				
 				SSLContext ctx = SSLContext.getInstance(baseProtocol);
-				ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+				ctx.init(kmf != null ? kmf.getKeyManagers() : null, 
+						tmf != null ? tmf.getTrustManagers() : null, null);
 				
 				conn.setSSLSocketFactory(ctx.getSocketFactory());
 				conn.setDoInput(true);
