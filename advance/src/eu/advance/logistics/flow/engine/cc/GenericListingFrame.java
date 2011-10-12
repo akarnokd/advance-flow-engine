@@ -27,12 +27,14 @@ import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Pair;
 
 import java.awt.Container;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -201,7 +203,8 @@ public class GenericListingFrame<T> extends JFrame {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispose();
+				WindowEvent we = new WindowEvent(GenericListingFrame.this, WindowEvent.WINDOW_CLOSING);
+				Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(we);
 			}
 		});
 		

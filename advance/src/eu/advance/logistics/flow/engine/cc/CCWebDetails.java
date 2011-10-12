@@ -173,7 +173,10 @@ public class CCWebDetails extends JPanel implements CCLoadSave<AdvanceWebDataSou
 	@Override
 	public void load(AdvanceWebDataSource e) {
 		setWebName(e.name);
+		name.setEditable(false);
 		setURL(e.url.toString());
+		login.setUserPassword(null);
+		login.setKeyPassword(null);
 		switch (e.loginType) {
 		case NONE:
 			login.none.setSelected(true);

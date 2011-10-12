@@ -175,11 +175,12 @@ public class CheckedDataStore implements AdvanceDataStore {
 	@Override
 	public List<AdvanceRealm> queryRealms() throws IOException,
 			AdvanceControlException {
-		check(AdvanceUserRights.LIST_REALMS);
+		check(AdvanceUserRights.LIST_REALMS, AdvanceUserRights.MODIFY_USER);
 		List<AdvanceRealm> result = Lists.newArrayList();
 		AdvanceUser user = datastore.queryUser(userName);
 		for (AdvanceRealm r : datastore.queryRealms()) {
-			if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.LIST)) {
+			if (user.rights.contains(AdvanceUserRights.MODIFY_USER)
+					|| user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.LIST)) {
 				result.add(r);
 			}
 		}

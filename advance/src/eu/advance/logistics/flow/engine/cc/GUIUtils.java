@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.cc;
 
+import hu.akarnokd.reactive4java.base.Pair;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,11 +31,16 @@ import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Properties;
 
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Group;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
@@ -50,6 +57,8 @@ import javax.swing.table.TableColumn;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * GUI utility classes.
@@ -302,5 +311,53 @@ public final class GUIUtils {
 	 */
 	public static void errorMessage(Throwable t) {
 		JOptionPane.showMessageDialog(null, t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+	}
+	/**
+	 * Create a fixed count column form and return the vertical and horizontal group.
+	 * @param gl the group layout
+	 * @param columns the number of columns
+	 * @param elements the elements of JComponents and Strings representing labels
+	 * @return the pair of horizontal and vertical group
+	 */
+	public static Pair<Group, Group> createForm(GroupLayout gl, int columns, Object... elements) {
+		Group hg = gl.createSequentialGroup();
+		Group vg = gl.createSequentialGroup();
+		List<Group> col = Lists.newArrayList();
+		List<Group> row = Lists.newArrayList();
+		for (int c = 0; c < columns; c++) {
+			Group g = gl.createParallelGroup();
+			col.add(g);
+			hg.addGroup(g);
+		}
+		for (int r = 0; r < elements.length; r++) {
+			if (r % columns == 0) {
+				Group g = gl.createParallelGroup();
+				row.add(g);
+				vg.addGroup(g);
+			}
+		}
+		int i = 0;
+		for (Object o : elements) {
+			int r = i / columns;
+			int c = i % columns;
+			JComponent comp = null;
+			if (o instanceof String) {
+				comp = new JLabel((String)o);
+			} else
+			if (o instanceof JComponent) {
+				comp = (JComponent)o;
+			} else {
+				throw new IllegalArgumentException("Object " + i + " has unsupported type " + (o != null ? o.getClass() : "NULL"));
+			}
+			col.get(c).addComponent(comp);
+			if (o instanceof JTextField || o instanceof JComboBox) {
+				row.get(r).addComponent(comp);
+			} else {
+				row.get(r).addComponent(comp, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE);
+			}
+			i++;
+		}
+		
+		return Pair.of(hg, vg);
 	}
 }
