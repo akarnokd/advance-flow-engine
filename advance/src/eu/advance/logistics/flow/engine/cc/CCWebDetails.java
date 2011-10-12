@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.cc;
 
+import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.interactive.Interactive;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -32,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 
@@ -39,7 +43,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
  * The panel consisting of the body of the web details dialog.
  * @author karnokd, 2011.10.11.
  */
-public class CCWebDetails extends JPanel {
+public class CCWebDetails extends JPanel implements CCLoadSave<AdvanceWebDataSource> {
 	/** */
 	private static final long serialVersionUID = -3261084268651747727L;
 	/** The login panel. */
@@ -122,6 +126,7 @@ public class CCWebDetails extends JPanel {
 	 * Save the panel values.
 	 * @return the object or null if an error occurred.
 	 */
+	@Override
 	public AdvanceWebDataSource save() {
 		final AdvanceWebDataSource e = new AdvanceWebDataSource();
 		e.name = getWebName();
@@ -134,19 +139,38 @@ public class CCWebDetails extends JPanel {
 		e.loginType = login.getLoginType();
 		if (e.loginType == AdvanceLoginType.BASIC) {
 			e.userOrKeyAlias = login.getUserName();
-			e.password(login.getUserPassword());
+			char[] p = login.getUserPassword();
+			if (p != null && p.length > 0) {
+				e.password(p);
+			}
 		} else
 		if (e.loginType == AdvanceLoginType.CERTIFICATE) {
 			e.keyStore = login.getKeyStore();
 			e.userOrKeyAlias = login.getAlias();
-			e.password(login.getKeyPassword());
+			char[] p = login.getKeyPassword();
+			if (p != null && p.length > 0) {
+				e.password(p);
+			}
 		}
 		return e;
+	}
+	/**
+	 * Set the keystore name list.
+	 * @param keyStores the keystore sequence
+	 */
+	public void setKeyStores(Iterable<AdvanceKeyStore> keyStores) {
+		login.setKeyStores(Interactive.select(keyStores, new Func1<AdvanceKeyStore, String>() {
+			@Override
+			public String invoke(AdvanceKeyStore param1) {
+				return param1.name;
+			}
+		}));
 	}
 	/**
 	 * Load the panel from the supplied data source.
 	 * @param e the object to load from
 	 */
+	@Override
 	public void load(AdvanceWebDataSource e) {
 		setWebName(e.name);
 		setURL(e.url.toString());
@@ -167,5 +191,9 @@ public class CCWebDetails extends JPanel {
 			break;
 		default:
 		}
+	}
+	@Override
+	public void onAfterSave() {
+		name.setEditable(false);
 	}
 }

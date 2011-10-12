@@ -850,6 +850,47 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
+		
+		if (user.rights.contains(AdvanceUserRights.CREATE_USER)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					CCDetailDialog<?> d = createUserDialog(CCMain.this, f.getRows(), null);
+					setEngineInfo(d.engineInfo);
+					d.pack();
+					d.setLocationRelativeTo(f);
+					d.setVisible(true);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceUser>() {
+			@Override
+			public void invoke(AdvanceUser value) {
+				CCDetailDialog<?> d = createUserDialog(CCMain.this, f.getRows(), value);
+				setEngineInfo(d.engineInfo);
+				d.pack();
+				d.setLocationRelativeTo(f);
+				d.setVisible(true);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_USER)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceUser, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceUser param1) {
+							try {
+								engine.datastore().deleteUser(param1.name, user.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}		
 		f.setColumnCount(5);
 		displayFrame(f, "Manage users");
 	}
@@ -1007,16 +1048,18 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		f.setExtraButton(0, "Create...", new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CCDetailDialog<?> d = createWebDialog(CCMain.this, f.getRows(), null);
-				setEngineInfo(d.engineInfo);
-				d.pack();
-				d.setLocationRelativeTo(f);
-				d.setVisible(true);
-			}
-		});
+		if (user.rights.contains(AdvanceUserRights.CREATE_WEB_DATA_SOURCE)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					CCDetailDialog<?> d = createWebDialog(CCMain.this, f.getRows(), null);
+					setEngineInfo(d.engineInfo);
+					d.pack();
+					d.setLocationRelativeTo(f);
+					d.setVisible(true);
+				}
+			});
+		}
 		f.setDisplayItem(new Action1<AdvanceWebDataSource>() {
 			@Override
 			public void invoke(AdvanceWebDataSource value) {
@@ -1027,22 +1070,24 @@ public class CCMain extends JFrame implements LabelManager {
 				d.setVisible(true);
 			}
 		});
-		f.setExtraButton(1, "Delete", new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				deleteItems(f, new Func1<AdvanceWebDataSource, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceWebDataSource param1) {
-						try {
-							engine.datastore().deleteWebDataSource(param1.name);
-							return null;
-						} catch (Throwable t) {
-							return t;
+		if (user.rights.contains(AdvanceUserRights.DELETE_WEB_DATA_SOURCE)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceWebDataSource, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceWebDataSource param1) {
+							try {
+								engine.datastore().deleteWebDataSource(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
 						}
-					}
-				});
-			}
-		});
+					});
+				}
+			});
+		}
 		displayFrame(f, "Manage Web data sources");
 	}
 	/**
@@ -1351,10 +1396,13 @@ public class CCMain extends JFrame implements LabelManager {
 					Throwable t;
 					/** The data. */
 					AdvanceWebDataSource e;
+					/** The keystore list. */
+					List<AdvanceKeyStore> keyStores;
 					@Override
 					public void run() {
 						try {
 							e = engine.datastore().queryWebDataSource(name);
+							keyStores = engine.datastore().queryKeyStores();
 						} catch (Throwable t) {
 							this.t = t;
 						}
@@ -1364,6 +1412,7 @@ public class CCMain extends JFrame implements LabelManager {
 						if (t != null) {
 							GUIUtils.errorMessage(t);
 						} else {
+							wd.setKeyStores(keyStores);
 							wd.load(e);
 							dialog.createModify.set(e);
 							dialog.pack();
@@ -1386,7 +1435,7 @@ public class CCMain extends JFrame implements LabelManager {
 			dialog.showCreateModify(false);
 		} else {
 			dialog.pager.setSelectedItem(selected);
-			wd.name.setEnabled(false);
+			wd.name.setEditable(false);
 		}
 		dialog.buttons.setClose(new Action0() {
 			@Override
@@ -1401,61 +1450,22 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		
-		dialog.buttons.setSave(createWebSaver(wd, dialog, false));
-		dialog.buttons.setSaveAndClose(createWebSaver(wd, dialog, true));
-		
-		return dialog;
-	}
-	/**
-	 * Create a web saver action.
-	 * @param wd the details panel.
-	 * @param dialog the dialog
-	 * @param close close dialog
-	 * @return the action
-	 */
-	Action0 createWebSaver(final CCWebDetails wd, 
-			final CCDetailDialog<AdvanceWebDataSource> dialog, 
-			final boolean close) {
-		return new Action0() {
+		Func1<AdvanceWebDataSource, Throwable> saver = new Func1<AdvanceWebDataSource, Throwable>() {
 			@Override
-			public void invoke() {
-				final AdvanceWebDataSource e = wd.save();
-				if (e == null) {
-					return;
+			public Throwable invoke(AdvanceWebDataSource param1) {
+				try {
+					engine.datastore().updateWebDataSource(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
 				}
-				
-				GUIUtils.getWorker(new WorkItem() {
-					/** The exception. */
-					protected Throwable t;
-					@Override
-					public void run() {
-						try {
-							engine.datastore().updateWebDataSource(e);
-						} catch (Throwable t) {
-							LOG.error(t.toString(), t);
-							this.t = t;
-						}
-					}
-					@Override
-					public void done() {
-						if (t != null) {
-							GUIUtils.errorMessage(t);
-						} else {
-							if (close) {
-								dialog.dispose();
-							} else {
-								wd.name.setEditable(false);
-								dialog.showCreateModify(true);
-								dialog.showPager(true);
-								dialog.buttons.showRefresh(true);
-								dialog.pack();
-								updatePager(dialog.pager, e);
-							}
-						}
-					}
-				}).execute();
 			}
 		};
+		
+		dialog.buttons.setSave(createSaver(wd, dialog, false, saver));
+		dialog.buttons.setSaveAndClose(createSaver(wd, dialog, true, saver));
+		
+		return dialog;
 	}
 	/**
 	 * Update a pager by adding the given item if not exists then selecting
@@ -1498,7 +1508,7 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/** Verify a flow. */
 	void doVerifyFlow() {
-		doVerifyFlow();
+		LOG.error("Implement!");
 	}
 	/** Shutdown engine. */
 	void doShutdown() {
@@ -1523,5 +1533,161 @@ public class CCMain extends JFrame implements LabelManager {
 				}
 			}).execute();
 		}
+	}
+	/**
+	 * Construct a web dialog.
+	 * @param labels the label manager
+	 * @param list the available list
+	 * @param selected the selected item or null to indicate a new item should be created
+	 * @return the dialog created
+	 */
+	CCDetailDialog<AdvanceUser> createUserDialog(LabelManager labels, 
+			final List<AdvanceUser> list, final AdvanceUser selected) {
+		final CCUserDetails ud = new CCUserDetails(labels);
+		final CCDetailDialog<AdvanceUser> dialog = new CCDetailDialog<AdvanceUser>(labels, ud);
+		dialog.setTitle(labels.get("Web Data Source Details"));
+		dialog.pager.setItemName(new Func1<AdvanceUser, String>() {
+			@Override
+			public String invoke(AdvanceUser param1) {
+				return param1.name + " [" + param1.email + "]";
+			}
+		});
+		dialog.pager.setItems(list);
+		
+		final Action0 retrieveAction = new Action0() {
+			@Override
+			public void invoke() {
+				final String name = dialog.pager.getSelectedItem().name; 
+				dialog.pager.setEnabled(false);
+				GUIUtils.getWorker(new WorkItem() {
+					/** The error. */
+					Throwable t;
+					/** The data. */
+					AdvanceUser e;
+					/** The realms. */
+					List<AdvanceRealm> realms;
+					/** The keystores. */
+					List<AdvanceKeyStore> keystores;
+					@Override
+					public void run() {
+						try {
+							e = engine.datastore().queryUser(name);
+							realms = engine.datastore().queryRealms();
+							keystores = engine.datastore().queryKeyStores();
+						} catch (Throwable t) {
+							this.t = t;
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else {
+							ud.setRealms(realms);
+							ud.setKeyStores(keystores);
+							ud.load(e);
+							dialog.createModify.set(e);
+							dialog.pack();
+						}
+						dialog.pager.setEnabled(true);
+					}
+				}).execute();
+			}
+		};
+		
+		dialog.pager.setSelect(new Action1<AdvanceUser>() {
+			@Override
+			public void invoke(AdvanceUser value) {
+				retrieveAction.invoke();
+			}
+		});
+		dialog.buttons.showRefresh(selected != null);
+		dialog.showPager(selected != null);
+		if (selected == null) {
+			dialog.showCreateModify(false);
+		} else {
+			dialog.pager.setSelectedItem(selected);
+			ud.name.setEditable(false);
+		}
+		dialog.buttons.setClose(new Action0() {
+			@Override
+			public void invoke() {
+				dialog.dispose();
+			}
+		});
+		dialog.buttons.setRefresh(new Action0() {
+			@Override
+			public void invoke() {
+				retrieveAction.invoke();
+			}
+		});
+		
+		
+		Func1<AdvanceUser, Throwable> saver = new Func1<AdvanceUser, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceUser param1) {
+				try {
+					engine.datastore().updateUser(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		};
+		
+		dialog.buttons.setSave(createSaver(ud, dialog, false, saver));
+		dialog.buttons.setSaveAndClose(createSaver(ud, dialog, true, saver));
+		
+		return dialog;
+	}
+	/**
+	 * Create a web saver action.
+	 * @param <K> the identifier type
+	 * @param <T> the identifiable object type
+	 * @param ud the details panel.
+	 * @param dialog the dialog
+	 * @param close close dialog
+	 * @param saveFunction the function to save the value and return a potential exeption
+	 * @return the action
+	 */
+	<K, T extends Identifiable<K>> Action0 createSaver(final CCLoadSave<T> ud, 
+			final CCDetailDialog<T> dialog, 
+			final boolean close,
+			final Func1<T, Throwable> saveFunction) {
+		return new Action0() {
+			@Override
+			public void invoke() {
+				final T e = ud.save();
+				if (e == null) {
+					return;
+				}
+				
+				GUIUtils.getWorker(new WorkItem() {
+					/** The exception. */
+					protected Throwable t;
+					@Override
+					public void run() {
+						t = saveFunction.invoke(e);
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else {
+							if (close) {
+								dialog.dispose();
+							} else {
+								dialog.showCreateModify(true);
+								dialog.showPager(true);
+								dialog.buttons.showRefresh(true);
+								dialog.pack();
+								updatePager(dialog.pager, e);
+								ud.onAfterSave();
+							}
+						}
+					}
+				}).execute();
+			}
+		};
 	}
 }

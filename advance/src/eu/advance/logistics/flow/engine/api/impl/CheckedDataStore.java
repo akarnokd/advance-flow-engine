@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +75,9 @@ public class CheckedDataStore implements AdvanceDataStore {
 	 */
 	protected void check(AdvanceUserRights expected) throws IOException, AdvanceAccessDenied {
 		if (!datastore.hasUserRight(userName, expected)) {
-			throw new AdvanceAccessDenied();
+			AdvanceAccessDenied e = new AdvanceAccessDenied(expected.toString());
+			LOG.error(e.toString(), e);
+			throw e;
 		}
 	}
 	/**
@@ -89,7 +92,9 @@ public class CheckedDataStore implements AdvanceDataStore {
 			allow |= datastore.hasUserRight(userName, r);
 		}
 		if (!allow) {
-			throw new AdvanceAccessDenied();
+			AdvanceAccessDenied e = new AdvanceAccessDenied(Arrays.toString(expected));
+			LOG.error(e.toString(), e);
+			throw e;
 		}
 	}
 	/**
@@ -101,7 +106,9 @@ public class CheckedDataStore implements AdvanceDataStore {
 	 */
 	protected void check(String realm, AdvanceUserRealmRights expected) throws IOException, AdvanceAccessDenied {
 		if (!datastore.hasUserRight(userName, realm, expected)) {
-			throw new AdvanceAccessDenied();
+			AdvanceAccessDenied e = new AdvanceAccessDenied(expected.toString());
+			LOG.error(e.toString(), e);
+			throw e;
 		}
 	}
 	/**
@@ -117,7 +124,9 @@ public class CheckedDataStore implements AdvanceDataStore {
 			allow |= datastore.hasUserRight(userName, realm, r);
 		}
 		if (!allow) {
-			throw new AdvanceAccessDenied();
+			AdvanceAccessDenied e = new AdvanceAccessDenied(expected.toString());
+			LOG.error(e.toString(), e);
+			throw e;
 		}
 	}
 	/**
