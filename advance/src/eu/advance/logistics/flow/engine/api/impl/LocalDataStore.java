@@ -459,6 +459,11 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				throw new AdvanceControlException("Realm exists");
 			}
 		}
+		// allow the creator to see the realm
+		synchronized (users) {
+			AdvanceUser u = users.get(byUser);
+			u.realmRights.put(name, AdvanceUserRealmRights.LIST);
+		}
 	}
 
 	@Override
