@@ -39,6 +39,7 @@ import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.Group;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -115,14 +116,8 @@ public class GenericListingFrame<T> extends JFrame {
 			return getCellTitle.invoke(column).first;
 		}
 	};
-	/** First extra button. */
-	protected JButton extra1;
-	/** Second extra button. */
-	protected JButton extra2;
-	/** Third extra button. */
-	protected JButton extra3;
 	/** The extra button array. */
-	protected JButton[] extra;
+	protected JButton[] extra = new JButton[5];
 	/** The filter. */
 	protected JTextField filter;
 	/** Close this window. */
@@ -181,15 +176,11 @@ public class GenericListingFrame<T> extends JFrame {
 		countLabel = new JLabel();
 		
 		topSeparator = new JSeparator(JSeparator.HORIZONTAL);
-		
-		extra1 = new JButton();
-		extra1.setVisible(false);
-		extra2 = new JButton();
-		extra2.setVisible(false);
-		extra3 = new JButton();
-		extra3.setVisible(false);
-		
-		extra = new JButton[] { extra1, extra2, extra3 };
+
+		for (int i = 0; i < extra.length; i++) {
+			extra[i] = new JButton();
+			extra[i].setVisible(false);
+		}
 		
 		filter = new JTextField();
 		filter.addActionListener(new ActionListener() {
@@ -219,6 +210,21 @@ public class GenericListingFrame<T> extends JFrame {
 		engineInfo = new EngineInfoPanel(labels);
 		help = new HelpPanel();
 		
+		Group hb = gl.createSequentialGroup()
+				.addComponent(refresh)
+				.addGap(30);
+		Group vb = gl.createParallelGroup(Alignment.CENTER)
+		.addComponent(refresh);
+		for (JButton b : extra) {
+			vb.addComponent(b);
+			hb.addComponent(b);
+		}
+		hb.addGap(30)
+		.addComponent(close)
+		;
+		vb.addComponent(close)
+		;
+		
 		gl.setHorizontalGroup(
 			gl.createParallelGroup(Alignment.CENTER)
 			.addComponent(engineInfo)
@@ -236,16 +242,7 @@ public class GenericListingFrame<T> extends JFrame {
 				.addComponent(listDate)
 			)
 			.addComponent(help)
-			.addGroup(
-				gl.createSequentialGroup()
-				.addComponent(refresh)
-				.addGap(30)
-				.addComponent(extra1)
-				.addComponent(extra2)
-				.addComponent(extra3)
-				.addGap(30)
-				.addComponent(close)
-			)
+			.addGroup(hb)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
@@ -263,14 +260,7 @@ public class GenericListingFrame<T> extends JFrame {
 				.addComponent(listDate)
 			)
 			.addComponent(help)
-			.addGroup(
-				gl.createParallelGroup(Alignment.CENTER)
-				.addComponent(refresh)
-				.addComponent(extra1)
-				.addComponent(extra2)
-				.addComponent(extra3)
-				.addComponent(close)
-			)
+			.addGroup(vb)
 		);
 		
 		pack();

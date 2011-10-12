@@ -79,6 +79,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.Identifiable;
@@ -314,6 +315,7 @@ public class CCMain extends JFrame implements LabelManager {
 		menusToEnable.put(addItem(fromMethod(this, "doManageRealms"), "Administration", "Manage realms..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageUsers"), "Administration", "Manage users..."), AdvanceUserRights.LIST_USERS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageNotificationGroups"), "Administration", "Manage notification groups..."), AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
+		menusToEnable.put(addItem(fromMethod(this, "doShutdown"), "Administration", "Shutdown"), AdvanceUserRights.SHUTDOWN);
 		
 		menusToEnable.put(addItem(fromMethod(this, "doJDBCDataSources"), "Data sources", "JDBC..."), AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
 		menusToEnable.put(addItem(fromMethod(this, "doSOAPDataSources"), "Data sources", "SOAP..."), AdvanceUserRights.LIST_SOAP_CHANNELS);
@@ -698,6 +700,116 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
+		
+		if (user.rights.contains(AdvanceUserRights.CREATE_REALM)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final String value = JOptionPane.showInputDialog(f, get("Enter realm name:"), "Create realm", JOptionPane.QUESTION_MESSAGE);
+					if (value != null) {
+						GUIUtils.getWorker(new WorkItem() {
+							/** The exception. */
+							Throwable t;
+							@Override
+							public void run() {
+								try {
+									engine.datastore().createRealm(value, user.name);
+								} catch (Throwable t) {
+									this.t = t;
+								}
+							}
+							@Override
+							public void done() {
+								if (t != null) {
+									GUIUtils.errorMessage(t);
+								} else {
+									f.refresh();
+								}
+							}
+						}).execute();
+					}
+				}
+			});
+		}
+		f.setExtraButton(1, "Start", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final List<AdvanceRealm> sel = f.getSelectedItems();
+				GUIUtils.getWorker(new WorkItem() {
+					/** The error. */
+					Throwable t;
+					@Override
+					public void run() {
+						for (AdvanceRealm r : sel) {
+							if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.START)) {
+								try {
+									engine.startRealm(r.name, user.name);
+								} catch (Throwable t) {
+									this.t = t;
+									break;
+								}
+							}
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else {
+							f.refresh();
+						}
+					}
+				}).execute();
+			}
+		});
+		f.setExtraButton(2, "Stop", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final List<AdvanceRealm> sel = f.getSelectedItems();
+				GUIUtils.getWorker(new WorkItem() {
+					/** The error. */
+					Throwable t;
+					@Override
+					public void run() {
+						for (AdvanceRealm r : sel) {
+							if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.STOP)) {
+								try {
+									engine.stopRealm(r.name, user.name);
+								} catch (Throwable t) {
+									this.t = t;
+									break;
+								}
+							}
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else {
+							f.refresh();
+						}
+					}
+				}).execute();
+			}
+		});
+		f.setExtraButton(3, "Delete", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				deleteItems(f, new Func1<AdvanceRealm, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceRealm param1) {
+						try {
+							engine.datastore().deleteRealm(param1.name);
+							return null;
+						} catch (Throwable t) {
+							return t;
+						}
+					}
+				});
+			}
+		});
+		
 		f.setColumnCount(4);
 		displayFrame(f, "Manage realms");
 	}
@@ -918,38 +1030,54 @@ public class CCMain extends JFrame implements LabelManager {
 		f.setExtraButton(1, "Delete", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.showConfirmDialog(f, get("Are you sure?"), 
-						get("Delete"), JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
-					final List<AdvanceWebDataSource> sel = f.getSelectedItems();
-					GUIUtils.getWorker(new WorkItem() {
-						/** The exception. */
-						protected Throwable t;
-						@Override
-						public void done() {
-							if (t != null) {
-								GUIUtils.errorMessage(t);
-								f.refresh();
-							} else {
-								f.removeItems(sel);
-							}
+				deleteItems(f, new Func1<AdvanceWebDataSource, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceWebDataSource param1) {
+						try {
+							engine.datastore().deleteWebDataSource(param1.name);
+							return null;
+						} catch (Throwable t) {
+							return t;
 						}
-						@Override
-						public void run() {
-							try {
-								for (AdvanceWebDataSource e : sel) {
-									engine.datastore().deleteWebDataSource(e.name);
-								}
-							} catch (Throwable t) {
-								this.t = t;
-								LOG.error(t.toString(), t);
-							}
-						}
-					}).execute();
-				}
-				
+					}
+				});
 			}
 		});
 		displayFrame(f, "Manage Web data sources");
+	}
+	/**
+	 * Delete the selected items of the given frame via the function.
+	 * @param f the frame
+	 * @param deleteItemFunction the delete function
+	 * @param <T> the element type
+	 */
+	<T> void deleteItems(final GenericListingFrame<T> f, final Func1<T, Throwable> deleteItemFunction) {
+		if (JOptionPane.showConfirmDialog(f, get("Are you sure?"), 
+				get("Delete"), JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
+			final List<T> sel = f.getSelectedItems();
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				protected Throwable t;
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(t);
+						f.refresh();
+					} else {
+						f.removeItems(sel);
+					}
+				}
+				@Override
+				public void run() {
+					for (T e : sel) {
+						t = deleteItemFunction.invoke(e);
+						if (t != null) {
+							break;
+						}
+					}
+				}
+			}).execute();
+		}
 	}
 	/**
 	 * Do manage FTP data sources.
@@ -1351,5 +1479,49 @@ public class CCMain extends JFrame implements LabelManager {
 		}
 		pager.setItems(list);
 		pager.setSelectedItem(item);
+	}
+	/** Open the remote login dialog. */
+	void doRemoteLogin() {
+		LOG.error("Implement!");
+	}
+	/** Open the notification management screen. */
+	void doManageNotificationGroups() {
+		LOG.error("Implement!");
+	}
+	/** Show the results of the last compilation. */
+	void doLastCompilationResult() {
+		LOG.error("Implement!");
+	}
+	/** Debug a flow. */
+	void doDebugFlow() {
+		LOG.error("Implement!");
+	}
+	/** Verify a flow. */
+	void doVerifyFlow() {
+		doVerifyFlow();
+	}
+	/** Shutdown engine. */
+	void doShutdown() {
+		int c = JOptionPane.showConfirmDialog(this, get("Are you sure?"), "Shutting down engine " + engineURL, JOptionPane.YES_NO_OPTION);
+		if (c == JOptionPane.YES_OPTION) {
+			GUIUtils.getWorker(new WorkItem() {
+				/** The error. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						engine.shutdown();
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(t);
+					}
+				}
+			}).execute();
+		}
 	}
 }
