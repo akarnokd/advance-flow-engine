@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine.cc;
 
 import java.awt.Container;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -127,5 +129,12 @@ public class CCDetailDialog<T extends Identifiable<?>> extends JDialog {
 	 */
 	public void showPager(boolean visible) {
 		pager.setVisible(visible);
+	}
+	/**
+	 * Close the window by sending the window closing event to execute listeners.
+	 */
+	public void close() {
+		WindowEvent we = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+		Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(we);
 	}
 }

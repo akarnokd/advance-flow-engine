@@ -51,7 +51,8 @@ public class JDBCPoolManager implements PoolManager<Connection> {
 	@Override
 	public Connection create() throws Exception {
 		Class.forName(ds.driver);
-		Connection conn = DriverManager.getConnection(ds.url, ds.user, new String(ds.password()));
+		char[] pw = ds.password();
+		Connection conn = DriverManager.getConnection(ds.url, ds.user, new String(pw != null ? pw : new char[0]));
 		conn.setAutoCommit(false);
 		return conn;
 	}

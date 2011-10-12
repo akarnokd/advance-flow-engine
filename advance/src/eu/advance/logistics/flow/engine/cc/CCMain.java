@@ -25,9 +25,12 @@ import hu.akarnokd.reactive4java.base.Action0;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Func2;
+import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
 
 import java.awt.Container;
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -49,6 +52,7 @@ import java.util.Properties;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -113,6 +117,8 @@ public class CCMain extends JFrame implements LabelManager {
 	private JLabel userLabel;
 	/** We opened a local engine. */
 	protected boolean localEngine;
+	/** The properties. */
+	protected Properties props = new Properties();
 	/**
 	 * Returns a label for the given key.
 	 * @param key the key
@@ -135,7 +141,6 @@ public class CCMain extends JFrame implements LabelManager {
 	/** Load the configuration. */
 	protected void loadConfig() {
 		if (configFile.canRead()) {
-			Properties props = new Properties();
 			try {
 				FileInputStream fin = new FileInputStream(configFile);
 				try {
@@ -161,15 +166,35 @@ public class CCMain extends JFrame implements LabelManager {
 	 * @param target the target frame
 	 * @param props the properties
 	 * @param prefix the prefix
+	 * @return true if a saved size was restored
 	 */
-	public static void applyFrameState(JFrame target, Properties props, String prefix) {
-		int x = getInt(prefix + "x", props);
-		int y = getInt(prefix + "y", props);
-		int w = getInt(prefix + "w", props);
-		int h = getInt(prefix + "h", props);
-		int s = getInt(prefix + "s", props);
-		target.setBounds(x, y, w, h);
-		target.setExtendedState(s);
+	public static boolean applyFrameState(Frame target, Properties props, String prefix) {
+		if (props.getProperty(prefix + "x") != null) {
+			int x = getInt(prefix + "x", props);
+			int y = getInt(prefix + "y", props);
+			int w = getInt(prefix + "w", props);
+			int h = getInt(prefix + "h", props);
+			int s = getInt(prefix + "s", props);
+			target.setBounds(x, y, w, h);
+			target.setExtendedState(s);
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * Apply the state to the target frame named by the prefix within the properties.
+	 * @param target the target frame
+	 * @param props the properties
+	 * @param prefix the prefix
+	 */
+	public static void applyFrameState(Dialog target, Properties props, String prefix) {
+		if (props.getProperty(prefix + "x") != null) {
+			int x = getInt(prefix + "x", props);
+			int y = getInt(prefix + "y", props);
+			int w = getInt(prefix + "w", props);
+			int h = getInt(prefix + "h", props);
+			target.setBounds(x, y, w, h);
+		}
 	}
 	/**
 	 * Store the state of the target frame.
@@ -177,13 +202,26 @@ public class CCMain extends JFrame implements LabelManager {
 	 * @param props the properties
 	 * @param prefix the prefix
 	 */
-	public static void storeFrameState(JFrame source, Properties props, String prefix) {
+	public static void storeFrameState(Frame source, Properties props, String prefix) {
 		Rectangle r = source.getBounds();
 		props.setProperty(prefix + "x", Integer.toString(r.x));
 		props.setProperty(prefix + "y", Integer.toString(r.y));
 		props.setProperty(prefix + "w", Integer.toString(r.width));
 		props.setProperty(prefix + "h", Integer.toString(r.height));
 		props.setProperty(prefix + "s", Integer.toString(source.getExtendedState()));
+	}
+	/**
+	 * Store the state of the target frame.
+	 * @param source the source frame
+	 * @param props the properties
+	 * @param prefix the prefix
+	 */
+	public static void storeFrameState(Dialog source, Properties props, String prefix) {
+		Rectangle r = source.getBounds();
+		props.setProperty(prefix + "x", Integer.toString(r.x));
+		props.setProperty(prefix + "y", Integer.toString(r.y));
+		props.setProperty(prefix + "w", Integer.toString(r.width));
+		props.setProperty(prefix + "h", Integer.toString(r.height));
 	}
 	/**
 	 * Retrieve an integer property value.
@@ -214,7 +252,6 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/** Save the configuration. */
 	public void saveConfig() {
-		Properties props = new Properties();
 		try {
 			storeConfig(props);
 			FileOutputStream fout = new FileOutputStream(configFile);
@@ -542,7 +579,7 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
-		displayFrame(f, "Manage engine keystores");
+		displayFrame(f, "manageengineks-", "Manage engine keystores");
 
 	}
 	/**
@@ -583,7 +620,7 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
-		displayFrame(f, "Manage local keystores");
+		displayFrame(f, "managelocalks-", "Manage local keystores");
 
 	}
 	/**
@@ -631,13 +668,22 @@ public class CCMain extends JFrame implements LabelManager {
 	/**
 	 * Display the generic list frame.
 	 * @param f the frame object
+	 * @param prefix the state save prefix
 	 * @param title the title
 	 */
-	void displayFrame(final GenericListingFrame<?> f, String title) {
+	void displayFrame(final GenericListingFrame<?> f, final String prefix, String title) {
 		f.setTitle(get(title));
 		f.fireTableStructureChanged();
 		setEngineInfo(f.engineInfo);
-		f.pack();
+		f.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(f, props, prefix);
+			}
+		});
+		if (!applyFrameState(f, props, prefix)) {
+			f.pack();
+		}
 		f.setLocationRelativeTo(this);
 		f.setVisible(true);
 		f.refresh();
@@ -793,25 +839,28 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
-		f.setExtraButton(3, "Delete", new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				deleteItems(f, new Func1<AdvanceRealm, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceRealm param1) {
-						try {
-							engine.datastore().deleteRealm(param1.name);
-							return null;
-						} catch (Throwable t) {
-							return t;
+		if (user.rights.contains(AdvanceUserRights.DELETE_REALM)) {
+			f.setExtraButton(3, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceRealm, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceRealm param1) {
+							try {
+								engine.datastore().deleteRealm(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
 						}
-					}
-				});
-			}
-		});
+					});
+				}
+			});
+		}
 		
 		f.setColumnCount(4);
-		displayFrame(f, "Manage realms");
+		
+		displayFrame(f, "managerealms-", "Manage realms");
 	}
 	/**
 	 * Do manage realms.
@@ -855,18 +904,26 @@ public class CCMain extends JFrame implements LabelManager {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					CCDetailDialog<?> d = createUserDialog(CCMain.this, f.getRows(), null);
+					final CCDetailDialog<?> d = createUserDialog(f.getRows(), null);
 					setEngineInfo(d.engineInfo);
 					d.pack();
 					d.setLocationRelativeTo(f);
 					d.setVisible(true);
+					
+					d.addWindowListener(new WindowAdapter() {
+						@Override
+						public void windowClosing(WindowEvent e) {
+							storeFrameState(d, props, "ccuserdetails-");
+						}
+					});
+					applyFrameState(d, props, "ccuserdetails-");
 				}
 			});
 		}
 		f.setDisplayItem(new Action1<AdvanceUser>() {
 			@Override
 			public void invoke(AdvanceUser value) {
-				CCDetailDialog<?> d = createUserDialog(CCMain.this, f.getRows(), value);
+				CCDetailDialog<?> d = createUserDialog(f.getRows(), value);
 				setEngineInfo(d.engineInfo);
 				d.pack();
 				d.setLocationRelativeTo(f);
@@ -892,7 +949,7 @@ public class CCMain extends JFrame implements LabelManager {
 			});
 		}		
 		f.setColumnCount(5);
-		displayFrame(f, "Manage users");
+		displayFrame(f, "manageusers-", "Manage users");
 	}
 	/**
 	 * Do manage JDBC data sources.
@@ -932,7 +989,50 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(5);
-		displayFrame(f, "Manage JDBC data sources");
+		
+		if (user.rights.contains(AdvanceUserRights.CREATE_JDBC_DATA_SOURCE)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final CCDetailDialog<?> d = createJDBCDialog(f.getRows(), null);
+					setEngineInfo(d.engineInfo);
+					d.pack();
+					d.setLocationRelativeTo(f);
+					d.setVisible(true);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceJDBCDataSource>() {
+			@Override
+			public void invoke(AdvanceJDBCDataSource value) {
+				CCDetailDialog<?> d = createJDBCDialog(f.getRows(), value);
+				setEngineInfo(d.engineInfo);
+				d.pack();
+				d.setLocationRelativeTo(f);
+				d.setVisible(true);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_JDBC_DATA_SOURCE)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceJDBCDataSource, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceJDBCDataSource param1) {
+							try {
+								engine.datastore().deleteJDBCDataSource(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}
+		
+		
+		displayFrame(f, "managejdbc-", "Manage JDBC data sources");
 	}
 	/**
 	 * Do manage SOAP data sources.
@@ -970,7 +1070,7 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		displayFrame(f, "Manage SOAP channels");
+		displayFrame(f, "managesoap-", "Manage SOAP channels");
 	}
 	/**
 	 * Do manage JDBC data sources.
@@ -1010,7 +1110,7 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(5);
-		displayFrame(f, "Manage JDBC data sources");
+		displayFrame(f, "managejdbc-", "Manage JDBC data sources");
 	}
 	/**
 	 * Do manage WEB data sources.
@@ -1052,7 +1152,7 @@ public class CCMain extends JFrame implements LabelManager {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					CCDetailDialog<?> d = createWebDialog(CCMain.this, f.getRows(), null);
+					CCDetailDialog<?> d = createWebDialog(f.getRows(), null);
 					setEngineInfo(d.engineInfo);
 					d.pack();
 					d.setLocationRelativeTo(f);
@@ -1063,7 +1163,7 @@ public class CCMain extends JFrame implements LabelManager {
 		f.setDisplayItem(new Action1<AdvanceWebDataSource>() {
 			@Override
 			public void invoke(AdvanceWebDataSource value) {
-				CCDetailDialog<?> d = createWebDialog(CCMain.this, f.getRows(), value);
+				CCDetailDialog<?> d = createWebDialog(f.getRows(), value);
 				setEngineInfo(d.engineInfo);
 				d.pack();
 				d.setLocationRelativeTo(f);
@@ -1088,7 +1188,7 @@ public class CCMain extends JFrame implements LabelManager {
 				}
 			});
 		}
-		displayFrame(f, "Manage Web data sources");
+		displayFrame(f, "manageweb-", "Manage Web data sources");
 	}
 	/**
 	 * Delete the selected items of the given frame via the function.
@@ -1167,7 +1267,7 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		displayFrame(f, "Manage FTP data sources");
+		displayFrame(f, "manageftp-", "Manage FTP data sources");
 	}
 	/**
 	 * Do manage Local data sources.
@@ -1205,7 +1305,7 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		displayFrame(f, "Manage FTP data sources");
+		displayFrame(f, "managelocal-", "Manage Local data sources");
 	}
 	/**
 	 * Do manage realms.
@@ -1242,7 +1342,7 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		displayFrame(f, "Download Flow");
+		displayFrame(f, "managedownload-", "Download Flow");
 	}
 	/**
 	 * Do manage realms.
@@ -1279,7 +1379,7 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		displayFrame(f, "Upload Flow");
+		displayFrame(f, "manageupload-", "Upload Flow");
 	}
 	/**
 	 * Create the email data sources listing.
@@ -1321,14 +1421,21 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		displayFrame(f, "Email boxes");
+		displayFrame(f, "manageemail-", "Email boxes");
 	}
 	/**
 	 * Login into a local engine.
 	 */
 	void doLocalLogin() {
-		CCLocalLogin login = new CCLocalLogin(this);
+		final CCLocalLogin login = new CCLocalLogin(this);
+		login.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(login, props, "locallogin-");
+			}
+		});
 		login.setLocationRelativeTo(null);
+		applyFrameState(login, props, "locallogin-");
 		if (login.display()) {
 			disconnectEngine();
 			engine = login.takeEngine();
@@ -1368,16 +1475,15 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/**
 	 * Construct a web dialog.
-	 * @param labels the label manager
 	 * @param list the available list
 	 * @param selected the selected item or null to indicate a new item should be created
 	 * @return the dialog created
 	 */
-	CCDetailDialog<AdvanceWebDataSource> createWebDialog(LabelManager labels, 
+	CCDetailDialog<AdvanceWebDataSource> createWebDialog(
 			final List<AdvanceWebDataSource> list, final AdvanceWebDataSource selected) {
-		final CCWebDetails wd = new CCWebDetails(labels);
-		final CCDetailDialog<AdvanceWebDataSource> dialog = new CCDetailDialog<AdvanceWebDataSource>(labels, wd);
-		dialog.setTitle(labels.get("Web Data Source Details"));
+		final CCWebDetails wd = new CCWebDetails(this);
+		final CCDetailDialog<AdvanceWebDataSource> dialog = new CCDetailDialog<AdvanceWebDataSource>(this, wd);
+		dialog.setTitle(this.get("Web Data Source Details"));
 		dialog.pager.setItemName(new Func1<AdvanceWebDataSource, String>() {
 			@Override
 			public String invoke(AdvanceWebDataSource param1) {
@@ -1536,16 +1642,15 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/**
 	 * Construct a web dialog.
-	 * @param labels the label manager
 	 * @param list the available list
 	 * @param selected the selected item or null to indicate a new item should be created
 	 * @return the dialog created
 	 */
-	CCDetailDialog<AdvanceUser> createUserDialog(LabelManager labels, 
-			final List<AdvanceUser> list, final AdvanceUser selected) {
-		final CCUserDetails ud = new CCUserDetails(labels);
-		final CCDetailDialog<AdvanceUser> dialog = new CCDetailDialog<AdvanceUser>(labels, ud);
-		dialog.setTitle(labels.get("Web Data Source Details"));
+	CCDetailDialog<AdvanceUser> createUserDialog(final List<AdvanceUser> list, final AdvanceUser selected) {
+		
+		final CCUserDetails ud = new CCUserDetails(this);
+		final CCDetailDialog<AdvanceUser> dialog = new CCDetailDialog<AdvanceUser>(this, ud);
+		dialog.setTitle(get("Web Data Source Details"));
 		dialog.pager.setItemName(new Func1<AdvanceUser, String>() {
 			@Override
 			public String invoke(AdvanceUser param1) {
@@ -1612,7 +1717,7 @@ public class CCMain extends JFrame implements LabelManager {
 		dialog.buttons.setClose(new Action0() {
 			@Override
 			public void invoke() {
-				dialog.dispose();
+				dialog.close();
 			}
 		});
 		dialog.buttons.setRefresh(new Action0() {
@@ -1637,6 +1742,98 @@ public class CCMain extends JFrame implements LabelManager {
 		
 		dialog.buttons.setSave(createSaver(ud, dialog, false, saver));
 		dialog.buttons.setSaveAndClose(createSaver(ud, dialog, true, saver));
+		
+		return dialog;
+	}
+	/**
+	 * Construct a detailed dialog.
+	 * @param <K> the identifier type of the record
+	 * @param <T> the expected record type
+	 * @param <V> the dialog type
+	 * @param list the available list
+	 * @param selected the selected item or null to indicate a new item should be created
+	 * @param detailPanel the panel containing the detail fields
+	 * @param namer the function to convert an entry into string
+	 * @param retriever the function to retrieve a record through its id
+	 * @param saver the function to save a record and report back an error
+	 * @return the dialog created
+	 */
+	<K, T extends AdvanceCreateModifyInfo & Identifiable<K>, V extends JComponent & CCLoadSave<T>> 
+	CCDetailDialog<T> createDetailDialog(
+			final List<T> list, 
+			final T selected,
+			final V detailPanel,
+			final Func1<T, String> namer,
+			final Func1<? super K, ? extends Option<? extends T>> retriever,
+			final Func1<T, Throwable> saver
+			) {
+		final CCDetailDialog<T> dialog = new CCDetailDialog<T>(this, detailPanel);
+		dialog.pager.setItemName(namer);
+		dialog.pager.setItems(list);
+		
+		final Action0 retrieveAction = new Action0() {
+			@Override
+			public void invoke() {
+				final K id = dialog.pager.getSelectedItem().id(); 
+				dialog.pager.setEnabled(false);
+				GUIUtils.getWorker(new WorkItem() {
+					/** The error. */
+					Throwable t;
+					/** The data. */
+					T e;
+					@Override
+					public void run() {
+						Option<? extends T> result = retriever.invoke(id);
+						if (Option.isError(result)) {
+							t = Option.getError(result);
+						} else {
+							e = result.value();
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else {
+							detailPanel.load(e);
+							dialog.createModify.set(e);
+							dialog.pack();
+						}
+						dialog.pager.setEnabled(true);
+					}
+				}).execute();
+			}
+		};
+		
+		dialog.pager.setSelect(new Action1<T>() {
+			@Override
+			public void invoke(T value) {
+				retrieveAction.invoke();
+			}
+		});
+		dialog.buttons.showRefresh(selected != null);
+		dialog.showPager(selected != null);
+		if (selected == null) {
+			dialog.showCreateModify(false);
+		} else {
+			dialog.pager.setSelectedItem(selected);
+		}
+		dialog.buttons.setClose(new Action0() {
+			@Override
+			public void invoke() {
+				dialog.close();
+			}
+		});
+		dialog.buttons.setRefresh(new Action0() {
+			@Override
+			public void invoke() {
+				retrieveAction.invoke();
+			}
+		});
+		
+		
+		dialog.buttons.setSave(createSaver(detailPanel, dialog, false, saver));
+		dialog.buttons.setSaveAndClose(createSaver(detailPanel, dialog, true, saver));
 		
 		return dialog;
 	}
@@ -1675,7 +1872,7 @@ public class CCMain extends JFrame implements LabelManager {
 							GUIUtils.errorMessage(t);
 						} else {
 							if (close) {
-								dialog.dispose();
+								dialog.close();
 							} else {
 								dialog.showCreateModify(true);
 								dialog.showPager(true);
@@ -1689,5 +1886,72 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		};
+	}
+	/**
+	 * Create a JDBC detail dialog.
+	 * @param list the available list of items
+	 * @param selected the selected item
+	 * @return the dialog
+	 */
+	CCDetailDialog<AdvanceJDBCDataSource> createJDBCDialog(List<AdvanceJDBCDataSource> list, AdvanceJDBCDataSource selected) {
+		CCJDBCDetails d = new CCJDBCDetails(this);
+		d.setTestAction(new Action1<String>() {
+			@Override
+			public void invoke(final String value) {
+				GUIUtils.getWorker(new WorkItem() {
+					/** The exception. */
+					Throwable t;
+					/** The call result. */
+					String result;
+					@Override
+					public void run() {
+						try {
+							result = engine.testJDBCDataSource(value);
+						} catch (Throwable t) {
+							this.t = t;
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(t);
+						} else
+						if (!result.isEmpty()) {
+							GUIUtils.errorMessage(result);
+						}
+					}
+				}).execute();
+			}
+		});
+		return createDetailDialog(list, selected,
+			d,
+			new Func1<AdvanceJDBCDataSource, String>() {
+				@Override
+				public String invoke(AdvanceJDBCDataSource param1) {
+					return param1.name + " [" + param1.url + "]";
+				}
+			},
+			new Func1<String, Option<AdvanceJDBCDataSource>>() {
+				@Override
+				public Option<AdvanceJDBCDataSource> invoke(String param1) {
+					try {
+						return Option.some(engine.datastore().queryJDBCDataSource(param1));
+					} catch (Throwable t) {
+						return Option.error(t);
+					}
+				}
+			},
+			new Func1<AdvanceJDBCDataSource, Throwable>() {
+				@Override
+				public Throwable invoke(AdvanceJDBCDataSource param1) {
+					try {
+						engine.datastore().updateJDBCDataSource(param1);
+						return null;
+					} catch (Throwable t) {
+						return t;
+					}
+				}
+			}
+		);
 	}
 }

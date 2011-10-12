@@ -51,8 +51,8 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 
 /**
+ * The user details panel.
  * @author karnokd, 2011.10.12.
- *
  */
 public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser> {
 	/** */
@@ -394,6 +394,7 @@ public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser
 		// TODO
 		enabled.setSelected(u.enabled);
 		name.setText(u.name);
+		name.setEditable(false);
 		email.setText(u.email);
 		pager.setText(u.pager);
 		sms.setText(u.sms);
@@ -408,7 +409,8 @@ public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser
 		} else {
 			login.viaCertificate.setSelected(true);
 		}
-		
+
+		login.setUserPassword(null);
 		login.setKeyStore(u.keyStore);
 		login.alias.setText(u.keyAlias);
 
