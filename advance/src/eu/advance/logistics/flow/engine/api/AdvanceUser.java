@@ -162,7 +162,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<Strin
 		result.keyAlias = keyAlias;
 		result.rights.addAll(rights);
 		result.realmRights.putAll(realmRights);
-		result.password = password != null ? password.clone() : null;
+		result.password(password);
 		
 		assignTo(result);
 		

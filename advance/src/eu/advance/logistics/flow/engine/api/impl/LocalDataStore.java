@@ -601,6 +601,10 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				if (prev.mayModifyUser()) {
 					u.rights.add(AdvanceUserRights.LIST_USERS);
 					u.rights.add(AdvanceUserRights.MODIFY_USER);
+					// keep the list right on a realm
+					for (AdvanceRealm r : queryRealms()) {
+						u.realmRights.put(r.name, AdvanceUserRealmRights.LIST);
+					}
 				}
 			}
 		}

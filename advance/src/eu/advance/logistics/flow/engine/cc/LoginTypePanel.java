@@ -281,4 +281,12 @@ public class LoginTypePanel extends JPanel {
 	public void setKeyStore(String keyStore) {
 		keystoreList.setSelectedItem(keyStore);
 	}
+	/**
+	 * Show the key password field?
+	 * @param visible visible
+	 */
+	public void showKeyPassword(boolean visible) {
+		keyPasswordLabel.setVisible(visible);
+		keyPassword.setVisible(visible);
+	}
 }
