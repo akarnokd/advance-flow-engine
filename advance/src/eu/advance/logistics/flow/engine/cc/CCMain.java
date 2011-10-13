@@ -28,6 +28,7 @@ import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dialog;
 import java.awt.Frame;
@@ -106,7 +107,7 @@ public class CCMain extends JFrame implements LabelManager {
 	/** The logged in user. */
 	protected AdvanceUser user;
 	/** The config file. */
-	protected final	File configFile = new File("advance-flow-engine-control-center-config.xml");
+	protected final	File configFile = new File("conf/advance-flow-engine-control-center-config.xml");
 	/** The menus to enable with rights. */
 	public Multimap<JMenuItem, AdvanceUserRights> menusToEnable = HashMultimap.create();
 	/** The conencted URL. */
@@ -1069,6 +1070,38 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
+		if (user.rights.contains(AdvanceUserRights.CREATE_SOAP_CHANNEL)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					createSOAPDialog(f, f.getRows(), null);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceSOAPChannel>() {
+			@Override
+			public void invoke(AdvanceSOAPChannel value) {
+				createSOAPDialog(f, f.getRows(), value);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_SOAP_CHANNEL)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceSOAPChannel, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceSOAPChannel param1) {
+							try {
+								engine.datastore().deleteSOAPChannel(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}
 		f.setColumnCount(4);
 		displayFrame(f, "managesoap-", "Manage SOAP channels");
 	}
@@ -1152,22 +1185,14 @@ public class CCMain extends JFrame implements LabelManager {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					CCDetailDialog<?> d = createWebDialog(f.getRows(), null);
-					setEngineInfo(d.engineInfo);
-					d.pack();
-					d.setLocationRelativeTo(f);
-					d.setVisible(true);
+					createWebDialog(f, f.getRows(), null);
 				}
 			});
 		}
 		f.setDisplayItem(new Action1<AdvanceWebDataSource>() {
 			@Override
 			public void invoke(AdvanceWebDataSource value) {
-				CCDetailDialog<?> d = createWebDialog(f.getRows(), value);
-				setEngineInfo(d.engineInfo);
-				d.pack();
-				d.setLocationRelativeTo(f);
-				d.setVisible(true);
+				createWebDialog(f, f.getRows(), value);
 			}
 		});
 		if (user.rights.contains(AdvanceUserRights.DELETE_WEB_DATA_SOURCE)) {
@@ -1475,11 +1500,12 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/**
 	 * Construct a web dialog.
+	 * @param f the parent frame.
 	 * @param list the available list
 	 * @param selected the selected item or null to indicate a new item should be created
 	 * @return the dialog created
 	 */
-	CCDetailDialog<AdvanceWebDataSource> createWebDialog(
+	CCDetailDialog<AdvanceWebDataSource> createWebDialog(final JFrame f,
 			final List<AdvanceWebDataSource> list, final AdvanceWebDataSource selected) {
 		final CCWebDetails wd = new CCWebDetails(this);
 		final CCDetailDialog<AdvanceWebDataSource> dialog = new CCDetailDialog<AdvanceWebDataSource>(this, wd);
@@ -1570,6 +1596,17 @@ public class CCMain extends JFrame implements LabelManager {
 		
 		dialog.buttons.setSave(createSaver(wd, dialog, false, saver));
 		dialog.buttons.setSaveAndClose(createSaver(wd, dialog, true, saver));
+		
+		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
+			@Override
+			public List<AdvanceKeyStore> invoke() throws Throwable {
+				return engine.datastore().queryKeyStores();
+			}
+			@Override
+			public void setter(List<AdvanceKeyStore> value) {
+				wd.setKeyStores(value);
+			}
+		}).execute();
 		
 		return dialog;
 	}
@@ -1953,5 +1990,113 @@ public class CCMain extends JFrame implements LabelManager {
 				}
 			}
 		);
+	}
+	/**
+	 * Create a SOAP detail dialog.
+	 * @param f the parent frame
+	 * @param list the list of available entries.
+	 * @param selected the selected entry
+	 * @return the dialog object
+	 */
+	CCDetailDialog<AdvanceSOAPChannel> createSOAPDialog(final JFrame f,
+			List<AdvanceSOAPChannel> list, AdvanceSOAPChannel selected) {
+		final CCSOAPDetails d = new CCSOAPDetails(this);
+		
+		final CCDetailDialog<AdvanceSOAPChannel> dialog = createDetailDialog(list, selected,
+				d,
+				new Func1<AdvanceSOAPChannel, String>() {
+					@Override
+					public String invoke(AdvanceSOAPChannel param1) {
+						return param1.name + " [" + param1.endpoint + "]";
+					}
+				},
+				new Func1<String, Option<AdvanceSOAPChannel>>() {
+					@Override
+					public Option<AdvanceSOAPChannel> invoke(String param1) {
+						try {
+							return Option.some(engine.datastore().querySOAPChannel(param1));
+						} catch (Throwable t) {
+							return Option.error(t);
+						}
+					}
+				},
+				new Func1<AdvanceSOAPChannel, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceSOAPChannel param1) {
+						try {
+							engine.datastore().updateSOAPChannel(param1);
+							return null;
+						} catch (Throwable t) {
+							return t;
+						}
+					}
+				}
+			);
+		
+		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
+			@Override
+			public List<AdvanceKeyStore> invoke() throws Throwable {
+				return engine.datastore().queryKeyStores();
+			}
+			@Override
+			public void setter(List<AdvanceKeyStore> value) {
+				d.setKeyStores(value);
+			}
+		}).execute();
+		return dialog;
+	}
+	/**
+	 * Retrieves a value before showing a dialog.
+	 * @author karnokd, 2011.10.13.
+	 *
+	 * @param <T> the value type to retrieve.
+	 */
+	public abstract class RetrieverWorkItem<T> implements WorkItem {
+		/** The result or error option. */
+		protected Option<T> result;
+		/** The dialog to display. */
+		protected final CCDetailDialog<?> dialog;
+		/** The parent component to place realtive to. */
+		protected final Component parent;
+		/**
+		 * Constructor, sets the dialog and parent.
+		 * @param dialog the dialog
+		 * @param parent the parent
+		 */
+		public RetrieverWorkItem(CCDetailDialog<?> dialog, Component parent) {
+			this.dialog = dialog;
+			this.parent = parent;
+		}
+		/**
+		 * The body function to invoke in background.
+		 * @return the object value
+		 * @throws Throwable on error
+		 */
+		public abstract T invoke() throws Throwable;
+		@Override
+		public void run() {
+			try {
+				result = Option.some(invoke());
+			} catch (Throwable t) {
+				result = Option.error(t);
+			}
+		}
+		/**
+		 * Set the retrieved value in EDT.
+		 * @param value the value to set
+		 */
+		public abstract void setter(T value);
+		@Override
+		public void done() {
+			if (Option.isSome(result)) {
+				setter(result.value());
+				setEngineInfo(dialog.engineInfo);
+				dialog.pack();
+				dialog.setLocationRelativeTo(parent);
+				dialog.setVisible(true);
+			} else {
+				GUIUtils.errorMessage(Option.getError(result));
+			}
+		}
 	}
 }

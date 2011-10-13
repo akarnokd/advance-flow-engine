@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.reactive4java.base.Func0;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -53,7 +55,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
@@ -69,6 +73,9 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
+import eu.advance.logistics.flow.engine.api.Copyable;
+import eu.advance.logistics.flow.engine.api.HasPassword;
+import eu.advance.logistics.flow.engine.api.Identifiable;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -150,21 +157,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public void load(XElement source) {
 		clear();
-		for (XElement xe : source.childElement("users").childrenWithName("user")) {
-			AdvanceUser e = new AdvanceUser();
-			e.load(xe);
-			users.put(e.name, e);
-		}
-		for (XElement xe : source.childElement("realms").childrenWithName("realm")) {
-			AdvanceRealm e = new AdvanceRealm();
-			e.load(xe);
-			realms.put(e.name, e);
-		}
-		for (XElement xe : source.childElement("keystores").childrenWithName("keystore")) {
-			AdvanceKeyStore e = new AdvanceKeyStore();
-			e.load(xe);
-			keystores.put(e.name, e);
-		}
+		loadInto(source, "users", "user", users, AdvanceUser.CREATOR);
+		loadInto(source, "realms", "realm", realms, AdvanceRealm.CREATOR);
+		loadInto(source, "keystores", "keystore", keystores, AdvanceKeyStore.CREATOR);
 		for (XElement xe : source.childElement("notification-groups").childrenWithName("group")) {
 			String name = xe.get("name");
 			AdvanceNotificationGroupType type = AdvanceNotificationGroupType.valueOf(xe.get("type"));
@@ -172,36 +167,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				addNotificationContact(type, name, xi.get("value"));
 			}
 		}
-		for (XElement xe : source.childElement("jdbc-data-sources").childrenWithName("jdbc-source")) {
-			AdvanceJDBCDataSource e = new AdvanceJDBCDataSource();
-			e.load(xe);
-			jdbcDataSources.put(e.name, e);
-		}
-		for (XElement xe : source.childElement("soap-channels").childrenWithName("channel")) {
-			AdvanceSOAPChannel e = new AdvanceSOAPChannel();
-			e.load(xe);
-			soapChannels.put(e.name, e);
-		}
-		for (XElement xe : source.childElement("jms-endpoints").childrenWithName("endpoint")) {
-			AdvanceJMSEndpoint e = new AdvanceJMSEndpoint();
-			e.load(xe);
-			jmsEndpoints.put(e.name, e);
-		}
-		for (XElement xe : source.childElement("web-data-sources").childrenWithName("web-source")) {
-			AdvanceWebDataSource e = new AdvanceWebDataSource();
-			e.load(xe);
-			webDataSources.put(e.name, e);
-		}
-		for (XElement xe : source.childElement("ftp-data-sources").childrenWithName("ftp-source")) {
-			AdvanceFTPDataSource e = new AdvanceFTPDataSource();
-			e.load(xe);
-			ftpDataSources.put(e.name, e);
-		}
-		for (XElement xe : source.childElement("local-data-sources").childrenWithName("local-source")) {
-			AdvanceLocalFileDataSource e = new AdvanceLocalFileDataSource();
-			e.load(xe);
-			localDataSources.put(e.name, e);
-		}
+		loadInto(source, "jdbc-data-sources", "jdbc-source", jdbcDataSources, AdvanceJDBCDataSource.CREATOR);
+		loadInto(source, "soap-channels", "channel", soapChannels, AdvanceSOAPChannel.CREATOR);
+		loadInto(source, "jms-endpoints", "endpoint", jmsEndpoints, AdvanceJMSEndpoint.CREATOR);
+		loadInto(source, "web-data-sources", "web-source", webDataSources, AdvanceWebDataSource.CREATOR);
+		loadInto(source, "ftp-data-sources", "ftp-source", ftpDataSources, AdvanceFTPDataSource.CREATOR);
+		loadInto(source, "local-data-sources", "local-source", localDataSources, AdvanceLocalFileDataSource.CREATOR);
 		for (XElement xe : source.childElement("dataflows").childrenWithName("flow")) {
 			dataflows.put(xe.get("realm"), xe.childElement("flow-description").copy());
 		}
@@ -217,6 +188,28 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				if (be.children().size() == 1) {
 					r.put(block, be.children().get(0).copy());
 				}
+			}
+		}
+		loadInto(source, "email-boxes", "email", emailBoxes, AdvanceEmailBox.CREATOR);
+	}
+	/**
+	 * Loads the elements of the given container into the map.
+	 * @param <K> the identifier type
+	 * @param <T> the object type
+	 * @param source the outermost container
+	 * @param container the name of the target container
+	 * @param item the name of the items in the container
+	 * @param map the output map
+	 * @param creator the creator of Ts
+	 */
+	protected <K, T extends Identifiable<K> & XSerializable> 
+	void loadInto(XElement source, String container, String item, Map<K, T> map, Func0<T> creator) {
+		XElement xcontainer = source.childElement(container);
+		if (xcontainer != null) {
+			for (XElement xe : xcontainer.childrenWithName(item)) {
+				T obj = creator.invoke();
+				obj.load(xe);
+				map.put(obj.id(), obj);
 			}
 		}
 	}
@@ -284,6 +277,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		saveInto(destination, "web-data-sources", "web-source", webDataSources);
 		saveInto(destination, "ftp-data-sources", "ftp-source", ftpDataSources);
 		saveInto(destination, "local-data-sources", "local-source", localDataSources);
+		saveInto(destination, "email-boxes", "email-box", emailBoxes);
 		
 		XElement xflows = destination.add("dataflows");
 		for (Map.Entry<String, XElement> fe : dataflows.entrySet()) {
@@ -476,20 +470,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 
 	@Override
 	public void updateRealm(AdvanceRealm realm) throws IOException, AdvanceControlException {
-		synchronized (realms) {
-			AdvanceRealm prev = realms.get(realm.name);
-			AdvanceRealm next = realm.copy();
-			if (prev != null) {
-				next.createdAt = prev.createdAt;
-				next.createdBy = prev.createdBy;
-				next.modifiedAt = new Date();
-			} else {
-				next.createdAt = new Date();
-				next.createdBy = next.modifiedBy;
-				next.modifiedAt = new Date();
-			}
-			realms.put(next.name, next);
-		}		
+		update(realms, realm);
 	}
 	@Override
 	public AdvanceRealm queryRealm(String realm)
@@ -585,10 +566,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		synchronized (users) {
 			AdvanceUser prev = users.get(user.name);
 			AdvanceUser u = user.copy();
-			u.password(user.password() != null ? user.password().clone() : (prev != null ? prev.password() : null));
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
 				u.createdBy = prev.createdBy;
+				if (u.password() == null) {
+					u.password(prev.password());
+				}
 			} else {
 				u.createdAt = new Date();
 				u.createdBy = u.modifiedBy;
@@ -669,21 +652,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public void updateJDBCDataSource(
 			AdvanceJDBCDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		synchronized (jdbcDataSources) {
-			AdvanceJDBCDataSource u = dataSource.copy();
-			AdvanceJDBCDataSource prev = jdbcDataSources.get(dataSource.name);
-			u.password(dataSource.password() != null ? dataSource.password().clone() : (prev != null ? prev.password() : null));
-			
-			if (prev != null) {
-				u.createdAt = prev.createdAt;
-				u.createdBy = prev.createdBy;
-			} else {
-				u.createdAt = new Date();
-				u.createdBy = u.modifiedBy;
-			}
-			u.modifiedAt = new Date();
-			jdbcDataSources.put(u.name, u);
-		}
+		update(jdbcDataSources, dataSource);
 	}
 
 	@Override
@@ -711,24 +680,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceJMSEndpoint endpoint) throws IOException,
 			AdvanceControlException {
 		
-		synchronized  (jmsEndpoints) {
-			AdvanceJMSEndpoint prev = jmsEndpoints.get(endpoint.name);
-			
-			AdvanceJMSEndpoint u = endpoint.copy();
-			u.password(endpoint.password() != null ? endpoint.password().clone() : (prev != null ? prev.password() : null));
-			
-			if (prev != null) {
-				u.createdAt = prev.createdAt;
-				u.createdBy = prev.createdBy;
-			} else {
-				u.createdAt = new Date();
-				u.createdBy = endpoint.modifiedBy;
-			}
-			u.modifiedAt = new Date();
-			jmsEndpoints.put(endpoint.name, u);
-		}
-		
-
+		update(jmsEndpoints, endpoint);
 	}
 
 	@Override
@@ -754,23 +706,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public void updateWebDataSource(AdvanceWebDataSource endpoint) throws IOException,
 			AdvanceControlException {
-		synchronized  (webDataSources) {
-			AdvanceWebDataSource prev = webDataSources.get(endpoint.name);
-			
-			AdvanceWebDataSource u = endpoint.copy();
-			u.password(endpoint.password() != null ? endpoint.password().clone() : (prev != null ? prev.password() : null));
-			
-			if (prev != null) {
-				u.createdAt = prev.createdAt;
-				u.createdBy = prev.createdBy;
-			} else {
-				u.createdAt = new Date();
-				u.createdBy = endpoint.modifiedBy;
-			}
-			u.modifiedAt = new Date();
-			webDataSources.put(u.name, u);
-		}
-
+		update(webDataSources, endpoint);
 	}
 
 	@Override
@@ -797,22 +733,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public void updateFTPDataSource(
 			AdvanceFTPDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		synchronized  (ftpDataSources) {
-			AdvanceFTPDataSource prev = ftpDataSources.get(dataSource.name);
-			
-			AdvanceFTPDataSource u = dataSource.copy();
-			u.password(dataSource.password() != null ? dataSource.password() : (prev != null ? prev.password() : null));
-			
-			if (prev != null) {
-				u.createdAt = prev.createdAt;
-				u.createdBy = prev.createdBy;
-			} else {
-				u.createdAt = new Date();
-				u.createdBy = dataSource.modifiedBy;
-			}
-			u.modifiedAt = new Date();
-			ftpDataSources.put(u.name, u);
-		}
+		update(ftpDataSources, dataSource);
 	}
 
 	@Override
@@ -839,21 +760,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public void updateLocalFileDataSource(
 			AdvanceLocalFileDataSource dataSource) throws IOException,
 			AdvanceControlException {
-		synchronized  (localDataSources) {
-			AdvanceLocalFileDataSource prev = localDataSources.get(dataSource.name);
-			
-			AdvanceLocalFileDataSource u = dataSource.copy();
-			
-			if (prev != null) {
-				u.createdAt = prev.createdAt;
-				u.createdBy = prev.createdBy;
-			} else {
-				u.createdAt = new Date();
-				u.createdBy = dataSource.modifiedBy;
-			}
-			u.modifiedAt = new Date();
-			localDataSources.put(u.name, u);
-		}
+		update(localDataSources, dataSource);
 	}
 
 	@Override
@@ -1106,6 +1013,48 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			AdvanceControlException {
 		synchronized (emailBoxes) {
 			emailBoxes.put(box.name, box.copy());
+		}
+	}
+	@Override
+	public void deleteSOAPChannel(String name) throws IOException,
+			AdvanceControlException {
+		synchronized (soapChannels) {
+			soapChannels.remove(name);
+		}
+	}
+	@Override
+	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+			throws IOException, AdvanceControlException {
+		update(soapChannels, channel);
+	}
+	/**
+	 * Update a record.
+	 * @param <K> the object identifier type
+	 * @param <T> the object type
+	 * @param map the target map
+	 * @param obj the new object
+	 */
+	protected <K, T extends AdvanceCreateModifyInfo & Copyable<T> & Identifiable<K>> 
+	void update(@NonNull Map<K, T> map, @NonNull T obj) {
+		synchronized (map) {
+			T prev = map.get(obj.id());
+			T next = obj.copy();
+			if (prev != null) {
+				next.createdAt = prev.createdAt;
+				next.createdBy = prev.createdBy;
+				if (next instanceof HasPassword && prev instanceof HasPassword) {
+					HasPassword np = (HasPassword)next;
+					HasPassword pp = (HasPassword)prev;
+					if (np.password() == null) {
+						np.password(pp.password());
+					}
+				}
+			} else {
+				next.createdAt = new Date();
+				next.createdBy = obj.modifiedBy;
+			}
+			next.modifiedAt = new Date();
+			map.put(next.id(), next);
 		}
 	}
 }

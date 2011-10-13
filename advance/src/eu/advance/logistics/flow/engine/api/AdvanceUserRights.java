@@ -133,7 +133,7 @@ public enum AdvanceUserRights {
 	/** Create new email entry. */
 	CREATE_EMAIL,
 	/** Update email entry. */
-	UPDATE_EMAIL,
+	MODIFY_EMAIL,
 	/** Delete email entry. */
 	DELETE_EMAIL
 }

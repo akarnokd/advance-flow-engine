@@ -437,4 +437,18 @@ public interface AdvanceDataStore {
 	 * @throws AdvanceControlException if the user has no right to delete email boxes.
 	 */
 	void deleteEmailBox(@NonNull String name) throws IOException, AdvanceControlException;
+	/**
+	 * Update the SOAP channel.
+	 * @param channel the new channel settings
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right to update a channel
+	 */
+	void updateSOAPChannel(@NonNull AdvanceSOAPChannel channel) throws IOException, AdvanceControlException;
+	/**
+	 * Delete the SOAP channel.
+	 * @param name the channel name
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right to delete a channel
+	 */
+	void deleteSOAPChannel(@NonNull String name) throws IOException, AdvanceControlException;
 }

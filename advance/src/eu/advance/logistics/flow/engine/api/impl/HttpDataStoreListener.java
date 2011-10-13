@@ -30,6 +30,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
+import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
@@ -222,6 +223,12 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 		} else
 		if ("delete-email-box".equals(function)) {
 			ds.deleteEmailBox(request.get("name"));
+		} else
+		if ("update-soap-channel".equals(function)) {
+			ds.updateSOAPChannel(XSerializables.parseItem(request, AdvanceSOAPChannel.CREATOR));
+		} else
+		if ("delete-soap-channel".equals(function)) {
+			ds.deleteSOAPChannel(request.get("name"));
 		} else {
 			throw new AdvanceControlException("Unknown request " + request);
 		}
