@@ -45,6 +45,8 @@ implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiabl
 	public URL endpoint;
 	/** The target object URI. */
 	public URI targetObject;
+	/** The target namespace. */
+	public URI targetNamespace;
 	/** The remote method. */
 	public String method;
 	/** The communication should be encrypted. */
@@ -84,6 +86,11 @@ implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiabl
 		} catch (URISyntaxException ex) {
 			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
 		}
+		try {
+			targetNamespace = new URI(source.get("target-namespace"));
+		} catch (URISyntaxException ex) {
+			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
+		}
 		method = source.get("method");
 		encrypted = source.getBoolean("encrypted");
 		keyStore = source.get("keystore");
@@ -96,6 +103,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiabl
 		destination.set("name", name);
 		destination.set("endpoint", endpoint);
 		destination.set("target-object", targetObject);
+		destination.set("target-namespace", targetNamespace);
 		destination.set("method", method);
 		destination.set("encrypted", encrypted);
 		destination.set("keystore", keyStore);
@@ -110,6 +118,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiabl
 		result.endpoint = endpoint;
 		result.targetObject = targetObject;
 		result.method = method;
+		result.targetNamespace = targetNamespace;
 		result.encrypted = encrypted;
 		result.keyStore = keyStore;
 		result.keyAlias = keyAlias;

@@ -28,8 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.GroupLayout.Group;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
@@ -37,108 +35,107 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.Group;
 
 import com.google.common.base.Objects;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceJDBCDrivers;
+import eu.advance.logistics.flow.engine.api.AdvanceJMSDrivers;
+import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 
 /**
- * The JDBC details panel.
- * @author karnokd, 2011.10.12.
+ * The JMS details.
+ * @author karnokd, 2011.10.13.
  */
-public class CCJDBCDetails extends JPanel implements
-		CCLoadSave<AdvanceJDBCDataSource> {
+public class CCJMSDetails extends JPanel implements
+		CCLoadSave<AdvanceJMSEndpoint> {
 	/** */
-	private static final long serialVersionUID = 3509273005064205330L;
-	/** The name. */
+	private static final long serialVersionUID = -6973780683687929477L;
+	/** Text field. */
 	protected JTextField name;
-	/** The driver. */
-	protected JComboBox<AdvanceJDBCDrivers> driver;
-	/** The custom driver label. */
-	protected JLabel customDriverLabel;
-	/** The custom driver field. */
+	/** The available drivers. */
+	protected JComboBox<AdvanceJMSDrivers> driver;
+	/** Text field. */
 	protected JTextField customDriver;
-	/** The URL. */
+	/** The url. */
 	protected JTextField url;
-	/** The user. */
+	/** Text field. */
 	protected JTextField user;
 	/** The password. */
 	protected JPasswordField password;
+	/** Text field. */
+	protected JTextField queueManager;
+	/** Text field. */
+	protected JTextField queue;
 	/** The pool size. */
 	protected JFormattedTextField pool;
-	/** Test the connection. */
+	/** The custom driver label. */
+	protected JLabel customDriverLabel;
+	/** The pest button. */
 	protected JButton test;
 	/**
-	 * Create the GUI.
-	 * @param labels the label manager.
+	 * Construct the panel.
+	 * @param labels the label manager
 	 */
-	public CCJDBCDetails(@NonNull final LabelManager labels) {
+	public CCJMSDetails(@NonNull final LabelManager labels) {
 		GroupLayout gl = new GroupLayout(this);
 		setLayout(gl);
 		gl.setAutoCreateGaps(true);
-
+		
 		name = new JTextField();
+		driver = new JComboBox<AdvanceJMSDrivers>(AdvanceJMSDrivers.values());
+		customDriver = new JTextField();
 		url = new JTextField();
-		driver = new JComboBox<AdvanceJDBCDrivers>(AdvanceJDBCDrivers.values());
+		user = new JTextField();
+		password = new JPasswordField();
+		queueManager = new JTextField();
+		queue = new JTextField();
+		pool = new JFormattedTextField(5);
+		pool.setColumns(2);
+		customDriverLabel = new JLabel();
+		customDriverLabel.setVisible(driver.getSelectedItem() == AdvanceJMSDrivers.GENERIC);
+		
 		driver.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				AdvanceJDBCDrivers si = (AdvanceJDBCDrivers)driver.getSelectedItem();
+				AdvanceJMSDrivers si = (AdvanceJMSDrivers)driver.getSelectedItem();
 				url.setText(si.urlTemplate);
-				customDriver.setVisible(si == AdvanceJDBCDrivers.GENERIC);
-				customDriverLabel.setVisible(si == AdvanceJDBCDrivers.GENERIC);
+				customDriver.setVisible(si == AdvanceJMSDrivers.GENERIC);
+				customDriverLabel.setVisible(si == AdvanceJMSDrivers.GENERIC);
 			}
 		});
-		customDriver = new JTextField();
-		customDriver.setVisible(driver.getSelectedItem() == AdvanceJDBCDrivers.GENERIC);
-		customDriverLabel = new JLabel();
-		customDriverLabel.setVisible(driver.getSelectedItem() == AdvanceJDBCDrivers.GENERIC);
-		
-		user = new JTextField();
-		password = new JPasswordField();
-		pool = new JFormattedTextField(5);
 		
 		test = new JButton(labels.get("Test"));
 		test.setVisible(false);
 
 		Pair<Group, Group> g = GUIUtils.createForm(gl, 2,
-				labels.get("Name:"), name,
-				labels.get("Driver:"), driver,
-				customDriverLabel, customDriver,
-				labels.get("URL:"), url,
-				labels.get("User:"), user,
-				labels.get("Password:"), password,
-				labels.get("Connection pool size:"), pool
+			labels.get("Name:"), name,
+			labels.get("Driver:"), driver,
+			customDriverLabel, customDriver,
+			labels.get("URL:"), url,
+			labels.get("User:"), user,
+			labels.get("Password:"), password,
+			labels.get("Queue manager:"), queueManager,
+			labels.get("Queue:"), queue,
+			labels.get("Connection pool size:"), pool
 		);
 		
 		gl.setHorizontalGroup(
-			gl.createParallelGroup(Alignment.CENTER)
-			.addGroup(g.first)
-			.addComponent(test)
-		);
-		g.second.addComponent(test);
-		gl.setVerticalGroup(g.second);
-	}
-	/**
-	 * Set the test action for the Test button.
-	 * @param action the action receiving the JDBC name
-	 */
-	public void setTestAction(@NonNull final Action1<String> action) {
-		test.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				action.invoke(name.getText());
-			}
-		});
+				gl.createParallelGroup(Alignment.CENTER)
+				.addGroup(g.first)
+				.addComponent(test)
+			);
+			g.second.addComponent(test);
+			gl.setVerticalGroup(g.second);
+
 	}
 	@Override
-	public void load(AdvanceJDBCDataSource value) {
+	public void load(AdvanceJMSEndpoint value) {
 		name.setText(value.name);
 		name.setEditable(false);
 		boolean found = false;
-		for (AdvanceJDBCDrivers d : AdvanceJDBCDrivers.values()) {
+		for (AdvanceJMSDrivers d : AdvanceJMSDrivers.values()) {
 			if (Objects.equal(d.driverClass, value.driver)) {
 				driver.setSelectedItem(d);
 				found = true;
@@ -155,13 +152,15 @@ public class CCJDBCDetails extends JPanel implements
 		url.setText(value.url);
 		user.setText(value.user);
 		password.setText("");
+		queueManager.setText(value.queueManager);
+		queue.setText(value.queue);
 		pool.setValue(value.poolSize);
 		test.setVisible(true);
 	}
 
 	@Override
-	public AdvanceJDBCDataSource save() {
-		AdvanceJDBCDataSource result = new AdvanceJDBCDataSource();
+	public AdvanceJMSEndpoint save() {
+		AdvanceJMSEndpoint result = new AdvanceJMSEndpoint();
 		
 		result.name = name.getText();
 		
@@ -170,8 +169,8 @@ public class CCJDBCDetails extends JPanel implements
 			return null;
 		}
 		
-		AdvanceJDBCDrivers d = (AdvanceJDBCDrivers)driver.getSelectedItem();
-		if (d == AdvanceJDBCDrivers.GENERIC) {
+		AdvanceJMSDrivers d = (AdvanceJMSDrivers)driver.getSelectedItem();
+		if (d == AdvanceJMSDrivers.GENERIC) {
 			if (customDriver.getText().isEmpty()) {
 				GUIUtils.errorMessage("Please enter the fully qualified class name of the driver!");
 				return null;
@@ -190,6 +189,8 @@ public class CCJDBCDetails extends JPanel implements
 		if (p != null && p.length > 0) {
 			result.password(p);
 		}
+		result.queueManager = queueManager.getText();
+		result.queue = queueManager.getText();
 		result.poolSize = (Integer)pool.getValue();
 		
 		return result;
@@ -200,5 +201,16 @@ public class CCJDBCDetails extends JPanel implements
 		name.setEditable(false);
 		test.setVisible(true);
 	}
-
+	/**
+	 * Set the test action for the Test button.
+	 * @param action the action receiving the JDBC name
+	 */
+	public void setTestAction(@NonNull final Action1<String> action) {
+		test.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				action.invoke(name.getText());
+			}
+		});
+	}
 }
