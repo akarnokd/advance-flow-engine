@@ -524,9 +524,9 @@ public class CCMain extends JFrame implements LabelManager {
 		try {
 			version = engine.queryVersion();
 		} catch (IOException ex) {
-			GUIUtils.errorMessage(ex);
+			GUIUtils.errorMessage(this, ex);
 		} catch (AdvanceControlException ex) {
-			GUIUtils.errorMessage(ex);
+			GUIUtils.errorMessage(this, ex);
 		}
 	}
 	/**
@@ -662,7 +662,7 @@ public class CCMain extends JFrame implements LabelManager {
 				frame.setRows(list);
 				frame.autoSizeTable();
 			} else {
-				GUIUtils.errorMessage(error);
+				GUIUtils.errorMessage(frame, error);
 			}
 		}
 	}
@@ -768,7 +768,7 @@ public class CCMain extends JFrame implements LabelManager {
 							@Override
 							public void done() {
 								if (t != null) {
-									GUIUtils.errorMessage(t);
+									GUIUtils.errorMessage(f, t);
 								} else {
 									f.refresh();
 								}
@@ -801,7 +801,7 @@ public class CCMain extends JFrame implements LabelManager {
 					@Override
 					public void done() {
 						if (t != null) {
-							GUIUtils.errorMessage(t);
+							GUIUtils.errorMessage(f, t);
 						} else {
 							f.refresh();
 						}
@@ -832,7 +832,7 @@ public class CCMain extends JFrame implements LabelManager {
 					@Override
 					public void done() {
 						if (t != null) {
-							GUIUtils.errorMessage(t);
+							GUIUtils.errorMessage(f, t);
 						} else {
 							f.refresh();
 						}
@@ -1263,7 +1263,7 @@ public class CCMain extends JFrame implements LabelManager {
 				@Override
 				public void done() {
 					if (t != null) {
-						GUIUtils.errorMessage(t);
+						GUIUtils.errorMessage(f, t);
 						f.refresh();
 					} else {
 						f.removeItems(sel);
@@ -1323,6 +1323,38 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
+		if (user.rights.contains(AdvanceUserRights.CREATE_FTP_DATA_SOURCE)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					createFTPDialog(f, f.getRows(), null);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceFTPDataSource>() {
+			@Override
+			public void invoke(AdvanceFTPDataSource value) {
+				createFTPDialog(f, f.getRows(), value);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_FTP_DATA_SOURCE)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceFTPDataSource, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceFTPDataSource param1) {
+							try {
+								engine.datastore().deleteFTPDataSource(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}
 		f.setColumnCount(4);
 		displayFrame(f, "manageftp-", "Manage FTP data sources");
 	}
@@ -1504,7 +1536,7 @@ public class CCMain extends JFrame implements LabelManager {
 				enableDisableMenus();
 			} catch (Exception ex) {
 				LOG.error(ex.toString(), ex);
-				GUIUtils.errorMessage(ex);
+				GUIUtils.errorMessage(this, ex);
 			}
 
 			urlLabel.setText(engineURL.toString());
@@ -1574,7 +1606,7 @@ public class CCMain extends JFrame implements LabelManager {
 					@Override
 					public void done() {
 						if (t != null) {
-							GUIUtils.errorMessage(t);
+							GUIUtils.errorMessage(dialog, t);
 						} else {
 							wd.setKeyStores(keyStores);
 							wd.load(e);
@@ -1703,7 +1735,7 @@ public class CCMain extends JFrame implements LabelManager {
 				@Override
 				public void done() {
 					if (t != null) {
-						GUIUtils.errorMessage(t);
+						GUIUtils.errorMessage(CCMain.this, t);
 					}
 				}
 			}).execute();
@@ -1755,7 +1787,7 @@ public class CCMain extends JFrame implements LabelManager {
 					@Override
 					public void done() {
 						if (t != null) {
-							GUIUtils.errorMessage(t);
+							GUIUtils.errorMessage(dialog, t);
 						} else {
 							ud.setRealms(realms);
 							ud.setKeyStores(keystores);
@@ -1862,7 +1894,7 @@ public class CCMain extends JFrame implements LabelManager {
 					@Override
 					public void done() {
 						if (t != null) {
-							GUIUtils.errorMessage(t);
+							GUIUtils.errorMessage(dialog, t);
 						} else {
 							detailPanel.load(e);
 							dialog.createModify.set(e);
@@ -1938,7 +1970,7 @@ public class CCMain extends JFrame implements LabelManager {
 					@Override
 					public void done() {
 						if (t != null) {
-							GUIUtils.errorMessage(t);
+							GUIUtils.errorMessage(dialog, t);
 						} else {
 							if (close) {
 								dialog.close();
@@ -1965,6 +1997,15 @@ public class CCMain extends JFrame implements LabelManager {
 		protected Throwable t;
 		/** The call result. */
 		protected String result;
+		/** The parent component. */
+		protected final Component parent;
+		/**
+		 * Constructor with parent.
+		 * @param parent the parent
+		 */
+		public TestAction(Component parent) {
+			this.parent = parent;
+		}
 		/**
 		 * The test method to execute.
 		 * @param value the object id to test
@@ -1990,10 +2031,10 @@ public class CCMain extends JFrame implements LabelManager {
 				@Override
 				public void done() {
 					if (t != null) {
-						GUIUtils.errorMessage(t);
+						GUIUtils.errorMessage(parent, t);
 					} else
 					if (!result.isEmpty()) {
-						GUIUtils.errorMessage(result);
+						GUIUtils.errorMessage(parent, result);
 					}
 				}
 			}).execute();
@@ -2007,7 +2048,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 */
 	CCDetailDialog<AdvanceJDBCDataSource> createJDBCDialog(List<AdvanceJDBCDataSource> list, AdvanceJDBCDataSource selected) {
 		CCJDBCDetails d = new CCJDBCDetails(this);
-		d.setTestAction(new TestAction() {
+		d.setTestAction(new TestAction(d) {
 			@Override
 			public String run(String value) throws Throwable {
 				return engine.testJDBCDataSource(value);
@@ -2149,7 +2190,7 @@ public class CCMain extends JFrame implements LabelManager {
 				dialog.setLocationRelativeTo(parent);
 				dialog.setVisible(true);
 			} else {
-				GUIUtils.errorMessage(Option.getError(result));
+				GUIUtils.errorMessage(parent, Option.getError(result));
 			}
 		}
 	}
@@ -2163,7 +2204,7 @@ public class CCMain extends JFrame implements LabelManager {
 	CCDetailDialog<AdvanceJMSEndpoint> createJMSDialog(final JFrame f,
 			List<AdvanceJMSEndpoint> list, AdvanceJMSEndpoint selected) {
 		final CCJMSDetails d = new CCJMSDetails(this);
-		d.setTestAction(new TestAction() {
+		d.setTestAction(new TestAction(d) {
 			@Override
 			public String run(String value) throws Throwable {
 				return engine.testJMSEndpoint(value);
@@ -2208,5 +2249,70 @@ public class CCMain extends JFrame implements LabelManager {
 		dialog.setVisible(true);
 		
 		return dialog;
+	}
+	/**
+	 * Create the FTP details dialog.
+	 * @param f the parent frame
+	 * @param list the list of options
+	 * @param selected the selected option
+	 */
+	void createFTPDialog(JFrame f, List<AdvanceFTPDataSource> list, AdvanceFTPDataSource selected) {
+		final CCFTPDetails d = new CCFTPDetails(this);
+		d.setTestAction(new TestAction(d) {
+			@Override
+			public String run(String value) throws Throwable {
+				return engine.testFTPDataSource(value);
+
+			}
+		});
+		
+		final CCDetailDialog<AdvanceFTPDataSource> dialog = createDetailDialog(list, selected,
+				d,
+				new Func1<AdvanceFTPDataSource, String>() {
+					@Override
+					public String invoke(AdvanceFTPDataSource param1) {
+						String prot = "ftp";
+						if (param1.protocol == AdvanceFTPProtocols.FTPS) {
+							prot = "ftps";
+						} else
+						if (param1.protocol == AdvanceFTPProtocols.SFTP) {
+							prot = "sftp";
+						}
+						return param1.name + " [" + prot + "://" + param1.address + "/" + param1.remoteDirectory + "]";
+					}
+				},
+				new Func1<String, Option<AdvanceFTPDataSource>>() {
+					@Override
+					public Option<AdvanceFTPDataSource> invoke(String param1) {
+						try {
+							return Option.some(engine.datastore().queryFTPDataSource(param1));
+						} catch (Throwable t) {
+							return Option.error(t);
+						}
+					}
+				},
+				new Func1<AdvanceFTPDataSource, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceFTPDataSource param1) {
+						try {
+							engine.datastore().updateFTPDataSource(param1);
+							return null;
+						} catch (Throwable t) {
+							return t;
+						}
+					}
+				}
+			);
+		
+		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
+			@Override
+			public List<AdvanceKeyStore> invoke() throws Throwable {
+				return engine.datastore().queryKeyStores();
+			}
+			@Override
+			public void setter(List<AdvanceKeyStore> value) {
+				d.setKeyStores(value);
+			}
+		}).execute();
 	}
 }

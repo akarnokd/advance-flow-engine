@@ -70,11 +70,14 @@ public class CCJDBCDetails extends JPanel implements
 	protected JFormattedTextField pool;
 	/** Test the connection. */
 	protected JButton test;
+	/** The label manager. */
+	protected final LabelManager labels;
 	/**
 	 * Create the GUI.
 	 * @param labels the label manager.
 	 */
 	public CCJDBCDetails(@NonNull final LabelManager labels) {
+		this.labels = labels;
 		GroupLayout gl = new GroupLayout(this);
 		setLayout(gl);
 		gl.setAutoCreateGaps(true);
@@ -166,14 +169,14 @@ public class CCJDBCDetails extends JPanel implements
 		result.name = name.getText();
 		
 		if (result.name.isEmpty()) {
-			GUIUtils.errorMessage("Please enter a name!");
+			GUIUtils.errorMessage(this, labels.get("Please enter a name!"));
 			return null;
 		}
 		
 		AdvanceJDBCDrivers d = (AdvanceJDBCDrivers)driver.getSelectedItem();
 		if (d == AdvanceJDBCDrivers.GENERIC) {
 			if (customDriver.getText().isEmpty()) {
-				GUIUtils.errorMessage("Please enter the fully qualified class name of the driver!");
+				GUIUtils.errorMessage(this, labels.get("Please enter the fully qualified class name of the driver!"));
 				return null;
 			}
 			result.driver = customDriver.getText();
@@ -182,7 +185,7 @@ public class CCJDBCDetails extends JPanel implements
 		}
 		result.url = url.getText();
 		if (result.url.isEmpty()) {
-			GUIUtils.errorMessage("Please enter URL!");
+			GUIUtils.errorMessage(this, labels.get("Please enter URL!"));
 			return null;
 		}
 		result.user = user.getText();

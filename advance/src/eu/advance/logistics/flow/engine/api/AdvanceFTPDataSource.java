@@ -40,7 +40,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 	/** The remote base directory. */
 	public String remoteDirectory;
 	/** The user name used to login. */
-	public String user;
+	public String userOrKey;
 	/**
 	 * The password used to login. 
 	 * <p>Note that passwords are never returned from the 
@@ -53,6 +53,8 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 	public boolean passive;
 	/** The keystore used to trust the server. */
 	public String keyStore;
+	/** The login type. */
+	public AdvanceLoginType loginType;
 	/** The function to create a new instance of this class. */
 	public static final Func0<AdvanceFTPDataSource> CREATOR = new Func0<AdvanceFTPDataSource>() {
 		@Override
@@ -66,10 +68,11 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 		protocol = AdvanceFTPProtocols.valueOf(source.get("protocol"));
 		address = source.get("address");
 		remoteDirectory = source.get("remoted-directory");
-		user = source.get("user");
+		userOrKey = source.get("user-or-key");
 		password = getPassword(source, "password");
 		passive = source.getBoolean("passive");
 		keyStore = source.get("keystore");
+		loginType = AdvanceLoginType.valueOf(source.get("login-type"));
 		super.load(source);
 	}
 	@Override
@@ -79,10 +82,11 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 		destination.set("protocol", protocol);
 		destination.set("address", address);
 		destination.set("remote-directory", remoteDirectory);
-		destination.set("user", user);
+		destination.set("user", userOrKey);
 		setPassword(destination, "password", password);
 		destination.set("passive", passive);
 		destination.set("keystore", keyStore);
+		destination.set("login-type", loginType);
 		
 		super.save(destination);
 	}
@@ -94,7 +98,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 		result.protocol = protocol;
 		result.address = address;
 		result.remoteDirectory = remoteDirectory;
-		result.user = user;
+		result.userOrKey = userOrKey;
 		result.passive = passive;
 		result.password = password != null ? password.clone() : null;
 		result.keyStore = keyStore;

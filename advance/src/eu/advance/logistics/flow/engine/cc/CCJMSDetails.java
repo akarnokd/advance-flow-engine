@@ -165,14 +165,14 @@ public class CCJMSDetails extends JPanel implements
 		result.name = name.getText();
 		
 		if (result.name.isEmpty()) {
-			GUIUtils.errorMessage("Please enter a name!");
+			GUIUtils.errorMessage(this, "Please enter a name!");
 			return null;
 		}
 		
 		AdvanceJMSDrivers d = (AdvanceJMSDrivers)driver.getSelectedItem();
 		if (d == AdvanceJMSDrivers.GENERIC) {
 			if (customDriver.getText().isEmpty()) {
-				GUIUtils.errorMessage("Please enter the fully qualified class name of the driver!");
+				GUIUtils.errorMessage(this, "Please enter the fully qualified class name of the driver!");
 				return null;
 			}
 			result.driver = customDriver.getText();
@@ -181,7 +181,7 @@ public class CCJMSDetails extends JPanel implements
 		}
 		result.url = url.getText();
 		if (result.url.isEmpty()) {
-			GUIUtils.errorMessage("Please enter URL!");
+			GUIUtils.errorMessage(this, "Please enter URL!");
 			return null;
 		}
 		result.user = user.getText();

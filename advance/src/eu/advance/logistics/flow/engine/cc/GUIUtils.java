@@ -301,17 +301,19 @@ public final class GUIUtils {
 	}
 	/**
 	 * Display an error dialog with the message.
+	 * @param parent the parent component
 	 * @param text the message
 	 */
-	public static void errorMessage(String text) {
-		JOptionPane.showMessageDialog(null, text, "Error", JOptionPane.ERROR_MESSAGE);
+	public static void errorMessage(Component parent, String text) {
+		JOptionPane.showMessageDialog(parent, text, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	/**
 	 * Display an error dialog with the exception.
+	 * @param parent the parent component
 	 * @param t the exception
 	 */
-	public static void errorMessage(Throwable t) {
-		JOptionPane.showMessageDialog(null, t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+	public static void errorMessage(Component parent, Throwable t) {
+		JOptionPane.showMessageDialog(parent, t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	/**
 	 * Create a fixed count column form and return the vertical and horizontal group.

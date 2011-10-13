@@ -24,6 +24,7 @@ package eu.advance.logistics.flow.engine.cc;
 import hu.akarnokd.reactive4java.base.Func0;
 
 import java.awt.Container;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -183,8 +184,8 @@ public class CCLocalLogin extends JDialog {
 	/** Create the GUI elements. */
 	private void init() {
 		Container c = getContentPane();
-		
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setTitle("Local login");
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -406,7 +407,8 @@ public class CCLocalLogin extends JDialog {
 		try {
 			saveConfig();
 		} finally {
-			dispose();
+			WindowEvent e = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+			Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(e);
 		}
 	}
 	/** Show help. */
@@ -463,7 +465,7 @@ public class CCLocalLogin extends JDialog {
 			LOG.error(ex.toString(), ex);
 			errorMessage(ex.toString());
 		} catch (Throwable t) {
-			GUIUtils.errorMessage(t);
+			GUIUtils.errorMessage(this, t);
 		}
 		return false;
 	}
