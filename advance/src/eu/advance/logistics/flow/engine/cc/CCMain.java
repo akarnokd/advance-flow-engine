@@ -1142,6 +1142,38 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
+		if (user.rights.contains(AdvanceUserRights.CREATE_JMS_ENDPOINT)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					createJMSDialog(f, f.getRows(), null);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceJMSEndpoint>() {
+			@Override
+			public void invoke(AdvanceJMSEndpoint value) {
+				createJMSDialog(f, f.getRows(), value);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_JMS_ENDPOINT)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceJMSEndpoint, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceJMSEndpoint param1) {
+							try {
+								engine.datastore().deleteJMSEndpoint(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}
 		f.setColumnCount(5);
 		displayFrame(f, "managejdbc-", "Manage JDBC data sources");
 	}
@@ -1925,6 +1957,49 @@ public class CCMain extends JFrame implements LabelManager {
 		};
 	}
 	/**
+	 * The action to invoke a testXYZ method and report its string result or exception.
+	 * @author karnokd, 2011.10.13.
+	 */
+	public abstract static class TestAction implements Action1<String> {
+		/** The exception. */
+		protected Throwable t;
+		/** The call result. */
+		protected String result;
+		/**
+		 * The test method to execute.
+		 * @param value the object id to test
+		 * @return the test results
+		 * @throws Throwable on error
+		 */
+		public abstract String run(String value) throws Throwable;
+		@Override
+		public void invoke(final String value) {
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				/** The call result. */
+				String result;
+				@Override
+				public void run() {
+					try {
+						result = TestAction.this.run(value);
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(t);
+					} else
+					if (!result.isEmpty()) {
+						GUIUtils.errorMessage(result);
+					}
+				}
+			}).execute();
+		}
+	}
+	/**
 	 * Create a JDBC detail dialog.
 	 * @param list the available list of items
 	 * @param selected the selected item
@@ -1932,32 +2007,11 @@ public class CCMain extends JFrame implements LabelManager {
 	 */
 	CCDetailDialog<AdvanceJDBCDataSource> createJDBCDialog(List<AdvanceJDBCDataSource> list, AdvanceJDBCDataSource selected) {
 		CCJDBCDetails d = new CCJDBCDetails(this);
-		d.setTestAction(new Action1<String>() {
+		d.setTestAction(new TestAction() {
 			@Override
-			public void invoke(final String value) {
-				GUIUtils.getWorker(new WorkItem() {
-					/** The exception. */
-					Throwable t;
-					/** The call result. */
-					String result;
-					@Override
-					public void run() {
-						try {
-							result = engine.testJDBCDataSource(value);
-						} catch (Throwable t) {
-							this.t = t;
-						}
-					}
-					@Override
-					public void done() {
-						if (t != null) {
-							GUIUtils.errorMessage(t);
-						} else
-						if (!result.isEmpty()) {
-							GUIUtils.errorMessage(result);
-						}
-					}
-				}).execute();
+			public String run(String value) throws Throwable {
+				return engine.testJDBCDataSource(value);
+
 			}
 		});
 		return createDetailDialog(list, selected,
@@ -2098,5 +2152,61 @@ public class CCMain extends JFrame implements LabelManager {
 				GUIUtils.errorMessage(Option.getError(result));
 			}
 		}
+	}
+	/**
+	 * Create a SOAP detail dialog.
+	 * @param f the parent frame
+	 * @param list the list of available entries.
+	 * @param selected the selected entry
+	 * @return the dialog object
+	 */
+	CCDetailDialog<AdvanceJMSEndpoint> createJMSDialog(final JFrame f,
+			List<AdvanceJMSEndpoint> list, AdvanceJMSEndpoint selected) {
+		final CCJMSDetails d = new CCJMSDetails(this);
+		d.setTestAction(new TestAction() {
+			@Override
+			public String run(String value) throws Throwable {
+				return engine.testJMSEndpoint(value);
+
+			}
+		});
+		
+		final CCDetailDialog<AdvanceJMSEndpoint> dialog = createDetailDialog(list, selected,
+				d,
+				new Func1<AdvanceJMSEndpoint, String>() {
+					@Override
+					public String invoke(AdvanceJMSEndpoint param1) {
+						return param1.name + " [" + param1.url + "]";
+					}
+				},
+				new Func1<String, Option<AdvanceJMSEndpoint>>() {
+					@Override
+					public Option<AdvanceJMSEndpoint> invoke(String param1) {
+						try {
+							return Option.some(engine.datastore().queryJMSEndpoint(param1));
+						} catch (Throwable t) {
+							return Option.error(t);
+						}
+					}
+				},
+				new Func1<AdvanceJMSEndpoint, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceJMSEndpoint param1) {
+						try {
+							engine.datastore().updateJMSEndpoint(param1);
+							return null;
+						} catch (Throwable t) {
+							return t;
+						}
+					}
+				}
+			);
+		
+		setEngineInfo(dialog.engineInfo);
+		dialog.pack();
+		dialog.setLocationRelativeTo(f);
+		dialog.setVisible(true);
+		
+		return dialog;
 	}
 }

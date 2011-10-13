@@ -462,6 +462,8 @@ public class CCLocalLogin extends JDialog {
 		} catch (AdvanceControlException ex) {
 			LOG.error(ex.toString(), ex);
 			errorMessage(ex.toString());
+		} catch (Throwable t) {
+			GUIUtils.errorMessage(t);
 		}
 		return false;
 	}

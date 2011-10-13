@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.Group;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -331,7 +332,7 @@ public final class GUIUtils {
 		}
 		for (int r = 0; r < elements.length; r++) {
 			if (r % columns == 0) {
-				Group g = gl.createParallelGroup();
+				Group g = gl.createParallelGroup(Alignment.BASELINE);
 				row.add(g);
 				vg.addGroup(g);
 			}

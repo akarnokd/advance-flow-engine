@@ -516,7 +516,7 @@ public class CheckedDataStore implements AdvanceDataStore {
 	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.CREATE_EMAIL, AdvanceUserRights.MODIFY_EMAIL);
-		datastore.updateEmailBox(box);
+		datastore.updateEmailBox(changeModifiedBy(box));
 	}
 	@Override
 	public void deleteSOAPChannel(String name) throws IOException,
@@ -528,5 +528,6 @@ public class CheckedDataStore implements AdvanceDataStore {
 	public void updateSOAPChannel(AdvanceSOAPChannel channel)
 			throws IOException, AdvanceControlException {
 		check(AdvanceUserRights.MODIFY_SOAP_CHANNEL);
+		datastore.updateSOAPChannel(changeModifiedBy(channel));
 	}
 }
