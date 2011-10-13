@@ -501,6 +501,17 @@ public class DummyDataStore implements AdvanceDataStore {
 	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
+	}
+	@Override
+	public void deleteSOAPChannel(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
 		
 	}
 }

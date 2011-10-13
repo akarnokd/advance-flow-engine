@@ -431,4 +431,14 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 			AdvanceControlException {
 		comm.send(XSerializables.createUpdate("update-email-box", box));
 	}
+	@Override
+	public void deleteSOAPChannel(String name) throws IOException,
+			AdvanceControlException {
+		comm.send(XSerializables.createRequest("delete-soap-channel", "name", name));		
+	}
+	@Override
+	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+			throws IOException, AdvanceControlException {
+		comm.send(XSerializables.createUpdate("update-soap-channel", channel));		
+	}
 }

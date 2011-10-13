@@ -170,6 +170,8 @@ public class CCLocalLogin extends JDialog {
 	protected JTextField newPath;
 	/** The login button. */
 	protected JButton login;
+	/** The last login save location. */
+	private File config = new File("conf/advance-ecc-local-logins.xml");
 	/**
 	 * Create the GUI.
 	 * @param labels the label manager.
@@ -379,10 +381,9 @@ public class CCLocalLogin extends JDialog {
 	}
 	/** Load last login information. */
 	void loadConfig() {
-		File f = new File("advance-ecc-local-logins.xml");
-		if (f.canRead()) {
+		if (config.canRead()) {
 			try {
-				XElement e = XElement.parseXML(f);
+				XElement e = XElement.parseXML(config);
 				rows.clear();
 				rows.addAll(XSerializables.parseList(e, "last-login", LastLocalLogin.CREATOR));
 			} catch (IOException ex) {
@@ -395,7 +396,7 @@ public class CCLocalLogin extends JDialog {
 	/** Save a configuration. */
 	void saveConfig() {
 		try {
-			XSerializables.storeList("last-logins", "last-login", rows).save("advance-ecc-local-logins.xml");
+			XSerializables.storeList("last-logins", "last-login", rows).save(config);
 		} catch (IOException ex) {
 			LOG.error(ex.toString(), ex);
 		}			

@@ -30,7 +30,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * @author karnokd, 2011.09.20.
  */
 public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo 
-implements XSerializable, Copyable<AdvanceLocalFileDataSource> {
+implements XSerializable, Copyable<AdvanceLocalFileDataSource>, Identifiable<String> {
 	/** The name of the data source as used by blocks. */
 	public String name;
 	/** The directory where the file source(s) are located. */
@@ -64,5 +64,9 @@ implements XSerializable, Copyable<AdvanceLocalFileDataSource> {
 		assignTo(result);
 		
 		return result;
+	}
+	@Override
+	public String id() {
+		return name;
 	}
 }
