@@ -434,7 +434,7 @@ public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser
 		u.enabled = enabled.isSelected();
 		u.name = name.getText();
 		if (u.name == null || u.name.isEmpty()) {
-			GUIUtils.errorMessage("Please enter a user name!");
+			GUIUtils.errorMessage(this, labels.get("Please enter a user name!"));
 			name.requestFocus();
 			return null;
 		}
@@ -443,32 +443,32 @@ public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser
 		u.sms = sms.getText();
 		u.dateFormat = (String)dateFormat.getSelectedItem();
 		if (u.dateFormat == null || u.dateFormat.isEmpty()) {
-			GUIUtils.errorMessage("Please select a date format!");
+			GUIUtils.errorMessage(this, labels.get("Please select a date format!"));
 			dateFormat.requestFocus();
 			return null;
 		}
 		u.dateTimeFormat = (String)dateTimeFormat.getSelectedItem();
 		if (u.dateTimeFormat == null || u.dateTimeFormat.isEmpty()) {
-			GUIUtils.errorMessage("Please select a date and time format!");
+			GUIUtils.errorMessage(this, labels.get("Please select a date and time format!"));
 			dateTimeFormat.requestFocus();
 			return null;
 		}
 		u.numberFormat = (String)numberFormat.getSelectedItem();
 		if (u.numberFormat == null || u.numberFormat.isEmpty()) {
-			GUIUtils.errorMessage("Please select a number format!");
+			GUIUtils.errorMessage(this, labels.get("Please select a number format!"));
 			numberFormat.requestFocus();
 			return null;
 		}
 		String s = thousandSeparator.getText();
 		if (s.length() != 1) {
-			GUIUtils.errorMessage("Please enter a single thousand separator character!");
+			GUIUtils.errorMessage(this, labels.get("Please enter a single thousand separator character!"));
 			thousandSeparator.requestFocus();
 			return null;
 		}
 		u.thousandSeparator = s.charAt(0);
 		s = decimalSeparator.getText();
 		if (s.length() != 1) {
-			GUIUtils.errorMessage("Please enter a single decimal separator character!");
+			GUIUtils.errorMessage(this, labels.get("Please enter a single decimal separator character!"));
 			decimalSeparator.requestFocus();
 			return null;
 		}

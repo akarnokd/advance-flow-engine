@@ -205,6 +205,7 @@ public class CCSOAPDetails extends JPanel implements
 	@Override
 	public void load(AdvanceSOAPChannel value) {
 		name.setText(value.name);
+		name.setEditable(false);
 		endpoint.setText(value.endpoint.toString());
 		targetURI.setText(value.targetObject.toString());
 		targetNamespace.setText(value.targetNamespace.toString());
@@ -225,26 +226,26 @@ public class CCSOAPDetails extends JPanel implements
 		AdvanceSOAPChannel result = new AdvanceSOAPChannel();
 		result.name = name.getText();
 		if (result.name.isEmpty()) {
-			GUIUtils.errorMessage(labels.get("Please enter a name!"));
+			GUIUtils.errorMessage(this, labels.get("Please enter a name!"));
 			return null;
 		}
 		try {
 			result.endpoint = new URL(endpoint.getText());
 		} catch (MalformedURLException ex) {
-			GUIUtils.errorMessage(ex);
+			GUIUtils.errorMessage(this, ex);
 			return null;
 		}
 		try {
 			result.targetObject = new URI(targetURI.getText());
 		} catch (URISyntaxException ex) {
-			GUIUtils.errorMessage(ex);
+			GUIUtils.errorMessage(this, ex);
 			return null;
 		}
 		if (!targetNamespace.getText().isEmpty()) {
 			try {
 				result.targetNamespace = new URI(targetNamespace.getText());
 			} catch (URISyntaxException ex) {
-				GUIUtils.errorMessage(ex);
+				GUIUtils.errorMessage(this, ex);
 				return null;
 			}
 		}
@@ -255,7 +256,7 @@ public class CCSOAPDetails extends JPanel implements
 			result.keyStore = (String)keystores.getSelectedItem();
 			result.keyAlias = alias.getText();
 			if (result.keyAlias.isEmpty()) {
-				GUIUtils.errorMessage(labels.get("Please enter a key alias!"));
+				GUIUtils.errorMessage(this, labels.get("Please enter a key alias!"));
 				return null;
 			}
 			char[] pw = password.getPassword();

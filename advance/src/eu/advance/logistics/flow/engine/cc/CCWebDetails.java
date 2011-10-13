@@ -52,11 +52,14 @@ public class CCWebDetails extends JPanel implements CCLoadSave<AdvanceWebDataSou
 	protected JTextField name;
 	/** The url. */
 	protected JTextField url;
+	/** The label manager. */
+	protected final LabelManager labels;
 	/**
 	 * Create the panel GUI.
 	 * @param labels the label manager
 	 */
 	public CCWebDetails(@NonNull final LabelManager labels) {
+		this.labels = labels;
 		login = new LoginTypePanel(labels);
 		login.setBorder(BorderFactory.createTitledBorder(labels.get("Authentication")));
 		name = new JTextField();
@@ -130,10 +133,14 @@ public class CCWebDetails extends JPanel implements CCLoadSave<AdvanceWebDataSou
 	public AdvanceWebDataSource save() {
 		final AdvanceWebDataSource e = new AdvanceWebDataSource();
 		e.name = getWebName();
+		if (e.name.isEmpty()) {
+			GUIUtils.errorMessage(this, labels.get("Please enter a name!"));
+			return null;
+		}
 		try {
 			e.url = new URL(getURL());
 		} catch (MalformedURLException ex) {
-			GUIUtils.errorMessage(ex);
+			GUIUtils.errorMessage(this, ex);
 			return null;
 		}
 		e.loginType = login.getLoginType();
@@ -180,14 +187,18 @@ public class CCWebDetails extends JPanel implements CCLoadSave<AdvanceWebDataSou
 		switch (e.loginType) {
 		case NONE:
 			login.none.setSelected(true);
+			login.setAlias("");
+			login.setKeyStore("");
 			break;
 		case BASIC:
 			login.viaPassword.setSelected(true);
 			login.setUserName(e.userOrKeyAlias);
-			login.setUserPassword(e.password());
+			login.setAlias("");
+			login.setKeyStore("");
 			break;
 		case CERTIFICATE:
 			login.viaCertificate.setSelected(true);
+			login.setUserName("");
 			login.setKeyPassword(e.password());
 			login.setAlias(e.userOrKeyAlias);
 			login.setKeyStore(e.keyStore);

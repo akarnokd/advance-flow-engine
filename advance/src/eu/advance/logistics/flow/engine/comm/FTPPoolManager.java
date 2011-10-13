@@ -161,8 +161,8 @@ public class FTPPoolManager implements PoolManager<FTPConnection> {
 		if (ds.passive) {
 			client.enterLocalPassiveMode();
 		}
-		if (!client.login(ds.user, new String(ds.password()))) {
-			throw new IOException("Login failed with user " + ds.user);
+		if (!client.login(ds.userOrKey, new String(ds.password()))) {
+			throw new IOException("Login failed with user " + ds.userOrKey);
 		}
 		if (!client.changeWorkingDirectory(ds.remoteDirectory)) {
 			throw new IOException("Could not change directory to " + ds.remoteDirectory);
@@ -331,7 +331,7 @@ public class FTPPoolManager implements PoolManager<FTPConnection> {
 		}
 		
 		PasswordAuthenticationClient auth = new PasswordAuthenticationClient();
-		auth.setUsername(ds.user);
+		auth.setUsername(ds.userOrKey);
 		auth.setPassword(new String(ds.password()));
 		
 		if (ssh.authenticate(auth) != AuthenticationProtocolState.COMPLETE) {
