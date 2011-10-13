@@ -187,15 +187,18 @@ public class CCMain extends JFrame implements LabelManager {
 	 * @param target the target frame
 	 * @param props the properties
 	 * @param prefix the prefix
+	 * @return true if the state was restored
 	 */
-	public static void applyFrameState(Dialog target, Properties props, String prefix) {
+	public static boolean applyFrameState(Dialog target, Properties props, String prefix) {
 		if (props.getProperty(prefix + "x") != null) {
 			int x = getInt(prefix + "x", props);
 			int y = getInt(prefix + "y", props);
 			int w = getInt(prefix + "w", props);
 			int h = getInt(prefix + "h", props);
 			target.setBounds(x, y, w, h);
+			return true;
 		}
+		return false;
 	}
 	/**
 	 * Store the state of the target frame.
@@ -1393,6 +1396,38 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
+		if (user.rights.contains(AdvanceUserRights.CREATE_LOCAL_FILE_DATA_SOURCE)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					createLocalDialog(f, f.getRows(), null);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceLocalFileDataSource>() {
+			@Override
+			public void invoke(AdvanceLocalFileDataSource value) {
+				createLocalDialog(f, f.getRows(), value);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_LOCAL_FILE_DATA_SOURCE)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceLocalFileDataSource, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceLocalFileDataSource param1) {
+							try {
+								engine.datastore().deleteLocalFileDataSource(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}
 		f.setColumnCount(4);
 		displayFrame(f, "managelocal-", "Manage Local data sources");
 	}
@@ -1699,10 +1734,6 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/** Open the remote login dialog. */
 	void doRemoteLogin() {
-		LOG.error("Implement!");
-	}
-	/** Open the notification management screen. */
-	void doManageNotificationGroups() {
 		LOG.error("Implement!");
 	}
 	/** Show the results of the last compilation. */
@@ -2314,5 +2345,72 @@ public class CCMain extends JFrame implements LabelManager {
 				d.setKeyStores(value);
 			}
 		}).execute();
+	}
+	/**
+	 * Create the FTP details dialog.
+	 * @param f the parent frame
+	 * @param list the list of options
+	 * @param selected the selected option
+	 */
+	void createLocalDialog(JFrame f, List<AdvanceLocalFileDataSource> list, AdvanceLocalFileDataSource selected) {
+		final CCLocalDetails d = new CCLocalDetails(this);
+		
+		final CCDetailDialog<AdvanceLocalFileDataSource> dialog = createDetailDialog(list, selected,
+				d,
+				new Func1<AdvanceLocalFileDataSource, String>() {
+					@Override
+					public String invoke(AdvanceLocalFileDataSource param1) {
+						return param1.name + " [" + param1.directory + "]";
+					}
+				},
+				new Func1<String, Option<AdvanceLocalFileDataSource>>() {
+					@Override
+					public Option<AdvanceLocalFileDataSource> invoke(String param1) {
+						try {
+							return Option.some(engine.datastore().queryLocalFileDataSource(param1));
+						} catch (Throwable t) {
+							return Option.error(t);
+						}
+					}
+				},
+				new Func1<AdvanceLocalFileDataSource, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceLocalFileDataSource param1) {
+						try {
+							engine.datastore().updateLocalFileDataSource(param1);
+							return null;
+						} catch (Throwable t) {
+							return t;
+						}
+					}
+				}
+			);
+		setEngineInfo(dialog.engineInfo);
+		dialog.pack();
+		dialog.setLocationRelativeTo(f);
+		dialog.setVisible(true);
+	}
+	/** Open the notification management screen. */
+	void doManageNotificationGroups() {
+		LOG.error("Implement!");
+		// TODO implement
+		final CCGroups g = new CCGroups(this);
+
+		final String prefix = "managegroups-";
+		
+		
+		g.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(g, props, prefix);
+			}
+		});
+		if (!applyFrameState(g, props, prefix)) {
+			g.pack();
+		}
+		g.setLocationRelativeTo(this);
+		g.setVisible(true);
+		g.refresh();
+		
 	}
 }
