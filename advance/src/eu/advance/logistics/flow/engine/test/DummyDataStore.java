@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +53,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceJMSDrivers;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
@@ -60,7 +62,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -170,19 +171,19 @@ public class DummyDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
+	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
 			throws IOException, AdvanceControlException {
-		Map<AdvanceNotificationGroupType, Map<String, Set<String>>> result = Maps.newHashMap();
+		Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> result = Maps.newHashMap();
 		
 		result.put(AdvanceNotificationGroupType.EMAIL, 
 				Collections.singletonMap("Group1", 
-						Collections.singleton("test@advance-logistics.eu")));
+						(Collection<String>)Collections.singleton("test@advance-logistics.eu")));
 		return result;
 	}
 
 	@Override
 	public void updateNotificationGroups(
-			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
+			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups)
 			throws IOException, AdvanceControlException {
 		// NO operation
 	}

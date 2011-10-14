@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,7 +121,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
+	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -128,7 +129,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 
 	@Override
 	public void updateNotificationGroups(
-			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
+			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		

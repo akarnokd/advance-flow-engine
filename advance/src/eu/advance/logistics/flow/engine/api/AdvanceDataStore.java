@@ -22,9 +22,9 @@
 package eu.advance.logistics.flow.engine.api;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -124,7 +124,7 @@ public interface AdvanceDataStore {
 	 * @throws AdvanceControlException if the user is not allowed to modify the target user
 	 */
 	@NonNull 
-	Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups() throws IOException, AdvanceControlException;
+	Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups() throws IOException, AdvanceControlException;
 	/**
 	 * Update the notification groups. Note that this update is considered complete, e.g., the existing group
 	 * settings will be deleted and replaced by the contents of the map.
@@ -132,7 +132,7 @@ public interface AdvanceDataStore {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the target user
 	 */
-	void updateNotificationGroups(@NonNull Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups) throws IOException, AdvanceControlException;
+	void updateNotificationGroups(@NonNull Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups) throws IOException, AdvanceControlException;
 	/**
 	 * List the available JDBC data sources.
 	 * @return the list of JDBC data sources
@@ -354,7 +354,7 @@ public interface AdvanceDataStore {
 	 * @throws AdvanceControlException if the user has no right
 	 */
 	@NonNull 
-	Set<String> queryNotificationGroup(@NonNull AdvanceNotificationGroupType type, @NonNull String name) throws IOException, AdvanceControlException;
+	Collection<String> queryNotificationGroup(@NonNull AdvanceNotificationGroupType type, @NonNull String name) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve the block state.
 	 * @param realm the target realm

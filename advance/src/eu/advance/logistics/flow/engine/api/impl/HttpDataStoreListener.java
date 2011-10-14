@@ -22,7 +22,7 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Collection;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -30,8 +30,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
-import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
@@ -39,10 +37,12 @@ import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
@@ -172,7 +172,7 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			ds.deleteKeyStore(request.get("keystore"));
 		} else
 		if ("query-notification-group".equals(function)) {
-			Set<String> contacts = ds.queryNotificationGroup(AdvanceNotificationGroupType.valueOf(request.get("type")), request.get("name"));
+			Collection<String> contacts = ds.queryNotificationGroup(AdvanceNotificationGroupType.valueOf(request.get("type")), request.get("name"));
 			XElement response = new XElement("group");
 			for (String s : contacts) {
 				response.add("contact").set("value", s);

@@ -23,9 +23,9 @@ package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +49,8 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.api.HasPassword;
 import eu.advance.logistics.flow.engine.api.Copyable;
+import eu.advance.logistics.flow.engine.api.HasPassword;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -252,7 +252,7 @@ public class CheckedDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
+	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
 			throws IOException, AdvanceControlException {
 		check(AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
 		return datastore.queryNotificationGroups();
@@ -260,7 +260,7 @@ public class CheckedDataStore implements AdvanceDataStore {
 
 	@Override
 	public void updateNotificationGroups(
-			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
+			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups)
 			throws IOException, AdvanceControlException {
 		check(AdvanceUserRights.MODIFY_NOTIFICATION_GROUPS);
 		datastore.updateNotificationGroups(groups);
@@ -457,7 +457,7 @@ public class CheckedDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public Set<String> queryNotificationGroup(
+	public Collection<String> queryNotificationGroup(
 			AdvanceNotificationGroupType type, String name) throws IOException, AdvanceControlException {
 		check(AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
 		return datastore.queryNotificationGroup(type, name);

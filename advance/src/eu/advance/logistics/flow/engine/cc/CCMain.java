@@ -175,9 +175,11 @@ public class CCMain extends JFrame implements LabelManager {
 			int y = getInt(prefix + "y", props);
 			int w = getInt(prefix + "w", props);
 			int h = getInt(prefix + "h", props);
-			int s = getInt(prefix + "s", props);
 			target.setBounds(x, y, w, h);
-			target.setExtendedState(s);
+			if (props.getProperty(prefix + "s") != null) {
+				int s = getInt(prefix + "s", props);
+				target.setExtendedState(s);
+			}
 			return true;
 		}
 		return false;
@@ -276,11 +278,7 @@ public class CCMain extends JFrame implements LabelManager {
 		try {
 			disconnectEngine();
 		} finally {
-			try {
-				saveConfig();
-			} finally {
-				dispose();
-			}
+			saveConfig();
 		}
 		
 	}
@@ -308,7 +306,7 @@ public class CCMain extends JFrame implements LabelManager {
 	public CCMain() {
 		super();
 		setTitle(format("ADVANCE Flow Engine Control Center v%s", AdvanceFlowEngine.VERSION));
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -1671,7 +1669,7 @@ public class CCMain extends JFrame implements LabelManager {
 		dialog.buttons.setClose(new Action0() {
 			@Override
 			public void invoke() {
-				dialog.dispose();
+				dialog.close();
 			}
 		});
 		dialog.buttons.setRefresh(new Action0() {
@@ -2392,9 +2390,7 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/** Open the notification management screen. */
 	void doManageNotificationGroups() {
-		LOG.error("Implement!");
-		// TODO implement
-		final CCGroups g = new CCGroups(this);
+		final CCGroups g = new CCGroups(this, engine.datastore());
 
 		final String prefix = "managegroups-";
 		
@@ -2408,6 +2404,7 @@ public class CCMain extends JFrame implements LabelManager {
 		if (!applyFrameState(g, props, prefix)) {
 			g.pack();
 		}
+		setEngineInfo(g.engineInfo);
 		g.setLocationRelativeTo(this);
 		g.setVisible(true);
 		g.refresh();

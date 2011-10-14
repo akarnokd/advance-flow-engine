@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
@@ -46,7 +48,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
@@ -166,7 +167,7 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
+	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
 			throws IOException,
 			AdvanceControlException {
 		XElement response = comm.query(XSerializables.createRequest("query-notification-groups"));
@@ -175,7 +176,7 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 
 	@Override
 	public void updateNotificationGroups(
-			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
+			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups)
 			throws IOException, AdvanceControlException {
 		XElement request = LocalDataStore.createGroups("update-notification-groups", groups);
 		comm.send(request);
