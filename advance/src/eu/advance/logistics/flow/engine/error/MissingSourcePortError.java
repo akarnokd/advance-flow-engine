@@ -71,5 +71,8 @@ public class MissingSourcePortError implements AdvanceCompilationError {
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(MissingSourcePortError.class.getSimpleName(), CREATOR);
 	}
-
+	@Override
+	public String toString() {
+		return "Wire " + binding.id + " has missing source (" + binding.sourceBlock + ", " + binding.sourceParameter + ")";
+	}
 }

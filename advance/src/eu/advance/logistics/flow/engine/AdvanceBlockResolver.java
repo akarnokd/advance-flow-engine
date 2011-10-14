@@ -50,7 +50,7 @@ public class AdvanceBlockResolver {
 	 * @param blocks the map from block name to block description
 	 */
 	public AdvanceBlockResolver(Map<String, AdvanceBlockRegistryEntry> blocks) {
-		blocks.putAll(blocks);
+		this.blocks.putAll(blocks);
 	}
 	/**
 	 * Locate the block description in the repository (e.g., block-repository.xml).

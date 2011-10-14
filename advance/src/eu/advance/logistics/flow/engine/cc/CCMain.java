@@ -46,6 +46,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -54,6 +55,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -61,7 +63,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +92,11 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.Identifiable;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The main window of the engine control center.
@@ -120,6 +129,8 @@ public class CCMain extends JFrame implements LabelManager {
 	protected boolean localEngine;
 	/** The properties. */
 	protected Properties props = new Properties();
+	/** The last directory. */
+	protected File lastDirectory = new File(".");
 	/**
 	 * Returns a label for the given key.
 	 * @param key the key
@@ -161,6 +172,9 @@ public class CCMain extends JFrame implements LabelManager {
 	 */
 	protected void applyConfig(Properties props) {
 		applyFrameState(this, props, "main-");
+		if (props.getProperty("main-last-directory") != null) {
+			lastDirectory = new File(props.getProperty("main-last-directory"));
+		}
 	}
 	/**
 	 * Apply the state to the target frame named by the prefix within the properties.
@@ -255,6 +269,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 */
 	protected void storeConfig(Properties props) {
 		storeFrameState(this, props, "main-");
+		props.setProperty("main-last-directory", lastDirectory.getAbsolutePath());
 	}
 	/** Save the configuration. */
 	public void saveConfig() {
@@ -340,6 +355,7 @@ public class CCMain extends JFrame implements LabelManager {
 		setJMenuBar(new JMenuBar());
 		addItem(fromMethod(this, "doLocalLogin"), "Engine", "Login embedded...");
 		addItem(fromMethod(this, "doRemoteLogin"), "Engine", "Login remote...");
+		locateMenu("Engine").addSeparator();
 		addItem(fromMethod(this, "doExit"), "Engine", "Exit");
 		
 		addItem(fromMethod(this, "doManageLocalKeyStores"), "Keystores", "Manage local keystores...");
@@ -347,6 +363,7 @@ public class CCMain extends JFrame implements LabelManager {
 		
 		menusToEnable.put(addItem(fromMethod(this, "doDownloadFlow"), "Flow", "Download..."), AdvanceUserRights.LIST_KEYSTORES);
 		menusToEnable.put(addItem(fromMethod(this, "doUploadFlow"), "Flow", "Upload..."), AdvanceUserRights.LIST_REALMS);
+		locateMenu("Flow").addSeparator();
 		menusToEnable.put(addItem(fromMethod(this, "doVerifyFlow"), "Flow", "Verify..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doDebugFlow"), "Flow", "Debug..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doLastCompilationResult"), "Flow", "Last compilation result..."), AdvanceUserRights.LIST_REALMS);
@@ -354,6 +371,8 @@ public class CCMain extends JFrame implements LabelManager {
 		menusToEnable.put(addItem(fromMethod(this, "doManageRealms"), "Administration", "Manage realms..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageUsers"), "Administration", "Manage users..."), AdvanceUserRights.LIST_USERS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageNotificationGroups"), "Administration", "Manage notification groups..."), AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
+		menusToEnable.put(addItem(fromMethod(this, "doListBlocks"), "Administration", "List blocks..."), AdvanceUserRights.LIST_BLOCKS);
+		locateMenu("Administration").addSeparator();
 		menusToEnable.put(addItem(fromMethod(this, "doShutdown"), "Administration", "Shutdown"), AdvanceUserRights.SHUTDOWN);
 		
 		menusToEnable.put(addItem(fromMethod(this, "doJDBCDataSources"), "Data sources", "JDBC..."), AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
@@ -486,6 +505,18 @@ public class CCMain extends JFrame implements LabelManager {
 		parent.add(mi);
 		
 		return mi;
+	}
+	/**
+	 * Locate a particular menu via the path.
+	 * @param titles the menu titles
+	 * @return the menu located
+	 */
+	protected JMenu locateMenu(String... titles) {
+		JMenu m = findOrCreateMenu(titles[0]);
+		for (int i = 1; i < titles.length; i++) {
+			m = findOrCreateMenu(m, titles[i]);
+		}
+		return m;
 	}
 	/**
 	 * Find or create a root menu.
@@ -1463,6 +1494,12 @@ public class CCMain extends JFrame implements LabelManager {
 				}).execute();
 			}
 		});
+		f.setExtraButton(0, "Download...", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doDownloadFlowAction(f, f.getSelectedItems().iterator());
+			}
+		});
 		f.setColumnCount(4);
 		displayFrame(f, "managedownload-", "Download Flow");
 	}
@@ -1501,6 +1538,16 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
+		f.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		f.setExtraButton(0, "Upload...", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<AdvanceRealm> list = f.getSelectedItems();
+				if (list.size() == 1) {
+					doUploadFlowAction(f, list.get(0).name);
+				}
+			}
+		});
 		displayFrame(f, "manageupload-", "Upload Flow");
 	}
 	/**
@@ -1740,10 +1787,6 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/** Debug a flow. */
 	void doDebugFlow() {
-		LOG.error("Implement!");
-	}
-	/** Verify a flow. */
-	void doVerifyFlow() {
 		LOG.error("Implement!");
 	}
 	/** Shutdown engine. */
@@ -2409,5 +2452,194 @@ public class CCMain extends JFrame implements LabelManager {
 		g.setVisible(true);
 		g.refresh();
 		
+	}
+	/**
+	 * Download a flow.
+	 * @param frame the target frame
+	 * @param realms the sequence of realms
+	 */
+	void doDownloadFlowAction(final JFrame frame, final Iterator<AdvanceRealm> realms) {
+		if (realms.hasNext()) {
+			AdvanceRealm r = realms.next();
+			final String rname = r.name; 
+			JFileChooser fc = new JFileChooser(lastDirectory);
+			fc.setFileFilter(new FileNameExtensionFilter("XML files (*.xml)", "xml"));
+			fc.setDialogTitle(format("Save flow of realm %s", rname));
+			fc.setAcceptAllFileFilterUsed(true);
+			if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+				final File f = fc.getSelectedFile();
+				lastDirectory = f.getParentFile();
+				GUIUtils.getWorker(new WorkItem() {
+					/** The exception. */
+					Throwable t;
+					/** The returned flow. */
+					AdvanceCompositeBlock b;
+					@Override
+					public void run() {
+						try {
+							b = engine.queryFlow(rname);
+							if (b != null) {
+								b.serializeFlow().save(f);
+							}
+						} catch (Throwable t) {
+							this.t = t;
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(frame, t);
+						} else {
+							if (b == null) {
+								GUIUtils.infoMessage(frame, format("Realm %s was empty.", rname));
+							}
+							doDownloadFlowAction(frame, realms);
+						}
+					}
+				}).execute();
+			}
+		}
+	}
+	/**
+	 * Upload the selected file into the realm.
+	 * @param frame the parent frame
+	 * @param realm the target realm
+	 */
+	void doUploadFlowAction(final JFrame frame, final String realm) {
+		JFileChooser fc = new JFileChooser(lastDirectory);
+		fc.setFileFilter(new FileNameExtensionFilter("XML files (*.xml)", "xml"));
+		fc.setDialogTitle(format("Upload flow into realm %s", realm));
+		fc.setAcceptAllFileFilterUsed(true);
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			lastDirectory = f.getParentFile();
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				/** The compilation result. */
+				AdvanceCompilationResult r;
+				@Override
+				public void run() {
+					try {
+						AdvanceCompositeBlock b = AdvanceCompositeBlock.parseFlow(XElement.parseXML(f));
+						engine.updateFlow(realm, b, user.name);
+						r = engine.queryCompilationResult(realm);
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(frame, t);
+					} else {
+						if (r != null && !r.success()) {
+							StringBuilder b = new StringBuilder();
+							for (AdvanceCompilationError e : r.errors) {
+								b.append(e);
+								b.append("\r\n");
+							}
+							GUIUtils.errorMessage(frame, b.toString());
+						}
+					}
+				}
+			}).execute();
+		}
+	}
+	/** Verify a flow. */
+	void doVerifyFlow() {
+		JFileChooser fc = new JFileChooser(lastDirectory);
+		fc.setFileFilter(new FileNameExtensionFilter("XML files (*.xml)", "xml"));
+		fc.setDialogTitle(get("Verify flow"));
+		fc.setAcceptAllFileFilterUsed(true);
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			lastDirectory = f.getParentFile();
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				/** The compilation result. */
+				AdvanceCompilationResult r;
+				@Override
+				public void run() {
+					try {
+						AdvanceCompositeBlock b = AdvanceCompositeBlock.parseFlow(XElement.parseXML(f));
+						r = engine.verifyFlow(b);
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(CCMain.this, t);
+					} else {
+						if (!r.success()) {
+							StringBuilder b = new StringBuilder("<html><pre>");
+							for (AdvanceCompilationError e : r.errors) {
+								b.append(e);
+								b.append("\r\n");
+							}
+							GUIUtils.errorMessage(CCMain.this, b.toString());
+						} else {
+							GUIUtils.infoMessage(CCMain.this, get("Verification successful!"));
+						}
+					}
+				}
+			}).execute();
+		}
+	}
+	/** List supported blocks. */
+	void doListBlocks() {
+		final CCBlockList g = new CCBlockList(this, engine) {
+			/** */
+			private static final long serialVersionUID = -692098329697915848L;
+
+			@Override
+			public void export() {
+				JFileChooser fc = new JFileChooser(lastDirectory);
+				fc.setFileFilter(new FileNameExtensionFilter("XML files (*.xml)", "xml"));
+				fc.setDialogTitle(get("Export block registry"));
+				fc.setAcceptAllFileFilterUsed(true);
+				if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+					final File f = fc.getSelectedFile();
+					lastDirectory = f.getParentFile();
+					final Component c = this;
+					GUIUtils.getWorker(new WorkItem() {
+						/** The exception. */
+						Throwable t;
+						@Override
+						public void run() {
+							try {
+								AdvanceBlockRegistryEntry.serializeRegistry(engine.queryBlocks()).save(f);
+							} catch (Throwable t) {
+								this.t = t;
+							}
+						}
+						@Override
+						public void done() {
+							if (t != null) {
+								GUIUtils.errorMessage(c, t);
+							}
+						}
+					}).execute();
+				}
+			}
+		};
+		final String prefix = "blocks-";
+		
+		g.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(g, props, prefix);
+			}
+		});
+		if (!applyFrameState(g, props, prefix)) {
+			g.pack();
+		}
+		setEngineInfo(g.engineInfo);
+		g.setLocationRelativeTo(this);
+		g.setVisible(true);
+		g.refresh();
 	}
 }

@@ -70,4 +70,8 @@ public class MissingDestinationPortError implements AdvanceCompilationError {
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(MissingDestinationPortError.class.getSimpleName(), CREATOR);
 	}
+	@Override
+	public String toString() {
+		return "Wire " + binding.id + " has missing destination (" + binding.destinationBlock + ", " + binding.destinationParameter + ")";
+	}
 }
