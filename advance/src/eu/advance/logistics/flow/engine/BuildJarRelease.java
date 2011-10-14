@@ -55,23 +55,30 @@ public final class BuildJarRelease {
 			try {
 				zout.setLevel(9);
 				addMainContent(zout);
+				addFile("LICENSE.txt", "LICENSE.txt", zout);
 			} finally {
 				zout.close();
 			}
 			zout = new ZipOutputStream(
 					new BufferedOutputStream(
-							new FileOutputStream("advance-flow-engine-full-" + AdvanceFlowEngine.VERSION + ".jar"), 1024 * 1024));
+							new FileOutputStream("advance-flow-engine-control-center-" + AdvanceFlowEngine.VERSION + ".jar"), 1024 * 1024));
 			try {
 				zout.setLevel(9);
 				addMainContent(zout);
-				addDependencies(zout);
+				addFile("META-INF/MANIFEST.MF", "META-INF/MANIFEST.MF.control-center", zout);
+				addFile("LICENSE.txt", "LICENSE.txt", zout);
 			} finally {
 				zout.close();
 			}
 			zout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream("advance-flow-engine-" + AdvanceFlowEngine.VERSION + ".zip"), 1024 * 1024));
 			try {
 				zout.setLevel(9);
-				processDirectory(".\\", ".\\conf", zout, null);
+				processDirectory(".\\", ".\\conf", zout, new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return !name.equals("advance-flow-engine-control-center-config.xml");
+					}
+				});
 				processDirectory(".\\", ".\\schemas", zout, new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
@@ -88,7 +95,12 @@ public final class BuildJarRelease {
 			zout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream("advance-flow-engine-full-" + AdvanceFlowEngine.VERSION + ".zip"), 1024 * 1024));
 			try {
 				zout.setLevel(9);
-				processDirectory(".\\", ".\\conf", zout, null);
+				processDirectory(".\\", ".\\conf", zout, new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return !name.equals("advance-flow-engine-control-center-config.xml");
+					}
+				});
 				processDirectory(".\\", ".\\schemas", zout, new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
@@ -97,7 +109,9 @@ public final class BuildJarRelease {
 				});
 				addFile("LICENSE.txt", "LICENSE.txt", zout);
 				addFile("README.txt", "README.txt", zout);
-				addFile("advance-flow-engine-full-" + AdvanceFlowEngine.VERSION + ".jar", "advance-flow-engine-full-" + AdvanceFlowEngine.VERSION + ".jar", zout);
+				addFile("advance-flow-engine-" + AdvanceFlowEngine.VERSION + ".jar", "advance-flow-engine-" + AdvanceFlowEngine.VERSION + ".jar", zout);
+				addFile("advance-flow-engine-control-center-" + AdvanceFlowEngine.VERSION + ".jar", "advance-flow-engine-control-center-" + AdvanceFlowEngine.VERSION + ".jar", zout);
+				addLibs(zout);
 				
 			} finally {
 				zout.close();
@@ -110,8 +124,54 @@ public final class BuildJarRelease {
 			} finally {
 				zout.close();
 			}
+			
+			zout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream("advance-flow-engine-control-center-" + AdvanceFlowEngine.VERSION + ".zip"), 1024 * 1024));
+			try {
+				zout.setLevel(9);
+				processDirectory(".\\", ".\\conf", zout, new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return !name.equals("advance-flow-engine-control-center-config.xml");
+					}
+				});
+				processDirectory(".\\", ".\\schemas", zout, new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".xsd");
+					}
+				});
+				addFile("advance-flow-engine-control-center-" + AdvanceFlowEngine.VERSION + ".jar", "advance-flow-engine-control-center-" + AdvanceFlowEngine.VERSION + ".jar", zout);
+				addFile("LICENSE.txt", "LICENSE.txt", zout);
+				addFile("README.txt", "README.txt", zout);
+
+				addLibs(zout);
+
+			} finally {
+				zout.close();
+			}
+
 		} catch (IOException ex) {
 			ex.printStackTrace();
+		}
+	}
+	/**
+	 * Add dependent libraries as files.
+	 * @param zout the output stream
+	 * @throws IOException on error
+	 */
+	static void addLibs(ZipOutputStream zout) throws IOException {
+		Set<String> except = Sets.newHashSet(
+				"reactive4java-gwt-0.94.jar", 
+				"mysql-connector-java-5.1.16-bin.jar",
+				"monetdb-1.17-jdbc.jar"
+		);
+		File[] files = new File("lib").listFiles();
+		if (files != null) {
+			for (File f : files) {
+				if (f.getName().endsWith(".jar") && !except.contains(f.getName())) {
+					addFile("lib/" + f.getName(), "lib/" + f.getName(), zout);
+				}
+			}
 		}
 	}
 	/**

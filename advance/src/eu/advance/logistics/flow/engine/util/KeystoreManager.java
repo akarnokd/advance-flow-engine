@@ -911,7 +911,7 @@ public class KeystoreManager {
 			result.load(null, null);
 	
 			Certificate cert = source.getCertificate(alias);
-			Key key = source.getKey(alias, password);
+			PrivateKey key = (PrivateKey)source.getKey(alias, password);
 			
 			result.setKeyEntry(alias, key, password, new Certificate[] { cert });
 		} catch (KeyStoreException ex) {

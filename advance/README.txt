@@ -3,6 +3,15 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.02.115 Notes
+----------------------
+
+Added more control center screens.
+
+Fixed some bugs in the compiler.
+
+Changed datastore API notification group type.
+
 Version 0.02.112 Notes
 ----------------------
 
