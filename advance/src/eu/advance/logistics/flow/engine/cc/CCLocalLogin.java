@@ -189,7 +189,7 @@ public class CCLocalLogin extends JDialog {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				doClose();
+				saveConfig();
 			}
 		});
 		setModalityType(ModalityType.APPLICATION_MODAL);
@@ -404,12 +404,8 @@ public class CCLocalLogin extends JDialog {
 	}
 	/** Close the window. */
 	void doClose() {
-		try {
-			saveConfig();
-		} finally {
-			WindowEvent e = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
-			Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(e);
-		}
+		WindowEvent e = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+		Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(e);
 	}
 	/** Show help. */
 	void doHelp() {

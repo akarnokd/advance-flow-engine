@@ -33,6 +33,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	/** The key stores table. */
 	public final Map<String, AdvanceKeyStore> keystores = Maps.newHashMap();
 	/** The notification groups table. */
-	public final Map<AdvanceNotificationGroupType, Map<String, Set<String>>> notificationGroups = Maps.newHashMap();
+	public final Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> notificationGroups = Maps.newHashMap();
 	/** The JDBC data sources table. */
 	public final Map<String, AdvanceJDBCDataSource> jdbcDataSources = Maps.newHashMap();
 	/** The SOAP channels table. */
@@ -142,12 +143,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	 * @param contact the new contact
 	 */
 	protected void addNotificationContact(AdvanceNotificationGroupType type, String group, String contact) {
-		Map<String, Set<String>> groups = notificationGroups.get(type);
+		Map<String, Collection<String>> groups = notificationGroups.get(type);
 		if (groups == null) {
 			groups = Maps.newHashMap();
 			notificationGroups.put(type, groups);
 		}
-		Set<String> contacts = groups.get(group);
+		Collection<String> contacts = groups.get(group);
 		if (contacts == null) {
 			contacts = Sets.newHashSet();
 			groups.put(group, contacts);
@@ -219,11 +220,11 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	 * @param groups the map from group type to group to set of contact information
 	 * @return the XElement created
 	 */
-	public static XElement createGroups(String name, Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups) {
+	public static XElement createGroups(String name, Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups) {
 		XElement result = new XElement(name);
 		
-		for (Map.Entry<AdvanceNotificationGroupType, Map<String, Set<String>>> e : groups.entrySet()) {
-			for (Map.Entry<String, Set<String>> e2 : e.getValue().entrySet()) {
+		for (Map.Entry<AdvanceNotificationGroupType, Map<String, Collection<String>>> e : groups.entrySet()) {
+			for (Map.Entry<String, Collection<String>> e2 : e.getValue().entrySet()) {
 				XElement xgroup = result.add("group");
 				xgroup.set("name", e2.getKey());
 				xgroup.set("type", e.getKey());
@@ -239,19 +240,19 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	 * @param source the source XElement
 	 * @return the parsed map from group type to group name to contacts
 	 */
-	public static Map<AdvanceNotificationGroupType, Map<String, Set<String>>> parseGroups(XElement source) {
-		Map<AdvanceNotificationGroupType, Map<String, Set<String>>> result = Maps.newHashMap();
+	public static Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> parseGroups(XElement source) {
+		Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> result = Maps.newHashMap();
 		
 		for (XElement xe : source.childrenWithName("group")) {
 			String name = xe.get("name");
 			AdvanceNotificationGroupType type = AdvanceNotificationGroupType.valueOf(xe.get("type"));
 			for (XElement xi : xe.childrenWithName("contact")) {
-				Map<String, Set<String>> groups = result.get(type);
+				Map<String, Collection<String>> groups = result.get(type);
 				if (groups == null) {
 					groups = Maps.newHashMap();
 					result.put(type, groups);
 				}
-				Set<String> contacts = groups.get(name);
+				Collection<String> contacts = groups.get(name);
 				if (contacts == null) {
 					contacts = Sets.newHashSet();
 					groups.put(name, contacts);
@@ -594,16 +595,16 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	}
 
 	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Set<String>>> queryNotificationGroups()
+	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
 			throws IOException,
 			AdvanceControlException {
 		synchronized (notificationGroups) {
-			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> result = Maps.newHashMap();
+			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> result = Maps.newHashMap();
 			for (AdvanceNotificationGroupType t : notificationGroups.keySet()) {
-				Map<String, Set<String>> type = Maps.newHashMap();
+				Map<String, Collection<String>> type = Maps.newHashMap();
 				result.put(t, type);
 				for (String group : notificationGroups.get(t).keySet()) {
-					Set<String> set = Sets.newHashSet();
+					Collection<String> set = Sets.newHashSet();
 					type.put(group, set);
 					for (String s : notificationGroups.get(t).get(group)) {
 						set.add(s);
@@ -616,14 +617,14 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 
 	@Override
 	public void updateNotificationGroups(
-			Map<AdvanceNotificationGroupType, Map<String, Set<String>>> groups)
+			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups)
 			throws IOException, AdvanceControlException {
 		synchronized (notificationGroups) {
 			notificationGroups.clear();
 			for (AdvanceNotificationGroupType t : groups.keySet()) {
-				Map<String, Set<String>> type = Maps.newHashMap();
+				Map<String, Collection<String>> type = Maps.newHashMap();
 				notificationGroups.put(t, type);
-				for (Map.Entry<String, Set<String>> group : groups.get(t).entrySet()) {
+				for (Map.Entry<String, Collection<String>> group : groups.get(t).entrySet()) {
 					Set<String> set = Sets.newHashSet();
 					type.put(group.getKey(), set);
 					for (String s : group.getValue()) {
@@ -918,11 +919,11 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		return localDataSources.get(name);
 	}
 	@Override
-	public Set<String> queryNotificationGroup(
+	public Collection<String> queryNotificationGroup(
 			AdvanceNotificationGroupType type, String name) throws IOException {
-		Map<String, Set<String>> map = notificationGroups.get(type);
+		Map<String, Collection<String>> map = notificationGroups.get(type);
 		if (map != null) {
-			Set<String> result = map.get(name);
+			Collection<String> result = map.get(name);
 			if (result == null) {
 				LOG.error("Missing group " + name + " in type " + type);
 			}
