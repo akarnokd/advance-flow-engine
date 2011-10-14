@@ -49,6 +49,10 @@ public class DestinationToCompositeInputError implements AdvanceCompilationError
 		
 	}
 	@Override
+	public String toString() {
+		return "Wire " + binding.id + " destination is bound to an input port of the enclosing composite block (" + binding.destinationBlock + ", " + binding.destinationParameter + ")";
+	}
+	@Override
 	public void load(XElement source) {
 		binding = new AdvanceBlockBind();
 		binding.load(source.childElement("binding"));

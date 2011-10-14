@@ -71,4 +71,8 @@ public class SourceToInputBindingError implements AdvanceCompilationError {
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(SourceToInputBindingError.class.getSimpleName(), CREATOR);
 	}
+	@Override
+	public String toString() {
+		return "Wire " + binding.id + " input is bound to the block input of (" + binding.sourceBlock + ", " + binding.sourceParameter + ")";
+	}
 }

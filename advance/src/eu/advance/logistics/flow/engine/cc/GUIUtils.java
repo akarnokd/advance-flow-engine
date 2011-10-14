@@ -308,11 +308,20 @@ public final class GUIUtils {
 		JOptionPane.showMessageDialog(parent, text, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	/**
+	 * Display an information dialog with the message.
+	 * @param parent the parent component
+	 * @param text the message
+	 */
+	public static void infoMessage(Component parent, String text) {
+		JOptionPane.showMessageDialog(parent, text, "Information", JOptionPane.INFORMATION_MESSAGE);
+	}
+	/**
 	 * Display an error dialog with the exception.
 	 * @param parent the parent component
 	 * @param t the exception
 	 */
 	public static void errorMessage(Component parent, Throwable t) {
+		LOG.error(t.toString(), t);
 		JOptionPane.showMessageDialog(parent, t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	/**

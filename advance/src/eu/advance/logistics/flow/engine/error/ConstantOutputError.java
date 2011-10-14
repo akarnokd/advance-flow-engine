@@ -49,6 +49,10 @@ public class ConstantOutputError implements AdvanceCompilationError {
 		
 	}
 	@Override
+	public String toString() {
+		return "Wire " + binding.id + " output is bound to a constant " + binding.destinationBlock;
+	}
+	@Override
 	public void load(XElement source) {
 		binding = new AdvanceBlockBind();
 		binding.load(source.childElement("binding"));

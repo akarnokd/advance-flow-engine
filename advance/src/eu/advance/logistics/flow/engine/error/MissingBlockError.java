@@ -26,42 +26,45 @@ import hu.akarnokd.reactive4java.base.Func0;
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * The source object of the binding cannot be found.
+ * The referenced block type cannot be found.
  * @author karnokd, 2011.07.07.
  */
-public class MissingSourceError implements AdvanceCompilationError {
-	/** The wire identifier. */
-	public AdvanceBlockBind binding;
+public class MissingBlockError implements AdvanceCompilationError {
+	/** The block ID where this happened. */
+	public String id;
+	/** The missing block type. */
+	public String type;
 	/**
 	 * Constructor.
-	 * <p>The source object of the binding cannot be found.</p>
-	 * @param binding the actual binding causing the problem
+	 * <p>The referenced block type cannot be found</p>
+	 * @param id the block id
+	 * @param type the block type
 	 */
-	public MissingSourceError(AdvanceBlockBind binding) {
-		this.binding = binding;
+	public MissingBlockError(String id, String type) {
+		this.id = id;
+		this.type = type;
 	}
 	/** Empty constructor. */
-	public MissingSourceError() {
+	public MissingBlockError() {
 		
 	}
 	@Override
 	public void load(XElement source) {
-		binding = new AdvanceBlockBind();
-		binding.load(source.childElement("binding"));
+		id = source.get("id");
+		type = source.get("type");
 	}
 	@Override
 	public void save(XElement destination) {
-		binding.save(destination.add("binding"));
+		destination.set("id", id, "type", type);
 	}
 	/** Creates a new instance of this class. */
-	public static final Func0<MissingSourceError> CREATOR = new Func0<MissingSourceError>() {
+	public static final Func0<MissingBlockError> CREATOR = new Func0<MissingBlockError>() {
 		@Override
-		public MissingSourceError invoke() {
-			return new MissingSourceError();
+		public MissingBlockError invoke() {
+			return new MissingBlockError();
 		}
 	};
 	/**
@@ -69,10 +72,10 @@ public class MissingSourceError implements AdvanceCompilationError {
 	 * @param map the map from error type name to function to create an instance
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
-		map.put(MissingSourceError.class.getSimpleName(), CREATOR);
+		map.put(MissingBlockError.class.getSimpleName(), CREATOR);
 	}
 	@Override
 	public String toString() {
-		return "Wire " + binding.id + " has missing source block " + binding.sourceBlock;
+		return "Missing block type " + type + " referenced by ID " + id;
 	}
 }

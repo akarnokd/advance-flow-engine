@@ -70,4 +70,8 @@ public class MultiInputBindingError implements AdvanceCompilationError {
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(MultiInputBindingError.class.getSimpleName(), CREATOR);
 	}
+	@Override
+	public String toString() {
+		return "Wire " + binding.id + " connects to a destination (" + binding.destinationBlock + ", " + binding.destinationParameter + ") already bound by another wire";
+	}
 }

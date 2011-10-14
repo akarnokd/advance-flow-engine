@@ -71,4 +71,8 @@ public class SourceToCompositeInputError implements AdvanceCompilationError {
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(SourceToCompositeInputError.class.getSimpleName(), CREATOR);
 	}
+	@Override
+	public String toString() {
+		return "Wire " + binding.id + " input is bound to the composite block input of (" + binding.sourceBlock + ", " + binding.sourceParameter + ")";
+	}
 }

@@ -44,6 +44,7 @@ import eu.advance.logistics.flow.engine.error.ConstantOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToOutputError;
+import eu.advance.logistics.flow.engine.error.MissingBlockError;
 import eu.advance.logistics.flow.engine.error.MissingDestinationError;
 import eu.advance.logistics.flow.engine.error.MissingDestinationPortError;
 import eu.advance.logistics.flow.engine.error.MissingSourceError;
@@ -77,7 +78,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The cache for schema uri to types. */
-	protected Map<String, XType> schemaTypeCache = Maps.newHashMap();
+	protected Map<String, XType> schemaTypeCache = Maps.newConcurrentMap();
 	/** The schema resolver. */
 	protected final AdvanceSchemaResolver schemaResolver;
 	/** The block resolver. */
@@ -302,10 +303,15 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		
 		schemaTypeCache.clear();
 		
+		
 		while (!blockRecursion.isEmpty()) {
 			AdvanceCompositeBlock cb = blockRecursion.removeFirst();
 			blockRecursion.addAll(cb.composites.values());
-			
+
+			if (!verifyBlocks(result.errors, cb)) {
+				continue;
+			}
+
 			// verify bindings
 			List<AdvanceBlockBind> validBindings = Lists.newArrayList();
 			verifyBindings(result.errors, cb, validBindings);
@@ -438,6 +444,23 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		AdvanceTypeInference.infer(relations, result);
 		
 		return result;
+	}
+	/**
+	 * Verify the existence of blocks within the registry.
+	 * @param result the error output
+	 * @param cb the composite block to verify
+	 * @return false if one or more blocks are missing.
+	 */
+	boolean verifyBlocks(final List<? super AdvanceCompilationError> result,
+			final AdvanceCompositeBlock cb) {
+		boolean r = true;
+		for (AdvanceBlockReference br : cb.blocks.values()) {
+			if (blockResolver.lookup(br.type) == null) {
+				result.add(new MissingBlockError(br.id, br.type));
+				r = false;
+			}
+		}
+		return r;
 	}
 	/**
 	 * Verify the validity of the bindings in the current composite block and report errors.

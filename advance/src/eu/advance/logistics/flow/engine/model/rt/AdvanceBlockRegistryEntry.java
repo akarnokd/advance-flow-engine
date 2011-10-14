@@ -118,4 +118,10 @@ implements XSerializable {
 		}
 		return Lists.newArrayList();
 	}
+	@Override
+	public String toString() {
+		XElement e = new XElement("block-description");
+		save(e);
+		return e.toString();
+	}
 }
