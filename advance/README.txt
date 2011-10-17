@@ -3,6 +3,18 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.03.119 Notes
+----------------------
+
+Added Email details dialog.
+
+Fixed datastore email record management.
+
+Fixed some misspelling.
+
+Extracted the update methods from the datastore to separate interface to allow 
+SQL dialect specific implementation of the MERGE/REPLACE functionality.
+
 Version 0.02.115 Notes
 ----------------------
 
