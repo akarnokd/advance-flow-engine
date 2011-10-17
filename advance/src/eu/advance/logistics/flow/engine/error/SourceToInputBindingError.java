@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire's source is bound to an input port of an block. 
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class SourceToInputBindingError implements AdvanceCompilationError {
 	/** The wire identifier. */

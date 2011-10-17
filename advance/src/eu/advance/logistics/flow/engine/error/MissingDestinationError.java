@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The destination object of the binding cannot be found.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class MissingDestinationError implements AdvanceCompilationError {
 	/** The wire identifier. */

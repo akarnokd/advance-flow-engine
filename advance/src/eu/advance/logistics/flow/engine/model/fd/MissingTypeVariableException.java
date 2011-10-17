@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.model.fd;
 
 /**
  * A missing type variable identifier was found in the descriptions. 
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class MissingTypeVariableException extends RuntimeException {
 	/** */

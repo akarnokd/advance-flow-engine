@@ -49,7 +49,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 /**
  * Utility class to parse and compose DataStore request coming as XML format
  * and delegate it properly to an AdvanceDataStore object.
- * @author karnokd, 2011.09.27.
+ * @author akarnokd, 2011.09.27.
  */
 public class HttpDataStoreListener implements AdvanceHttpListener  {
 	/** The wrapped datastore. */

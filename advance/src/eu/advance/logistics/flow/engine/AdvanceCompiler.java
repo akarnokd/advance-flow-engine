@@ -72,7 +72,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * The ADVANCE block compiler which turns the the flow description into runnable advance blocks.
- * @author karnokd, 2011.06.27.
+ * @author akarnokd, 2011.06.27.
  */
 public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowExecutor {
 	/** The logger. */

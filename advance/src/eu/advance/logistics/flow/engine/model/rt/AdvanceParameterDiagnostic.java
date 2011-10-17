@@ -35,7 +35,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The diagnostic port for advance regular ports.
- * @author karnokd, 2011.06.22.
+ * @author akarnokd, 2011.06.22.
  */
 public final class AdvanceParameterDiagnostic implements XSerializable {
 	/** The logger. */

@@ -26,7 +26,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Enumeration for JDBC drivers.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public enum AdvanceJDBCDrivers {
 	/** Generic driver with custom settings. */

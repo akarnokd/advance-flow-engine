@@ -38,7 +38,7 @@ import javax.swing.border.Border;
 
 /**
  * A titled border with custom component as its label.
- * @author karnokd, 2011.10.13.
+ * @author akarnokd, 2011.10.13.
  */
 public class ComponentTitledBorder implements Border, MouseListener, SwingConstants {
 	/** The component-edge distance. */

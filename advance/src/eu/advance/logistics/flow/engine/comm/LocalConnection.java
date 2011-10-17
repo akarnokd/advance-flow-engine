@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Class representing the ability to load, save and list files from local directory.
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  */
 public class LocalConnection implements FileAccess {
 	/** The logger. */

@@ -30,7 +30,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The referenced block type cannot be found.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class MissingBlockError implements AdvanceCompilationError {
 	/** The block ID where this happened. */

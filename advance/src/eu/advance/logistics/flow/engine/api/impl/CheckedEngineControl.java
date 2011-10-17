@@ -48,7 +48,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 /**
  * Wraps the given engine control object and for each call, it checks
  * if the user has the appropriate rights.
- * @author karnokd, 2011.09.29.
+ * @author akarnokd, 2011.09.29.
  */
 public class CheckedEngineControl implements AdvanceEngineControl {
 	/** The wrapped control. */

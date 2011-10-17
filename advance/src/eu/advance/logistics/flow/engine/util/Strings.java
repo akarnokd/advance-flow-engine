@@ -29,7 +29,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * String utilities.
- * @author karnokd, 2011.06.21.
+ * @author akarnokd, 2011.06.21.
  */
 public final class Strings {
 	/**

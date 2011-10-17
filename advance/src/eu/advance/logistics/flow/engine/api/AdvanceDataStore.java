@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 /**
  * Interface for performing datastore related operations.
  * <p>The users of the updateXYZ methods must set the {@code modifiedBy} field.</p>
- * @author karnokd, 2011.09.23.
+ * @author akarnokd, 2011.09.23.
  */
 public interface AdvanceDataStore {
 	/**

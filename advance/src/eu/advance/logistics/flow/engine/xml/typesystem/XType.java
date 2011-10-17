@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * The definition of an XML type: basically a root element
  * or an element with complex type.
- * @author karnok, 2011.03.09.
+ * @author akarnokd, 2011.03.09.
  */
 public class XType implements XComparable<XType> {
 	/** The capability set of the type. */

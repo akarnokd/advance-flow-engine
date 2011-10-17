@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The schema registry used to ask the engine about known schemas.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public class AdvanceSchemaRegistryEntry implements XSerializable {
 	/** The schema file name. */

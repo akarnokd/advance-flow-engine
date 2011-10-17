@@ -32,7 +32,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire binds two concrete types where the left type does not extend or equals to the right type.
- * @author karnokd, 2011.07.27.
+ * @author akarnokd, 2011.07.27.
  */
 public class IncompatibleTypesError implements AdvanceCompilationError {
 	/** The wire identifier. */

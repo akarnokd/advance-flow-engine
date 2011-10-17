@@ -38,7 +38,7 @@ import eu.advance.logistics.flow.engine.model.rt.SchedulerPreference;
 
 /**
  * Class that locates and creates blocks based on their name.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public class AdvanceBlockResolver {
 	/** The logger. */

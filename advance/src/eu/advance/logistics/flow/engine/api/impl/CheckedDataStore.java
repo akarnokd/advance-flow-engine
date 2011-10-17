@@ -58,7 +58,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * is allowed to perform that operation.
  * <p>Whenever an updateXYZ() method is called, the class replaces the {@code modifiedBy} field
  * with the user name.</p>
- * @author karnokd, 2011.09.29.
+ * @author akarnokd, 2011.09.29.
  */
 public class CheckedDataStore implements AdvanceDataStore {
 	/** The logger object. */

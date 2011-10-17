@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * Exception to indicate the user has no right to perform the operation.
- * @author karnokd, 2011.09.21.
+ * @author akarnokd, 2011.09.21.
  */
 public class AdvanceAccessDenied extends AdvanceControlException {
 	/**

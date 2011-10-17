@@ -28,7 +28,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 /**
  * Represents the connection information to a POP3(s)/IMAP(s) based email-box to 
  * retrieve messages.
- * @author karnokd, 2011.10.10.
+ * @author akarnokd, 2011.10.10.
  */
 public class AdvanceEmailBox extends AdvanceCreateModifyInfo implements 
 XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {

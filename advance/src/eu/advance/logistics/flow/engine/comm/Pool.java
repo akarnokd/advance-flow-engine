@@ -28,7 +28,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Represents a generic pooling object which supplies and takes back objects.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  * @param <T> the pooled object type
  */
 public interface Pool<T> extends Closeable {

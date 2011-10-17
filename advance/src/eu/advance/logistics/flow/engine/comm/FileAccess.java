@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * The functions to access files relative to a base directory.
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  */
 public interface FileAccess {
 	/**

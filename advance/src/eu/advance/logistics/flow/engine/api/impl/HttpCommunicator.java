@@ -61,7 +61,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 /**
  * Send and receive requests through HTTP or HTTPS,
  * with none, basic or certificate authentication.
- * @author karnokd, 2011.09.27.
+ * @author akarnokd, 2011.09.27.
  */
 public class HttpCommunicator implements AdvanceXMLCommunicator {
 	/** The logger. */

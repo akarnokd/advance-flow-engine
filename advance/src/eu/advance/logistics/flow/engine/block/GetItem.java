@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A simple generic block that extracts an item from an advance:collection type construct.
- * @author karnokd, 2011.07.01.
+ * @author akarnokd, 2011.07.01.
  */
 public class GetItem extends AdvanceBlock {
 	

@@ -52,7 +52,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 
 /**
  * The user details panel.
- * @author karnokd, 2011.10.12.
+ * @author akarnokd, 2011.10.12.
  */
 public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser> {
 	/** */

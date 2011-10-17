@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.model.fd;
 
 /**
  * The enum representing the kind of an Advance type.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public enum AdvanceTypeKind {
 	/** A concrete and exact type, e.g., advance:integer and such. */

@@ -56,7 +56,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 
 /**
  * Utility class for the type inference.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public final class AdvanceTypeInference {
 	/** The logger. */

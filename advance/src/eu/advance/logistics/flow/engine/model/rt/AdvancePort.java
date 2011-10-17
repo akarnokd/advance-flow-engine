@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * Generic interface to describe ports.
- * @author karnokd, 2011.06.24.
+ * @author akarnokd, 2011.06.24.
  */
 public interface AdvancePort extends Observable<XElement> {
 	/** @return the port name. */

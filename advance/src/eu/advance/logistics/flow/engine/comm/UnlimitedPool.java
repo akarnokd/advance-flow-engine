@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A pool manager which may return an unlimited amount of objects.
  * <p>The pool doesn't keep track of the returned objects.</p>
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  * @param <T> the pooled object type
  */
 public class UnlimitedPool<T> implements Pool<T> {

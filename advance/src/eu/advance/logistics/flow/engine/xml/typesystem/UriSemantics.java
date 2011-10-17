@@ -25,7 +25,7 @@ import com.google.common.base.Objects;
 
 /**
  * A basic URI semantics with only equivalence relation.
- * @author karnokd, 2011.07.05.
+ * @author akarnokd, 2011.07.05.
  */
 public class UriSemantics implements XSemantics {
 	/** The URI for the semantics. */

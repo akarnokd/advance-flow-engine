@@ -60,7 +60,7 @@ import com.google.common.collect.Lists;
  * A generic listing frame containing engine information, a
  * freetext filter box, a table with records and
  * optional buttons (refresh, create, close, etc.).
- * @author karnokd, 2011.10.07.
+ * @author akarnokd, 2011.10.07.
  * @param <T> the record element type
  */
 public class GenericListingFrame<T> extends JFrame {

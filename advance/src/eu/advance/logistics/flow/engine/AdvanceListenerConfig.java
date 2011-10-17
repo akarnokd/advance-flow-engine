@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The listener configuration record for the engine.
- * @author karnokd, 2011.09.29.
+ * @author akarnokd, 2011.09.29.
  */
 public class AdvanceListenerConfig implements XSerializable {
 	/** The port number where the basic HTTPS listener should be. */

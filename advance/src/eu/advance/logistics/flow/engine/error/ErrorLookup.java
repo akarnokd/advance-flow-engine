@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 
 /**
  * Utility class to store and manage creator functions for various compilation error classes.
- * @author karnokd, 2011.10.04.
+ * @author akarnokd, 2011.10.04.
  */
 public final class ErrorLookup {
 	/**

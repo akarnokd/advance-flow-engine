@@ -39,7 +39,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The ADVANCE block description record.
- * @author karnokd, 2011.06.21.
+ * @author akarnokd, 2011.06.21.
  */
 public class AdvanceBlockDescription implements XSerializable {
 	/** The unique block identifier or name. */

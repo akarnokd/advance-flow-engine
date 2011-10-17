@@ -55,7 +55,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
 
 /**
  * The SOAP channel details.
- * @author karnokd, 2011.10.13.
+ * @author akarnokd, 2011.10.13.
  */
 public class CCSOAPDetails extends JPanel implements
 		CCLoadSave<AdvanceSOAPChannel> {

@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.cc;
 
 /**
  * Workitem interface for simple SwingWorker task management.
- * @author karnokd, 2009.08.03.
+ * @author akarnokd, 2009.08.03.
  * @version $Revision 1.0$
  */
 public interface WorkItem extends Runnable {

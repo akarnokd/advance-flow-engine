@@ -38,7 +38,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * Defines a concrete reactive block port instance.
- * @author karnokd, 2011.06.22.
+ * @author akarnokd, 2011.06.22.
  */
 public class AdvanceBlockPort extends DefaultObservable<XElement> implements AdvancePort {
 	/** The logger. */

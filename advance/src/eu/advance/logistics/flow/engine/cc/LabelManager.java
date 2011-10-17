@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.cc;
 
 /**
  * A simple label manager.
- * @author karnokd, 2011.10.07.
+ * @author akarnokd, 2011.10.07.
  */
 public interface LabelManager {
 	/**

@@ -46,7 +46,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 
 /**
  * The FTP connection details.
- * @author karnokd, 2011.10.13.
+ * @author akarnokd, 2011.10.13.
  */
 public class CCFTPDetails extends JPanel implements
 		CCLoadSave<AdvanceFTPDataSource> {

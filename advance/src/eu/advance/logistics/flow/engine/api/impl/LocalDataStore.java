@@ -84,7 +84,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The local realm object containing various tables.
- * @author karnokd, 2011.09.21.
+ * @author akarnokd, 2011.09.21.
  */
 public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	/** The logger. */

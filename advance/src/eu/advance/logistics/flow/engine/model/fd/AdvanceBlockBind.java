@@ -28,7 +28,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Definition for binding parameters of blocks in the {@code flow-description.xsd}.
- * @author karnokd, 2011.06.21.
+ * @author akarnokd, 2011.06.21.
  */
 public class AdvanceBlockBind implements XSerializable {
 	/** Identifier of this binding. May be used to communicate problematic bindings for the Flow Editor / Compiler. */

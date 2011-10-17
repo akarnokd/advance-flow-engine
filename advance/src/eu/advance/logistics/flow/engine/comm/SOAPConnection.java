@@ -29,7 +29,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Represents a SOAP connection.
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  */
 public class SOAPConnection implements Closeable {
 	/** The SOAP envelope namespace. */

@@ -42,7 +42,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Represents the functions of a POP3 based e-mail account.
- * @author karnokd, 2011.10.07.
+ * @author akarnokd, 2011.10.07.
  */
 public final class POP3Endpoint {
 	/** Utility for now. */
@@ -51,7 +51,7 @@ public final class POP3Endpoint {
 	}
 	/**
 	 * A POP3 header parser.
-	 * @author karnokd, 2011.10.07.
+	 * @author akarnokd, 2011.10.07.
 	 */
 	public static class POP3Header {
 		/** The map of header properties. */

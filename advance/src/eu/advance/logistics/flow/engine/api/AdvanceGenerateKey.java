@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Request to generate a new key.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 	/** The key algorithm. */

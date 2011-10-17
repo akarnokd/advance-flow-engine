@@ -36,7 +36,7 @@ import eu.advance.logistics.flow.engine.api.Identifiable;
 
 /**
  * Edit/create a web data source.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  * @param <T> the paging element type
  */
 public class CCDetailDialog<T extends Identifiable<?>> extends JDialog {

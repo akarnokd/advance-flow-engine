@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.comm;
 
 /**
  * A SOAP connection object manager for pool.
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  */
 public class SOAPPoolManager implements PoolManager<SOAPConnection> {
 

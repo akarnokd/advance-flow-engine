@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * The file transfer protocols supported by ADVANCE.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public enum AdvanceFTPProtocols {
 	/** Regular FTP. */

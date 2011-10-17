@@ -28,7 +28,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceFTPProtocols;
 
 /**
  * Represents an FTP(s) or an SFTP connection with standard file and directory functions.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public interface FTPConnection extends Closeable, FileAccess {
 	/** @return the protocol used by this connection. */

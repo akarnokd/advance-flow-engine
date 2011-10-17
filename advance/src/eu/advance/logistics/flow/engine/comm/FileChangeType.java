@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.comm;
 
 /**
  * Enumeration of file change types.
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  */
 public enum FileChangeType {
 	/** The file is new. */

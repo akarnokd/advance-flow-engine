@@ -32,7 +32,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire binds two parametric types which have incompatible base types or number of arguments.
- * @author karnokd, 2011.07.27.
+ * @author akarnokd, 2011.07.27.
  */
 public class IncompatibleBaseTypesError implements AdvanceCompilationError {
 	/** The wire identifier. */

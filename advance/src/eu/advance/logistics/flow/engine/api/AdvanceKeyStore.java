@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * A record representing information about local or remote key stores.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceKeyStore extends AdvanceCreateModifyInfo 
 implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<String> {

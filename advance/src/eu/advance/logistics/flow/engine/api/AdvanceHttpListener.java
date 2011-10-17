@@ -28,7 +28,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Base interface for the capability to dispatch an XML message and the logged-in user name.
- * @author karnokd, 2011.10.03.
+ * @author akarnokd, 2011.10.03.
  */
 public interface AdvanceHttpListener {
 	/**

@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * An input port is bound to multiple outputs at the same time.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class MultiInputBindingError implements AdvanceCompilationError {
 	/** The wire identifier. */

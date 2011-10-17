@@ -24,7 +24,7 @@ package eu.advance.logistics.flow.engine.model.rt;
 /**
  * <p>When a block body needs to be executed, which scheduler pool is preferred for that.</p>
  * <p>Computations are typically CPU or I/O bound with the potential overlapping of both.</p>
- * @author karnokd, 2011.06.30.
+ * @author akarnokd, 2011.06.30.
  */
 public enum SchedulerPreference {
 	/** The block uses computation-intensive body and should use the n-CPU based scheduler. */

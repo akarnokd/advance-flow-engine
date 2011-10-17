@@ -33,7 +33,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Utility classes to handle XSerializable object creation and conversion.
- * @author karnokd, 2011.09.29.
+ * @author akarnokd, 2011.09.29.
  */
 public final class XSerializables {
 	/**

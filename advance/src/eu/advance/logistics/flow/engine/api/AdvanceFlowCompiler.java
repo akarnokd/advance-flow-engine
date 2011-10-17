@@ -29,7 +29,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 
 /**
  * Base interface to support compiling and verifying flows.
- * @author karnokd, 2011.10.04.
+ * @author akarnokd, 2011.10.04.
  */
 public interface AdvanceFlowCompiler {
 	/**

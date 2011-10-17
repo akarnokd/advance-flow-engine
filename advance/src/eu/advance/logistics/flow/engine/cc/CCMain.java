@@ -100,7 +100,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The main window of the engine control center.
- * @author karnokd, 2011.10.07.
+ * @author akarnokd, 2011.10.07.
  */
 public class CCMain extends JFrame implements LabelManager {
 	/** The logger. */
@@ -658,7 +658,7 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/**
 	 * A list retrieving work item.
-	 * @author karnokd, 2011.10.07.
+	 * @author akarnokd, 2011.10.07.
 	 * @param <T> the element type of the list
 	 */
 	public abstract class ListWorkItem<T> implements WorkItem {
@@ -2062,7 +2062,7 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/**
 	 * The action to invoke a testXYZ method and report its string result or exception.
-	 * @author karnokd, 2011.10.13.
+	 * @author akarnokd, 2011.10.13.
 	 */
 	public abstract static class TestAction implements Action1<String> {
 		/** The exception. */
@@ -2214,7 +2214,7 @@ public class CCMain extends JFrame implements LabelManager {
 	}
 	/**
 	 * Retrieves a value before showing a dialog.
-	 * @author karnokd, 2011.10.13.
+	 * @author akarnokd, 2011.10.13.
 	 *
 	 * @param <T> the value type to retrieve.
 	 */

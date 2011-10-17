@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utility class to resolve XML schemas relative to a base URL.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public class URLResolver implements Func1<String, XElement> {
 	/** The logger. */

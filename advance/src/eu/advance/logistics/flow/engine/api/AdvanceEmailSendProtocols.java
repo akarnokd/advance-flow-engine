@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * The enumeration for protocols of sending email.
- * @author karnokd, 2011.10.10.
+ * @author akarnokd, 2011.10.10.
  */
 public enum AdvanceEmailSendProtocols {
 	/** The box will not send emails. */

@@ -24,7 +24,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * The base exception for the ADVANCE Flow Engine Control API.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public class AdvanceControlException extends Exception {
 	/** */

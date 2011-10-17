@@ -36,7 +36,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A simple mocked communicator which dispatches the requests directly to an {@code AdvanceHttpListener}.
- * @author karnokd, 2011.10.03.
+ * @author akarnokd, 2011.10.03.
  */
 public class TestHttpCommunicator implements AdvanceXMLCommunicator {
 	/** The logger object. */

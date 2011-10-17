@@ -79,7 +79,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 /**
  * A synchronized local flow engine control object storing data in local XML file.
  * <p>May be used to test GUI without the need to connect to real remote data source.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class LocalEngineControl implements AdvanceEngineControl {
 	/** The logger object. */

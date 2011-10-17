@@ -46,7 +46,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 /**
  * Class to resolve schemas via in memory mapping. May be used to operate on schemas
  * downloaded from a remote flow engine.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public class AdvanceRemoteSchemaResolver implements AdvanceSchemaResolver {
 	/** The logger. */

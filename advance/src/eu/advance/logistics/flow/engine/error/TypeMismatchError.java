@@ -32,7 +32,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Type inference error on the given wire.
- * @author karnokd, 2011.07.21.
+ * @author akarnokd, 2011.07.21.
  */
 public class TypeMismatchError implements AdvanceCompilationError {
 	/** The wire identifier. */

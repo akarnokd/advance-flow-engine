@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The source port of the source object cannot be found.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class MissingSourcePortError implements AdvanceCompilationError {
 	/** The wire identifier. */

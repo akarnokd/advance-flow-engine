@@ -39,7 +39,7 @@ import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 
 /**
  * Creates a basic local flow engine with a constant configuration.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  */
 public final class BasicLocalEngine {
 	/**

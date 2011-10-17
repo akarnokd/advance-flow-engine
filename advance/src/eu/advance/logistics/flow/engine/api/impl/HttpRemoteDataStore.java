@@ -55,7 +55,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 /**
  * A datastore which connects to a remote datastore via HTTP(s) and
  * exchanges messages via XML.
- * @author karnokd, 2011.09.27.
+ * @author akarnokd, 2011.09.27.
  */
 public class HttpRemoteDataStore implements AdvanceDataStore {
 	/** The communicator used to send and receive requests. */

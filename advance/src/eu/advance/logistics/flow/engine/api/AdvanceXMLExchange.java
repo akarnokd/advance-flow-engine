@@ -29,7 +29,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 /**
  * The interface to provide information about the request and give opportunities for direct
  * or streaming responses.
- * @author karnokd, 2011.10.04.
+ * @author akarnokd, 2011.10.04.
  */
 public interface AdvanceXMLExchange {
 	/** @return the logged-in user name. */

@@ -40,7 +40,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A block that merges the incoming values of its parameters but without waiting for both of them.
- * @author karnokd, 2011.07.01.
+ * @author akarnokd, 2011.07.01.
  */
 public class Merge extends AdvanceBlock {
 	

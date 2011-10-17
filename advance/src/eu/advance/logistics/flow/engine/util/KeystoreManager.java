@@ -105,7 +105,7 @@ import org.slf4j.LoggerFactory;
  *		System.out.println(km.createRSASigningRequest("test", "abc".toCharArray()));<br>
  * <p>
  * Original idea: http://www.koders.com/java/fid165B893DAEA5F8D4AD44CCF9B8FBE75B01CE6575.aspx
- * @author karnokd, 2007.12.06.
+ * @author akarnokd, 2007.12.06.
  * @version $Revision 1.0$
  */
 @SuppressWarnings("deprecation")
@@ -381,7 +381,7 @@ public class KeystoreManager {
 	/**
 	 * Installs the signing request response to an existing certificate
 	 * in the keystore.
-	 * @param alias the alias of the original certifcate
+	 * @param alias the alias of the original certificate
 	 * @param password the password of the certificate
 	 * @param caReply the input stream pointing to the CA reply data, must be closed by the caller
 	 * @param verifyRoot verifiy the root of imported certificate using the keystore?
@@ -475,7 +475,7 @@ public class KeystoreManager {
 		chain.addFirst(cert);
 	}
 	/**
-	 * Groups the X509 cerificates - found in keystore - by subject DN and returns it as a map.
+	 * Groups the X509 certificates - found in keystore - by subject DN and returns it as a map.
 	 * @return the grouped X509 certificates
 	 */
 	private Map<Principal, Set<X509Certificate>> getCertsByIssuer() {

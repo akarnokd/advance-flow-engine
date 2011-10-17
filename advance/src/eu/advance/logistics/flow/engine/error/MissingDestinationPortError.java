@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The destination port of the destination object cannot be found.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class MissingDestinationPortError implements AdvanceCompilationError {
 	/** The wire identifier. */

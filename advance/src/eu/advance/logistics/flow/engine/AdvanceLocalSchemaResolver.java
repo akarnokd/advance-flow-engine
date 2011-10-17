@@ -48,7 +48,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
  * Class to resolve schemas and load them as XTypes from local file system.
  * If the schemas starting with {@code advance} cannot be resolved as a local file, the
  * code attempts to resolve it against the classpath root.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public class AdvanceLocalSchemaResolver implements AdvanceSchemaResolver {
 	/** The logger. */

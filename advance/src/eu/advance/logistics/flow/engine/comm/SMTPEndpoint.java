@@ -41,7 +41,7 @@ import javax.mail.util.ByteArrayDataSource;
 /**
  * An SMTP endpoint.
  * <a href='http://www.javaworld.com/javaworld/jw-10-2001/jw-1026-javamail.html?page=3'>Example</a>
- * @author karnokd, 2011.10.07.
+ * @author akarnokd, 2011.10.07.
  */
 public final class SMTPEndpoint {
 	/** Utility for now. */

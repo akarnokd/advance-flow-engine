@@ -65,7 +65,7 @@ import eu.advance.logistics.flow.engine.util.KeystoreManager;
 
 /**
  * Manages FTP connection objects.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public class FTPPoolManager implements PoolManager<FTPConnection> {
 	/** The logger. */

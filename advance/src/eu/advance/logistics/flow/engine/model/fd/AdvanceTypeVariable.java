@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 /**
  * The type variable definition of an Advance block.
  * It allows
- * @author karnokd, 2011.07.01.
+ * @author akarnokd, 2011.07.01.
  */
 public class AdvanceTypeVariable implements XSerializable {
 	/** The type parameter name. */
