@@ -22,13 +22,16 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.AdvanceDataStoreUpdate;
 import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
@@ -42,6 +45,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
+import eu.advance.logistics.flow.engine.comm.Pool;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -49,23 +53,71 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author akarnokd, 2011.09.23.
  */
 public class JDBCDataStore implements AdvanceDataStore {
-
-	@Override
-	public List<AdvanceRealm> queryRealms() throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
+	/** The update methods. */
+	protected final AdvanceDataStoreUpdate update;
+	/** The connection pool. */
+	protected final Pool<Connection> pool;
+	/**
+	 * Constructs a JDBC datastore with the given update implementation and the given
+	 * connection pool.
+	 * @param updateImpl the update implementation
+	 * @param pool the connection pool
+	 */
+	public JDBCDataStore(@NonNull AdvanceDataStoreUpdate updateImpl, @NonNull Pool<Connection> pool) {
+		this.update = updateImpl;
+		this.pool = pool;
 	}
-
-	@Override
-	public AdvanceRealm queryRealm(String realm) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override
 	public void createRealm(String realm, String byUser) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteBlockStates(String realm) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteEmailBox(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteFTPDataSource(String ftpName) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteJDBCDataSource(String dataSourceName) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteJMSEndpoint(String jmsName) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteKeyStore(String keyStore) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteLocalFileDataSource(String fileName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		
@@ -79,29 +131,8 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void updateRealm(AdvanceRealm realm) throws IOException,
+	public void deleteSOAPChannel(String name) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<AdvanceUser> queryUsers() throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceUser queryUser(String userName) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void enableUser(String userName, boolean enabled, String byUser)
-			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -114,84 +145,6 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void updateUser(AdvanceUser user) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateNotificationGroups(
-			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<AdvanceJDBCDataSource> queryJDBCDataSources()
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateJDBCDataSource(AdvanceJDBCDataSource dataSource)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deleteJDBCDataSource(String dataSourceName) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<AdvanceJMSEndpoint> queryJMSEndpoints() throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateJMSEndpoint(AdvanceJMSEndpoint endpoint)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deleteJMSEndpoint(String jmsName) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<AdvanceWebDataSource> queryWebDataSources() throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateWebDataSource(AdvanceWebDataSource endpoint)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void deleteWebDataSource(String webName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
@@ -199,59 +152,10 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public List<AdvanceFTPDataSource> queryFTPDataSources() throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateFTPDataSource(AdvanceFTPDataSource dataSource)
+	public void enableUser(String userName, boolean enabled, String byUser)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void deleteFTPDataSource(String ftpName) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources()
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateLocalFileDataSource(AdvanceLocalFileDataSource dataSource)
-			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deleteLocalFileDataSource(String fileName) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<AdvanceKeyStore> queryKeyStores() throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AdvanceKeyStore queryKeyStore(String name) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -269,35 +173,28 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void updateKeyStore(AdvanceKeyStore keyStore) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deleteKeyStore(String keyStore) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
+	public XElement queryBlockState(String realm, String blockId)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException,
+	public AdvanceEmailBox queryEmailBox(String name) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException,
+	public List<AdvanceEmailBox> queryEmailBoxes() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public XElement queryFlow(String realm) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -311,14 +208,63 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public AdvanceWebDataSource queryWebDataSource(String name)
+	public List<AdvanceFTPDataSource> queryFTPDataSources() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
+	public List<AdvanceJDBCDataSource> queryJDBCDataSources()
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<AdvanceJMSEndpoint> queryJMSEndpoints() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AdvanceKeyStore queryKeyStore(String name) throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<AdvanceKeyStore> queryKeyStores() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public AdvanceLocalFileDataSource queryLocalFileDataSource(String name)
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<AdvanceLocalFileDataSource> queryLocalFileDataSources()
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -333,21 +279,28 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public XElement queryBlockState(String realm, String blockId)
+	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void updateBlockState(String realm, String blockId, XElement state)
-			throws IOException, AdvanceControlException {
+	public AdvanceRealm queryRealm(String realm) throws IOException,
+			AdvanceControlException {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public XElement queryFlow(String realm) throws IOException,
+	public List<AdvanceRealm> queryRealms() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -359,52 +312,103 @@ public class JDBCDataStore implements AdvanceDataStore {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
-	public void deleteBlockStates(String realm) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void updateFlow(String realm, XElement flow) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void deleteEmailBox(String name) throws IOException,
-			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public AdvanceEmailBox queryEmailBox(String name) throws IOException,
+	public AdvanceUser queryUser(String userName) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
-	public List<AdvanceEmailBox> queryEmailBoxes() throws IOException,
+	public List<AdvanceUser> queryUsers() throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public AdvanceWebDataSource queryWebDataSource(String name)
+			throws IOException, AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<AdvanceWebDataSource> queryWebDataSources() throws IOException,
+			AdvanceControlException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateBlockState(String realm, String blockId, XElement state)
+			throws IOException, AdvanceControlException {
+		update.updateBlockState(realm, blockId, state);
+	}
+
 	@Override
 	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		update.updateEmailBox(box);
+	}
+
+	@Override
+	public void updateFlow(String realm, XElement flow) throws IOException,
+			AdvanceControlException {
+		update.updateFlow(realm, flow);
+	}
+
+	@Override
+	public void updateFTPDataSource(AdvanceFTPDataSource dataSource)
+			throws IOException, AdvanceControlException {
+		update.updateFTPDataSource(dataSource);
+	}
+
+	@Override
+	public void updateJDBCDataSource(AdvanceJDBCDataSource dataSource)
+			throws IOException, AdvanceControlException {
+		update.updateJDBCDataSource(dataSource);
 	}
 	@Override
-	public void deleteSOAPChannel(String name) throws IOException,
+	public void updateJMSEndpoint(AdvanceJMSEndpoint endpoint)
+			throws IOException, AdvanceControlException {
+		update.updateJMSEndpoint(endpoint);
+	}
+	@Override
+	public void updateKeyStore(AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		update.updateKeyStore(keyStore);
+	}
+	@Override
+	public void updateLocalFileDataSource(AdvanceLocalFileDataSource dataSource)
+			throws IOException, AdvanceControlException {
+		update.updateLocalFileDataSource(dataSource);
+	}
+	@Override
+	public void updateNotificationGroups(
+			Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups)
+			throws IOException, AdvanceControlException {
+		update.updateNotificationGroups(groups);
+	}
+	@Override
+	public void updateRealm(AdvanceRealm realm) throws IOException,
+			AdvanceControlException {
+		update.updateRealm(realm);
 	}
 	@Override
 	public void updateSOAPChannel(AdvanceSOAPChannel channel)
 			throws IOException, AdvanceControlException {
-		// TODO Auto-generated method stub
-		
+		update.updateSOAPChannel(channel);
+	}
+	@Override
+	public void updateUser(AdvanceUser user) throws IOException,
+			AdvanceControlException {
+		update.updateUser(user);
+	}
+	@Override
+	public void updateWebDataSource(AdvanceWebDataSource endpoint)
+			throws IOException, AdvanceControlException {
+		update.updateWebDataSource(endpoint);
 	}
 }
