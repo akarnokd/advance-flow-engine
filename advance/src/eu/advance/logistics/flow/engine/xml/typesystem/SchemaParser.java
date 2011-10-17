@@ -635,7 +635,7 @@ public final class SchemaParser {
 		return null;
 	}
 	/**
-	 * Convenience method to compare two XTypes through its first capabilty only.
+	 * Convenience method to compare two XTypes through its first capability only.
 	 * XSDs are typically parsed into XTypes where the outer XType has only the
 	 * root node as a capability. But most of the time, root node capability naming
 	 * has nothing to do with its contents and would just cause false comparisons.

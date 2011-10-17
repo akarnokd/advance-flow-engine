@@ -33,7 +33,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 
 /**
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  *
  */
 public class JDBCPoolManager implements PoolManager<Connection> {

@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The source (input) of the binding points to a composite input port in the same level (and not the parent composite's input).
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class SourceToCompositeInputError implements AdvanceCompilationError {
 	/** The wire identifier. */

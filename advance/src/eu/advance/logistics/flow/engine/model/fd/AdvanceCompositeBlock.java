@@ -37,7 +37,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The composite block description for the flow description of {@code flow-description.xsd}.
- * @author karnokd, 2011.06.21.
+ * @author akarnokd, 2011.06.21.
  */
 public class AdvanceCompositeBlock implements XSerializable {
 	/** The unique identifier of this block among the current level of blocks. */

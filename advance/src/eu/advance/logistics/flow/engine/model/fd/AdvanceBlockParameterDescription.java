@@ -28,7 +28,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * An input or output parameter description of an ADVANCE block.
- * @author karnokd, 2011.06.21.
+ * @author akarnokd, 2011.06.21.
  */
 public class AdvanceBlockParameterDescription implements XSerializable {
 	/** The unique (among other inputs or outputs of this block) identifier of the input parameter. This ID will be used by the block wiring within the flow description. */

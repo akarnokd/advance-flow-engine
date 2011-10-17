@@ -67,7 +67,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 /**
  * A test datastore which usually returns empty lists and simple initialized objects and
  * does nothing on method calls.
- * @author karnokd, 2011.10.03.
+ * @author akarnokd, 2011.10.03.
  */
 public class DummyDataStore implements AdvanceDataStore {
 	/** The logger object. */

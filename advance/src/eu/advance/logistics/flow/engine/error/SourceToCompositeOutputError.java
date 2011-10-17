@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The source of the binding points to the output port of the enclosing composite's output port.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class SourceToCompositeOutputError implements AdvanceCompilationError {
 	/** The wire identifier. */

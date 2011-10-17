@@ -25,7 +25,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * A simple base interface for reporting various compilation problems.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public interface AdvanceCompilationError extends XSerializable {
 	

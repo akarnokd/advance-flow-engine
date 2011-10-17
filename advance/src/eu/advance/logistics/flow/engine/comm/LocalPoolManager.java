@@ -25,7 +25,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 
 /**
  * A local "connection" manager to allow working with a connection pooling mechanisms.
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  */
 public class LocalPoolManager implements PoolManager<LocalConnection> {
 	/** The local file data source settings. */

@@ -28,7 +28,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The status information about a realm.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public class AdvanceRealm extends AdvanceCreateModifyInfo 
 implements XSerializable, Copyable<AdvanceRealm>, Identifiable<String> {

@@ -35,7 +35,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Record class representing a file or directory on a local or remote (s)FTP(s) site.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public class FileInfo implements XSerializable, Copyable<FileInfo> {
 	/** The logger. */

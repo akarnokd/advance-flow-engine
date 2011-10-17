@@ -38,7 +38,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Record to store compiler errors, warnings and the computed types of various wires.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public class AdvanceCompilationResult implements XSerializable {
 	/**

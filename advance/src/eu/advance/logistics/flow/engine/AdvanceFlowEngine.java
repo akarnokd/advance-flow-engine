@@ -363,7 +363,7 @@ public class AdvanceFlowEngine implements Runnable {
 	 * Create a HTTPS server with the given TLS properties.
 	 * @param port the port number
 	 * @param kmf the key manager factory for the server certificate
-	 * @param tmf the optional trust manager factory for the client certificats
+	 * @param tmf the optional trust manager factory for the client certificates
 	 * @return the initialized server but without handlers or startup
 	 */
 	protected HttpsServer createServer(final int port, 

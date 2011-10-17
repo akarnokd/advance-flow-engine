@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * The type parameter bound definition for a generic type parameter.
- * @author karnokd, 2011.07.01.
+ * @author akarnokd, 2011.07.01.
  */
 public class AdvanceType implements XSerializable {
 	/** Reference to another type parameter within the same set of declarations. */

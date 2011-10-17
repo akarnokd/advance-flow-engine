@@ -32,7 +32,7 @@ import javax.naming.Context;
 /**
  * An immutable class that wraps the various objects of a JMS based connection:
  * the context, connection, session, queue, etc.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public class JMSConnection {
 	/** The JNDI context of the JMS driver. */

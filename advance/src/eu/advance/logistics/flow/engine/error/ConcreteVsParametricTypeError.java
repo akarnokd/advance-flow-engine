@@ -32,7 +32,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire binds a concrete type and a parametric type which cannot be in subtype relation.
- * @author karnokd, 2011.07.21.
+ * @author akarnokd, 2011.07.21.
  */
 public class ConcreteVsParametricTypeError implements AdvanceCompilationError {
 	/** The wire identifier. */

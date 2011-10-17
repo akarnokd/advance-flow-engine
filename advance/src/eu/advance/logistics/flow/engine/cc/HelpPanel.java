@@ -41,7 +41,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Contains a help button and a horizontal divider.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  *
  */
 public class HelpPanel extends JPanel {

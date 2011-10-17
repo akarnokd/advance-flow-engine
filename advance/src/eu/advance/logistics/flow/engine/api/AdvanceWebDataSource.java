@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The web data source configuration record.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceWebDataSource extends AdvanceCreateModifyInfo 
 implements XSerializable, HasPassword, Copyable<AdvanceWebDataSource>, Identifiable<String> {

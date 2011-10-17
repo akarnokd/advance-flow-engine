@@ -25,7 +25,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Common interface to denote objects which can be serialized and deserialized into XElements.
- * @author karnok, Jul 6, 2011
+ * @author akarnokd, Jul 6, 2011
  */
 public interface XSerializable {
 	/**

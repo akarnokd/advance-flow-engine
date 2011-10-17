@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.model.rt;
 
 /**
  * The ADVANCE block state used by the block diagnostic port.
- * @author karnokd, 2011.06.22.
+ * @author akarnokd, 2011.06.22.
  */
 public enum AdvanceBlockState {
 	/** The block received all inputs and is now computing. */

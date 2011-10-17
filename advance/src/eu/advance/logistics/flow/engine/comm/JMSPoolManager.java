@@ -48,7 +48,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 /**
  * Manages connection to a JMS queue.
  * <p>The created JMS session does not use transaction and requires client acknowledgement.</p>
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public class JMSPoolManager implements PoolManager<JMSConnection> {
 	/** The logger. */

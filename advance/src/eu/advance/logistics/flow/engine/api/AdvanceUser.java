@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * User settings.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public class AdvanceUser extends AdvanceCreateModifyInfo 
 implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<String> {

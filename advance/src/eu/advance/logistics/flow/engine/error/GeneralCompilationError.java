@@ -26,7 +26,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A general compilation error indicator when the error details are stored in XML.
- * @author karnokd, 2011.09.30.
+ * @author akarnokd, 2011.09.30.
  */
 public class GeneralCompilationError implements AdvanceCompilationError {
 	/** The error contents. */

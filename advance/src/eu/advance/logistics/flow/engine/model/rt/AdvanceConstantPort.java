@@ -40,7 +40,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * A special port which returns a constant value.
- * @author karnokd, 2011.06.24.
+ * @author akarnokd, 2011.06.24.
  */
 public class AdvanceConstantPort implements AdvancePort {
 	/** The logger. */

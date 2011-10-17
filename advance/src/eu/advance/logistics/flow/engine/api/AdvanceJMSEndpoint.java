@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Definition of a Java Messaging Service endpoint.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceJMSEndpoint extends AdvanceCreateModifyInfo 
 implements XSerializable, HasPassword, Copyable<AdvanceJMSEndpoint>, Identifiable<String> {

@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
 
 /**
  * An exception which wraps many other exception under a common IOException-type.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public class MultiIOException extends IOException {
 	/** */

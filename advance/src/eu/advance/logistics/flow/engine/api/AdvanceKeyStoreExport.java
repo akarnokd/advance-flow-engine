@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Request for exporting a certificate from a keystore.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceKeyStoreExport
 implements XSerializable, HasPassword {

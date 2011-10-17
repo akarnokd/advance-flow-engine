@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The creation/modification time and user information.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public class AdvanceCreateModifyInfo implements XSerializable {
 	/** The creation timestamp of the object. */

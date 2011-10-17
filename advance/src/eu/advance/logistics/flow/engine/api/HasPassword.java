@@ -26,7 +26,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 /**
  * Interface indicating the record contains a password field which must be managed via
  * care.
- * @author karnokd, 2011.09.29.
+ * @author akarnokd, 2011.09.29.
  */
 public interface HasPassword {
 	/** @return the current password */

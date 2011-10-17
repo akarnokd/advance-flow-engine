@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 /**
  * The generic type information of an XType.
- * @author karnokd, 2011.07.01.
+ * @author akarnokd, 2011.07.01.
  */
 public class XGenerics {
 	/** The type parameter name. */

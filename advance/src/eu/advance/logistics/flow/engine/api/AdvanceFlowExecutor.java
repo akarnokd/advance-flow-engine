@@ -25,7 +25,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
  * Describes the ability to execute and terminate a list of blocks.
- * @author karnokd, 2011.10.04.
+ * @author akarnokd, 2011.10.04.
  */
 public interface AdvanceFlowExecutor {
 	/**

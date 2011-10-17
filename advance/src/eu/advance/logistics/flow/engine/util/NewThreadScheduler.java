@@ -34,7 +34,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 /**
  * A scheduler which creates separate new threads for each task.
  * To stop a repeating schedule, throw a CancellationException.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public class NewThreadScheduler implements Scheduler {
 	/** The tread names. */

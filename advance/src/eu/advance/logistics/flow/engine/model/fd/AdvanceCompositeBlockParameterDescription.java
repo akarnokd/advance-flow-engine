@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The input or output parameter description of a flow composite block element.
- * @author karnokd, 2011.06.21.
+ * @author akarnokd, 2011.06.21.
  */
 public class AdvanceCompositeBlockParameterDescription extends
 		AdvanceBlockParameterDescription implements XSerializable {

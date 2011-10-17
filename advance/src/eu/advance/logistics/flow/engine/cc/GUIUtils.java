@@ -63,7 +63,7 @@ import com.google.common.collect.Lists;
 
 /**
  * GUI utility classes.
- * @author karnokd, 2011.10.07.
+ * @author akarnokd, 2011.10.07.
  */
 public final class GUIUtils {
 	/** The logger. */

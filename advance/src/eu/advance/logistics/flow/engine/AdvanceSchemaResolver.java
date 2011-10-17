@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * Interface for providing support to resolve a schema URI into an XType.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public interface AdvanceSchemaResolver {
 	/**

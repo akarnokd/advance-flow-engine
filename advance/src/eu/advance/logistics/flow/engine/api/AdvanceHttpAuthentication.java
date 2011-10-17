@@ -28,7 +28,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * The record holding authentication information for basic or certificate based HTTP(s) connection.
- * @author  karnokd, 2011.09.27.
+ * @author  akarnokd, 2011.09.27.
  */
 public class AdvanceHttpAuthentication {
 	/** The login type. */

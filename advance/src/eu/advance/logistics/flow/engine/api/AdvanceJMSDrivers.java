@@ -25,7 +25,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Contains some predefined constants for JMS drivers.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public enum AdvanceJMSDrivers {
 	/** Generic driver. */

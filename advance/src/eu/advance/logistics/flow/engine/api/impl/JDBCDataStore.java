@@ -46,7 +46,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A JDBC based remote datastore.
- * @author karnokd, 2011.09.23.
+ * @author akarnokd, 2011.09.23.
  */
 public class JDBCDataStore implements AdvanceDataStore {
 

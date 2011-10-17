@@ -42,7 +42,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The {@code Integer.MIN_VALUE} used as the unique identifier (see {@code id fields} will represent
  * the request to create a new object. Once they were created, the proper non-negative
  * unique identifier replaces this value.</p>
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public interface AdvanceEngineControl {
 	/**

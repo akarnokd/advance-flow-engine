@@ -51,7 +51,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The generic ADVANCE block.
- * @author karnokd, 2011.06.22.
+ * @author akarnokd, 2011.06.22.
  */
 public abstract class AdvanceBlock {
 	/** The logger. */
@@ -181,7 +181,7 @@ public abstract class AdvanceBlock {
 	/**
 	 * The observer to invoke in the body function.
 	 * Contains the default implementations for error() and finish() to perform a diagnostic report.
-	 * @author karnokd, 2011.07.01.
+	 * @author akarnokd, 2011.07.01.
 	 * @param <T> the observed value type 
 	 */
 	public abstract class InvokeObserver<T> implements Observer<T> {

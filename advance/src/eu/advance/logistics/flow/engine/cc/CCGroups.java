@@ -61,7 +61,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
 
 /**
  * The Notification groups editor.
- * @author karnokd, 2011.10.13.
+ * @author akarnokd, 2011.10.13.
  */
 public class CCGroups extends JFrame {
 	/** */
@@ -186,7 +186,7 @@ public class CCGroups extends JFrame {
 	}
 	/**
 	 * A listings panel.
-	 * @author karnokd, 2011.10.14.
+	 * @author akarnokd, 2011.10.14.
 	 */
 	protected class ListingPanel extends JPanel {
 		/** */

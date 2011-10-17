@@ -46,7 +46,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceJDBCDrivers;
 
 /**
  * The JDBC details panel.
- * @author karnokd, 2011.10.12.
+ * @author akarnokd, 2011.10.12.
  */
 public class CCJDBCDetails extends JPanel implements
 		CCLoadSave<AdvanceJDBCDataSource> {

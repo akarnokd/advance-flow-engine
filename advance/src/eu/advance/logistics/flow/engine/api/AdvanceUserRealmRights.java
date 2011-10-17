@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * The allowed realm rights for an user.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public enum AdvanceUserRealmRights {
 	/** The user may see the realm in the listings. */

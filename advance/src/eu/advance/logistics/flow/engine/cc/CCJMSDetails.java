@@ -46,7 +46,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
 
 /**
  * The JMS details.
- * @author karnokd, 2011.10.13.
+ * @author akarnokd, 2011.10.13.
  */
 public class CCJMSDetails extends JPanel implements
 		CCLoadSave<AdvanceJMSEndpoint> {

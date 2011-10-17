@@ -30,7 +30,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Base interface for classes that communicate via XML based messages.
- * @author karnokd, 2011.10.03.
+ * @author akarnokd, 2011.10.03.
  */
 public interface AdvanceXMLCommunicator {
 	/**

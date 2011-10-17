@@ -38,7 +38,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 
 /**
  * Simple remote connection and basic API calls.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  */
 public final class TestBasicRemote {
 

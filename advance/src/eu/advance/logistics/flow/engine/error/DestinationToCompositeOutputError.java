@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire's destination is bound to an output port of a composite block (not the parent block).
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class DestinationToCompositeOutputError implements AdvanceCompilationError {
 	/** The wire identifier. */

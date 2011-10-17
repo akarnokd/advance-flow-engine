@@ -32,7 +32,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Contains common buttons used by dialogs.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  */
 public class DetailButtonPanel extends JPanel {
 	/** */

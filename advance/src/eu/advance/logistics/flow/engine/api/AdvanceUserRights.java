@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * Enumeration for defining user rights.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public enum AdvanceUserRights {
 	/** List users. */

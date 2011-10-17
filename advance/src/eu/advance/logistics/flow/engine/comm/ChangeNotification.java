@@ -40,7 +40,7 @@ import com.google.common.collect.Maps;
  * A poll based local or remote file change notifier.
  * Clients should register to this class as observers and they will receive the list
  * of changed files.
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  * @param <T> a concrete file access object type
  */
 public class ChangeNotification<T extends FileAccess> extends DefaultObservable<List<FileChangeInfo>> implements Closeable {

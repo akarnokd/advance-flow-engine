@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 
 /**
  * The Local file data source details.
- * @author karnokd, 2011.10.13.
+ * @author akarnokd, 2011.10.13.
  */
 public class CCLocalDetails extends JPanel implements
 		CCLoadSave<AdvanceLocalFileDataSource> {

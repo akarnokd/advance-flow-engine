@@ -30,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Displays engine and login information.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  */
 public class EngineInfoPanel extends JPanel {
 	/** */

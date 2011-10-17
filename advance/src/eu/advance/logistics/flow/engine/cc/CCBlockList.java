@@ -54,7 +54,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 
 /**
  * The list and description of blocks.
- * @author karnokd, 2011.10.14.
+ * @author akarnokd, 2011.10.14.
  */
 public abstract class CCBlockList extends JFrame {
 	/** */

@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The FTP data source record.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo 
 implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifiable<String> {
@@ -67,7 +67,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 		name = source.get("name");
 		protocol = AdvanceFTPProtocols.valueOf(source.get("protocol"));
 		address = source.get("address");
-		remoteDirectory = source.get("remoted-directory");
+		remoteDirectory = source.get("remote-directory");
 		userOrKey = source.get("user-or-key");
 		password = getPassword(source, "password");
 		passive = source.getBoolean("passive");

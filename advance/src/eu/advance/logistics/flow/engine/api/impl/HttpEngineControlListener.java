@@ -44,8 +44,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
- * The listener for Enginge control messages coming through the HTTP XML interface.
- * @author karnokd, 2011.09.29.
+ * The listener for Engine control messages coming through the HTTP XML interface.
+ * @author akarnokd, 2011.09.29.
  */
 public class HttpEngineControlListener implements AdvanceHttpListener {
 	/** The logger. */

@@ -25,7 +25,7 @@ import com.google.common.base.Objects;
 
 /**
  * A three element tuple.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  * @param <A> the first type
  * @param <B> the second type
  * @param <C> the third type

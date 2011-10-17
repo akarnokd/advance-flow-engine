@@ -80,7 +80,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
  * The Local Login dialog.
- * @author karnokd, 2011.10.10.
+ * @author akarnokd, 2011.10.10.
  */
 public class CCLocalLogin extends JDialog {
 	/** The logger. */
@@ -89,7 +89,7 @@ public class CCLocalLogin extends JDialog {
 	private static final long serialVersionUID = -5735501222051384516L;
 	/**
 	 * The last local login record.
-	 * @author karnokd, 2011.10.10.
+	 * @author akarnokd, 2011.10.10.
 	 */
 	public static class LastLocalLogin implements XSerializable {
 		/** The path to the configuration file. */

@@ -25,7 +25,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * The pool manager interface for creating, verifying and closing objects.
- * @author karnokd, 2011-10-05
+ * @author akarnokd, 2011-10-05
  * @param <T> the object type
  */
 public interface PoolManager<T> {

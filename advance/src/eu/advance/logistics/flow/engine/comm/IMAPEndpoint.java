@@ -34,7 +34,7 @@ import javax.mail.Store;
 /**
  * Testing IMAP(s) connection.
  * <a href='http://www.rgagnon.com/javadetails/java-receive-email-using-imap.html'>Example.</a>
- * @author karnokd, 2011.10.07.
+ * @author akarnokd, 2011.10.07.
  */
 public final class IMAPEndpoint {
 

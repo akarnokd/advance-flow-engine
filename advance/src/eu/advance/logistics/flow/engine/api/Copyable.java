@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * Indicates if an object can create a deep copy of itself.
- * @author karnokd, 2011.09.29.
+ * @author akarnokd, 2011.09.29.
  * @param <T> the return type, basically the same as the implementor object
  */
 public interface Copyable<T> {

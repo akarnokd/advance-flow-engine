@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.cc;
 
 /**
  * Interface to support loading and saving form values.
- * @author karnokd, 2011.10.12.
+ * @author akarnokd, 2011.10.12.
  * @param <T> the element type
  */
 public interface CCLoadSave<T> {

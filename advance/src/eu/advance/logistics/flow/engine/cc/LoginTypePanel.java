@@ -42,7 +42,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 
 /**
  * A composite panel with options to login via username/password or certificate.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  */
 public class LoginTypePanel extends JPanel {
 	/** */

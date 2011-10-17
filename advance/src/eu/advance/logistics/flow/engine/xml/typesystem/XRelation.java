@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 /**
  * The relation indicator.
- * @author karnok, 2011.03.09.
+ * @author akarnokd, 2011.03.09.
  */
 public enum XRelation {
 	/** In <code>A.compareTo(B)</code> A extends B. */

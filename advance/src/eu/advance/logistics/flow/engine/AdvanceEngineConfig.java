@@ -60,7 +60,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The engine configuration record.
- * @author karnokd, 2011.09.23.
+ * @author akarnokd, 2011.09.23.
  */
 public class AdvanceEngineConfig {
 	/** The logger. */

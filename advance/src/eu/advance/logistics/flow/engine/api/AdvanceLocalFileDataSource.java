@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * A local file or directory data source.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo 
 implements XSerializable, Copyable<AdvanceLocalFileDataSource>, Identifiable<String> {

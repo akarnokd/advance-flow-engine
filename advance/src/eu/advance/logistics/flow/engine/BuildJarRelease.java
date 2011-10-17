@@ -40,7 +40,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Creates a JAR file of the engine and a JAR file containing all dependencies.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public final class BuildJarRelease {
 	/**

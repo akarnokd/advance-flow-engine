@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * Extension methods to the Reactive4Java operators for now. They may be moved later on into
  * the library.
- * @author karnokd, 2011.06.22.
+ * @author akarnokd, 2011.06.22.
  */
 public final class ReactiveEx {
 

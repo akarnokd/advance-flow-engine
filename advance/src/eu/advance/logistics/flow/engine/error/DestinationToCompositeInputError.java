@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The wire's destination is bound to an input port of the parent composite block's.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class DestinationToCompositeInputError implements AdvanceCompilationError {
 	/** The wire identifier. */

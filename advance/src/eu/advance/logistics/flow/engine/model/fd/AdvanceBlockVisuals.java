@@ -26,7 +26,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Record to store visualization properties of a block, constant or composite block.
- * @author karnokd, 2011.09.28.
+ * @author akarnokd, 2011.09.28.
  */
 public class AdvanceBlockVisuals implements XSerializable {
 	/** The location on screen. */

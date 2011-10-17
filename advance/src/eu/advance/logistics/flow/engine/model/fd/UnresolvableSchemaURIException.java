@@ -25,7 +25,7 @@ import java.net.URI;
 
 /**
  * The exception thrown when the specified schema uri cannot be properly resolved.
- * @author karnokd, 2011.06.22.
+ * @author akarnokd, 2011.06.22.
  */
 public class UnresolvableSchemaURIException extends RuntimeException {
 	/**

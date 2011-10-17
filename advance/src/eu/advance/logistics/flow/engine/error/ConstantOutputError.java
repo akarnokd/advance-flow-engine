@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A wire is bound to a constant on its destination side.
- * @author karnokd, 2011.07.07.
+ * @author akarnokd, 2011.07.07.
  */
 public class ConstantOutputError implements AdvanceCompilationError {
 	/** The wire identifier. */

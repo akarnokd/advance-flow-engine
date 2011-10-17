@@ -32,7 +32,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The combination (e.g., union) of two types could not be created.
- * @author karnokd, 2011.07.27.
+ * @author akarnokd, 2011.07.27.
  */
 public class CombinedTypeError implements AdvanceCompilationError {
 	/** The wire identifier. */

@@ -37,7 +37,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A simple generic block that reserves the children of the supplied advance:collection type object.
- * @author karnokd, 2011.07.01.
+ * @author akarnokd, 2011.07.01.
  */
 public class Reverse extends AdvanceBlock {
 	

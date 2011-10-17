@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 /**
  * The comparison interface for two types.
- * @author karnok, 2011.03.09.
+ * @author akarnokd, 2011.03.09.
  * @param <T> the element type
  */
 public interface XComparable<T> {

@@ -60,7 +60,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
 
 /**
  * An implementation for Jaxen's XPath engine.
- * @author karnokd, 2011.07.19.
+ * @author akarnokd, 2011.07.19.
  */
 public class XNavigator implements Navigator {
 	/** */

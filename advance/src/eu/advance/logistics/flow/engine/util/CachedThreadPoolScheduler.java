@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * The scheduler uses a cached thread pool executor (via {@link Executors#newCachedThreadPool()}) as its backing thread pool.
  * Delayed executions are performed via the TimeUnit.sleep() methods on the pool thread (consuming resources).
  * To stop a repeating schedule, throw a CancellationException.
- * @author karnokd, 2011.10.05.
+ * @author akarnokd, 2011.10.05.
  */
 public class CachedThreadPoolScheduler implements Scheduler {
 	/** The thread pool. */

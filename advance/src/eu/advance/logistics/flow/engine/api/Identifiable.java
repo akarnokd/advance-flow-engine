@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * Represents classes which can be asked for their unique identifier.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  * @param <K> the identifier type
  */
 public interface Identifiable<K> {

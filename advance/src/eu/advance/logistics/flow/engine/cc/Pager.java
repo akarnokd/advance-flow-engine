@@ -44,7 +44,7 @@ import eu.advance.logistics.flow.engine.api.Identifiable;
 
 /**
  * Displays a combobox with items where the user can navigate via buttons.
- * @author karnokd, 2011.10.11.
+ * @author akarnokd, 2011.10.11.
  * @param <T> the element type
  */
 public class Pager<T extends Identifiable<?>> extends JPanel {

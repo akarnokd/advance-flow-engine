@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 /**
  * The status enumeration of the ADVANCE Flow Engine Realm.
- * @author karnokd, 2011.09.19.
+ * @author akarnokd, 2011.09.19.
  */
 public enum AdvanceRealmStatus {
 	/** The realm is stopped. */

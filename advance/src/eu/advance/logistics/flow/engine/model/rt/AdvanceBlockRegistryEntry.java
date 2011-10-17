@@ -40,7 +40,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * The block registry entry of the block-registry.xml and xsd.
- * @author karnokd, 2011.07.05.
+ * @author akarnokd, 2011.07.05.
  */
 public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription 
 implements XSerializable {

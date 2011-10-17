@@ -53,7 +53,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
- * @author karnokd, 2011.09.29.
+ * @author akarnokd, 2011.09.29.
  */
 public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	/** The communicator used to send and receive requests. */

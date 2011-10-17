@@ -29,7 +29,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * Record to store a FileInfo and a change reason.
  * <p>In case of NEW or MODIFIED type the {@code file} contains the current file status.
  * In case of a DELETED type, the {@code file} contains the last known file status.</p>
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  */
 public class FileChangeInfo implements XSerializable, Copyable<FileChangeInfo> {
 	/** The change type. */

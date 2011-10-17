@@ -34,7 +34,7 @@ import com.google.common.collect.Sets;
 
 /**
  * A bounded object pool. 
- * @author karnokd, 2011.10.06.
+ * @author akarnokd, 2011.10.06.
  * @param <T> the pooled object type
  */
 public class BoundedPool<T> implements Pool<T> {

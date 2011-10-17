@@ -41,7 +41,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Test methods of HttpRemoteDataStore and HttpDataStoreListener.
- * @author karnokd, 2011.10.03.
+ * @author akarnokd, 2011.10.03.
  */
 public class TestHttpDataStore {
 	/** The datastore object. */

@@ -27,7 +27,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
 /**
  * Description of JDBC data store records.
- * @author karnokd, 2011.09.20.
+ * @author akarnokd, 2011.09.20.
  */
 public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo 
 implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource>, Identifiable<String> {
