@@ -727,17 +727,17 @@ public final class SchemaParser {
 				}
 			}
 			if (xmlRoot.hasChildren()) {
-				analizeChildren(xmlRoot, rootType);
+				analyseChildren(xmlRoot, rootType);
 			}
 		}
 		return result;
 	}
 	/**
-	 * Analize the children of the given element.
-	 * @param element the element to analize
+	 * Analyse the children of the given element.
+	 * @param element the element to analyse
 	 * @param elementType the element type to fill in with capabilities
 	 */
-	static void analizeChildren(XElement element, XType elementType) {
+	static void analyseChildren(XElement element, XType elementType) {
 		// group all elements
 		Map<Pair<String, String>, List<XElement>> elementGroups = Maps.newHashMap();
 		for (XElement e : element.children()) {
@@ -773,9 +773,9 @@ public final class SchemaParser {
 				childrenPresent |= e.hasChildren();
 				
 				if (e.hasChildren()) {
-					// analize the complex element's structure
+					// analyse the complex element's structure
 					XType childType = new XType();
-					analizeChildren(e, childType);
+					analyseChildren(e, childType);
 					childTypes.add(childType);
 				}
 				

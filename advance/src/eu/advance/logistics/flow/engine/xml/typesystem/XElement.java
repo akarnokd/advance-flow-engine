@@ -77,7 +77,7 @@ public class XElement implements Iterable<XElement> {
 		/** The hash. */
 		private int hash;
 		/**
-		 * Construct an XName entitiy.
+		 * Construct an XName entity.
 		 * @param name the name
 		 * @param namespace the namespace
 		 * @param prefix the namespace prefix
@@ -300,18 +300,15 @@ public class XElement implements Iterable<XElement> {
 			switch(type) {
 			case XMLStreamConstants.START_ELEMENT:
 				if (b != null) {
-					// a megkezdett szöveg elmentése
 					stack.push(b);
 					b = null;
 				} else {
-					// nem volt text elem, így az üres elmentése
 					stack.push(emptyBuilder);
 				}
 				XElement n = new XElement(in.getName().getLocalPart());
 				n.namespace = in.getNamespaceURI();
 				n.prefix = in.getPrefix();
 				n.parent = node;
-//				n.depth = depth++;
 				int attCount = in.getAttributeCount();
 				if (attCount > 0) {
 					for (int i = 0; i < attCount; i++) {
@@ -333,12 +330,6 @@ public class XElement implements Iterable<XElement> {
 			case XMLStreamConstants.CDATA:
 			case XMLStreamConstants.CHARACTERS:
 				if (node != null && !in.isWhiteSpace()) {
-					/*
-					if (node.value == null) {
-						node.value = new StringBuilder();
-					}
-					node.value.append(ir.getText());
-					*/
 					if (b == null) {
 						b = new StringBuilder();
 					}
@@ -485,7 +476,7 @@ public class XElement implements Iterable<XElement> {
 		out.append(String.format("%n"));
 	}
 	/**
-	 * Connverts all sensitive characters to its HTML entity equivalent.
+	 * Converts all sensitive characters to its HTML entity equivalent.
 	 * @param s the string to convert, can be null
 	 * @return the converted string, or an empty string
 	 */

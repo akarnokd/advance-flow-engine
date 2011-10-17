@@ -165,14 +165,14 @@ public interface AdvanceDataStore {
 	List<AdvanceJMSEndpoint> queryJMSEndpoints() throws IOException, AdvanceControlException;
 	/**
 	 * Update a JMS endpoint settings.
-	 * @param endpoint the entpoint object.
+	 * @param endpoint the endpoint object.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to modify the JMS endpoint
 	 */
 	void updateJMSEndpoint(@NonNull AdvanceJMSEndpoint endpoint) throws IOException, AdvanceControlException;
 	/**
 	 * Delete a JMS endpoint configuration.
-	 * @param jmsName the identifier of the JMS enpoint to delete.
+	 * @param jmsName the identifier of the JMS endpoint to delete.
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete
 	 */

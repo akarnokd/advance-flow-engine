@@ -45,7 +45,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 public class Merge extends AdvanceBlock {
 	
 	/**
-	 * Constuctor.
+	 * Constructor.
 	 * @param gid the block global id
 	 * @param parent the parent composite block
 	 * @param name the block's type name

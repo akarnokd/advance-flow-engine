@@ -63,7 +63,7 @@ public interface AdvanceEngineControl {
 	List<AdvanceBlockRegistryEntry> queryBlocks() 
 	throws IOException, AdvanceControlException;
 	/**
-	 * Return the engine version infromation.
+	 * Return the engine version information.
 	 * @return the engine version information
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not authenticated
@@ -182,7 +182,7 @@ public interface AdvanceEngineControl {
 	String testJDBCDataSource(@NonNull String dataSourceName) throws IOException, AdvanceControlException;
 	/**
 	 * Test a JMS endpoint configuration.
-	 * @param jmsName the identifier of the JMS enpoint to test.
+	 * @param jmsName the identifier of the JMS endpoint to test.
 	 * @return the error message or an empty string if successful
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to test the connection

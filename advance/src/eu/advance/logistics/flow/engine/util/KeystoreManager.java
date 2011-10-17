@@ -450,7 +450,7 @@ public class KeystoreManager {
 	 * Build the chain of certificates.
 	 * @param cert the CA reply certificate
 	 * @param chain the resulting chain
-	 * @param knownCerts the known certitificates of each Principal
+	 * @param knownCerts the known certificates of each Principal
 	 */
 	private void buildChain(X509Certificate cert, LinkedList<X509Certificate> chain, 
 			Map<Principal, Set<X509Certificate>> knownCerts) {
@@ -849,7 +849,7 @@ public class KeystoreManager {
 		}
 	}
 	/**
-	 * Extract an econded PKCS#8 encoded key spec from a potentially binary or textual
+	 * Extract a PKCS#8 encoded key spec from a potentially binary or textual
 	 * input file.
 	 * @param in the input stream, cannot be null
 	 * @return the encoded key bytes

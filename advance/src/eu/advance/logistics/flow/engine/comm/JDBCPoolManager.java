@@ -42,7 +42,7 @@ public class JDBCPoolManager implements PoolManager<Connection> {
 	/** The data source for the connection configuration. */
 	private final AdvanceJDBCDataSource ds;
 	/**
-	 * Constructor with the JDBC conenction settings.
+	 * Constructor with the JDBC connection settings.
 	 * @param ds the connection settings
 	 */
 	public JDBCPoolManager(AdvanceJDBCDataSource ds) {
