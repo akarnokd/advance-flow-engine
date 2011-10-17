@@ -35,7 +35,7 @@ public interface FTPConnection extends Closeable, FileAccess {
 	AdvanceFTPProtocols protocol();
 	/** 
 	 * @return the current directory.
-	 * @throws IOException if a network eror occurs 
+	 * @throws IOException if a network error occurs 
 	 */
 	String currentDir() throws IOException;
 	/**

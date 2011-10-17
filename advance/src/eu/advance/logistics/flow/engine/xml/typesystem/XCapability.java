@@ -117,7 +117,7 @@ public class XCapability implements XComparable<XCapability> {
 		if (all == equal + sup) {
 			return XRelation.SUPER;
 		}
-		// mixed content, inclonclusive
+		// mixed content, inconclusive
 		return XRelation.NONE;
 	}
 	@Override

@@ -84,6 +84,8 @@ XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 		keyStore = source.get("keystore");
 		user = source.get("user");
 		password = getPassword(source, "password");
+		login = AdvanceLoginType.valueOf(source.get("login-type"));
+		email = source.get("email");
 		super.load(source);
 	}
 
@@ -91,7 +93,7 @@ XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 	public void save(XElement destination) {
 		destination.set("name", name, "receive", receive, "send", send, "send-address", sendAddress,
 				"receive-address", receiveAddress,
-				"email", email, "folder", folder, "keystore", keyStore, "user", user);
+				"email", email, "folder", folder, "keystore", keyStore, "user", user, "login-type", login);
 		setPassword(destination, "password", password);
 		super.save(destination);
 	}
@@ -109,6 +111,8 @@ XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 		result.keyStore = keyStore;
 		result.user = user;
 		result.password = password();
+		result.login = login;
+		assignTo(result);
 		
 		return result;
 	}

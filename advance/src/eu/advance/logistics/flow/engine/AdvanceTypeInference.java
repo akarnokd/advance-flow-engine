@@ -446,7 +446,7 @@ public final class AdvanceTypeInference {
 	/**
 	 * @param <K> the key type
 	 * @param <V> the value type
-	 * @return Create a hasmap of key to hashset of values.
+	 * @return Create a hashmap of key to hashset of values.
 	 */
 	static <K, V> Multimap<K, V> setMultimap() {
 		return Multimaps.newSetMultimap(new HashMap<K, Collection<V>>(), new Supplier<Set<V>>() {

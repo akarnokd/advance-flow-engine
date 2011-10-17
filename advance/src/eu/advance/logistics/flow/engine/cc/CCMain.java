@@ -77,6 +77,8 @@ import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailReceiveProtocols;
+import eu.advance.logistics.flow.engine.api.AdvanceEmailSendProtocols;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
@@ -119,7 +121,7 @@ public class CCMain extends JFrame implements LabelManager {
 	protected final	File configFile = new File("conf/advance-flow-engine-control-center-config.xml");
 	/** The menus to enable with rights. */
 	public Multimap<JMenuItem, AdvanceUserRights> menusToEnable = HashMultimap.create();
-	/** The conencted URL. */
+	/** The connected URL. */
 	private JLabel urlLabel;
 	/** The connected version. */
 	private JLabel verLabel;
@@ -1551,48 +1553,6 @@ public class CCMain extends JFrame implements LabelManager {
 		displayFrame(f, "manageupload-", "Upload Flow");
 	}
 	/**
-	 * Create the email data sources listing.
-	 */
-	void doEmailDataSources() {
-		final GenericListingFrame<AdvanceEmailBox> f = new GenericListingFrame<AdvanceEmailBox>(this);
-		f.setCellTitleFunction(from(
-				"Name", String.class, 
-				"Address", String.class,
-				"Created", String.class, 
-				"Modified", String.class 
-				));
-		f.setCellValueFunction(new Func2<AdvanceEmailBox, Integer, Object>() {
-			@Override
-			public Object invoke(AdvanceEmailBox param1, Integer param2) {
-				switch (param2) {
-				case 0: 
-					return param1.name;
-				case 1:
-					return param1.sendAddress + " " + param1.receiveAddress;
-				case 2:
-					return createdAtBy(param1);
-				case 3:
-					return modifiedAtBy(param1);
-				default:
-					return null;
-				}
-			}
-		});
-		f.setRetrieveFunction(new Action1<String>() {
-			@Override
-			public void invoke(String value) {
-				GUIUtils.getWorker(new ListWorkItem<AdvanceEmailBox>(f) {
-					@Override
-					public List<AdvanceEmailBox> retrieve() throws Exception {
-						return engine.datastore().queryEmailBoxes();
-					}
-				}).execute();
-			}
-		});
-		f.setColumnCount(4);
-		displayFrame(f, "manageemail-", "Email boxes");
-	}
-	/**
 	 * Login into a local engine.
 	 */
 	void doLocalLogin() {
@@ -2017,7 +1977,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * @param ud the details panel.
 	 * @param dialog the dialog
 	 * @param close close dialog
-	 * @param saveFunction the function to save the value and return a potential exeption
+	 * @param saveFunction the function to save the value and return a potential exception
 	 * @return the action
 	 */
 	<K, T extends Identifiable<K>> Action0 createSaver(final CCLoadSave<T> ud, 
@@ -2388,7 +2348,7 @@ public class CCMain extends JFrame implements LabelManager {
 		}).execute();
 	}
 	/**
-	 * Create the FTP details dialog.
+	 * Create the Local details dialog.
 	 * @param f the parent frame
 	 * @param list the list of options
 	 * @param selected the selected option
@@ -2642,4 +2602,139 @@ public class CCMain extends JFrame implements LabelManager {
 		g.setVisible(true);
 		g.refresh();
 	}
+	/**
+	 * Create the email data sources listing.
+	 */
+	void doEmailDataSources() {
+		final GenericListingFrame<AdvanceEmailBox> f = new GenericListingFrame<AdvanceEmailBox>(this);
+		f.setCellTitleFunction(from(
+				"Name", String.class, 
+				"Send", String.class,
+				"Receive", String.class,
+				"Created", String.class, 
+				"Modified", String.class 
+				));
+		f.setCellValueFunction(new Func2<AdvanceEmailBox, Integer, Object>() {
+			@Override
+			public Object invoke(AdvanceEmailBox param1, Integer param2) {
+				switch (param2) {
+				case 0: 
+					return param1.name;
+				case 1:
+					if (param1.send != AdvanceEmailSendProtocols.NONE) {
+						return param1.send + "://" + param1.sendAddress;
+					}
+					return param1.send;
+				case 2:
+					if (param1.receive != AdvanceEmailReceiveProtocols.NONE) {
+						return param1.receive + "://" + param1.receiveAddress;
+					}
+					return param1.receive;
+				case 3:
+					return createdAtBy(param1);
+				case 4:
+					return modifiedAtBy(param1);
+				default:
+					return null;
+				}
+			}
+		});
+		f.setRetrieveFunction(new Action1<String>() {
+			@Override
+			public void invoke(String value) {
+				GUIUtils.getWorker(new ListWorkItem<AdvanceEmailBox>(f) {
+					@Override
+					public List<AdvanceEmailBox> retrieve() throws Exception {
+						return engine.datastore().queryEmailBoxes();
+					}
+				}).execute();
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.CREATE_EMAIL)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					createEmailDialog(f, f.getRows(), null);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceEmailBox>() {
+			@Override
+			public void invoke(AdvanceEmailBox value) {
+				createEmailDialog(f, f.getRows(), value);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_LOCAL_FILE_DATA_SOURCE)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceEmailBox, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceEmailBox param1) {
+							try {
+								engine.datastore().deleteEmailBox(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}
+		f.setColumnCount(5);
+		displayFrame(f, "manageemail-", "Email boxes");
+	}
+	/**
+	 * Create the FTP details dialog.
+	 * @param f the parent frame
+	 * @param list the list of options
+	 * @param selected the selected option
+	 */
+	void createEmailDialog(JFrame f, List<AdvanceEmailBox> list, AdvanceEmailBox selected) {
+		final CCEmailDetails d = new CCEmailDetails(this);
+		
+		final CCDetailDialog<AdvanceEmailBox> dialog = createDetailDialog(list, selected,
+				d,
+				new Func1<AdvanceEmailBox, String>() {
+					@Override
+					public String invoke(AdvanceEmailBox param1) {
+						return param1.name + " [" + param1.send + "://" + param1.sendAddress + " | " + param1.receive + "://" + param1.receiveAddress + "]";
+					}
+				},
+				new Func1<String, Option<AdvanceEmailBox>>() {
+					@Override
+					public Option<AdvanceEmailBox> invoke(String param1) {
+						try {
+							return Option.some(engine.datastore().queryEmailBox(param1));
+						} catch (Throwable t) {
+							return Option.error(t);
+						}
+					}
+				},
+				new Func1<AdvanceEmailBox, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceEmailBox param1) {
+						try {
+							engine.datastore().updateEmailBox(param1);
+							return null;
+						} catch (Throwable t) {
+							return t;
+						}
+					}
+				}
+			);
+		
+		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
+			@Override
+			public List<AdvanceKeyStore> invoke() throws Throwable {
+				return engine.datastore().queryKeyStores();
+			}
+			@Override
+			public void setter(List<AdvanceKeyStore> value) {
+				d.setKeyStores(value);
+			}
+		}).execute();
+	}
+	
 }

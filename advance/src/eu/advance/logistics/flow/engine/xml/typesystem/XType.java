@@ -103,7 +103,7 @@ public class XType implements XComparable<XType> {
 		if (all == equal + sup && diff <= 0) {
 			return XRelation.SUPER;
 		}
-		// mixed content, inclonclusive
+		// mixed content, inconclusive
 		return XRelation.NONE;
 	}
 	@Override

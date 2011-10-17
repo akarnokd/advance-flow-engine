@@ -33,7 +33,7 @@ package eu.advance.logistics.flow.engine.util;
  *  C=country<br>
  * <br>
  * The capitalization does not matter but the order does.
- * Some elements can be ommited from the list
+ * Some elements can be omitted from the list
  * @author akarnokd, 2007.12.06.
  * @version $Revision 1.0$
  */

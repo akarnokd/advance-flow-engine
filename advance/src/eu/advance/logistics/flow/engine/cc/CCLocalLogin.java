@@ -466,7 +466,7 @@ public class CCLocalLogin extends JDialog {
 		return false;
 	}
 	/** 
-	 * Add the first user for ane emtpy datastore.
+	 * Add the first user for ane empty datastore.
 	 * @param ds the datastore 
 	 */
 	void addFirst(AdvanceDataStore ds) {

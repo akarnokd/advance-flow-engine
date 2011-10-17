@@ -191,7 +191,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				}
 			}
 		}
-		loadInto(source, "email-boxes", "email", emailBoxes, AdvanceEmailBox.CREATOR);
+		loadInto(source, "email-boxes", "email-box", emailBoxes, AdvanceEmailBox.CREATOR);
 	}
 	/**
 	 * Loads the elements of the given container into the map.
@@ -1012,9 +1012,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public void updateEmailBox(AdvanceEmailBox box) throws IOException,
 			AdvanceControlException {
-		synchronized (emailBoxes) {
-			emailBoxes.put(box.name, box.copy());
-		}
+		update(emailBoxes, box);
 	}
 	@Override
 	public void deleteSOAPChannel(String name) throws IOException,

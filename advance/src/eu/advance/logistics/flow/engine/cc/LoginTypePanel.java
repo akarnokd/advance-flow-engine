@@ -266,13 +266,31 @@ public class LoginTypePanel extends JPanel {
 	}
 	/** @return the login type enum. */
 	public AdvanceLoginType getLoginType() {
-		if (none.isSelected()) {
-			return AdvanceLoginType.NONE;
+		if (viaCertificate.isSelected()) {
+			return AdvanceLoginType.CERTIFICATE;
 		} else
 		if (viaPassword.isSelected()) {
 			return AdvanceLoginType.BASIC;
 		}
-		return AdvanceLoginType.CERTIFICATE;
+		return AdvanceLoginType.NONE;
+	}
+	/**
+	 * Set the login type.
+	 * @param type the login type
+	 */
+	public void setLoginType(@NonNull AdvanceLoginType type) {
+		switch (type) {
+		case NONE:
+			none.setSelected(true);
+			break;
+		case BASIC:
+			viaPassword.setSelected(true);
+			break;
+		case CERTIFICATE:
+			viaCertificate.setSelected(true);
+			break;
+		default:
+		}
 	}
 	/**
 	 * Set a keystore.
@@ -288,5 +306,16 @@ public class LoginTypePanel extends JPanel {
 	public void showKeyPassword(boolean visible) {
 		keyPasswordLabel.setVisible(visible);
 		keyPassword.setVisible(visible);
+	}
+	/**
+	 * Clear the various text fields.
+	 */
+	public void clear() {
+		userName.setText("");
+		userPassword.setText("");
+		keyPassword.setText("");
+		keystoreList.setSelectedIndex(-1);
+		alias.setText("");
+		none.setSelected(true);
 	}
 }
