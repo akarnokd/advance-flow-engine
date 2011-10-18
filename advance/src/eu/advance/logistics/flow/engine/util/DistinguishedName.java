@@ -223,7 +223,7 @@ public class DistinguishedName {
 		return obj instanceof DistinguishedName && toString().equals(obj.toString());
 	}
 	/**
-	 * Escape any comma in the given string and add it to the stringbuilder.
+	 * Escape any comma in the given string and add it to the {@code StringBuilder}.
 	 * Automatically adds separator comma if the builder is not empty.
 	 * @param b the target StringBuilder, cannot be null
 	 * @param name the field name, cannot be null

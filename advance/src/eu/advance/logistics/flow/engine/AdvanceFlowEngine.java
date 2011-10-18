@@ -74,7 +74,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * <li>Run it independently of the web application. This allows it to be placed beside the web application or onto a completely different server.</li>
  * <li>JVM or Java crash in the flow engine or in the web application should not affect the other party.</li>
  * </ul>
- * @author karnokd
+ *  @author akarnokd
  */
 public class AdvanceFlowEngine implements Runnable {
 	/**

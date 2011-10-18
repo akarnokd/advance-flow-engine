@@ -53,6 +53,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
+ * An {@code AdvanceEngineControl} implementation which translates the API calls into XML message exchanges through
+ * a HTTP(s) channel.
  * @author akarnokd, 2011.09.29.
  */
 public class HttpRemoteEngineControl implements AdvanceEngineControl {

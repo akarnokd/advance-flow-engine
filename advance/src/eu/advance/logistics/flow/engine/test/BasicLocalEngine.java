@@ -22,8 +22,14 @@
 package eu.advance.logistics.flow.engine.test;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Date;
+
+import javax.xml.stream.XMLStreamException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.AdvanceCompiler;
 import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
@@ -36,12 +42,15 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Creates a basic local flow engine with a constant configuration.
  * @author akarnokd, 2011.10.11.
  */
 public final class BasicLocalEngine {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(BasicLocalEngine.class);
 	/**
 	 * Utility class.
 	 */
@@ -51,10 +60,11 @@ public final class BasicLocalEngine {
 	/**
 	 * Create a default local flow engine and access it via the given username.
 	 * @param userName the target username
+	 * @param workDir the working directory for the configuration, keystores and schemas
 	 * @return the engine control
 	 */
-	public static AdvanceEngineControl create(String userName) {
-		final AdvanceEngineConfig config = AdvanceEngineConfig.defaultConfig();
+	public static AdvanceEngineControl create(String userName, String workDir) {
+		final AdvanceEngineConfig config = defaultConfig(workDir);
 		AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, 
 				config.blockResolver, config.schedulerMap);
 		AdvanceDataStore datastore = config.datastore();
@@ -76,6 +86,34 @@ public final class BasicLocalEngine {
 			}
 		};
 		return new CheckedEngineControl(engine, userName);
+	}
+	/**
+	 * Create a simple configuration with local resources.
+	 * @param workDir the working directory
+	 * @return the configuration
+	 */
+	public static AdvanceEngineConfig defaultConfig(String workDir) {
+		String defaultConfigText =
+		"<?xml version='1.0' encoding='UTF-8'?>"
+		+ "<flow-engine-config>"
+		+ " <listener cert-auth-port='8443' server-keyalias='advance-server' basic-auth-port='8444' server-password='YWR2YW5jZQ==' server-keystore='DEFAULT' client-keystore='DEFAULT'/>"
+		+ " <block-registry file='" + workDir + "/block-registry.xml'/>"
+		+ " <datastore driver='LOCAL' url='" + workDir + "/datastore.xml'/>"
+		+ " <keystore name='DEFAULT' file='" + workDir + "/keystore' password='YWR2YW5jZQ=='/>"
+		+ " <schemas location='" + workDir + "'/>"
+		+ " <scheduler type='CPU' concurrency='ALL_CORES' priority='NORMAL'/>"
+		+ " <scheduler type='SEQUENTIAL' concurrency='1' priority='NORMAL'/>"
+		+ " <scheduler type='IO' concurrency='1024' priority='NORMAL'/>"
+		+ "</flow-engine-config>"
+		;
+		
+		AdvanceEngineConfig config = new AdvanceEngineConfig();
+		try {
+			config.initialize(XElement.parseXML(new StringReader(defaultConfigText)));
+		} catch (XMLStreamException ex) {
+			LOG.error(ex.toString(), ex);
+		}
+		return config;
 	}
 	/**
 	 * Add first elements to the datastore.
@@ -101,9 +139,9 @@ public final class BasicLocalEngine {
 		try {
 			ds.updateUser(u);
 		} catch (IOException ex) {
-			// ignore
+			LOG.error(ex.toString(), ex);
 		} catch (AdvanceControlException ex) {
-			// ignore
+			LOG.error(ex.toString(), ex);
 		}
 		
 		AdvanceRealm realm = new AdvanceRealm();
@@ -117,9 +155,9 @@ public final class BasicLocalEngine {
 		try {
 			ds.updateRealm(realm);
 		} catch (IOException ex) {
-			// ignore
+			LOG.error(ex.toString(), ex);
 		} catch (AdvanceControlException ex) {
-			// ignore
+			LOG.error(ex.toString(), ex);
 		}
 	}
 }

@@ -22,7 +22,7 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 /**
  * The enumeration for simple XML value types.
- * @author karnokd
+ *  @author akarnokd
  */
 public enum XValueType {
 	/** Represents a binary value type. */

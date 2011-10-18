@@ -59,7 +59,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * A simplified XML element model.
- * @author karnokd
+ *  @author akarnokd
  */
 public class XElement implements Iterable<XElement> {
 	/** The XSD namespace. */
@@ -146,7 +146,7 @@ public class XElement implements Iterable<XElement> {
 		// check first for a namespace-less attribute
 		String attr = attributes.get(new XAttributeName(attributeName, null, null));
 		if (attr == null) {
-			// find any namespaced attribute
+			// find any attribute ignoring namespace
 			for (XAttributeName n : attributes.keySet()) {
 				if (Objects.equal(n.name, attributeName)) {
 					return attributes.get(n);

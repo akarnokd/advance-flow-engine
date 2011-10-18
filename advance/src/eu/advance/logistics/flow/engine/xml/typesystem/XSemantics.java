@@ -22,7 +22,7 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 /**
  * The interface to declare a semantic token.
- * @author karnokd
+ *  @author akarnokd
  */
 public interface XSemantics extends XComparable<XSemantics> {
 }

@@ -1937,7 +1937,7 @@ public final class Base64 {
 			if (suspendEncoding) {
 				this.out.write(theByte);
 				return;
-			}   // end if: supsended
+			}   // end if: suspended
 
 			// Encode?
 			if (encode) {
@@ -1990,7 +1990,7 @@ public final class Base64 {
 			if (suspendEncoding) {
 				this.out.write(theBytes, off, len);
 				return;
-			}   // end if: supsended
+			}   // end if: suspended
 
 			for (int i = 0; i < len; i++) {
 				write(theBytes[ off + i ]);

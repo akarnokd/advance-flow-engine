@@ -60,7 +60,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
 
 /**
  * A XML type description.
- * @author karnokd
+ *  @author akarnokd
  */
 public final class SchemaParser {
 	/** The logger. */
@@ -533,9 +533,9 @@ public final class SchemaParser {
 		return null;
 	}
 	/**
-	 * Extract the numericity value from an elements minOccurs and maxOccurs definition.
+	 * Extract the cardinality value from an elements minOccurs and maxOccurs definition.
 	 * @param e the element definition
-	 * @return the numericity
+	 * @return the cardinality
 	 */
 	static XCardinality getCardinality(XElement e) {
 		String mino = e.get("minOccurs");
@@ -556,17 +556,17 @@ public final class SchemaParser {
 			if (maxo.equals("unbounded")) {
 				return XCardinality.ZERO_OR_MANY;
 			}
-			throw new AssertionError("0 to Max numericity not supported: " + maxo);
+			throw new AssertionError("0 to Max cardinality not supported: " + maxo);
 		} else
 		if (mino.equals("1")) {
 			if (maxo.equals("1")) {
 				return XCardinality.ONE;
 			} else
 			if (maxo.equals("unbounded")) {
-				throw new AssertionError("1 to Max numericity not supported: " + maxo);
+				throw new AssertionError("1 to Max cardinality not supported: " + maxo);
 			}
 		}
-		throw new AssertionError("Min numericity not supported: " + mino);
+		throw new AssertionError("Min cardinality not supported: " + mino);
 	}
 	/**
 	 * Convert an XSD simple type into an XValueType.
@@ -763,7 +763,7 @@ public final class SchemaParser {
 			}
 			elementType.capabilities.add(elementCapability);
 			
-			// aggregate individual element settins
+			// aggregate individual element settings
 			Map<XAttributeName, Set<XValueType>> valueTypes = Maps.newHashMap();
 			Multiset<XAttributeName> attributeCounts = HashMultiset.create();
 			XValueType contentSimpleType = null;

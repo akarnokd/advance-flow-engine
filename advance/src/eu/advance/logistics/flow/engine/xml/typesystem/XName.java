@@ -26,7 +26,7 @@ import com.google.common.base.Objects;
 
 /**
  * The XML naming record.
- * @author karnokd
+ *  @author akarnokd
  */
 public class XName implements XComparable<XName> {
 	/** The name. */
