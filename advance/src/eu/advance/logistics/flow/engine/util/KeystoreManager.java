@@ -172,7 +172,7 @@ public class KeystoreManager {
 		}
 	}
 	/**
-	 * Load a keystore from the given inputstream.
+	 * Load a keystore from the given input stream.
 	 * Does not close the input stream.
 	 * Throws KeystoreFault if something failed.
 	 * @param in the input stream, should not be null
@@ -659,7 +659,7 @@ public class KeystoreManager {
 		+ "/lib/security/cacerts".replace('/', File.separatorChar);
 	}
 	/**
-	 * Exports a given certificate into an outputstream.
+	 * Exports a given certificate into an output stream.
 	 * Throws KeystoreFault if the alias cannot be found
 	 * or there is a problem with the keystore operations.
 	 * Does not close the output stream

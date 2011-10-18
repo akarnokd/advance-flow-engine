@@ -35,6 +35,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
+ * Represents a constant block in the flow descriptor.
  * @author akarnokd, 2011.06.24.
  */
 public class AdvanceConstantBlock implements XSerializable {

@@ -27,7 +27,6 @@ import hu.akarnokd.reactive4java.util.DefaultScheduler;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -326,32 +325,5 @@ public class AdvanceEngineConfig {
 	/** @return the datastore object. */
 	public AdvanceDataStore datastore() {
 		return localDataStore;
-	}
-	/**
-	 * Create a simple configuration with local resources.
-	 * @return the configuration
-	 */
-	public static AdvanceEngineConfig defaultConfig() {
-		String defaultConfigText =
-		"<?xml version='1.0' encoding='UTF-8'?>"
-		+ "<flow-engine-config>"
-		+ " <listener cert-auth-port='8443' server-keyalias='advance-server' basic-auth-port='8444' server-password='YWR2YW5jZQ==' server-keystore='DEFAULT' client-keystore='DEFAULT'/>"
-		+ " <block-registry file='schemas/block-registry.xml'/>"
-		+ " <datastore driver='LOCAL' url='conf/datastore.xml'/>"
-		+ " <keystore name='DEFAULT' file='conf/keystore' password='YWR2YW5jZQ=='/>"
-		+ " <schemas location='schemas'/>"
-		+ " <scheduler type='CPU' concurrency='ALL_CORES' priority='NORMAL'/>"
-		+ " <scheduler type='SEQUENTIAL' concurrency='1' priority='NORMAL'/>"
-		+ " <scheduler type='IO' concurrency='1024' priority='NORMAL'/>"
-		+ "</flow-engine-config>"
-		;
-		
-		AdvanceEngineConfig config = new AdvanceEngineConfig();
-		try {
-			config.initialize(XElement.parseXML(new StringReader(defaultConfigText)));
-		} catch (XMLStreamException ex) {
-			LOG.error(ex.toString(), ex);
-		}
-		return config;
 	}
 }

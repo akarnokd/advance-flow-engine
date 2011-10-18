@@ -82,7 +82,7 @@ import java.security.SecureRandom;
 public final class BCrypt {
 	/** Utility class. */
 	private BCrypt() {
-		// utilty class
+		// utility class
 	}
 	// BCrypt parameters
 	/** Salt generation log2 rounds. */

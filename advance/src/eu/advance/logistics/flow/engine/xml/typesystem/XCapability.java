@@ -28,12 +28,12 @@ import java.util.Set;
  * The XML capability description, basically the class field description.
  * Attributes and inner elements share the same description
  * and probably won't overlap in terms of a name.
- * @author karnokd
+ *  @author akarnokd
  */
 public class XCapability implements XComparable<XCapability> {
 	/** The element name. */
 	public XName name;
-	/** The element numericity. */
+	/** The element cardinality. */
 	public XCardinality cardinality;
 	/** The element's simple type if non null. */
 	public XValueType valueType;

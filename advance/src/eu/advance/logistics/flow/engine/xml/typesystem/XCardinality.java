@@ -21,11 +21,11 @@
 package eu.advance.logistics.flow.engine.xml.typesystem;
 
 /**
- * The numericity enum for an element.
- * @author karnokd
+ * The cardinality enum for an element.
+ * @author akarnokd
  */
 public enum XCardinality {
-	/** Not occurring (e.g., explicitely forbidden). */
+	/** Not occurring (e.g., explicitly forbidden). */
 	ZERO,
 	/** Zero or one occurrence. */
 	ZERO_OR_ONE,
@@ -47,9 +47,9 @@ public enum XCardinality {
 	};*/
 
 	/**
-	 * Computes the relation between two numericity values. 
-	 * @param n1 the first numericity value
-	 * @param n2 the second numericity value
+	 * Computes the relation between two cardinality values. 
+	 * @param n1 the first cardinality value
+	 * @param n2 the second cardinality value
 	 * @return the relation
 	 */
 	public static XRelation compare(XCardinality n1, XCardinality n2) {
