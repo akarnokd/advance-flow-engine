@@ -63,7 +63,7 @@ public class CCEmailDetails extends JPanel implements CCLoadSave<AdvanceEmailBox
 	/** The name. */
 	protected JTextField name;
 	/**
-	 * Constructrs the panel.
+	 * Constructs the panel.
 	 * @param labels the label manager
 	 */
 	public CCEmailDetails(@NonNull final LabelManager labels) {

@@ -83,9 +83,12 @@ import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceFTPProtocols;
+import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
+import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
@@ -577,88 +580,6 @@ public class CCMain extends JFrame implements LabelManager {
 		};
 	}
 	/**
-	 * Do manage keystores.
-	 */
-	void doManageKeyStores() {
-		final GenericListingFrame<AdvanceKeyStore> f = new GenericListingFrame<AdvanceKeyStore>(this);
-
-		f.setCellTitleFunction(from("Name", String.class, "Location", String.class, "Created", String.class, "Modified", String.class));
-		
-		f.setCellValueFunction(new Func2<AdvanceKeyStore, Integer, Object>() { 
-			@Override
-			public Object invoke(AdvanceKeyStore param1, Integer param2) {
-				switch (param2) {
-				case 0:
-					return param1.name;
-				case 1:
-					return param1.location;
-				case 2:
-					return createdAtBy(param1);
-				case 3:
-					return modifiedAtBy(param1);
-				default:
-					return null;
-				}
-			}
-		});
-		f.setColumnCount(4);
-		
-		f.setRetrieveFunction(new Action1<String>() { 
-			@Override
-			public void invoke(String value) {
-				GUIUtils.getWorker(new ListWorkItem<AdvanceKeyStore>(f) {
-					@Override
-					public List<AdvanceKeyStore> retrieve() throws Exception {
-						return engine.datastore().queryKeyStores();
-					}
-				}).execute();
-			}
-		});
-		displayFrame(f, "manageengineks-", "Manage engine keystores");
-
-	}
-	/**
-	 * Do manage keystores.
-	 */
-	void doManageLocalKeyStores() {
-		final GenericListingFrame<AdvanceKeyStore> f = new GenericListingFrame<AdvanceKeyStore>(this);
-
-		f.setCellTitleFunction(from("Name", String.class, "Location", String.class, "Created", String.class, "Modified", String.class));
-		
-		f.setCellValueFunction(new Func2<AdvanceKeyStore, Integer, Object>() { 
-			@Override
-			public Object invoke(AdvanceKeyStore param1, Integer param2) {
-				switch (param2) {
-				case 0:
-					return param1.name;
-				case 1:
-					return param1.location;
-				case 2:
-					return createdAtBy(param1);
-				case 3:
-					return modifiedAtBy(param1);
-				default:
-					return null;
-				}
-			}
-		});
-		f.setColumnCount(4);
-		f.showEngineInfo(false);
-		f.setRetrieveFunction(new Action1<String>() { 
-			@Override
-			public void invoke(String value) {
-				GUIUtils.getWorker(new ListWorkItem<AdvanceKeyStore>(f) {
-					@Override
-					public List<AdvanceKeyStore> retrieve() throws Exception {
-						return engine.datastore().queryKeyStores();
-					}
-				}).execute();
-			}
-		});
-		displayFrame(f, "managelocalks-", "Manage local keystores");
-
-	}
-	/**
 	 * A list retrieving work item.
 	 * @author akarnokd, 2011.10.07.
 	 * @param <T> the element type of the list
@@ -718,8 +639,8 @@ public class CCMain extends JFrame implements LabelManager {
 		});
 		if (!applyFrameState(f, props, prefix)) {
 			f.pack();
+			f.setLocationRelativeTo(this);
 		}
-		f.setLocationRelativeTo(this);
 		f.setVisible(true);
 		f.refresh();
 	}
@@ -2183,7 +2104,7 @@ public class CCMain extends JFrame implements LabelManager {
 		protected Option<T> result;
 		/** The dialog to display. */
 		protected final CCDetailDialog<?> dialog;
-		/** The parent component to place realtive to. */
+		/** The parent component to place relative to. */
 		protected final Component parent;
 		/**
 		 * Constructor, sets the dialog and parent.
@@ -2217,10 +2138,12 @@ public class CCMain extends JFrame implements LabelManager {
 		public void done() {
 			if (Option.isSome(result)) {
 				setter(result.value());
-				setEngineInfo(dialog.engineInfo);
-				dialog.pack();
-				dialog.setLocationRelativeTo(parent);
-				dialog.setVisible(true);
+				if (dialog != null) {
+					setEngineInfo(dialog.engineInfo);
+					dialog.pack();
+					dialog.setLocationRelativeTo(parent);
+					dialog.setVisible(true);
+				}
 			} else {
 				GUIUtils.errorMessage(parent, Option.getError(result));
 			}
@@ -2406,9 +2329,9 @@ public class CCMain extends JFrame implements LabelManager {
 		});
 		if (!applyFrameState(g, props, prefix)) {
 			g.pack();
+			g.setLocationRelativeTo(this);
 		}
 		setEngineInfo(g.engineInfo);
-		g.setLocationRelativeTo(this);
 		g.setVisible(true);
 		g.refresh();
 		
@@ -2596,9 +2519,9 @@ public class CCMain extends JFrame implements LabelManager {
 		});
 		if (!applyFrameState(g, props, prefix)) {
 			g.pack();
+			g.setLocationRelativeTo(this);
 		}
 		setEngineInfo(g.engineInfo);
-		g.setLocationRelativeTo(this);
 		g.setVisible(true);
 		g.refresh();
 	}
@@ -2736,5 +2659,358 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		}).execute();
 	}
-	
+	/**
+	 * Do manage keystores.
+	 */
+	void doManageKeyStores() {
+		final GenericListingFrame<AdvanceKeyStore> f = new GenericListingFrame<AdvanceKeyStore>(this);
+
+		f.setCellTitleFunction(from("Name", String.class, "Location", String.class, "Created", String.class, "Modified", String.class));
+		
+		f.setCellValueFunction(new Func2<AdvanceKeyStore, Integer, Object>() { 
+			@Override
+			public Object invoke(AdvanceKeyStore param1, Integer param2) {
+				switch (param2) {
+				case 0:
+					return param1.name;
+				case 1:
+					return param1.location;
+				case 2:
+					return createdAtBy(param1);
+				case 3:
+					return modifiedAtBy(param1);
+				default:
+					return null;
+				}
+			}
+		});
+		f.setColumnCount(4);
+		
+		f.setRetrieveFunction(new Action1<String>() { 
+			@Override
+			public void invoke(String value) {
+				GUIUtils.getWorker(new ListWorkItem<AdvanceKeyStore>(f) {
+					@Override
+					public List<AdvanceKeyStore> retrieve() throws Exception {
+						return engine.datastore().queryKeyStores();
+					}
+				}).execute();
+			}
+		});
+
+		final CCKeyManager keyManager = new EngineKeyManager();
+		
+		if (user.rights.contains(AdvanceUserRights.CREATE_KEYSTORE)) {
+			f.setExtraButton(0, "Create...", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					createKeyStoreDialog(f, f.getRows(), null, false, keyManager);
+				}
+			});
+		}
+		f.setDisplayItem(new Action1<AdvanceKeyStore>() {
+			@Override
+			public void invoke(AdvanceKeyStore value) {
+				createKeyStoreDialog(f, f.getRows(), value, false, keyManager);
+			}
+		});
+		if (user.rights.contains(AdvanceUserRights.DELETE_KEYSTORE)) {
+			f.setExtraButton(1, "Delete", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					deleteItems(f, new Func1<AdvanceKeyStore, Throwable>() {
+						@Override
+						public Throwable invoke(AdvanceKeyStore param1) {
+							try {
+								keyManager.deleteKeyStore(param1.name);
+								return null;
+							} catch (Throwable t) {
+								return t;
+							}
+						}
+					});
+				}
+			});
+		}
+		
+		displayFrame(f, "manageengineks-", "Manage engine keystores");
+
+	}
+	/**
+	 * Do manage keystores.
+	 */
+	void doManageLocalKeyStores() {
+		final GenericListingFrame<AdvanceKeyStore> f = new GenericListingFrame<AdvanceKeyStore>(this);
+
+		f.setCellTitleFunction(from("Name", String.class, "Location", String.class, "Created", String.class, "Modified", String.class));
+		
+		f.setCellValueFunction(new Func2<AdvanceKeyStore, Integer, Object>() { 
+			@Override
+			public Object invoke(AdvanceKeyStore param1, Integer param2) {
+				switch (param2) {
+				case 0:
+					return param1.name;
+				case 1:
+					return param1.location;
+				case 2:
+					return createdAtBy(param1);
+				case 3:
+					return modifiedAtBy(param1);
+				default:
+					return null;
+				}
+			}
+		});
+		f.setColumnCount(4);
+		f.showEngineInfo(false);
+		f.setRetrieveFunction(new Action1<String>() { 
+			@Override
+			public void invoke(String value) {
+				GUIUtils.getWorker(new ListWorkItem<AdvanceKeyStore>(f) {
+					@Override
+					public List<AdvanceKeyStore> retrieve() throws Exception {
+						return engine.datastore().queryKeyStores();
+					}
+				}).execute();
+			}
+		});
+		// TODO details
+		displayFrame(f, "managelocalks-", "Manage local keystores");
+
+	}
+	/**
+	 * The engine key manager.
+	 * @author akarnokd, 2011.10.18.
+	 */
+	class EngineKeyManager implements CCKeyManager {
+		/** The parent visual component. */
+		protected Component parent;
+		@Override
+		public void setParent(Component c) {
+			parent = c;
+		}
+		@Override
+		public List<AdvanceKeyEntry> queryKeys(String keyStore)
+				throws Exception {
+			return engine.queryKeys(keyStore);
+		}
+
+		@Override
+		public void deleteKeys(String keyStore, Iterable<String> keys)
+				throws Exception {
+			for (String s : keys) {
+				engine.deleteKeyEntry(keyStore, s);
+			}
+		}
+
+		@Override
+		public void generateKey(AdvanceGenerateKey key) throws Exception {
+			engine.generateKey(key);
+		}
+		
+		@Override
+		public String exportCertificate(AdvanceKeyStoreExport request)
+				throws Exception {
+			return engine.exportCertificate(request);
+		}
+
+		@Override
+		public String exportKey(AdvanceKeyStoreExport request) throws Exception {
+			return engine.exportPrivateKey(request);
+		}
+		
+		@Override
+		public String exportSigningRequest(AdvanceKeyStoreExport request)
+				throws Exception {
+			return engine.exportSigningRequest(request);
+		}
+		@Override
+		public void importCertificate(AdvanceKeyStoreExport request, String data)
+				throws Exception {
+			engine.importCertificate(request, data);
+		}
+
+		@Override
+		public List<AdvanceKeyStore> queryKeyStores() throws Exception {
+			return engine.datastore().queryKeyStores();
+		}
+		@Override
+		public AdvanceKeyStore queryKeyStore(String name) throws Exception {
+			return engine.datastore().queryKeyStore(name);
+		}
+		@Override
+		public void updateKeyStore(AdvanceKeyStore keyStore) throws Exception {
+			engine.datastore().updateKeyStore(keyStore);
+		}
+		@Override
+		public void deleteKeyStore(String name) throws Exception {
+			engine.datastore().deleteKeyStore(name);
+		}
+		@Override
+		public void importKey(AdvanceKeyStoreExport request, String keyData,
+				String certData) throws Exception {
+			engine.importPrivateKey(request, keyData, certData);
+		}
+		@Override
+		public void importSigningResponse(AdvanceKeyStoreExport request,
+				String data) throws Exception {
+			engine.importSigningResponse(request, data);
+		}
+	}
+	/**
+	 * The local key manager.
+	 * @author akarnokd, 2011.10.18.
+	 */
+	class LocalKeyManager implements CCKeyManager {
+		/** The parent visual component. */
+		protected Component parent;
+		@Override
+		public void setParent(Component c) {
+			this.parent = c;
+		}
+		@Override
+		public List<AdvanceKeyEntry> queryKeys(String keyStore)
+				throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public List<AdvanceKeyStore> queryKeyStores() throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public AdvanceKeyStore queryKeyStore(String name) throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public void updateKeyStore(AdvanceKeyStore keyStore) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void deleteKeyStore(String name) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void deleteKeys(String keyStore, Iterable<String> keys)
+				throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void generateKey(AdvanceGenerateKey key) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public String exportCertificate(AdvanceKeyStoreExport request)
+				throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public String exportKey(AdvanceKeyStoreExport request) throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public void importCertificate(AdvanceKeyStoreExport request, String data)
+				throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void importKey(AdvanceKeyStoreExport request, String keyData,
+				String certData) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public String exportSigningRequest(AdvanceKeyStoreExport request)
+				throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public void importSigningResponse(AdvanceKeyStoreExport request,
+				String data) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	/**
+	 * Create a keystore dialog.
+	 * @param parent the parent frame.
+	 * @param list the list of options
+	 * @param selected the selected option or null
+	 * @param local is it a local dialog?
+	 * @param keyManager the key manager
+	 */
+	void createKeyStoreDialog(
+			JFrame parent, 
+			List<AdvanceKeyStore> list, 
+			final AdvanceKeyStore selected, 
+			final boolean local,
+			final CCKeyManager keyManager) {
+		final CCKeyStoreDialog d = new CCKeyStoreDialog(this);
+		d.setKeyManager(keyManager);
+		keyManager.setParent(d);
+		d.showBrowse(!local);
+		
+		final CCDetailDialog<AdvanceKeyStore> dialog = createDetailDialog(list, selected,
+				d,
+				new Func1<AdvanceKeyStore, String>() {
+					@Override
+					public String invoke(AdvanceKeyStore param1) {
+						return param1.name + " [" + param1.location + "]";
+					}
+				},
+				new Func1<String, Option<AdvanceKeyStore>>() {
+					@Override
+					public Option<AdvanceKeyStore> invoke(final String param1) {
+						try {
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									d.queryKeys(param1);
+								}
+							});
+							return Option.some(d.keyManager.queryKeyStore(param1));
+						} catch (Throwable t) {
+							return Option.error(t);
+						}
+					}
+				},
+				new Func1<AdvanceKeyStore, Throwable>() {
+					@Override
+					public Throwable invoke(AdvanceKeyStore param1) {
+						try {
+							d.keyManager.updateKeyStore(param1);
+							return null;
+						} catch (Throwable t) {
+							return t;
+						}
+					}
+				}
+			);
+		
+		setEngineInfo(dialog.engineInfo);
+		dialog.showEngineInfo(!local);
+		dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(dialog, props, "keystore-" + local);
+			}
+		});
+		if (!applyFrameState(dialog, props, "keystore-" + local)) {
+			dialog.pack();
+			dialog.setLocationRelativeTo(parent);
+		}
+		dialog.setVisible(true);
+		
+	}
 }

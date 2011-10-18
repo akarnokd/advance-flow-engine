@@ -86,7 +86,7 @@ public class GenericListingFrame<T> extends JFrame {
 	protected JTable table;
 	/** The label manager. */
 	protected final LabelManager labels;
-	/** The refersh button. */
+	/** The refresh button. */
 	protected JButton refresh;
 	/**
 	 * The table model.
