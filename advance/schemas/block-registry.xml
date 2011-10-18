@@ -41,7 +41,7 @@
 		<type-variable name="T"/>
 		<input id="1" type-variable="T"/>
 	</block-description>
-	<!-- Testing end-to-end type inference with explicite parameter. -->
+	<!-- Testing end-to-end type inference with explicit parameter. -->
 	<block-description class="" id="IntSink">
 		<input id="1" type="advance:integer"/>
 	</block-description>
