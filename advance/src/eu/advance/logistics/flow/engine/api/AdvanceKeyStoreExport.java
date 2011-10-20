@@ -40,7 +40,7 @@ implements XSerializable, HasPassword {
 	 * <p>An empty password should be an empty {@code char} array. To keep
 	 * the current password, use {@code null}.</p>
 	 */
-	public char[] keyPassword;
+	private char[] keyPassword;
 	/** Creates a new instance of this class. */
 	public static final Func0<AdvanceKeyStoreExport> CREATOR = new Func0<AdvanceKeyStoreExport>() {
 		@Override

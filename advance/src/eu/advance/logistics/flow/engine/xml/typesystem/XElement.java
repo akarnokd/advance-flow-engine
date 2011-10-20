@@ -46,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -904,7 +905,7 @@ public class XElement implements Iterable<XElement> {
 	private static final ThreadLocal<GregorianCalendar> XSD_CALENDAR = new ThreadLocal<GregorianCalendar>() {
 		@Override
 		protected GregorianCalendar initialValue() {
-			return new GregorianCalendar();
+			return new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 		}
 	};
 	/**

@@ -71,6 +71,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import eu.advance.logistics.flow.engine.AdvanceFlowEngine;
@@ -97,11 +99,13 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.Identifiable;
+import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
  * The main window of the engine control center.
@@ -136,6 +140,8 @@ public class CCMain extends JFrame implements LabelManager {
 	protected Properties props = new Properties();
 	/** The last directory. */
 	protected File lastDirectory = new File(".");
+	/** The local key manager. */
+	protected LocalKeyManager localKeyManager = new LocalKeyManager();
 	/**
 	 * Returns a label for the given key.
 	 * @param key the key
@@ -180,6 +186,7 @@ public class CCMain extends JFrame implements LabelManager {
 		if (props.getProperty("main-last-directory") != null) {
 			lastDirectory = new File(props.getProperty("main-last-directory"));
 		}
+		localKeyManager.load();
 	}
 	/**
 	 * Apply the state to the target frame named by the prefix within the properties.
@@ -275,6 +282,7 @@ public class CCMain extends JFrame implements LabelManager {
 	protected void storeConfig(Properties props) {
 		storeFrameState(this, props, "main-");
 		props.setProperty("main-last-directory", lastDirectory.getAbsolutePath());
+		localKeyManager.save();
 	}
 	/** Save the configuration. */
 	public void saveConfig() {
@@ -590,12 +598,12 @@ public class CCMain extends JFrame implements LabelManager {
 		/** The error. */
 		protected Throwable error;
 		/** The target frame to update. */
-		final GenericListingFrame<T> frame;
+		final CCListingFrame<T> frame;
 		/**
 		 * Constructor.
 		 * @param frame the frame to set the result on
 		 */
-		public ListWorkItem(GenericListingFrame<T> frame) {
+		public ListWorkItem(CCListingFrame<T> frame) {
 			this.frame = frame;
 		}
 		/** 
@@ -627,7 +635,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * @param prefix the state save prefix
 	 * @param title the title
 	 */
-	void displayFrame(final GenericListingFrame<?> f, final String prefix, String title) {
+	void displayFrame(final CCListingFrame<?> f, final String prefix, String title) {
 		f.setTitle(get(title));
 		f.fireTableStructureChanged();
 		setEngineInfo(f.engineInfo);
@@ -649,8 +657,10 @@ public class CCMain extends JFrame implements LabelManager {
 	 * @param panel the panel
 	 */
 	void setEngineInfo(EngineInfoPanel panel) {
-		panel.setEngineURL(engineURL.toString());
-		panel.setEngineVersion(version.toString());
+		if (engineURL != null) {
+			panel.setEngineURL(engineURL.toString());
+			panel.setEngineVersion(version.toString());
+		}
 	}
 	/**
 	 * The string representation of a create info.
@@ -672,7 +682,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage realms.
 	 */
 	void doManageRealms() {
-		final GenericListingFrame<AdvanceRealm> f = new GenericListingFrame<AdvanceRealm>(this);
+		final CCListingFrame<AdvanceRealm> f = new CCListingFrame<AdvanceRealm>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Created", String.class, "Modified", String.class, "Status", String.class));
 		f.setCellValueFunction(new Func2<AdvanceRealm, Integer, Object>() {
 			@Override
@@ -822,7 +832,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage realms.
 	 */
 	void doManageUsers() {
-		final GenericListingFrame<AdvanceUser> f = new GenericListingFrame<AdvanceUser>(this);
+		final CCListingFrame<AdvanceUser> f = new CCListingFrame<AdvanceUser>(this);
 		f.setCellTitleFunction(from("E", Boolean.class, "Name", String.class, "Email", String.class, 
 				"Created", String.class, "Modified", String.class));
 		f.setCellValueFunction(new Func2<AdvanceUser, Integer, Object>() {
@@ -911,7 +921,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage JDBC data sources.
 	 */
 	void doJDBCDataSources() {
-		final GenericListingFrame<AdvanceJDBCDataSource> f = new GenericListingFrame<AdvanceJDBCDataSource>(this);
+		final CCListingFrame<AdvanceJDBCDataSource> f = new CCListingFrame<AdvanceJDBCDataSource>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Driver", String.class, "URL", String.class, 
 				"Created", String.class, "Modified", String.class));
 		f.setCellValueFunction(new Func2<AdvanceJDBCDataSource, Integer, Object>() {
@@ -994,7 +1004,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage SOAP data sources.
 	 */
 	void doSOAPDataSources() {
-		final GenericListingFrame<AdvanceSOAPChannel> f = new GenericListingFrame<AdvanceSOAPChannel>(this);
+		final CCListingFrame<AdvanceSOAPChannel> f = new CCListingFrame<AdvanceSOAPChannel>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Endpoint", String.class, 
 				"Created", String.class, "Modified", String.class));
 		f.setCellValueFunction(new Func2<AdvanceSOAPChannel, Integer, Object>() {
@@ -1064,7 +1074,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage JDBC data sources.
 	 */
 	void doJMSDataSources() {
-		final GenericListingFrame<AdvanceJMSEndpoint> f = new GenericListingFrame<AdvanceJMSEndpoint>(this);
+		final CCListingFrame<AdvanceJMSEndpoint> f = new CCListingFrame<AdvanceJMSEndpoint>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Driver", String.class, "URL", String.class, 
 				"Created", String.class, "Modified", String.class));
 		f.setCellValueFunction(new Func2<AdvanceJMSEndpoint, Integer, Object>() {
@@ -1136,7 +1146,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage WEB data sources.
 	 */
 	void doWebDataSources() {
-		final GenericListingFrame<AdvanceWebDataSource> f = new GenericListingFrame<AdvanceWebDataSource>(this);
+		final CCListingFrame<AdvanceWebDataSource> f = new CCListingFrame<AdvanceWebDataSource>(this);
 		f.setCellTitleFunction(from("Name", String.class, "URL", String.class, 
 				"Created", String.class, "Modified", String.class));
 		f.setCellValueFunction(new Func2<AdvanceWebDataSource, Integer, Object>() {
@@ -1208,7 +1218,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * @param deleteItemFunction the delete function
 	 * @param <T> the element type
 	 */
-	<T> void deleteItems(final GenericListingFrame<T> f, final Func1<T, Throwable> deleteItemFunction) {
+	<T> void deleteItems(final CCListingFrame<T> f, final Func1<T, Throwable> deleteItemFunction) {
 		if (JOptionPane.showConfirmDialog(f, get("Are you sure?"), 
 				get("Delete"), JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
 			final List<T> sel = f.getSelectedItems();
@@ -1240,7 +1250,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage FTP data sources.
 	 */
 	void doFTPDataSources() {
-		final GenericListingFrame<AdvanceFTPDataSource> f = new GenericListingFrame<AdvanceFTPDataSource>(this);
+		final CCListingFrame<AdvanceFTPDataSource> f = new CCListingFrame<AdvanceFTPDataSource>(this);
 		f.setCellTitleFunction(from("Name", String.class, "URL", String.class, 
 				"Created", String.class, "Modified", String.class));
 		f.setCellValueFunction(new Func2<AdvanceFTPDataSource, Integer, Object>() {
@@ -1317,7 +1327,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage Local data sources.
 	 */
 	void doLocalDataSources() {
-		final GenericListingFrame<AdvanceLocalFileDataSource> f = new GenericListingFrame<AdvanceLocalFileDataSource>(this);
+		final CCListingFrame<AdvanceLocalFileDataSource> f = new CCListingFrame<AdvanceLocalFileDataSource>(this);
 		f.setCellTitleFunction(from("Name", String.class, "URL", String.class, 
 				"Created", String.class, "Modified", String.class));
 		f.setCellValueFunction(new Func2<AdvanceLocalFileDataSource, Integer, Object>() {
@@ -1387,7 +1397,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage realms.
 	 */
 	void doDownloadFlow() {
-		final GenericListingFrame<AdvanceRealm> f = new GenericListingFrame<AdvanceRealm>(this);
+		final CCListingFrame<AdvanceRealm> f = new CCListingFrame<AdvanceRealm>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Created", String.class, "Modified", String.class, "Status", String.class));
 		f.setCellValueFunction(new Func2<AdvanceRealm, Integer, Object>() {
 			@Override
@@ -1430,7 +1440,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage realms.
 	 */
 	void doUploadFlow() {
-		final GenericListingFrame<AdvanceRealm> f = new GenericListingFrame<AdvanceRealm>(this);
+		final CCListingFrame<AdvanceRealm> f = new CCListingFrame<AdvanceRealm>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Created", String.class, "Modified", String.class, "Status", String.class));
 		f.setCellValueFunction(new Func2<AdvanceRealm, Integer, Object>() {
 			@Override
@@ -2529,7 +2539,7 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Create the email data sources listing.
 	 */
 	void doEmailDataSources() {
-		final GenericListingFrame<AdvanceEmailBox> f = new GenericListingFrame<AdvanceEmailBox>(this);
+		final CCListingFrame<AdvanceEmailBox> f = new CCListingFrame<AdvanceEmailBox>(this);
 		f.setCellTitleFunction(from(
 				"Name", String.class, 
 				"Send", String.class,
@@ -2663,7 +2673,14 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Do manage keystores.
 	 */
 	void doManageKeyStores() {
-		final GenericListingFrame<AdvanceKeyStore> f = new GenericListingFrame<AdvanceKeyStore>(this);
+		doManageKeyStores(false);
+	}
+	/**
+	 * Do manage keystores.
+	 * @param local local keystore?
+	 */
+	void doManageKeyStores(final boolean local) {
+		final CCListingFrame<AdvanceKeyStore> f = new CCListingFrame<AdvanceKeyStore>(this);
 
 		f.setCellTitleFunction(from("Name", String.class, "Location", String.class, "Created", String.class, "Modified", String.class));
 		
@@ -2685,37 +2702,37 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		f.setColumnCount(4);
-		
+
+		final CCKeyManager keyManager = local ? localKeyManager : new EngineKeyManager();
+
 		f.setRetrieveFunction(new Action1<String>() { 
 			@Override
 			public void invoke(String value) {
 				GUIUtils.getWorker(new ListWorkItem<AdvanceKeyStore>(f) {
 					@Override
 					public List<AdvanceKeyStore> retrieve() throws Exception {
-						return engine.datastore().queryKeyStores();
+						return keyManager.queryKeyStores();
 					}
 				}).execute();
 			}
 		});
 
-		final CCKeyManager keyManager = new EngineKeyManager();
 		
-		if (user.rights.contains(AdvanceUserRights.CREATE_KEYSTORE)) {
+		if (local || user.rights.contains(AdvanceUserRights.CREATE_KEYSTORE)) {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
-					createKeyStoreDialog(f, f.getRows(), null, false, keyManager);
+					createKeyStoreDialog(f, f.getRows(), null, local, keyManager);
 				}
 			});
 		}
 		f.setDisplayItem(new Action1<AdvanceKeyStore>() {
 			@Override
 			public void invoke(AdvanceKeyStore value) {
-				createKeyStoreDialog(f, f.getRows(), value, false, keyManager);
+				createKeyStoreDialog(f, f.getRows(), value, local, keyManager);
 			}
 		});
-		if (user.rights.contains(AdvanceUserRights.DELETE_KEYSTORE)) {
+		if (local || user.rights.contains(AdvanceUserRights.DELETE_KEYSTORE)) {
 			f.setExtraButton(1, "Delete", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -2734,50 +2751,14 @@ public class CCMain extends JFrame implements LabelManager {
 			});
 		}
 		
-		displayFrame(f, "manageengineks-", "Manage engine keystores");
-
+		displayFrame(f, "managee" + (local ? "local" : "engine") + "ks-", "Manage " + (local ? "local" : "engine") + " keystores");
+		f.showEngineInfo(!local);
 	}
 	/**
 	 * Do manage keystores.
 	 */
 	void doManageLocalKeyStores() {
-		final GenericListingFrame<AdvanceKeyStore> f = new GenericListingFrame<AdvanceKeyStore>(this);
-
-		f.setCellTitleFunction(from("Name", String.class, "Location", String.class, "Created", String.class, "Modified", String.class));
-		
-		f.setCellValueFunction(new Func2<AdvanceKeyStore, Integer, Object>() { 
-			@Override
-			public Object invoke(AdvanceKeyStore param1, Integer param2) {
-				switch (param2) {
-				case 0:
-					return param1.name;
-				case 1:
-					return param1.location;
-				case 2:
-					return createdAtBy(param1);
-				case 3:
-					return modifiedAtBy(param1);
-				default:
-					return null;
-				}
-			}
-		});
-		f.setColumnCount(4);
-		f.showEngineInfo(false);
-		f.setRetrieveFunction(new Action1<String>() { 
-			@Override
-			public void invoke(String value) {
-				GUIUtils.getWorker(new ListWorkItem<AdvanceKeyStore>(f) {
-					@Override
-					public List<AdvanceKeyStore> retrieve() throws Exception {
-						return engine.datastore().queryKeyStores();
-					}
-				}).execute();
-			}
-		});
-		// TODO details
-		displayFrame(f, "managelocalks-", "Manage local keystores");
-
+		doManageKeyStores(true);
 	}
 	/**
 	 * The engine key manager.
@@ -2857,6 +2838,14 @@ public class CCMain extends JFrame implements LabelManager {
 				String data) throws Exception {
 			engine.importSigningResponse(request, data);
 		}
+		@Override
+		public File getCurrentDir() {
+			return lastDirectory;
+		}
+		@Override
+		public void setCurrentDir(File dir) {
+			lastDirectory = dir;
+		}
 	}
 	/**
 	 * The local key manager.
@@ -2865,6 +2854,10 @@ public class CCMain extends JFrame implements LabelManager {
 	class LocalKeyManager implements CCKeyManager {
 		/** The parent visual component. */
 		protected Component parent;
+		/** The keystores. */
+		protected Map<String, AdvanceKeyStore> keyStores = Maps.newHashMap();
+		/** The local keystores file. */
+		protected File keyStoreFile = new File("conf/local-keystores.xml");
 		@Override
 		public void setParent(Component c) {
 			this.parent = c;
@@ -2872,74 +2865,132 @@ public class CCMain extends JFrame implements LabelManager {
 		@Override
 		public List<AdvanceKeyEntry> queryKeys(String keyStore)
 				throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			return queryKeyStoreD(keyStore).queryKeys();
 		}
 		@Override
 		public List<AdvanceKeyStore> queryKeyStores() throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			List<AdvanceKeyStore> result = Lists.newArrayList();
+			synchronized (keyStores) {
+				for (AdvanceKeyStore ks : keyStores.values()) {
+					ks = ks.copy();
+					ks.password(null);
+					result.add(ks);
+				}
+			}
+			return result;
 		}
 		@Override
 		public AdvanceKeyStore queryKeyStore(String name) throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			AdvanceKeyStore ks = queryKeyStoreD(name);
+			if (ks == null) {
+				throw new AdvanceControlException("Missing keystore " + name);
+			}
+			ks.password(null);
+			return ks;
+		}
+		/**
+		 * Query the keystore internally.
+		 * @param name the keystore name
+		 * @return the keystore data or null
+		 */
+		protected AdvanceKeyStore queryKeyStoreD(String name) {
+			synchronized (keyStores) {
+				AdvanceKeyStore ks = keyStores.get(name);
+				if (ks != null) {
+					ks = ks.copy();
+				}
+				return ks;
+			}
 		}
 		@Override
 		public void updateKeyStore(AdvanceKeyStore keyStore) throws Exception {
-			// TODO Auto-generated method stub
-			
+			LocalDataStore.updateKeyStore(keyStore, keyStores);
 		}
 		@Override
 		public void deleteKeyStore(String name) throws Exception {
-			// TODO Auto-generated method stub
-			
+			synchronized (keyStores) {
+				AdvanceKeyStore ks = keyStores.remove(name);
+				if (ks != null) {
+					if (!new File(ks.location).delete()) {
+						LOG.error("Could not delete keystore " + ks.location);
+					}
+				}
+			}
 		}
 		@Override
 		public void deleteKeys(String keyStore, Iterable<String> keys)
 				throws Exception {
-			// TODO Auto-generated method stub
-			
+			queryKeyStoreD(keyStore).deleteKey(keys);
 		}
 		@Override
 		public void generateKey(AdvanceGenerateKey key) throws Exception {
-			// TODO Auto-generated method stub
-			
+			queryKeyStoreD(key.keyStore).generateKey(key);
 		}
 		@Override
 		public String exportCertificate(AdvanceKeyStoreExport request)
 				throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			return queryKeyStoreD(request.keyStore).exportCertificate(request.keyAlias);
 		}
 		@Override
 		public String exportKey(AdvanceKeyStoreExport request) throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			return queryKeyStoreD(request.keyStore).exportPrivateKey(request.keyAlias, request.password());
 		}
 		@Override
 		public void importCertificate(AdvanceKeyStoreExport request, String data)
 				throws Exception {
-			// TODO Auto-generated method stub
-			
+			queryKeyStoreD(request.keyStore).importCertificate(request.keyAlias, data);
 		}
 		@Override
 		public void importKey(AdvanceKeyStoreExport request, String keyData,
 				String certData) throws Exception {
-			// TODO Auto-generated method stub
-			
+			queryKeyStoreD(request.keyStore).importPrivateKey(request.keyAlias, request.password(), keyData, certData);
 		}
 		@Override
 		public String exportSigningRequest(AdvanceKeyStoreExport request)
 				throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			return queryKeyStoreD(request.keyStore).exportSigningRequest(request.keyAlias, request.password());
 		}
 		@Override
 		public void importSigningResponse(AdvanceKeyStoreExport request,
 				String data) throws Exception {
-			// TODO Auto-generated method stub
-			
+			queryKeyStoreD(request.keyStore).importSigningResponse(request.keyAlias, request.password(), data);
+		}
+		@Override
+		public File getCurrentDir() {
+			return lastDirectory;
+		}
+		@Override
+		public void setCurrentDir(File dir) {
+			lastDirectory = dir;
+		}
+		/**
+		 * Load the existing keystore list.
+		 */
+		public void load() {
+			if (keyStoreFile.canRead()) {
+				try {
+					synchronized (keyStores) {
+						keyStores.clear();
+						for (AdvanceKeyStore ks : XSerializables.parseList(XElement.parseXML(keyStoreFile), "keystore", AdvanceKeyStore.CREATOR)) {
+							keyStores.put(ks.name, ks);
+						}
+					}
+				} catch (Throwable ex) {
+					GUIUtils.errorMessage(CCMain.this, ex);
+				}
+			}
+		}
+		/**
+		 * Save the managed keystore list.
+		 */
+		public void save() {
+			try {
+				synchronized (keyStores) {
+					XSerializables.storeList("keystores", "keystore", keyStores.values()).save(keyStoreFile);
+				}
+			} catch (Throwable ex) {
+				GUIUtils.errorMessage(CCMain.this, ex);
+			}
 		}
 	}
 	/**
@@ -3000,6 +3051,8 @@ public class CCMain extends JFrame implements LabelManager {
 		
 		setEngineInfo(dialog.engineInfo);
 		dialog.showEngineInfo(!local);
+		d.setEngineInfo(dialog.engineInfo);
+		dialog.setResizable(true);
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -3010,6 +3063,7 @@ public class CCMain extends JFrame implements LabelManager {
 			dialog.pack();
 			dialog.setLocationRelativeTo(parent);
 		}
+		dialog.setTitle(get("Keystore details"));
 		dialog.setVisible(true);
 		
 	}

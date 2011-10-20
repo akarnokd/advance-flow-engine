@@ -89,4 +89,12 @@ public class EngineInfoPanel extends JPanel {
 	public void setEngineVersion(String version) {
 		engineVersion.setText(version);
 	}
+	/**
+	 * Set the values on another panel.
+	 * @param other the other panel
+	 */
+	public void set(EngineInfoPanel other) {
+		other.engineURL.setText(engineURL.getText());
+		other.engineVersion.setText(engineVersion.getText());
+	}
 }

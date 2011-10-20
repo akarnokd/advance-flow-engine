@@ -54,9 +54,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
@@ -567,6 +569,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		synchronized (users) {
 			AdvanceUser prev = users.get(user.name);
 			AdvanceUser u = user.copy();
+			boolean self = u.name.equals(u.modifiedBy);
 			if (prev != null) {
 				u.createdAt = prev.createdAt;
 				u.createdBy = prev.createdBy;
@@ -578,9 +581,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				u.createdBy = u.modifiedBy;
 			}
 			u.modifiedAt = new Date();
-			users.put(u.name, u);
-			// ensure that self is nut turned off or loses admin rights
-			if (u.name.equals(u.modifiedBy) && prev != null) {
+			// modifying self?
+			if (self && prev != null) {
+				// ensure that self is not turned off or loses admin rights
 				u.enabled = prev.enabled;
 				if (prev.mayModifyUser()) {
 					u.rights.add(AdvanceUserRights.LIST_USERS);
@@ -589,11 +592,35 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					for (AdvanceRealm r : queryRealms()) {
 						u.realmRights.put(r.name, AdvanceUserRealmRights.LIST);
 					}
+				} else {
+					if (!prev.rights.containsAll(u.rights) 
+							|| !containsAll(prev.realmRights, u.realmRights)) {
+						throw new AdvanceAccessDenied("Can't gain more rights on self!");
+					}
 				}
+			} else 
+			if (self) {
+				throw new AdvanceAccessDenied("Can't create self!");
 			}
+			users.put(u.name, u);
 		}
 	}
-
+	/**
+	 * Check if the first map contains all entries of the second map.
+	 * @param <K> the key type
+	 * @param <V> the value type
+	 * @param first the first map
+	 * @param second the second map
+	 * @return true if all entries of second is in the first
+	 */
+	protected static <K, V> boolean containsAll(Multimap<K, V> first, Multimap<K, V> second) {
+		for (Map.Entry<K, V> e : second.entries()) {
+			if (!first.containsEntry(e.getKey(), e.getValue())) {
+				return false;
+			}
+		}
+		return true;
+	}
 	@Override
 	public Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> queryNotificationGroups()
 			throws IOException,
@@ -815,10 +842,22 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	@Override
 	public void updateKeyStore(AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
-		KeystoreManager mgr = new KeystoreManager();
+		Map<String, AdvanceKeyStore> keystores = this.keystores;
+		updateKeyStore(keyStore, keystores);
+	}
+	/**
+	 * Update the properties of the given keystore.
+	 * @param keyStore the new keystore settings
+	 * @param keystores the map of keystores
+	 * @throws AdvanceControlException on error
+	 */
+	public static void updateKeyStore(AdvanceKeyStore keyStore,
+			Map<String, AdvanceKeyStore> keystores)
+			throws AdvanceControlException {
 		synchronized (keystores) {
 			AdvanceKeyStore e = keystores.get(keyStore.name);
 			try {
+				KeystoreManager mgr = new KeystoreManager();
 				if (e == null) {
 					e = new AdvanceKeyStore();
 					e.name = keyStore.name;
@@ -834,7 +873,10 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					
 					keystores.put(e.name, e);
 				} else {
-					
+					// check if the location or the password changed
+					if (e.location.equals(keyStore.location) && keyStore.password() == null) {
+						return;
+					}
 					File f = new File(e.location);
 					if (f.exists()) {
 						mgr.load(e.location, e.password());

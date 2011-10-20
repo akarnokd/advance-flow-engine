@@ -23,16 +23,10 @@ package eu.advance.logistics.flow.engine.api.impl;
 
 import hu.akarnokd.reactive4java.reactive.Observable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.cert.Certificate;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +49,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyType;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceSchemaRegistryEntry;
@@ -73,7 +66,6 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -135,28 +127,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			String keyStore) throws IOException,
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(keyStore);
-		KeystoreManager mgr = new KeystoreManager();
 		try {
-			List<AdvanceKeyEntry> result = Lists.newArrayList();
-			mgr.load(e.location, e.password());
-			KeyStore ks = mgr.getKeyStore();
-			Enumeration<String> aliases = ks.aliases();
-			while (aliases.hasMoreElements()) {
-				String alias = aliases.nextElement();
-				
-				AdvanceKeyEntry k = new AdvanceKeyEntry();
-				if (ks.isKeyEntry(alias)) {
-					k.type = AdvanceKeyType.PRIVATE_KEY;
-				} else
-				if (ks.isCertificateEntry(alias)) {
-					k.type = AdvanceKeyType.CERTIFICATE;
-				}
-				k.name = alias;
-				k.createdAt = ks.getCreationDate(alias);
-				
-				result.add(k);
-			}
-			return result;
+			return e.queryKeys();
 		} catch (KeystoreFault ex) {
 			throw new AdvanceControlException(ex);
 		} catch (KeyStoreException ex) {
@@ -170,11 +142,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				mgr.getKeyStore().deleteEntry(keyAlias);
-				mgr.save(e.location, e.password());
+				e.deleteKey(keyAlias);
 			} catch (KeyStoreException ex) {
 				throw new AdvanceControlException(ex);
 			} catch (KeystoreFault ex) {
@@ -190,28 +159,15 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			throws IOException, AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(key.keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				
-				KeyPair kp = mgr.generateKeyPair(key.algorithm, key.keySize);
-				Certificate cert = mgr.createX509Certificate(kp, 12, 
-						key.issuerDn.toString(), key.subjectDn.toString(), 
-						key.domain,  
-						key.algorithm); 
-				
-				mgr.getKeyStore().setKeyEntry(key.keyAlias, kp.getPrivate(), key.keyPassword, 
-						new Certificate[] { cert });
-				
-				mgr.save(e.location, e.password());
-				e.modifiedAt = new Date();
-				e.modifiedBy = key.modifiedBy;
-				
+				e.generateKey(key);
 			} catch (KeyStoreException ex) {
-				throw new AdvanceControlException(ex);
-			} catch (KeystoreFault ex) {
-				throw new AdvanceControlException(ex);
+				LOG.error(ex.toString(), ex);
+				throw new AdvanceControlException("Failed to generate key");
 			}
+			e.modifiedAt = new Date();
+			e.modifiedBy = key.modifiedBy;
+			datastore.updateKeyStore(e);
 		} else {
 			throw new AdvanceControlException("Keystore not found");
 		}
@@ -223,12 +179,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				mgr.exportCertificate(request.keyAlias, out, false);
-				return out.toString("UTF-8");
+				return e.exportCertificate(request.keyAlias);
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
 			}
@@ -243,12 +195,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				mgr.exportPrivateKey(request.keyAlias, request.keyPassword, out, false);
-				return out.toString("UTF-8");
+				return e.exportPrivateKey(request.keyAlias, request.password());
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
 			}
@@ -263,11 +211,10 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				mgr.importCertificate(request.keyAlias, new ByteArrayInputStream(data.getBytes("UTF-8")));
-				mgr.save(e.location, e.password());
+				e.importCertificate(request.keyAlias, data);
+			} catch (KeyStoreException ex) {
+				throw new AdvanceControlException(ex);
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
 			}
@@ -282,14 +229,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				mgr.importPrivateKey(request.keyAlias, request.keyPassword, 
-						new ByteArrayInputStream(keyData.getBytes("UTF-8")),
-						new ByteArrayInputStream(certData.getBytes("UTF-8"))
-				);
-				mgr.save(e.location, e.password());
+				e.importPrivateKey(request.keyAlias, request.password(), keyData, certData);
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
 			}
@@ -304,10 +245,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				return mgr.createRSASigningRequest(request.keyAlias, request.keyPassword);
+				return e.exportSigningRequest(request.keyAlias, request.password());
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
 			}
@@ -322,13 +261,8 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
-			KeystoreManager mgr = new KeystoreManager();
 			try {
-				mgr.load(e.location, e.password());
-				mgr.installReply(request.keyAlias, request.keyPassword, 
-						new ByteArrayInputStream(data.getBytes("UTF-8")), 
-						true); // FIXME not sure
-				mgr.save(e.location, e.password());
+				e.importSigningResponse(request.keyAlias, request.password(), data);
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
 			}

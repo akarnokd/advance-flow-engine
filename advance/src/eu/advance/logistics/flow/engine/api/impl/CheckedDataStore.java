@@ -247,7 +247,9 @@ public class CheckedDataStore implements AdvanceDataStore {
 	@Override
 	public void updateUser(AdvanceUser user) throws IOException,
 			AdvanceControlException {
-		check(AdvanceUserRights.CREATE_USER, AdvanceUserRights.MODIFY_USER);
+		if (!user.name.equals(this.userName)) {
+			check(AdvanceUserRights.CREATE_USER, AdvanceUserRights.MODIFY_USER);
+		}
 		datastore.updateUser(changeModifiedBy(user.copy()));
 	}
 
