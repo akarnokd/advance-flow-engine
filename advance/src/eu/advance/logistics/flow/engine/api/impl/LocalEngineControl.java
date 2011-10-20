@@ -114,7 +114,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public List<AdvanceBlockRegistryEntry> queryBlocks()
 			throws IOException, AdvanceControlException {
-		return AdvanceBlockRegistryEntry.parseDefaultRegistry();
+		return compiler.blocks();
 	}
 	/** @return the datastore instance */
 	@Override
