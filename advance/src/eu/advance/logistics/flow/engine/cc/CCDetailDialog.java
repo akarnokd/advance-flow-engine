@@ -60,7 +60,6 @@ public class CCDetailDialog<T extends Identifiable<?>> extends JDialog {
 	 * @param body the list of components which will be laid out at each line.
 	 */
 	public CCDetailDialog(LabelManager labels, JComponent... body) {
-		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		pager = new Pager<T>();

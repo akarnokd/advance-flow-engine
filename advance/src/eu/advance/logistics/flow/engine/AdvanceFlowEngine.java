@@ -84,7 +84,7 @@ public class AdvanceFlowEngine implements Runnable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The version of the flow engine. */
-	public static final String VERSION = "0.03.119";
+	public static final String VERSION = "0.04.123";
 	/** The configuration. */
 	private AdvanceEngineConfig config;
 	/** The basic server. */

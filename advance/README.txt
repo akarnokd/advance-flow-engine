@@ -3,6 +3,15 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.04.123 Notes
+----------------------
+
+Fixed user right exploits.
+
+Added keystore management screens and routines.
+
+Added remote login option to the control center.
+
 Version 0.03.119 Notes
 ----------------------
 

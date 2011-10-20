@@ -1632,6 +1632,13 @@ public class CCMain extends JFrame implements LabelManager {
 		dialog.buttons.setSave(createSaver(wd, dialog, false, saver));
 		dialog.buttons.setSaveAndClose(createSaver(wd, dialog, true, saver));
 		
+		wd.login.setManageKeyStores(new Action0() {
+			@Override
+			public void invoke() {
+				doManageKeyStores();
+			}
+		});
+		
 		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
 			@Override
 			public List<AdvanceKeyStore> invoke() throws Throwable {
@@ -1667,10 +1674,6 @@ public class CCMain extends JFrame implements LabelManager {
 		}
 		pager.setItems(list);
 		pager.setSelectedItem(item);
-	}
-	/** Open the remote login dialog. */
-	void doRemoteLogin() {
-		LOG.error("Implement!");
 	}
 	/** Show the results of the last compilation. */
 	void doLastCompilationResult() {
@@ -1713,6 +1716,15 @@ public class CCMain extends JFrame implements LabelManager {
 	CCDetailDialog<AdvanceUser> createUserDialog(final List<AdvanceUser> list, final AdvanceUser selected) {
 		
 		final CCUserDetails ud = new CCUserDetails(this);
+		
+		ud.login.setManageKeyStores(new Action0() {
+			@Override
+			public void invoke() {
+				doManageKeyStores();
+			}
+		});
+
+		
 		final CCDetailDialog<AdvanceUser> dialog = new CCDetailDialog<AdvanceUser>(this, ud);
 		dialog.setTitle(get("Web Data Source Details"));
 		dialog.pager.setItemName(new Func1<AdvanceUser, String>() {
@@ -2231,6 +2243,14 @@ public class CCMain extends JFrame implements LabelManager {
 			}
 		});
 		
+		d.login.setManageKeyStores(new Action0() {
+			@Override
+			public void invoke() {
+				doManageKeyStores();
+			}
+		});
+
+		
 		final CCDetailDialog<AdvanceFTPDataSource> dialog = createDetailDialog(list, selected,
 				d,
 				new Func1<AdvanceFTPDataSource, String>() {
@@ -2626,6 +2646,14 @@ public class CCMain extends JFrame implements LabelManager {
 	 */
 	void createEmailDialog(JFrame f, List<AdvanceEmailBox> list, AdvanceEmailBox selected) {
 		final CCEmailDetails d = new CCEmailDetails(this);
+		
+		d.login.setManageKeyStores(new Action0() {
+			@Override
+			public void invoke() {
+				doManageKeyStores();
+			}
+		});
+
 		
 		final CCDetailDialog<AdvanceEmailBox> dialog = createDetailDialog(list, selected,
 				d,
@@ -3066,5 +3094,50 @@ public class CCMain extends JFrame implements LabelManager {
 		dialog.setTitle(get("Keystore details"));
 		dialog.setVisible(true);
 		
+	}
+	/** Open the remote login dialog. */
+	void doRemoteLogin() {
+		final CCRemoteLogin dialog = new CCRemoteLogin(this);
+		dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(dialog, props, "remotelogin-");
+			}
+		});
+		if (!applyFrameState(dialog, props, "remotelogin-")) {
+			dialog.pack();
+			dialog.setLocationRelativeTo(this);
+		}
+		dialog.setTitle(get("Remote login"));
+		try {
+			dialog.setKeyStores(localKeyManager.queryKeyStores());
+		} catch (Exception ex) {
+			LOG.error(ex.toString(), ex);
+		}
+		dialog.login.setManageKeyStores(new Action0() {
+			@Override
+			public void invoke() {
+				doManageLocalKeyStores();
+			}
+		});
+		
+		if (dialog.display()) {
+			disconnectEngine();
+			engine = dialog.takeEngine();
+			engineURL = dialog.takeEngineURL();
+			try {
+				version = engine.queryVersion();
+				user = engine.getUser();
+				localEngine = true;
+				enableDisableMenus();
+			} catch (Exception ex) {
+				LOG.error(ex.toString(), ex);
+				GUIUtils.errorMessage(this, ex);
+			}
+
+			urlLabel.setText(engineURL.toString());
+			verLabel.setText(version.toString());
+			userLabel.setText(user.name + " <" + user.email + ">");
+		}
 	}
 }

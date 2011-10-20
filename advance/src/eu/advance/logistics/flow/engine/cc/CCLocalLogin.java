@@ -171,6 +171,8 @@ public class CCLocalLogin extends JDialog {
 	protected JTextField newUser;
 	/** The new path field. */
 	protected JTextField newPath;
+	/** Delete the selected entries. */
+	protected JButton deleteButton;
 	/** The login button. */
 	protected JButton login;
 	/** The last login save location. */
@@ -294,6 +296,24 @@ public class CCLocalLogin extends JDialog {
 				doNew();
 			}
 		});
+		deleteButton = new JButton(labels.get("Delete"));
+		deleteButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(CCLocalLogin.this, 
+						labels.get("Are you sure?"), 
+						labels.get("Delete records"), 
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					int[] sel = table.getSelectedRows();
+					for (int i : sel) {
+						int j = table.convertRowIndexToModel(i);
+						rows.remove(j);
+					}
+					model.fireTableDataChanged();
+				}
+			}
+		});
+
 		
 		login = new JButton(labels.get("Login"));
 		login.addActionListener(new ActionListener() {
@@ -328,6 +348,11 @@ public class CCLocalLogin extends JDialog {
 			.addComponent(tableScroll)
 			.addGroup(
 				gl.createSequentialGroup()
+				.addComponent(newEntry)
+				.addComponent(deleteButton)
+			)
+			.addGroup(
+				gl.createSequentialGroup()
 				.addGroup(
 					gl.createParallelGroup()
 					.addComponent(newPathLabel)
@@ -340,7 +365,6 @@ public class CCLocalLogin extends JDialog {
 				)
 				.addComponent(browse)
 			)
-			.addComponent(newEntry)
 			.addGroup(
 				gl.createSequentialGroup()
 				.addComponent(help, hh, hh, hh)
@@ -358,6 +382,11 @@ public class CCLocalLogin extends JDialog {
 			.addComponent(tableScroll, 0, 200, Short.MAX_VALUE)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(newEntry)
+				.addComponent(deleteButton)
+			)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
 				.addComponent(newPathLabel)
 				.addComponent(newPath, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 				.addComponent(browse)
@@ -367,7 +396,6 @@ public class CCLocalLogin extends JDialog {
 				.addComponent(newUserLabel)
 				.addComponent(newUser)
 			)
-			.addComponent(newEntry)
 			.addGroup(
 				gl.createParallelGroup(Alignment.CENTER)
 				.addComponent(help)
