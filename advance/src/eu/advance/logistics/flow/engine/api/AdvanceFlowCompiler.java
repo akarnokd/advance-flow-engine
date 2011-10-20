@@ -23,8 +23,10 @@ package eu.advance.logistics.flow.engine.api;
 
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 
 /**
@@ -37,12 +39,18 @@ public interface AdvanceFlowCompiler {
 	 * @param flow outer composite block of the dataflow.
 	 * @return the compilation result.
 	 */
-	AdvanceCompilationResult verify(AdvanceCompositeBlock flow);
+	AdvanceCompilationResult verify(@NonNull AdvanceCompositeBlock flow);
 	/**
 	 * Compile the target composite block as flow. The flow
 	 * should pass the verification of the {@link #verify(AdvanceCompositeBlock)} call.
 	 * @param flow the outer composite block of the dataflow.
 	 * @return the list of compiled concrete blocks
 	 */
-	List<AdvanceBlock> compile(AdvanceCompositeBlock flow);
+	List<AdvanceBlock> compile(@NonNull AdvanceCompositeBlock flow);
+	/**
+	 * Returns a list of supported block types.
+	 * @return the block types
+	 */
+	@NonNull 
+	List<AdvanceBlockRegistryEntry> blocks();
 }

@@ -105,6 +105,10 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		compile(flow, result);
 		return result;
 	}
+	@Override
+	public List<AdvanceBlockRegistryEntry> blocks() {
+		return Lists.newArrayList(blockResolver.blocks.values());
+	}
 	/**
 	 * Compile the composite block.
 	 * @param root the flow description
