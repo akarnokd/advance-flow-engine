@@ -73,8 +73,8 @@ public class CCKeyPasswordDialog extends JDialog {
 		JButton okay = new JButton(labels.get("OK"));
 		JButton cancel = new JButton(labels.get("Cancel"));
 		
-		password = new JPasswordField();
-		passwordAgain = new JPasswordField();
+		password = new JPasswordField(15);
+		passwordAgain = new JPasswordField(15);
 		
 		Pair<Group, Group> g = GUIUtils.createForm(gl, 2,
 			labels.get("Keystore:"), keyStore,
@@ -108,7 +108,7 @@ public class CCKeyPasswordDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				char[] p1 = password.getPassword();
 				char[] p2 = passwordAgain.getPassword();
-				if (Arrays.equals(p1, p2)) {
+				if (passwordAgain.isVisible() && Arrays.equals(p1, p2)) {
 					approved = true;
 					close();
 					return;

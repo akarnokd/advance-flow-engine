@@ -25,9 +25,12 @@ import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -41,6 +44,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
@@ -48,14 +52,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
@@ -93,6 +101,20 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 	protected JLabel records;
 	/** The callbacks for various key management functions. */
 	public CCKeyManager keyManager;
+	/** The reference to the parent's engine info record. */
+	protected EngineInfoPanel engineInfo;
+	/** The import/export popup menu. */
+	private JPopupMenu popup;
+	/** Export RSA signing request. */
+	private JMenuItem mnuExportRSA;
+	/** Import RSA signing response. */
+	private JMenuItem mnuImportRSA;
+	/** Export key. */
+	private JMenuItem mnuExportKey;
+	/** Export certificate. */
+	private JMenuItem mnuExportCert;
+	/** The filter text. */
+	private JTextField filter;
 	/**
 	 * Constructs the GUI.
 	 * @param labels the labels
@@ -108,6 +130,12 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 		
 		
 		generate = new JButton(labels.get("Generate..."));
+		generate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doGenerateKey();
+			}
+		});
 		importExport = new JButton(labels.get("Import/Export"));
 		importExport.setIcon(new ImageIcon(getClass().getResource("down.png")));
 		importExport.setHorizontalTextPosition(SwingConstants.TRAILING);
@@ -118,20 +146,50 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 		importExport.setVisible(false);
 		delete.setVisible(false);
 		
-		final JPopupMenu popup = new JPopupMenu();
+		popup = new JPopupMenu();
 		
 		JMenuItem mnuImportCert = new JMenuItem(labels.get("Import certificate..."));
+		mnuImportCert.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doImportCert(name.getText());
+			}
+		});
 		JMenuItem mnuImportKey = new JMenuItem(labels.get("Import private key..."));
-		JMenuItem mnuExportCert = new JMenuItem(labels.get("Export certificate..."));
+		mnuImportKey.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doImportKey(name.getText());
+			}
+		});
+		mnuExportCert = new JMenuItem(labels.get("Export certificate..."));
 		mnuExportCert.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				exportCertificate(name.getText(), getSelectedKeys().iterator());
 			}
 		});
-		JMenuItem mnuExportKey = new JMenuItem(labels.get("Export private key..."));
-		JMenuItem mnuExportRSA = new JMenuItem(labels.get("Create RSA signing request..."));
-		JMenuItem mnuImportRSA = new JMenuItem(labels.get("Import RSA signing response..."));
+		mnuExportKey = new JMenuItem(labels.get("Export private key..."));
+		mnuExportKey.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doExportKey(name.getText(), getSelectedKeys().iterator());
+			}
+		});
+		mnuExportRSA = new JMenuItem(labels.get("Create RSA signing request..."));
+		mnuExportRSA.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doExportSigningRequest(name.getText(), getSelectedKeys().iterator());				
+			}
+		});
+		mnuImportRSA = new JMenuItem(labels.get("Import RSA signing response..."));
+		mnuImportRSA.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doImportSigningResponse(name.getText(), getSelectedKeys().iterator());
+			}
+		});
 		
 		popup.add(mnuImportCert);
 		popup.add(mnuImportKey);
@@ -155,6 +213,9 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 		
 		records = new JLabel(labels.format("Records: %d", 0));
 		
+		JLabel filterLabel = new JLabel(labels.get("Filter:"));
+		filter = new JTextField();
+		
 		createModel();
 		table = new JTable(model);
 		table.setAutoCreateRowSorter(true);
@@ -162,6 +223,32 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 			@Override
 			public void tableChanged(TableModelEvent e) {
 				records.setText(labels.format("Records: %d", table.getRowCount()));
+			}
+		});
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				enablePopupItems();
+			}
+		});
+		enablePopupItems();
+		
+		table.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -7615930689752608644L;
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table,
+					Object value, boolean isSelected, boolean hasFocus,
+					int row, int column) {
+				// TODO Auto-generated method stub
+				JLabel label = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+						row, column);
+				
+				label.setText(value.toString());
+				return label;
 			}
 		});
 		
@@ -189,6 +276,11 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 					.addComponent(location)
 					.addComponent(browse)
 				)
+				.addGroup(
+					gl.createSequentialGroup()
+					.addComponent(filterLabel)
+					.addComponent(filter)
+				)
 				.addComponent(scroll)
 			)
 			.addComponent(records)
@@ -214,7 +306,12 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 				.addComponent(location)
 				.addComponent(browse)
 			)
-			.addComponent(scroll)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(filterLabel)
+				.addComponent(filter, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+			)
+			.addComponent(scroll, 0, 250, Short.MAX_VALUE)
 			.addComponent(records)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
@@ -284,6 +381,7 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 		generate.setVisible(true);
 		importExport.setVisible(true);
 		delete.setVisible(true);
+		name.setEditable(false);
 	}
 	@Override
 	public AdvanceKeyStore save() {
@@ -408,11 +506,12 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 			return;
 		}
 		AdvanceKeyEntry ks = items.next();
-		JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser(keyManager.getCurrentDir());
 		fc.setDialogTitle(labels.format("Export certificate of key %s", ks.name));
 		fc.setFileFilter(new FileNameExtensionFilter("Certificates (*.CER)", "cer", "crt", "cert", "der"));
 		if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			final File f = fc.getSelectedFile();
+			keyManager.setCurrentDir(f.getParentFile());
 			
 			final AdvanceKeyStoreExport request = new AdvanceKeyStoreExport();
 			request.keyStore = keyStore;
@@ -443,7 +542,359 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 						exportCertificate(keyStore, items);
 					}
 				}
-			});
+			}).execute();
 		}
+	}
+	/**
+	 * Generate new key.
+	 */
+	void doGenerateKey() {
+		CCKeyGenDialog dialog = new CCKeyGenDialog(labels);
+		engineInfo.set(dialog.engineInfo);
+		dialog.setLocationRelativeTo(this);
+		dialog.showEngineInfo(engineInfo.isVisible());
+		dialog.pack();
+		final AdvanceGenerateKey k = dialog.display();
+		if (k != null) {
+			k.keyStore = name.getText();
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						keyManager.generateKey(k);
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(CCKeyStoreDialog.this, t);
+					} else {
+						GUIUtils.infoMessage(CCKeyStoreDialog.this, labels.get("Key created"));
+						queryKeys(name.getText());
+					}
+				}
+			}).execute();
+		}
+	}
+	/**
+	 * Set the engine info panel reference.
+	 * @param info the engine info
+	 */
+	public void setEngineInfo(EngineInfoPanel info) {
+		this.engineInfo = info;
+	}
+	/**
+	 * Export the key.
+	 * @param keyStore the target keystore
+	 * @param items the sequence of keys
+	 */
+	void doExportKey(final String keyStore, final Iterator<AdvanceKeyEntry> items) {
+		if (!items.hasNext()) {
+			return;
+		}
+		AdvanceKeyEntry ks = items.next();
+		JFileChooser fc = new JFileChooser(keyManager.getCurrentDir());
+		fc.setDialogTitle(labels.format("Export key %s", ks.name));
+		fc.setFileFilter(new FileNameExtensionFilter("Private keys (*.PEM)", "pem"));
+		if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			keyManager.setCurrentDir(f.getParentFile());
+			
+			final AdvanceKeyStoreExport request = new AdvanceKeyStoreExport();
+			request.keyStore = keyStore;
+			request.keyAlias = ks.name;
+			
+			CCKeyPasswordDialog kp = new CCKeyPasswordDialog(labels, keyStore, ks.name);
+			request.password(kp.display());
+			if (request.password() == null) {
+				return;
+			}
+			
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						String s = keyManager.exportKey(request);
+						PrintWriter out = new PrintWriter(new FileWriter(f));
+						try {
+							out.print(s);
+						} finally {
+							out.close();
+						}
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(CCKeyStoreDialog.this, t);
+					} else {
+						exportCertificate(keyStore, items);
+					}
+				}
+			}).execute();
+		}
+	}
+	/**
+	 * Export the key.
+	 * @param keyStore the target keystore
+	 * @param items the sequence of keys
+	 */
+	void doExportSigningRequest(final String keyStore, final Iterator<AdvanceKeyEntry> items) {
+		if (!items.hasNext()) {
+			return;
+		}
+		AdvanceKeyEntry ks = items.next();
+		JFileChooser fc = new JFileChooser(keyManager.getCurrentDir());
+		fc.setDialogTitle(labels.format("Export signing request of key %s", ks.name));
+		fc.setFileFilter(new FileNameExtensionFilter("Certificates (*.CSR)", "csr"));
+		if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			keyManager.setCurrentDir(f.getParentFile());
+			
+			final AdvanceKeyStoreExport request = new AdvanceKeyStoreExport();
+			request.keyStore = keyStore;
+			request.keyAlias = ks.name;
+			
+			CCKeyPasswordDialog kp = new CCKeyPasswordDialog(labels, keyStore, ks.name);
+			kp.passwordAgain.setVisible(false);
+			request.password(kp.display());
+			if (request.password() == null) {
+				return;
+			}
+			
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						String s = keyManager.exportSigningRequest(request);
+						PrintWriter out = new PrintWriter(new FileWriter(f));
+						try {
+							out.print(s);
+						} finally {
+							out.close();
+						}
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(CCKeyStoreDialog.this, t);
+					} else {
+						exportCertificate(keyStore, items);
+					}
+				}
+			}).execute();
+		}
+	}
+	/** 
+	 * Import a certificate.
+	 * @param keyStore the target keyStore 
+	 */
+	void doImportCert(final String keyStore) {
+		JFileChooser fc = new JFileChooser(keyManager.getCurrentDir());
+		fc.setDialogTitle(labels.format("Import certificate into %s", keyStore));
+		fc.setFileFilter(new FileNameExtensionFilter("Certificates (*.CER)", "cer", "crt", "cert", "der"));
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			keyManager.setCurrentDir(f.getParentFile());
+			
+			final AdvanceKeyStoreExport request = new AdvanceKeyStoreExport();
+			request.keyStore = keyStore;
+			request.keyAlias = JOptionPane.showInputDialog(this, labels.get("Please enter the certificate alias"));
+			if (request.keyAlias == null) {
+				return ;
+			}
+			
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						BufferedReader in = new BufferedReader(new FileReader(f));
+						try {
+							StringBuilder b = new StringBuilder();
+							String line = null;
+							while ((line = in.readLine()) != null) {
+								b.append(line).append("\r\n");
+							}
+							keyManager.importCertificate(request, b.toString());
+						} finally {
+							in.close();
+						}
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(CCKeyStoreDialog.this, t);
+					} else {
+						queryKeys(keyStore);
+					}
+				}
+			}).execute();
+		}		
+	}
+	/**
+	 * Import a private key with its certificate.
+	 * @param keyStore the keystore
+	 */
+	void doImportKey(final String keyStore) {
+		JFileChooser fc = new JFileChooser(keyManager.getCurrentDir());
+		fc.setDialogTitle(labels.format("Import private key into %s", keyStore));
+		fc.setFileFilter(new FileNameExtensionFilter("Private key (*.PEM)", "pem"));
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			keyManager.setCurrentDir(f.getParentFile());
+
+			fc.setDialogTitle(labels.format("Import certificate into %s", keyStore));
+			fc.setFileFilter(new FileNameExtensionFilter("Certificate (*.CER)", "cer", "crt", "cert", "der"));
+			if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+				final File f2 = fc.getSelectedFile();
+				keyManager.setCurrentDir(f.getParentFile());
+
+			
+				final AdvanceKeyStoreExport request = new AdvanceKeyStoreExport();
+				request.keyStore = keyStore;
+				request.keyAlias = JOptionPane.showInputDialog(this, labels.get("Please enter the key alias"));
+				if (request.keyAlias == null) {
+					return ;
+				}
+				CCKeyPasswordDialog kp = new CCKeyPasswordDialog(labels, keyStore, request.keyAlias);
+				request.password(kp.display());
+				if (request.password() == null) {
+					return;
+				}
+				
+				GUIUtils.getWorker(new WorkItem() {
+					/** The exception. */
+					Throwable t;
+					@Override
+					public void run() {
+						try {
+							StringBuilder b = new StringBuilder();
+							BufferedReader in = new BufferedReader(new FileReader(f));
+							try {
+								String line = null;
+								while ((line = in.readLine()) != null) {
+									b.append(line).append("\r\n");
+								}
+							} finally {
+								in.close();
+							}
+							StringBuilder b2 = new StringBuilder();
+							BufferedReader in2 = new BufferedReader(new FileReader(f2));
+							try {
+								String line = null;
+								while ((line = in2.readLine()) != null) {
+									b2.append(line).append("\r\n");
+								}
+							} finally {
+								in2.close();
+							}
+							keyManager.importKey(request, b.toString(), b2.toString());
+	
+						} catch (Throwable t) {
+							this.t = t;
+						}
+					}
+					@Override
+					public void done() {
+						if (t != null) {
+							GUIUtils.errorMessage(CCKeyStoreDialog.this, t);
+						} else {
+							queryKeys(keyStore);
+						}
+					}
+				}).execute();
+			}
+		}
+		
+	}
+	/**
+	 * Import a signing response.
+	 * @param keyStore the keystore
+	 * @param items the sequence of selected keys
+	 */
+	void doImportSigningResponse(final String keyStore, final Iterator<AdvanceKeyEntry> items) {
+		if (!items.hasNext()) {
+			queryKeys(keyStore);
+			return;
+		}
+		AdvanceKeyEntry ks = items.next();
+		JFileChooser fc = new JFileChooser(keyManager.getCurrentDir());
+		fc.setDialogTitle(labels.format("Import signing response for key %s", ks.name));
+		fc.setFileFilter(new FileNameExtensionFilter("Signing response (*.CSR)", "csr"));
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			keyManager.setCurrentDir(f.getParentFile());
+			
+			final AdvanceKeyStoreExport request = new AdvanceKeyStoreExport();
+			request.keyStore = keyStore;
+			request.keyAlias = ks.name;
+			
+			CCKeyPasswordDialog kp = new CCKeyPasswordDialog(labels, keyStore, ks.name);
+			kp.passwordAgain.setVisible(false);
+			request.password(kp.display());
+			if (request.password() == null) {
+				return;
+			}
+			
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						BufferedReader in = new BufferedReader(new FileReader(f));
+						try {
+							StringBuilder b = new StringBuilder();
+							String line = null;
+							while ((line = in.readLine()) != null) {
+								b.append(line).append("\r\n");
+							}
+							keyManager.importSigningResponse(request, b.toString());
+						} finally {
+							in.close();
+						}
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(CCKeyStoreDialog.this, t);
+					} else {
+						doImportSigningResponse(keyStore, items);
+					}
+				}
+			}).execute();
+		}		
+		
+	}
+	/**
+	 * Enable/disable popup items.
+	 */
+	void enablePopupItems() {
+		boolean en = table.getSelectedRow() >= 0;
+		mnuExportCert.setEnabled(en);
+		mnuExportKey.setEnabled(en);
+		mnuImportRSA.setEnabled(en);
+		mnuExportRSA.setEnabled(en);
 	}
 }

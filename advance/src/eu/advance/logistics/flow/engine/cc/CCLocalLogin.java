@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.cc;
 
 import hu.akarnokd.reactive4java.base.Func0;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -58,6 +59,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import org.slf4j.Logger;
@@ -221,6 +223,24 @@ public class CCLocalLogin extends JDialog {
 				if (e.getClickCount() > 1) {
 					doLogin();
 				}
+			}
+		});
+		table.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -7615930689752608644L;
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table,
+					Object value, boolean isSelected, boolean hasFocus,
+					int row, int column) {
+				// TODO Auto-generated method stub
+				JLabel label = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+						row, column);
+				
+				label.setText(value.toString());
+				return label;
 			}
 		});
 		

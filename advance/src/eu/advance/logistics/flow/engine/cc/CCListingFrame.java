@@ -63,9 +63,9 @@ import com.google.common.collect.Lists;
  * @author akarnokd, 2011.10.07.
  * @param <T> the record element type
  */
-public class GenericListingFrame<T> extends JFrame {
+public class CCListingFrame<T> extends JFrame {
 	/** The logger. */
-	protected static final Logger LOG = LoggerFactory.getLogger(GenericListingFrame.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(CCListingFrame.class);
 	/** */
 	private static final long serialVersionUID = -1243838082987540876L;
 	/** Function to retrieve a cell value for the given element. */
@@ -140,7 +140,7 @@ public class GenericListingFrame<T> extends JFrame {
 	 * Initialize the contents.
 	 * @param labels the label manager
 	 */
-	public GenericListingFrame(final LabelManager labels) {
+	public CCListingFrame(final LabelManager labels) {
 		this.labels = labels;
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		table = new JTable(model);
@@ -203,7 +203,7 @@ public class GenericListingFrame<T> extends JFrame {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				WindowEvent we = new WindowEvent(GenericListingFrame.this, WindowEvent.WINDOW_CLOSING);
+				WindowEvent we = new WindowEvent(CCListingFrame.this, WindowEvent.WINDOW_CLOSING);
 				Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(we);
 			}
 		});

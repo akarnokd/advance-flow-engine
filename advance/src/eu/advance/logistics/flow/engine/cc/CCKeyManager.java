@@ -22,8 +22,10 @@
 package eu.advance.logistics.flow.engine.cc;
 
 import java.awt.Component;
+import java.io.File;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
@@ -127,4 +129,12 @@ public interface CCKeyManager {
 	 * @throws Exception on error
 	 */
 	void importSigningResponse(AdvanceKeyStoreExport request, String data) throws Exception;
+	/** @return the current directory. */
+	@NonNull
+	File getCurrentDir();
+	/** 
+	 * Sets the current directory.
+	 * @param dir the new directory 
+	 */
+	void setCurrentDir(File dir);
 }
