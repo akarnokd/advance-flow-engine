@@ -30,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * The record holding authentication information for basic or certificate based HTTP(s) connection.
  * @author  akarnokd, 2011.09.27.
  */
-public class AdvanceHttpAuthentication {
+public class AdvanceHttpAuthentication implements HasPassword {
 	/** The login type. */
 	@NonNull
 	public AdvanceLoginType loginType;
@@ -45,5 +45,13 @@ public class AdvanceHttpAuthentication {
 	public String name;
 	/** The password for the basic authentication or the key password for certificate credentials. */
 	@NonNull
-	public char[] password;
+	private char[] password;
+	@Override
+	public char[] password() {
+		return password != null ? password.clone() : null;
+	}
+	@Override
+	public void password(char[] newPassword) {
+		this.password = newPassword != null ? newPassword.clone() : null;
+	}
 }

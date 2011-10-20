@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+
 /**
  * Represents classes which can be asked for their unique identifier.
  * @author akarnokd, 2011.10.11.

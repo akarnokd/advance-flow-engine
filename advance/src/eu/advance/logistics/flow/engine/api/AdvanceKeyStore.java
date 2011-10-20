@@ -273,4 +273,13 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 		}
 		mgr.save(location, password());
 	}
+	/**
+	 * Open the given keystore.
+	 * @return the keystore
+	 */
+	public KeyStore open() {
+		KeystoreManager mgr = new KeystoreManager();
+		mgr.load(location, password());
+		return mgr.getKeyStore();
+	}
 }

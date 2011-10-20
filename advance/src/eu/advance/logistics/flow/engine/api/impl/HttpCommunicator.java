@@ -95,13 +95,13 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 				HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
 				if (authentication.loginType == AdvanceLoginType.BASIC) {
 					StringBuilder userPass = new StringBuilder();
-					userPass.append(authentication.name).append(":").append(authentication.password);
+					userPass.append(authentication.name).append(":").append(authentication.password());
 					conn.setRequestProperty("Authorization", "Basic " + Base64.encodeBytes(userPass.toString().getBytes("UTF-8")));
 				} else
 				if (authentication.loginType == AdvanceLoginType.CERTIFICATE) {
-					KeyStore ks = KeystoreManager.singleKey(authentication.authStore, authentication.name, authentication.password);
+					KeyStore ks = KeystoreManager.singleKey(authentication.authStore, authentication.name, authentication.password());
 					kmf = KeyManagerFactory.getInstance("SunX509");
-					kmf.init(ks, authentication.password);
+					kmf.init(ks, authentication.password());
 				}
 				
 				SSLContext ctx = SSLContext.getInstance(baseProtocol);
@@ -117,7 +117,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 				if (authentication.loginType == AdvanceLoginType.BASIC) {
 					StringBuilder userPass = new StringBuilder();
-					userPass.append(authentication.name).append(":").append(authentication.password);
+					userPass.append(authentication.name).append(":").append(authentication.password());
 					conn.setRequestProperty("Authorization", "Basic " + Base64.encodeBytes(userPass.toString().getBytes("UTF-8")));
 				}
 				c = conn;

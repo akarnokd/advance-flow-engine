@@ -80,7 +80,7 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 		AdvanceHttpAuthentication auth = new AdvanceHttpAuthentication();
 		auth.loginType = AdvanceLoginType.BASIC;
 		auth.name = username;
-		auth.password = password;
+		auth.password(password);
 		
 		init(remote, auth);
 	}
