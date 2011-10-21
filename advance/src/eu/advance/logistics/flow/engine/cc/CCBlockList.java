@@ -26,6 +26,8 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
@@ -125,6 +127,24 @@ public abstract class CCBlockList extends JFrame {
 		description = new JTextArea();
 		description.setEditable(false);
 		description.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
+		description.addMouseWheelListener(new MouseAdapter() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if (e.isControlDown()) {
+					Font f = description.getFont();
+					if (e.getUnitsToScroll() < 0) {
+						description.setFont(new Font(f.getName(), f.getStyle(), f.getSize() + 1));
+					} else 
+					if (f.getSize() > 4) {
+						description.setFont(new Font(f.getName(), f.getStyle(), f.getSize() - 1));
+					}
+					e.consume();
+				} else {
+					description.getParent().dispatchEvent(e);
+				}
+			}
+		});
+
 		
 		model = new AbstractTableModel() {
 			/** */

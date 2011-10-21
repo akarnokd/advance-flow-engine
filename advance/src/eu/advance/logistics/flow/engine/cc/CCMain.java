@@ -366,6 +366,9 @@ public class CCMain extends JFrame implements LabelManager {
 	 */
 	protected void initGUI() {
 		setJMenuBar(new JMenuBar());
+		addItem(fromMethod(this, "doCreateEngine"), "Engine", "New...");
+		addItem(fromMethod(this, "doOpenEngine"), "Engine", "Open...");
+		locateMenu("Engine").addSeparator();
 		addItem(fromMethod(this, "doLocalLogin"), "Engine", "Login embedded...");
 		addItem(fromMethod(this, "doRemoteLogin"), "Engine", "Login remote...");
 		locateMenu("Engine").addSeparator();
@@ -3151,5 +3154,17 @@ public class CCMain extends JFrame implements LabelManager {
 			dialog.setLocationRelativeTo(this);
 		}
 		dialog.setVisible(true);
+	}
+	/**
+	 * Create new engine.
+	 */
+	void doCreateEngine() {
+		//TODO
+	}
+	/**
+	 * Open existing engine configuration. 
+	 */
+	void doOpenEngine() {
+		//TODO
 	}
 }

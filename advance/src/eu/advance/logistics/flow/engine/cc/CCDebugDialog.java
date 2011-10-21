@@ -36,11 +36,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -49,6 +52,7 @@ import javax.swing.GroupLayout.Group;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -62,6 +66,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -70,6 +75,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
@@ -81,6 +87,8 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 import eu.advance.logistics.flow.engine.util.CachedThreadPoolScheduler;
+import eu.advance.logistics.flow.engine.util.Triplet;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
 
 /**
@@ -146,6 +154,8 @@ public class CCDebugDialog extends JFrame {
 	protected final List<AdvanceBlockReference> blockRefs = Lists.newArrayList();
 	/** The block parameter description. */
 	protected final List<AdvanceBlockParameterDescription> portList = Lists.newArrayList();
+	/** The last directory. */
+	protected File lastDir = new File(".");
 	/** 
 	 * Constructs the GUI dialog.
 	 * @param labels the label manager
@@ -379,10 +389,10 @@ public class CCDebugDialog extends JFrame {
 					.addGap(30)
 					.addComponent(rowLimitLabel)
 					.addComponent(rowLimit, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addComponent(actions)
 				)
 				.addComponent(scroll)
 			)
-			.addComponent(actions)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
@@ -398,9 +408,9 @@ public class CCDebugDialog extends JFrame {
 				.addComponent(clearFilter, 25, 25, 25)
 				.addComponent(rowLimitLabel)
 				.addComponent(rowLimit, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+				.addComponent(actions)
 			)
 			.addComponent(scroll)
-			.addComponent(actions)
 		);
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -463,24 +473,27 @@ public class CCDebugDialog extends JFrame {
 		actionMenu.addSeparator();
 		JMenu export = new JMenu(labels.get("Export"));
 		actionMenu.add(export);
-		JMenu exportSelected = new JMenu(labels.get("Selected"));
-		export.add(exportSelected);
-		JMenu exportAll = new JMenu(labels.get("All"));
-		export.add(exportAll);
 		
-		addMenu(exportSelected, "Entries...", "doExportSelectedEntries", true);
-		addMenu(exportSelected, "Values...", "doExportSelectedValues", true);
+		addMenu(export, "Selected entries...", "doExportSelectedEntries", true);
+		addMenu(export, "Selected values...", "doExportSelectedValues", true);
 
-		addMenu(exportAll, "Entries...", "doExportAllEntries", false);
-		addMenu(exportAll, "Values...", "doExportAllValues", false);
+		export.addSeparator();
+		
+		addMenu(export, "Unselected entries...", "doExportUnselectedEntries", false);
+		addMenu(export, "Unselected values...", "doExportUnselectedValues", false);
+
+		export.addSeparator();
+		
+		addMenu(export, "All entries...", "doExportAllEntries", false);
+		addMenu(export, "All values...", "doExportAllValues", false);
 
 		actionMenu.addSeparator();
 		
 		JMenu clear = new JMenu(labels.get("Clear"));
 		actionMenu.add(clear);
 		addMenu(clear, "Selected", "doClearSelected", true);
-		addMenu(clear, "Unselected", "doRetainUnselected", true);
-		addMenu(clear, "All", "doClearAll", true);
+		addMenu(clear, "Unselected", "doRetainUnselected", false);
+		addMenu(clear, "All", "doClearAll", false);
 		
 		
 		JMenu stopWatch = new JMenu(labels.get("Stop watching"));
@@ -731,54 +744,245 @@ public class CCDebugDialog extends JFrame {
 	}
 	/** Display the value. */
 	void doDisplayValue() {
-		
+		for (int idx : table.getSelectedRows()) {
+			displayData(idx);
+		}
 	}
 	/** Export selected. */
 	void doExportSelectedEntries() {
-		
+		doExport(selectedRows(), true);
 	}
 	/** Export selected. */
 	void doExportSelectedValues() {
-		
+		doExport(selectedRows(), false);
+	}
+	/** Export selected. */
+	void doExportUnselectedEntries() {
+		doExport(unselectedRows(), true);
+	}
+	/** Export selected. */
+	void doExportUnselectedValues() {
+		doExport(unselectedRows(), false);
 	}
 	/** Export all. */
 	void doExportAllEntries() {
-		
+		doExport(rows, true);
 	}
 	/** Export all. */
 	void doExportAllValues() {
-		
+		doExport(rows, false);
+	}
+	/**
+	 * Export the given row contents into the given file.
+	 * @param rows the rows
+	 * @param full add entry info (realm, timestamp, etc.)
+	 */
+	void doExport(List<CCDebugRow> rows, final boolean full) {
+		JFileChooser fc = new JFileChooser(lastDir);
+		fc.setFileFilter(new FileNameExtensionFilter("XML files (*.XML)", "xml"));
+		fc.setDialogTitle(labels.get("Export"));
+		if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+
+			lastDir = f.getParentFile();
+			
+			final List<CCDebugRow> rows2 = Lists.newArrayList(rows);
+			
+			GUIUtils.getWorker(new WorkItem() {
+				/** The exception. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						XElement result = new XElement("debug-export");
+						for (CCDebugRow dr : rows2) {
+							XElement parent = result;
+							if (full) {
+								XElement entry = result.add("entry");
+								entry.set("realm", dr.watch.realm, "block", dr.watch.block, 
+										"block-type", dr.watch.blockType, "port", dr.watch.port,
+										"timestamp", dr.timestamp
+								);
+								parent = entry;
+							}
+							if (Option.isError(dr.value)) {
+								parent.add("error").content = Option.getError(dr.value).toString();
+							} else
+							if (Option.isNone(dr.value)) {
+								parent.add("none");
+							} else {
+								Object o = dr.value.value();
+								if (o instanceof XElement) {
+									parent.add(((XElement)o).copy());
+								} else {
+									parent.add("value").content = o.toString();
+								}
+							}
+						}
+						result.save(f);
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(CCDebugDialog.this, t);
+					}
+				}
+			}
+			).execute();
+		}
 	}
 	/** Clear selected. */
 	void doClearSelected() {
-		
+		int[] sel = table.getSelectedColumns();
+		for (int i = sel.length - 1; i >= 0; i--) {
+			sel[i] = table.convertRowIndexToModel(sel[i]);
+		}
+		Arrays.sort(sel);
+		for (int i = sel.length - 1; i >= 0; i--) {
+			rows.remove(i);
+		}
+		model.fireTableDataChanged();
 	}
 	/** Clear all. */
 	void doClearAll() {
-		
+		rows.clear();
+		model.fireTableDataChanged();
 	}
 	/** Retain unselected. */
 	void doRetainUnselected() {
-		
+		int[] sel = table.getSelectedColumns();
+		Set<Integer> sels = Sets.newHashSet();
+		for (int i = sel.length - 1; i >= 0; i--) {
+			sels.add(table.convertRowIndexToModel(sel[i]));
+		}
+		for (int i = rows.size() - 1; i >= 0; i--) {
+			if (!sels.contains(i)) {
+				rows.remove(i);
+			}
+		}
+		model.fireTableDataChanged();
+	}
+	/** @return the selected row objects. */
+	List<CCDebugRow> selectedRows() {
+		List<CCDebugRow> result = Lists.newArrayList();
+		int[] sel = table.getSelectedColumns();
+		for (int idx : sel) {
+			result.add(rows.get(table.convertRowIndexToModel(idx)));
+		}
+		return result;
+	}
+	/** @return the selected row objects. */
+	List<CCDebugRow> unselectedRows() {
+		List<CCDebugRow> result = Lists.newArrayList();
+		int[] sel = table.getSelectedColumns();
+		Set<Integer> sr = Sets.newHashSet();
+		for (int idx : sel) {
+			sr.add(table.convertRowIndexToModel(idx));
+		}
+		for (int i = 0; i < rows.size(); i++) {
+			if (sr.contains(i)) {
+				result.add(rows.get(i));
+			}
+		}
+		return result;
 	}
 	/** Stop watch all. */
 	void doStopWatchAll() {
-		
+		for (CCWatchSettings ws : watchers) {
+			try {
+				ws.handler.close();
+			} catch (IOException ex) {
+				LOG.error(ex.toString(), ex);
+			}
+		}
+		watchers.clear();
 	}
 	/** Stop watch realm. */
 	void doStopWatchRealm() {
-		
+		Set<String> realms = Sets.newHashSet(
+						Interactive.select(selectedRows(), new Func1<CCDebugRow, String>() {
+			@Override
+			public String invoke(CCDebugRow param1) {
+				return param1.watch.realm;
+			}
+		}));
+		for (int i = watchers.size() - 1; i >= 0; i--) {
+			CCWatchSettings ws = watchers.get(i);
+			if (realms.contains(ws.realm)) {
+				watchers.remove(i);
+				try {
+					ws.handler.close();
+				} catch (IOException ex) {
+					LOG.error(ex.toString(), ex);
+				}
+			}
+		}
 	}
 	/** Stop watch block. */
 	void doStopWatchBlock() {
-		
+		Set<Pair<String, String>> realmsAndBlock = Sets.newHashSet(
+						Interactive.select(selectedRows(), new Func1<CCDebugRow, Pair<String, String>>() {
+			@Override
+			public Pair<String, String> invoke(CCDebugRow param1) {
+				return Pair.of(param1.watch.realm, param1.watch.block);
+			}
+		}));
+		for (int i = watchers.size() - 1; i >= 0; i--) {
+			CCWatchSettings ws = watchers.get(i);
+			if (realmsAndBlock.contains(Pair.of(ws.realm, ws.block))) {
+				watchers.remove(i);
+				try {
+					ws.handler.close();
+				} catch (IOException ex) {
+					LOG.error(ex.toString(), ex);
+				}
+			}
+		}
 	}
 	/** Stop watch block type. */
 	void doStopWatchBlockType() {
-		
+		Set<String> toDelete = Sets.newHashSet(
+						Interactive.select(selectedRows(), new Func1<CCDebugRow, String>() {
+			@Override
+			public String invoke(CCDebugRow param1) {
+				return param1.watch.blockType;
+			}
+		}));
+		for (int i = watchers.size() - 1; i >= 0; i--) {
+			CCWatchSettings ws = watchers.get(i);
+			if (toDelete.contains(ws.blockType)) {
+				watchers.remove(i);
+				try {
+					ws.handler.close();
+				} catch (IOException ex) {
+					LOG.error(ex.toString(), ex);
+				}
+			}
+		}
 	}
 	/** Stop watch port. */
 	void doStopWatchPort() {
+		Set<Triplet<String, String, String>> realmsAndBlock = Sets.newHashSet(
+				Interactive.select(selectedRows(), new Func1<CCDebugRow, Triplet<String, String, String>>() {
+			@Override
+			public Triplet<String, String, String> invoke(CCDebugRow param1) {
+				return Triplet.of(param1.watch.realm, param1.watch.block, param1.watch.port);
+			}
+		}));
+		for (int i = watchers.size() - 1; i >= 0; i--) {
+			CCWatchSettings ws = watchers.get(i);
+			if (ws.port != null && realmsAndBlock.contains(Triplet.of(ws.realm, ws.block, ws.port))) {
+				watchers.remove(i);
+				try {
+					ws.handler.close();
+				} catch (IOException ex) {
+					LOG.error(ex.toString(), ex);
+				}
+			}
+		}
 		
 	}
 	/**
@@ -787,13 +991,20 @@ public class CCDebugDialog extends JFrame {
 	void viewData() {
 		int idx = table.getSelectedRow();
 		if (idx >= 0) {
-			idx = table.convertRowIndexToModel(idx);
-			
-			CCValueDialog d = new CCValueDialog(labels, rows.get(idx));
-			engineInfo.set(d.engineInfo);
-			d.pack();
-			d.setLocationRelativeTo(this);
-			d.setVisible(true);
+			displayData(idx);
 		}
+	}
+	/**
+	 * Display the data of the indexth row.
+	 * @param idx the view index
+	 */
+	public void displayData(int idx) {
+		idx = table.convertRowIndexToModel(idx);
+		
+		CCValueDialog d = new CCValueDialog(labels, rows.get(idx));
+		engineInfo.set(d.engineInfo);
+		d.pack();
+		d.setLocationRelativeTo(this);
+		d.setVisible(true);
 	}
 }
