@@ -27,6 +27,7 @@ import hu.akarnokd.reactive4java.util.DefaultScheduler;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -86,14 +87,25 @@ public class AdvanceEngineConfig {
 	public final EnumMap<SchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<SchedulerPreference, ExecutorService>(SchedulerPreference.class);
 	/**
 	 * Create the lookup.
-	 * @param blockRegistry The block registry to use
+	 * @param blockRegistries The block registries
 	 */
-	protected void initBlockRegistry(String blockRegistry) {
+	protected void initBlockRegistry(Iterable<XElement> blockRegistries) {
 		Map<String, AdvanceBlockRegistryEntry> blocks = Maps.newHashMap();
 		try {
-			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
-					XElement.parseXML(blockRegistry))) {
-				blocks.put(e.id, e);
+			InputStream in = getClass().getResourceAsStream("/block-registry.xml");
+			try {
+				for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
+						XElement.parseXML(in))) {
+					blocks.put(e.id, e);
+				}
+			} finally {
+				in.close();
+			}
+			for (XElement br : blockRegistries) {
+				for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
+						XElement.parseXML(br.get("file")))) {
+					blocks.put(e.id, e);
+				}
 			}
 		} catch (XMLStreamException ex) {
 			throw new IllegalArgumentException(ex);
@@ -120,10 +132,8 @@ public class AdvanceEngineConfig {
 		// load listeners
 		listener = new AdvanceListenerConfig();
 		listener.load(configXML.childElement("listener"));
-		// load blocks.
-		for (XElement br : configXML.childrenWithName("block-registry")) {
-			initBlockRegistry(br.get("file"));
-		}
+
+		initBlockRegistry(configXML.childrenWithName("block-registry"));
 		// initialize schedulers
 		schedulerMap.clear();
 		schedulerMapExecutors.clear();
