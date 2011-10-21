@@ -1679,10 +1679,6 @@ public class CCMain extends JFrame implements LabelManager {
 	void doLastCompilationResult() {
 		LOG.error("Implement!");
 	}
-	/** Debug a flow. */
-	void doDebugFlow() {
-		LOG.error("Implement!");
-	}
 	/** Shutdown engine. */
 	void doShutdown() {
 		int c = JOptionPane.showConfirmDialog(this, get("Are you sure?"), "Shutting down engine " + engineURL, JOptionPane.YES_NO_OPTION);
@@ -3139,5 +3135,21 @@ public class CCMain extends JFrame implements LabelManager {
 			verLabel.setText(version.toString());
 			userLabel.setText(user.name + " <" + user.email + ">");
 		}
+	}
+	/** Debug a flow. */
+	void doDebugFlow() {
+		final CCDebugDialog dialog = new CCDebugDialog(this, engine);
+		setEngineInfo(dialog.engineInfo);
+		dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(dialog, props, "debug-");
+			}
+		});
+		if (!applyFrameState(dialog, props, "debug-")) {
+			dialog.pack();
+			dialog.setLocationRelativeTo(this);
+		}
+		dialog.setVisible(true);
 	}
 }

@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.xml.typesystem;
 
+import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 
@@ -405,17 +406,66 @@ public class XElement implements Iterable<XElement> {
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		toStringRep("", new HashMap<String, String>(), b);
+		toStringRep("", new HashMap<String, String>(), b, new Action1<Object>() {
+			@Override
+			public void invoke(Object value) {
+				
+			}
+		});
 		return b.toString();
+	}
+	/**
+	 * The representation state.
+	 * @author akarnokd, 2011.10.21.
+	 */
+	public enum XRepresentationState {
+		/** Element start. */
+		START_ELEMENT,
+		/** Text start. */
+		START_TEXT,
+		/** Element end. */
+		END_ELEMENT,
+		/** Text end. */
+		END_TEXT
+	}
+	/**
+	 * The representation record.
+	 * @author akarnokd, 2011.10.21.
+	 */
+	public static class XRepresentationRecord {
+		/** The state. */
+		public final XRepresentationState state;
+		/** The current element. */
+		public final XElement element;
+		/** The offset. */
+		public final int charOffset;
+		/**
+		 * Create the record.
+		 * @param state the state
+		 * @param element the element
+		 * @param charOffset the offset
+		 */
+		public XRepresentationRecord(XRepresentationState state,
+				XElement element, int charOffset) {
+			super();
+			this.state = state;
+			this.element = element;
+			this.charOffset = charOffset;
+		}
+		
 	}
 	/**
 	 * Convert the element into a pretty printed string representation.
 	 * @param indent the current line indentation
 	 * @param nss the namespace cache
 	 * @param out the output
+	 * @param callback the callback for each element and text position.
 	 */
-	void toStringRep(String indent, Map<String, String> nss, StringBuilder out) {
-		out.append(indent).append("<");
+	public void toStringRep(String indent, Map<String, String> nss, 
+			StringBuilder out, Action1<? super XRepresentationRecord> callback) {
+		out.append(indent);
+		callback.invoke(new XRepresentationRecord(XRepresentationState.START_ELEMENT, this, out.length()));
+		out.append("<");
 		if (prefix != null && prefix.length() > 0) {
 			out.append(prefix).append(":");
 		}
@@ -448,7 +498,9 @@ public class XElement implements Iterable<XElement> {
 				out.append("/>");
 			} else {
 				out.append(">");
+				callback.invoke(new XRepresentationRecord(XRepresentationState.START_TEXT, this, out.length()));
 				out.append(sanitize(content));
+				callback.invoke(new XRepresentationRecord(XRepresentationState.END_TEXT, this, out.length()));
 				out.append(indent).append("</");
 				if (prefix != null && prefix.length() > 0) {
 					out.append(prefix).append(":");
@@ -461,11 +513,14 @@ public class XElement implements Iterable<XElement> {
 				out.append(String.format(">%n"));
 			} else {
 				out.append(">");
+				callback.invoke(new XRepresentationRecord(XRepresentationState.START_TEXT, this, out.length()));
 				out.append(sanitize(content));
+				callback.invoke(new XRepresentationRecord(XRepresentationState.END_TEXT, this, out.length()));
+
 				out.append(String.format("%n"));
 			}
 			for (XElement e : children) {
-				e.toStringRep(indent + "  ", nss, out);
+				e.toStringRep(indent + "  ", nss, out, callback);
 			}
 			out.append(indent).append("</");
 			if (prefix != null && prefix.length() > 0) {
@@ -474,6 +529,7 @@ public class XElement implements Iterable<XElement> {
 			out.append(name);
 			out.append(">");
 		}
+		callback.invoke(new XRepresentationRecord(XRepresentationState.END_ELEMENT, this, out.length()));
 		out.append(String.format("%n"));
 	}
 	/**

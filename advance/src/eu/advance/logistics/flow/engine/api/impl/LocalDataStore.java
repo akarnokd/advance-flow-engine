@@ -79,6 +79,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.Copyable;
 import eu.advance.logistics.flow.engine.api.HasPassword;
 import eu.advance.logistics.flow.engine.api.Identifiable;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -1001,7 +1002,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	}
 	@Override
 	public XElement queryFlow(String realm) throws IOException {
-		return dataflows.get(realm);
+		XElement result = dataflows.get(realm);
+		if (result == null) {
+			// use empty flow
+			result = new AdvanceCompositeBlock().serializeFlow();
+		}
+		return result;
 	}
 	@Override
 	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,

@@ -122,8 +122,12 @@ public class AdvanceLocalSchemaResolver implements AdvanceSchemaResolver {
 					}
 				}
 			}
+			URL f = getClass().getResource("/" + u + ".xsd");
+			if (f != null) {
+				return resolveSchemaLoad(f, schemaURI);
+			}
 			for (String schemaPath : schemas) {
-				URL f = getClass().getResource("/" + schemaPath + "/" + u + ".xsd");
+				f = getClass().getResource("/" + schemaPath + "/" + u + ".xsd");
 				if (f != null) {
 					return resolveSchemaLoad(f, schemaURI);
 				}
