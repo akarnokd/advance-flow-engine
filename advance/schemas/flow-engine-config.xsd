@@ -7,29 +7,43 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="listener">
-					<xs:annotation><xs:documentation>The listener port numbers.</xs:documentation></xs:annotation>
+					<xs:annotation>
+						<xs:documentation>The listener port numbers.</xs:documentation>
+					</xs:annotation>
 					<xs:complexType>
 						<xs:attribute name="basic-auth-port" type="xs:int" use="required">
-							<xs:annotation><xs:documentation>The port number for the HTTPS endpoint with basic authentication.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The port number for the HTTPS endpoint with basic authentication.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute name="cert-auth-port" type="xs:int" use="required">
-							<xs:annotation><xs:documentation>The port number for the HTTPS endpoint with certificate authentication.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The port number for the HTTPS endpoint with certificate authentication.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute name="server-keystore" type="xs:string" use="required">
-							<xs:annotation><xs:documentation>The name of the keystore where the server certificate is located.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The name of the keystore where the server certificate is located.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute name="server-keyalias" type="xs:string" use="required">
-							<xs:annotation><xs:documentation>The key alias of the server certificate.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The key alias of the server certificate.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute name="server-password" type="xs:base64Binary" use="required">
-							<xs:annotation><xs:documentation>The key password.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The key password.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute name="client-keystore" type="xs:string" use="required">
-							<xs:annotation><xs:documentation>The name of the keystore where the client certificates are located.</xs:documentation></xs:annotation>
+							<xs:annotation>
+								<xs:documentation>The name of the keystore where the client certificates are located.</xs:documentation>
+							</xs:annotation>
 						</xs:attribute>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="block-registry" maxOccurs="unbounded">
+				<xs:element name="block-registry" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>The block registry file location.</xs:documentation>
 					</xs:annotation>
@@ -100,7 +114,7 @@
 						</xs:attribute>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="schemas" maxOccurs="unbounded">
+				<xs:element name="schemas" maxOccurs="unbounded" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The location for XML schemas used by the lookup function.</xs:documentation>
 					</xs:annotation>
