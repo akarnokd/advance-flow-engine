@@ -31,6 +31,8 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseWheelEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Deque;
@@ -181,6 +183,23 @@ public class CCValueDialog extends JFrame {
 			text.setText(s);
 			createTree(row.value.value());
 		}
+		text.addMouseWheelListener(new MouseAdapter() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if (e.isControlDown()) {
+					Font f = text.getFont();
+					if (e.getUnitsToScroll() < 0) {
+						text.setFont(new Font(f.getName(), f.getStyle(), f.getSize() + 1));
+					} else 
+					if (f.getSize() > 4) {
+						text.setFont(new Font(f.getName(), f.getStyle(), f.getSize() - 1));
+					}
+					e.consume();
+				} else {
+					text.getParent().dispatchEvent(e);
+				}
+			}
+		});
 		
 		JSeparator topSeparator = new JSeparator(JSeparator.HORIZONTAL);
 		
@@ -199,7 +218,7 @@ public class CCValueDialog extends JFrame {
 				.addComponent(timeLabel)
 				.addGap(50)
 				.addComponent(findLabel)
-				.addComponent(find)
+				.addComponent(find, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 				.addComponent(next)
 				.addComponent(prev)
 			)

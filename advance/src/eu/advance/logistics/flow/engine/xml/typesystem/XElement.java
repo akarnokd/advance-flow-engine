@@ -499,9 +499,13 @@ public class XElement implements Iterable<XElement> {
 			} else {
 				out.append(">");
 				callback.invoke(new XRepresentationRecord(XRepresentationState.START_TEXT, this, out.length()));
-				out.append(sanitize(content));
+				String s = sanitize(content);
+				out.append(s);
 				callback.invoke(new XRepresentationRecord(XRepresentationState.END_TEXT, this, out.length()));
-				out.append(indent).append("</");
+				if (s.endsWith("\n")) {
+					out.append(indent);
+				}
+				out.append("</");
 				if (prefix != null && prefix.length() > 0) {
 					out.append(prefix).append(":");
 				}
