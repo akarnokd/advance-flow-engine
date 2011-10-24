@@ -111,7 +111,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
  * The main window of the engine control center.
  * @author akarnokd, 2011.10.07.
  */
-public class CCMain extends JFrame implements LabelManager {
+public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(CCMain.class);
 	/** */
@@ -1820,20 +1820,8 @@ public class CCMain extends JFrame implements LabelManager {
 		
 		return dialog;
 	}
-	/**
-	 * Construct a detailed dialog.
-	 * @param <K> the identifier type of the record
-	 * @param <T> the expected record type
-	 * @param <V> the dialog type
-	 * @param list the available list
-	 * @param selected the selected item or null to indicate a new item should be created
-	 * @param detailPanel the panel containing the detail fields
-	 * @param namer the function to convert an entry into string
-	 * @param retriever the function to retrieve a record through its id
-	 * @param saver the function to save a record and report back an error
-	 * @return the dialog created
-	 */
-	<K, T extends AdvanceCreateModifyInfo & Identifiable<K>, V extends JComponent & CCLoadSave<T>> 
+	@Override
+	public <K, T extends AdvanceCreateModifyInfo & Identifiable<K>, V extends JComponent & CCLoadSave<T>> 
 	CCDetailDialog<T> createDetailDialog(
 			final List<T> list, 
 			final T selected,
@@ -3159,7 +3147,19 @@ public class CCMain extends JFrame implements LabelManager {
 	 * Create new engine.
 	 */
 	void doCreateEngine() {
-		//TODO
+		final CCEngineDialog dialog = new CCEngineDialog(this, this);
+		dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				storeFrameState(dialog, props, "engine-");
+			}
+		});
+		if (!applyFrameState(dialog, props, "engine-")) {
+			dialog.pack();
+			dialog.setLocationRelativeTo(this);
+		}
+		dialog.setTitle(get("Create Engine"));
+		dialog.setVisible(true);
 	}
 	/**
 	 * Open existing engine configuration. 

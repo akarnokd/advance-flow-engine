@@ -550,9 +550,13 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 	 */
 	void doGenerateKey() {
 		CCKeyGenDialog dialog = new CCKeyGenDialog(labels);
-		engineInfo.set(dialog.engineInfo);
+		if (engineInfo != null) {
+			engineInfo.set(dialog.engineInfo);
+			dialog.showEngineInfo(engineInfo.isVisible());
+		} else {
+			dialog.showEngineInfo(false);
+		}
 		dialog.setLocationRelativeTo(this);
-		dialog.showEngineInfo(engineInfo.isVisible());
 		dialog.pack();
 		final AdvanceGenerateKey k = dialog.display();
 		if (k != null) {
