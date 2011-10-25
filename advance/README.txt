@@ -3,6 +3,13 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.05.129 Notes
+----------------------
+
+Added all screens to the Engine Control Center. The remaining features are the filter boxes (low priority).
+
+Fixed some compilation and execution related issues with the flow engine.
+
 Version 0.04.123 Notes
 ----------------------
 

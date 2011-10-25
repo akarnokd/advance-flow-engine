@@ -333,7 +333,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			throws IOException, AdvanceControlException {
 		AdvanceRealm r = datastore.queryRealm(name);
 		if (r != null) {
-			if (r.status == AdvanceRealmStatus.STOPPED) {
+			if (r.status == AdvanceRealmStatus.STOPPED || r.status == AdvanceRealmStatus.ERROR) {
 				r.modifiedBy = byUser;
 				tryStartRealm(r);
 			} else {
@@ -553,25 +553,31 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		r.modifiedAt = new Date();
 		datastore.updateRealm(r);
 		
-		
-		XElement xflow = datastore.queryFlow(r.name);
-		AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(xflow);
-		AdvanceCompilationResult verify = compiler.verify(flow);
-		realmVerifications.put(r.name, verify);
-		if (verify.success()) {
-			List<AdvanceBlock> blocks = compiler.compile(flow);
-			realmRuntime.put(r.name, blocks);
-			for (AdvanceBlock b : blocks) {
-				XElement state = datastore.queryBlockState(r.name, b.getDescription().id);
-				if (state != null) {
-					b.restoreState(state);
+		try {
+			XElement xflow = datastore.queryFlow(r.name);
+			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(xflow);
+			AdvanceCompilationResult verify = compiler.verify(flow);
+			realmVerifications.put(r.name, verify);
+			if (verify.success()) {
+				List<AdvanceBlock> blocks = compiler.compile(flow);
+				realmRuntime.put(r.name, blocks);
+				for (AdvanceBlock b : blocks) {
+					XElement state = datastore.queryBlockState(r.name, b.getDescription().id);
+					if (state != null) {
+						b.restoreState(state);
+					}
 				}
+				executor.run(blocks);
+				r.status = AdvanceRealmStatus.RUNNING;
+				r.modifiedAt = new Date();
+				datastore.updateRealm(r);
+			} else {
+				r.status = AdvanceRealmStatus.ERROR;
+				r.modifiedAt = new Date();
+				datastore.updateRealm(r);
 			}
-			executor.run(blocks);
-			r.status = AdvanceRealmStatus.RUNNING;
-			r.modifiedAt = new Date();
-			datastore.updateRealm(r);
-		} else {
+		} catch (Throwable t) {
+			LOG.error(t.toString(), t);
 			r.status = AdvanceRealmStatus.ERROR;
 			r.modifiedAt = new Date();
 			datastore.updateRealm(r);
@@ -582,6 +588,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		for (AdvanceRealm r : datastore.queryRealms()) {
 			if (r.status == AdvanceRealmStatus.RUNNING) {
 				tryShutdownRealm(r, AdvanceRealmStatus.RESUME);
+			} else {
+				// force stopped
+				tryShutdownRealm(r, AdvanceRealmStatus.STOPPED);
 			}
 		}
 	}

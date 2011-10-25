@@ -33,9 +33,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -44,9 +47,13 @@ import javax.swing.GroupLayout.Group;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -59,7 +66,9 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.xml.stream.XMLStreamException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,12 +76,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDrivers;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPriority;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Create or manage existing properties of a local flow engine.
@@ -125,6 +138,8 @@ public class CCEngineDialog extends JFrame {
 	protected JPasswordField dsPasswordAgain;
 	/** The schema. */
 	protected JTextField dsSchema;
+	/** The connection pool size. */
+	protected JFormattedTextField dsPoolsize;
 	/** The driver label. */
 	protected JLabel dsDriverLabel;
 	/** The user label. */
@@ -145,15 +160,31 @@ public class CCEngineDialog extends JFrame {
 	protected final List<String> schemasList = Lists.newArrayList();
 	/** The dialog creator. */
 	protected final CCDialogCreator dc;
+	/** The last directory getter-setter. */
+	protected final CCGetterSetter<File> lastDir;
+	/** The CPU scheduler. */
+	protected SchedulerPanel cpuScheduler;
+	/** The IO scheduler. */
+	protected SchedulerPanel ioScheduler;
+	/** The sequential scheduler. */
+	protected SchedulerPanel sequentialScheduler;
+	/** The current filename. */
+	protected File fileName;
+	/** The tabs. */
+	protected JTabbedPane tabs;
 	/**
 	 * The label manager.
 	 * @param labels the label manager
 	 * @param dc the dialog creator
+	 * @param lastDir the last dir
 	 */
-	public CCEngineDialog(@NonNull final LabelManager labels, @NonNull final CCDialogCreator dc) {
+	public CCEngineDialog(@NonNull final LabelManager labels, 
+			@NonNull final CCDialogCreator dc,
+			@NonNull final CCGetterSetter<File> lastDir) {
 		this.labels = labels;
 		this.dc = dc;
-		JTabbedPane tabs = new JTabbedPane();
+		this.lastDir = lastDir;
+		tabs = new JTabbedPane();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		tabs.add(labels.get("Keystores"), createKeystores());
@@ -161,6 +192,57 @@ public class CCEngineDialog extends JFrame {
 		tabs.add(labels.get("Datastore"), createDatastore());
 		tabs.add(labels.get("Blocks & Schemas"), createBlocksAndSchemas());
 		tabs.add(labels.get("Schedulers"), createSchedulers());
+		
+		JMenuBar mainMenu = new JMenuBar();
+		
+		JMenu file = new JMenu(labels.get("File"));
+		JMenuItem fileNew = new JMenuItem(labels.get("New"));
+		fileNew.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doNew();
+			}
+		});
+		JMenuItem fileOpen = new JMenuItem(labels.get("Open..."));
+		fileOpen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doOpen();
+			}
+		});
+		JMenuItem fileSave = new JMenuItem(labels.get("Save"));
+		fileSave.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doSave();
+			}
+		});
+		JMenuItem fileSaveAs = new JMenuItem(labels.get("Save as..."));
+		fileSaveAs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doSaveAs();
+			}
+		});
+		JMenuItem fileExit = new JMenuItem(labels.get("Exit"));
+		fileExit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		
+		file.add(fileNew);
+		file.add(fileOpen);
+		file.addSeparator();
+		file.add(fileSave);
+		file.add(fileSaveAs);
+		file.addSeparator();
+		file.add(fileExit);
+		
+		mainMenu.add(file);
+		
+		setJMenuBar(mainMenu);
 		
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
@@ -296,7 +378,7 @@ public class CCEngineDialog extends JFrame {
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
-			.addComponent(sp)
+			.addComponent(sp, 0, 250, Short.MAX_VALUE)
 			.addComponent(records)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
@@ -432,6 +514,15 @@ public class CCEngineDialog extends JFrame {
 		dsCustomDriver = new JTextField();
 		dsDriver = new JComboBox<AdvanceJDBCDrivers>(AdvanceJDBCDrivers.values());
 		dsDriver.setSelectedItem(AdvanceJDBCDrivers.GENERIC);
+		dsDriver.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AdvanceJDBCDrivers b = (AdvanceJDBCDrivers)dsDriver.getSelectedItem();
+				if (b != null) {
+					dsUrl.setText(b.urlTemplate);
+				}
+			}
+		});
 		
 		dsCustomDriverLabel = new JLabel(labels.get("Custom driver:"));
 		
@@ -440,6 +531,8 @@ public class CCEngineDialog extends JFrame {
 		dsPasswordAgain = new JPasswordField();
 		
 		dsSchema = new JTextField();
+		dsPoolsize = new JFormattedTextField(5);
+		JLabel dsPoolsizeLabel = new JLabel(labels.get("Pool size:"));
 		
 		dsDriverLabel = new JLabel(labels.get("Driver:"));
 		final JLabel dsUrlLabel = new JLabel(labels.get("URL:"));
@@ -463,6 +556,7 @@ public class CCEngineDialog extends JFrame {
 					.addComponent(dsPasswordLabel)
 					.addComponent(dsPasswordAgainLabel)
 					.addComponent(dsSchemaLabel)
+					.addComponent(dsPoolsizeLabel)
 				)
 				.addGroup(
 					gl.createParallelGroup()
@@ -473,6 +567,7 @@ public class CCEngineDialog extends JFrame {
 					.addComponent(dsPassword)
 					.addComponent(dsPasswordAgain)
 					.addComponent(dsSchema)
+					.addComponent(dsPoolsize)
 				)
 			)
 		);
@@ -515,6 +610,11 @@ public class CCEngineDialog extends JFrame {
 				.addComponent(dsSchemaLabel)
 				.addComponent(dsSchema, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(dsPoolsizeLabel)
+				.addComponent(dsPoolsize, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+			)
 		);
 		
 		dsDriver.addActionListener(new ActionListener() {
@@ -553,6 +653,7 @@ public class CCEngineDialog extends JFrame {
 		dsSchemaLabel.setEnabled(!s);
 		dsCustomDriverLabel.setEnabled(!s);
 		dsDriverLabel.setEnabled(!s);
+		dsPoolsize.setEnabled(!s);
 	}
 	/**
 	 * Create the base layout.
@@ -669,6 +770,23 @@ public class CCEngineDialog extends JFrame {
 		blocks.setAutoCreateRowSorter(true);
 		schemas.setAutoCreateRowSorter(true);
 		
+		final JLabel blocksCount = new JLabel(labels.format("Records: %d", 0));
+		final JLabel schemasCount = new JLabel(labels.format("Records: %d", 0));
+		
+		blocksModel.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				blocksCount.setText(labels.format("Records: %d", blocks.getRowCount()));
+			}
+		});
+		schemasModel.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				schemasCount.setText(labels.format("Records: %d", schemas.getRowCount()));
+			}
+		});
+		
+		
 		gl.setHorizontalGroup(
 			gl.createParallelGroup(Alignment.CENTER)
 			.addComponent(spBlocks)
@@ -677,6 +795,7 @@ public class CCEngineDialog extends JFrame {
 				.addComponent(blockAdd)
 				.addComponent(blockDelete)
 			)
+			.addComponent(blocksCount)
 			.addComponent(middle)
 			.addComponent(spSchemas)
 			.addGroup(
@@ -684,17 +803,20 @@ public class CCEngineDialog extends JFrame {
 				.addComponent(schemaAdd)
 				.addComponent(schemaDelete)
 			)
+			.addComponent(schemasCount)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
-			.addComponent(spBlocks)
+			.addComponent(spBlocks, 0, 100, Short.MAX_VALUE)
+			.addComponent(blocksCount)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
 				.addComponent(blockAdd)
 				.addComponent(blockDelete)
 			)
-			.addComponent(middle)
-			.addComponent(spSchemas)
+			.addComponent(middle, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+			.addComponent(spSchemas, 0, 100, Short.MAX_VALUE)
+			.addComponent(schemasCount)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
 				.addComponent(schemaAdd)
@@ -702,17 +824,6 @@ public class CCEngineDialog extends JFrame {
 			)
 		);
 		
-		return p;
-	}
-	/**
-	 * Create the schedulers panel.
-	 * @return the panel
-	 */
-	private JPanel createSchedulers() {
-		JPanel p = new JPanel();
-		
-		createLayout(p);
-
 		return p;
 	}
 	/**
@@ -824,7 +935,7 @@ public class CCEngineDialog extends JFrame {
 			
 			@Override
 			public void setCurrentDir(File dir) {
-				throw new UnsupportedOperationException();
+				lastDir.set(dir);
 			}
 			
 			@Override
@@ -887,7 +998,7 @@ public class CCEngineDialog extends JFrame {
 			}
 			@Override
 			public File getCurrentDir() {
-				throw new UnsupportedOperationException();
+				return lastDir.get();
 			}
 		};
 		
@@ -959,10 +1070,641 @@ public class CCEngineDialog extends JFrame {
 	}
 	/** Add block file. */
 	void doAddBlocks() {
-		
+		EnterFileDialog dialog = new EnterFileDialog(false);
+		dialog.setLocationRelativeTo(this);
+		dialog.setVisible(true);
+		if (dialog.approve) {
+			blocksList.add(dialog.path.getText());
+			blocksModel.fireTableDataChanged();
+		}
 	}
 	/** Add schemas directory. */
 	void doAddSchemas() {
+		EnterFileDialog dialog = new EnterFileDialog(true);
+		dialog.setLocationRelativeTo(this);
+		dialog.setVisible(true);
+		if (dialog.approve) {
+			schemasList.add(dialog.path.getText());
+			schemasModel.fireTableDataChanged();
+		}
+	}
+	/**
+	 * The dialog to enter a file name or browse for one.
+	 * @author akarnokd, 2011.10.25.
+	 */
+	class EnterFileDialog extends JDialog {
+		/** */
+		private static final long serialVersionUID = -4773280755818890611L;
+		/** Select directories only. */
+		protected final boolean dirOnly;
+		/** Approve? */
+		protected boolean approve;
+		/** The entered path. */
+		protected JTextField path;
+		/**
+		 * Creates the dialog.
+		 * @param dirOnly the directory only?
+		 */
+		public EnterFileDialog(boolean dirOnly) {
+			this.dirOnly = dirOnly;
+			setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			
+			path = new JTextField(30);
+			
+			ActionListener okAction = new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					doOk();
+				}
+			};
+			
+			JButton ok = new JButton(labels.get("OK"));
+			ok.addActionListener(okAction);
+			path.addActionListener(okAction);
+			JButton cancel = new JButton(labels.get("Cancel"));
+			cancel.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					doCancel();
+				}
+			});
+			JButton browse = new JButton(labels.get("Browse..."));
+			browse.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					doBrowse();
+				}
+			});
+			
+			JLabel pathLabel = new JLabel(labels.get("Path:"));
+			
+			GroupLayout gl = createLayout(getContentPane());
+			
+			gl.setHorizontalGroup(
+				gl.createParallelGroup(Alignment.CENTER)
+				.addGroup(
+					gl.createSequentialGroup()
+					.addComponent(pathLabel)
+					.addComponent(path)
+				)
+				.addGroup(
+					gl.createSequentialGroup()
+					.addComponent(ok)
+					.addComponent(browse)
+					.addComponent(cancel)
+				)
+			);
+			gl.setVerticalGroup(
+				gl.createSequentialGroup()
+				.addGroup(
+					gl.createParallelGroup(Alignment.BASELINE)
+					.addComponent(pathLabel)
+					.addComponent(path)
+				)
+				.addGroup(
+					gl.createParallelGroup(Alignment.BASELINE)
+					.addComponent(ok)
+					.addComponent(browse)
+					.addComponent(cancel)
+				)
+			);
+			setResizable(false);
+			setModal(true);
+			pack();
+		}
+		/** OK button action. */
+		void doOk() {
+			if (path.getText().isEmpty()) {
+				GUIUtils.errorMessage(this, labels.get("Please enter a path!"));
+				return;
+			}
+			approve = true;
+			dispose();
+		}
+		/** Cancel button action. */
+		void doCancel() {
+			dispose();
+		}
+		/** Browse button action. */
+		void doBrowse() {
+			JFileChooser fc = new JFileChooser(lastDir.get());
+			fc.setDialogTitle(dirOnly ? labels.get("Select a directory") : labels.get("Select a file"));
+			fc.setFileSelectionMode(dirOnly ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY);
+			if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+				lastDir.set(dirOnly ? fc.getSelectedFile() : fc.getSelectedFile().getParentFile());
+				path.setText(fc.getSelectedFile().toString());
+			}
+		}
 		
+	}
+	/**
+	 * The scheduler settings panel.
+	 * @author akarnokd, 2011.10.25.
+	 */
+	class SchedulerPanel extends JPanel {
+		/** */
+		private static final long serialVersionUID = -8563147471843994750L;
+		/** The preference type. */
+		protected final AdvanceSchedulerPreference preference;
+		/** All cores. */
+		protected JRadioButton allCores;
+		/** Fixed number of cores. */
+		protected JRadioButton numCores;
+		/** The number. */
+		protected JFormattedTextField number;
+		/** Priority. */
+		protected JComboBox<AdvanceSchedulerPriority> priority;
+		/** The priority mode. */
+		protected JRadioButton priorityMode;
+		/** The priority percent. */
+		protected JRadioButton priorityPercent;
+		/** The priority number. */
+		protected JFormattedTextField priorityNumber;
+		/**
+		 * Create the panel.
+		 * @param preference the preference.
+		 */
+		public SchedulerPanel(AdvanceSchedulerPreference preference) {
+			this.preference = preference;
+			GroupLayout gl = createLayout(this);
+			
+			allCores = new JRadioButton(labels.get("All cores"));
+			numCores = new JRadioButton(labels.get("Fixed core number:"));
+			ButtonGroup bg = new ButtonGroup();
+			bg.add(allCores);
+			bg.add(numCores);
+			
+			number = new JFormattedTextField(1);
+			priority = new JComboBox<AdvanceSchedulerPriority>(AdvanceSchedulerPriority.values());
+			priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+			priorityMode = new JRadioButton(labels.get("Priority level:"));
+			priorityPercent = new JRadioButton(labels.get("Priority:"));
+			priorityNumber = new JFormattedTextField(50);
+			JLabel priorityPercentLabel = new JLabel("%");
+
+			ButtonGroup bg2 = new ButtonGroup();
+			bg2.add(priorityMode);
+			bg2.add(priorityPercent);
+
+			priorityMode.setSelected(true);
+			
+			gl.setHorizontalGroup(
+				gl.createParallelGroup()
+				.addGroup(
+					gl.createSequentialGroup()
+					.addComponent(allCores)
+					.addComponent(numCores)
+					.addComponent(number)
+				)
+				.addGroup(
+					gl.createSequentialGroup()
+					.addComponent(priorityMode)
+					.addComponent(priority)
+					.addComponent(priorityPercent)
+					.addComponent(priorityNumber)
+					.addComponent(priorityPercentLabel)
+				)
+			);
+			
+			gl.setVerticalGroup(
+				gl.createSequentialGroup()
+				.addGroup(
+					gl.createParallelGroup(Alignment.BASELINE)
+					.addComponent(allCores)
+					.addComponent(numCores)
+					.addComponent(number)
+				)
+				.addGap(30)
+				.addGroup(
+					gl.createParallelGroup(Alignment.BASELINE)
+					.addComponent(priorityMode)
+					.addComponent(priority)
+					.addComponent(priorityPercent)
+					.addComponent(priorityNumber)
+					.addComponent(priorityPercentLabel)
+				)
+			);
+		}
+	}
+	/**
+	 * Create the schedulers panel.
+	 * @return the panel
+	 */
+	private JPanel createSchedulers() {
+		JPanel p = new JPanel();
+		
+		GroupLayout gl = createLayout(p);
+		
+		cpuScheduler = new SchedulerPanel(AdvanceSchedulerPreference.CPU);
+		cpuScheduler.allCores.setSelected(true);
+		cpuScheduler.setBorder(BorderFactory.createTitledBorder(labels.get("CPU scheduler")));
+		
+		ioScheduler = new SchedulerPanel(AdvanceSchedulerPreference.IO);
+		ioScheduler.number.setValue(32);
+		ioScheduler.numCores.setSelected(true);
+		ioScheduler.setBorder(BorderFactory.createTitledBorder(labels.get("I/O scheduler")));
+		
+		sequentialScheduler = new SchedulerPanel(AdvanceSchedulerPreference.SEQUENTIAL);
+		sequentialScheduler.setBorder(BorderFactory.createTitledBorder(labels.get("Sequential scheduler")));
+		sequentialScheduler.allCores.setEnabled(false);
+		sequentialScheduler.numCores.setSelected(true);
+		sequentialScheduler.numCores.setEnabled(false);
+		sequentialScheduler.number.setEditable(false);
+		
+		gl.setHorizontalGroup(
+			gl.createParallelGroup()
+			.addComponent(cpuScheduler)
+			.addComponent(ioScheduler)
+			.addComponent(sequentialScheduler)
+		);
+		gl.setVerticalGroup(
+			gl.createSequentialGroup()
+			.addComponent(cpuScheduler)
+			.addComponent(ioScheduler)
+			.addComponent(sequentialScheduler)
+		);
+		
+		return p;
+	}
+	/** Resets the schedulers to their default values. */
+	protected void clearSchedulers() {
+		cpuScheduler.allCores.setSelected(true);
+		cpuScheduler.number.setValue(null);
+		cpuScheduler.priorityMode.setSelected(true);
+		cpuScheduler.priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+		cpuScheduler.priorityNumber.setValue(50);
+		
+		ioScheduler.numCores.setSelected(true);
+		ioScheduler.number.setValue(32);
+		ioScheduler.priorityMode.setSelected(true);
+		ioScheduler.priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+		ioScheduler.priorityNumber.setValue(50);
+
+		sequentialScheduler.priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+		sequentialScheduler.priorityNumber.setValue(50);
+	}
+	/**
+	 * Clear values from the listeners.
+	 */
+	void clearListener() {
+		certAuthPort.setValue(8443);
+		basicAuthPort.setValue(8444);
+		serverKeyAlias.setText("");
+		serverKeyStore.setSelectedIndex(-1);
+		serverPassword.setText("");
+		serverPasswordAgain.setText("");
+		clientKeyStore.setSelectedIndex(-1);
+	}
+	/**
+	 * Load the specific configuration.
+	 * @param config the configuration XML
+	 */
+	public void load(XElement config) {
+		keystores.clear();
+		blocksList.clear();
+		schemasList.clear();
+		clearSchedulers();
+		clearListener();
+
+		for (XElement xkeystore : config.childrenWithName("keystore")) {
+			AdvanceKeyStore aks = new AdvanceKeyStore();
+			aks.name = xkeystore.get("name");
+			aks.location = xkeystore.get("file");
+			aks.password(AdvanceCreateModifyInfo.getPassword(xkeystore, "password"));
+			keystores.add(aks);
+		}
+		updateKeyStoreLists();
+		
+		XElement xlistener = config.childElement("listener");
+		certAuthPort.setValue(xlistener.getInt("cert-auth-port"));
+		basicAuthPort.setValue(xlistener.getInt("basic-auth-port"));
+		serverKeyAlias.setText(xlistener.get("server-keyalias"));
+		serverKeyStore.setSelectedItem(xlistener.get("server-keystore"));
+		serverPassword.setText(new String(AdvanceCreateModifyInfo.getPassword(xlistener, "server-password")));
+		serverPasswordAgain.setText(new String(AdvanceCreateModifyInfo.getPassword(xlistener, "server-password")));
+		clientKeyStore.setSelectedItem(xlistener.get("client-keystore"));
+		
+		for (XElement xblocks : config.childrenWithName("block-registry")) {
+			blocksList.add(xblocks.get("file"));
+		}
+		for (XElement xschemas : config.childrenWithName("schemas")) {
+			schemasList.add(xschemas.get("location"));
+		}
+		
+		XElement xdatastore = config.childElement("datastore");
+		String driver = xdatastore.get("driver");
+		char[] p = AdvanceCreateModifyInfo.getPassword(xdatastore, "password");
+		if (p == null) {
+			dsPassword.setText("");
+			dsPasswordAgain.setText("");
+		} else {
+			dsPassword.setText(new String(p));
+			dsPasswordAgain.setText(new String(p));
+		}
+		dsUrl.setText(xdatastore.get("url"));
+		if ("LOCAL".equals(driver)) {
+			dsLocal.setSelected(true);
+			dsDriver.setSelectedIndex(-1);
+			dsCustomDriver.setText("");
+			dsSchema.setText("");
+			dsUser.setText("");
+		} else {
+			boolean found = false;
+			for (AdvanceJDBCDrivers d : AdvanceJDBCDrivers.values()) {
+				if (d.driverClass.equals(driver)) {
+					dsDriver.setSelectedItem(d);
+					dsCustomDriver.setVisible(false);
+					dsCustomDriverLabel.setVisible(false);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				dsDriver.setSelectedItem(AdvanceJDBCDrivers.GENERIC);
+				dsCustomDriver.setText(driver);
+				dsCustomDriver.setVisible(true);
+				dsCustomDriverLabel.setVisible(true);
+			}
+			dsUser.setText(xdatastore.get("user"));
+			dsSchema.setText(xdatastore.get("schema"));
+			dsPoolsize.setValue(xdatastore.getInt("poolsize"));
+		}
+		
+		for (XElement xscheduler : config.childrenWithName("scheduler")) {
+			AdvanceSchedulerPreference type = AdvanceSchedulerPreference.valueOf(xscheduler.get("type"));
+			switch (type) {
+			case CPU:
+				initScheduler(cpuScheduler, xscheduler);
+				break;
+			case IO:
+				initScheduler(ioScheduler, xscheduler);
+				break;
+			case SEQUENTIAL:
+				initScheduler(sequentialScheduler, xscheduler);
+				break;
+			default:
+			}
+		}
+		
+		doDatastoreTypeChange();
+		keystoreModel.fireTableDataChanged();
+		blocksModel.fireTableDataChanged();
+		schemasModel.fireTableDataChanged();
+	}
+	/**
+	 * Initialize the given scheduler panel from the source.
+	 * @param panel the target panel
+	 * @param xscheduler the source
+	 */
+	void initScheduler(SchedulerPanel panel, XElement xscheduler) {
+		String concur = xscheduler.get("concurrency");
+		String priority = xscheduler.get("priority");
+		if ("ALL_CORES".equals(concur)) {
+			panel.allCores.setSelected(true);
+		} else {
+			panel.numCores.setSelected(true);
+			panel.number.setValue(Integer.parseInt(concur));
+		}
+		int p = Thread.NORM_PRIORITY;
+		if (priority.length() > 0 && Character.isAlphabetic(priority.charAt(0))) {
+			AdvanceSchedulerPriority pi = AdvanceSchedulerPriority.valueOf(priority);
+			panel.priority.setSelectedItem(pi);
+			panel.priorityNumber.setValue(pi.priority * 10);
+			panel.priorityMode.setSelected(true);
+		} else {
+			// priority in percent
+			p = Thread.MIN_PRIORITY + Integer.parseInt(priority) * (Thread.MAX_PRIORITY - Thread.MIN_PRIORITY) / 100;
+			panel.priorityPercent.setSelected(true);
+			panel.priorityNumber.setValue(p);
+		}
+	}
+	/**
+	 * Save the dialog values.
+	 * @return the created XElement or null if a validation error occurs
+	 */
+	public XElement save() {
+		XElement result = new XElement("flow-engine-config");
+		
+		if (keystores.size() == 0) {
+			GUIUtils.errorMessage(this, labels.get("You'll have to specify at least one keystore!"));
+			return null;
+		}
+		
+		XElement xlistener = result.add("listener");
+		if (certAuthPort.getValue() == null) {
+			GUIUtils.errorMessage(this, labels.get("Please enter a certificate-authentication based port number!"));
+			return null;
+		}
+		if (basicAuthPort.getValue() == null) {
+			GUIUtils.errorMessage(this, labels.get("Please enter a basic-authentication based port number!"));
+			return null;
+		}
+		if (serverKeyStore.getSelectedItem() == null) {
+			GUIUtils.errorMessage(this, labels.get("Please select the server keystore!"));
+			return null;
+		}
+		if (clientKeyStore.getSelectedItem() == null) {
+			GUIUtils.errorMessage(this, labels.get("Please select the client keystore!"));
+			return null;
+		}
+		if (serverKeyAlias.getText().isEmpty()) {
+			GUIUtils.errorMessage(this, labels.get("Please select the server key alias!"));
+			return null;
+		}
+		
+		xlistener.set("cert-auth-port", certAuthPort.getValue(), "basic-auth-port", basicAuthPort.getValue());
+		xlistener.set("server-keystore", serverKeyStore.getSelectedItem(), "server-keyalias", serverKeyAlias.getText());
+		xlistener.set("client-keystore", clientKeyStore.getSelectedItem());
+		
+		char[] p1 = serverPassword.getPassword();
+		char[] p2 = serverPasswordAgain.getPassword();
+		if (!Arrays.equals(p1, p2)) {
+			GUIUtils.errorMessage(this, labels.get("The server key passwords mismatch!"));
+			return null;
+		}
+		
+		AdvanceCreateModifyInfo.setPassword(xlistener, "server-password", p1);
+		
+		for (String s : blocksList) {
+			result.add("block-registry").set("file", s);
+		}
+		
+		XElement xdatastore = result.add("datastore");
+
+		if (dsUrl.getText().isEmpty()) {
+			GUIUtils.errorMessage(this, labels.get("Please enter the datastore URL!"));
+			return null;
+		}
+
+		char[] p3 = dsPassword.getPassword();
+		char[] p4 = dsPasswordAgain.getPassword();
+		if (p3 != null && p4 != null && !Arrays.equals(p3, p4)) {
+			GUIUtils.errorMessage(this, labels.get("The datastore passwords mismatch!"));
+			return null;
+		}
+		if (dsLocal.isSelected()) {
+			xdatastore.set("driver", "LOCAL", "url", dsUrl.getText());
+		} else {
+			AdvanceJDBCDrivers d = (AdvanceJDBCDrivers)dsDriver.getSelectedItem();
+			if (d == AdvanceJDBCDrivers.GENERIC) {
+				if (dsCustomDriver.getText().isEmpty()) {
+					GUIUtils.errorMessage(this, labels.get("Please enter the fully qualified class name of the datastore JDBC driver!"));
+					return null;
+				}
+				xdatastore.set("driver", dsCustomDriver.getText());
+			} else {
+				xdatastore.set("driver", d.driverClass);
+			}
+			xdatastore.set("user", dsUser.getText());
+			xdatastore.set("schema", dsSchema.getText());
+			if (dsPoolsize.getValue() == null) {
+				GUIUtils.errorMessage(this, labels.get("Please enter the JDBC pool size!"));
+				return null;
+			}
+			xdatastore.set("poolsize", dsPoolsize.getValue());
+		}
+			
+		if (p3 != null && p3.length > 0) {
+			AdvanceCreateModifyInfo.setPassword(xdatastore, "password", p3);
+		}
+		
+		for (AdvanceKeyStore aks : keystores) {
+			XElement xkeystore = result.add("keystore");
+			xkeystore.set("name", aks.name, "file", aks.location);
+			AdvanceCreateModifyInfo.setPassword(xkeystore, "password", aks.password());
+			if (xkeystore.name.equals(serverKeyStore.getSelectedItem())) {
+				try {
+					KeyStore ks = aks.open();
+					if (ks.getKey(serverKeyAlias.getText(), p1) == null) {
+						GUIUtils.errorMessage(this, labels.get("The specified server key alias is missing or not a private key!"));
+						return null;
+					}
+				} catch (Throwable t) {
+					LOG.error(t.toString(), t);
+					GUIUtils.errorMessage(this, labels.get("The server key could not be opened!"));
+					return null;
+				}
+			}
+		}
+		
+		for (String s : schemasList) {
+			result.add("schemas").set("location", s);
+		}
+		if (!getSchedulerPanel(cpuScheduler, result.add("scheduler"))) {
+			return null;
+		}
+		if (!getSchedulerPanel(ioScheduler, result.add("scheduler"))) {
+			return null;
+		}
+		if (!getSchedulerPanel(sequentialScheduler, result.add("scheduler"))) {
+			return null;
+		}
+		
+		return result;
+	}
+	/**
+	 * Store the scheduler panel contents into the XElement.
+	 * @param panel the panel
+	 * @param xscheduler the scheduler
+	 * @return true if the validation succeded
+	 */
+	boolean getSchedulerPanel(SchedulerPanel panel, XElement xscheduler) {
+		xscheduler.set("type", panel.preference);
+		if (panel.allCores.isSelected()) {
+			xscheduler.set("concurrency", "ALL_CORES");
+		} else {
+			if (panel.number.getValue() == null) {
+				GUIUtils.errorMessage(this, labels.get("Please enter the core numbers!"));
+				tabs.setSelectedIndex(4);
+				panel.number.requestFocus();
+				return false;
+			}
+			xscheduler.set("concurrency", panel.number.getValue());
+		}
+		if (panel.priorityMode.isSelected()) {
+			xscheduler.set("priority", panel.priority.getSelectedItem());
+		} else {
+			if (panel.priorityNumber.getValue() == null) {
+				GUIUtils.errorMessage(this, labels.get("Please enter the priority percent!"));
+				tabs.setSelectedIndex(4);
+				panel.number.requestFocus();
+				return false;
+			}
+			int n = (Integer)panel.priorityNumber.getValue();
+			if (n < 0) {
+				n = 1;
+			} else
+			if (n > 100) {
+				n = 100;
+			}
+			xscheduler.set("priority", n);
+		}
+		return true;
+	}
+	/**
+	 * Open a configuration.
+	 */
+	public void doOpen() {
+		JFileChooser fc = new JFileChooser(lastDir.get());
+		fc.setFileFilter(new FileNameExtensionFilter("Engine config (*.XML)", "xml"));
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			fileName = fc.getSelectedFile();
+			lastDir.set(fileName.getParentFile());
+			try {
+				load(XElement.parseXML(fileName));
+			} catch (IOException ex) {
+				LOG.error(ex.toString(), ex);
+			} catch (XMLStreamException ex) {
+				LOG.error(ex.toString(), ex);
+			}
+		}
+	}
+	/**
+	 * Create a new config.
+	 */
+	public void doNew() {
+		fileName = null;
+		keystores.clear();
+		blocksList.clear();
+		schemasList.clear();
+		clearSchedulers();
+		clearListener();
+		updateKeyStoreLists();
+	}
+	/**
+	 * Save the settings.
+	 */
+	public void doSave() {
+		if (fileName == null) {
+			doSaveAs();
+		} else {
+			saveToFile(fileName);
+		}
+	}
+	/**
+	 * Save the settings under a different name.
+	 */
+	public void doSaveAs() {
+		JFileChooser fc = new JFileChooser(lastDir.get());
+		fc.setFileFilter(new FileNameExtensionFilter("Engine config (*.XML)", "xml"));
+		if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			fileName = fc.getSelectedFile();
+			lastDir.set(fileName.getParentFile());
+			saveToFile(fileName);
+		}
+	}
+	/**
+	 * Save to the given filename.
+	 * @param fileName the filename
+	 */
+	void saveToFile(File fileName) {
+		XElement e = save();
+		try {
+			if (e != null) {
+				e.save(fileName);
+			}
+		} catch (IOException ex) {
+			GUIUtils.errorMessage(this, ex);
+		}
 	}
 }

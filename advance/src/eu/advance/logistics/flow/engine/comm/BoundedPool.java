@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,7 @@ import com.google.common.collect.Sets;
  * @author akarnokd, 2011.10.06.
  * @param <T> the pooled object type
  */
-public class BoundedPool<T> implements Pool<T> {
+public class BoundedPool<T> implements Pool<T>, Closeable {
 	/** The available pool of objects. */
 	protected final BlockingQueue<T> objects;
 	/** The storage of all created objects. */

@@ -73,7 +73,7 @@ public abstract class AdvanceBlock {
 	/** List of functions to close when the block is terminated via done(). */
 	protected final List<Closeable> functionClose;
 	/** The preferred scheduler type. Filled in by the AdvanceBlockLookup.create(). */
-	public final SchedulerPreference schedulerPreference;
+	public final AdvanceSchedulerPreference schedulerPreference;
 //	/** The scheduler instance to use. Filled in by the AdvanceCompiler.run(). */
 //	public Scheduler scheduler;
 	/**
@@ -86,7 +86,7 @@ public abstract class AdvanceBlock {
 	public AdvanceBlock(int gid, 
 			AdvanceCompositeBlock parent, 
 			String name, 
-			SchedulerPreference schedulerPreference) {
+			AdvanceSchedulerPreference schedulerPreference) {
 		this.gid = gid;
 		this.parent = parent;
 		this.name = name;

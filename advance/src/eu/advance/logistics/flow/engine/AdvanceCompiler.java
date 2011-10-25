@@ -66,7 +66,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.model.rt.SchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.util.Triplet;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
@@ -84,7 +84,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	/** The block resolver. */
 	protected final AdvanceBlockResolver blockResolver;
 	/** The map of various schedulers. */
-	protected final Map<SchedulerPreference, Scheduler> schedulers;
+	protected final Map<AdvanceSchedulerPreference, Scheduler> schedulers;
 	/**
 	 * Constructor.
 	 * @param schemaResolver the schema resolver
@@ -94,7 +94,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	public AdvanceCompiler(
 			AdvanceSchemaResolver schemaResolver, 
 			AdvanceBlockResolver blockResolver,
-			Map<SchedulerPreference, Scheduler> schedulers) {
+			Map<AdvanceSchedulerPreference, Scheduler> schedulers) {
 		this.schemaResolver = schemaResolver;
 		this.blockResolver = blockResolver;
 		this.schedulers = schedulers;
@@ -131,7 +131,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					consts.put(bdp.id, cb.constant);
 				}
 			}
-			AdvanceBlock ab = blockResolver.create(flow.size(), root, br.id);
+			AdvanceBlock ab = blockResolver.create(flow.size(), root, br.type);
 			ab.init(bd, consts);
 			flow.add(ab);
 		}

@@ -47,7 +47,7 @@ implements XSerializable {
 	/** The implementation class. */
 	public String clazz;
 	/** The preferred scheduler. */
-	public SchedulerPreference scheduler;
+	public AdvanceSchedulerPreference scheduler;
 	/** Creates an instance of this class. */
 	public static final Func0<AdvanceBlockRegistryEntry> CREATOR = new Func0<AdvanceBlockRegistryEntry>() {
 		@Override
@@ -61,9 +61,9 @@ implements XSerializable {
 		clazz = root.get("class");
 		String s = root.get("scheduler");
 		if (s != null) {
-			scheduler = SchedulerPreference.valueOf(s);
+			scheduler = AdvanceSchedulerPreference.valueOf(s);
 		} else {
-			scheduler = SchedulerPreference.CPU;
+			scheduler = AdvanceSchedulerPreference.CPU;
 		}
 	}
 	@Override

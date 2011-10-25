@@ -22,23 +22,34 @@
 package eu.advance.logistics.flow.engine.model.rt;
 
 /**
- * <p>When a block body needs to be executed, which scheduler pool is preferred for that.</p>
- * <p>Computations are typically CPU or I/O bound with the potential overlapping of both.</p>
- * @author akarnokd, 2011.06.30.
+ * The scheduler's thread priority constants.
+ * @author akarnokd, 2011.10.25.
  */
-public enum SchedulerPreference {
-	/** The block uses computation-intensive body and should use the n-CPU based scheduler. */
-	CPU,
-	/** 
-	 * The block uses an I/O intensive (e.g., database access, running external programs, web requests, etc.)
-	 * body and should use a larger thread pool.
+public enum AdvanceSchedulerPriority {
+	/** Idle. */
+	IDLE(Thread.MIN_PRIORITY),
+	/** Max priority. */
+	MAX(Thread.MAX_PRIORITY),
+	/** Very low. */
+	VERY_LOW(Thread.MIN_PRIORITY + 1),
+	/** Low. */
+	LOW(Thread.NORM_PRIORITY - 1),
+	/** Normal priority. */
+	NORMAL(Thread.NORM_PRIORITY),
+	/** Above normal. */
+	ABOVE_NORMAL(Thread.NORM_PRIORITY + 1),
+	/** High priority. */
+	HIGH(Thread.MAX_PRIORITY - 2),
+	/** Very high priority. */
+	VERY_HIGH(Thread.MAX_PRIORITY - 1)
+	;
+	/** The priority value. */
+	public final int priority;
+	/**
+	 * Set the priority value.
+	 * @param priority the values
 	 */
-	IO,
-	/** The block should be run on a single threaded scheduler. */
-	SEQUENTIAL,
-	/** 
-	 * The now thread scheduler, which means the schedule() methods will simply execute in the current thread immediately.
-	 * Useful for blocks which route/filter/project their input without any actual concurrency.  
-	 */
-	NOW
+	AdvanceSchedulerPriority(int priority) {
+		this.priority = priority;
+	}
 }

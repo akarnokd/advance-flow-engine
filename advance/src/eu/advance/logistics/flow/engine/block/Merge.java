@@ -35,7 +35,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.model.rt.SchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -52,7 +52,7 @@ public class Merge extends AdvanceBlock {
 	 * @param schedulerPreference the scheduler preference
 	 */
 	public Merge(int gid, AdvanceCompositeBlock parent, String name,
-			SchedulerPreference schedulerPreference) {
+			AdvanceSchedulerPreference schedulerPreference) {
 		super(gid, parent, name, schedulerPreference);
 	}
 

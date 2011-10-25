@@ -28,6 +28,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -51,9 +52,13 @@ import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.impl.JDBCDataStore;
 import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
+import eu.advance.logistics.flow.engine.comm.BoundedPool;
+import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.SchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPriority;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.util.ReactiveEx;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -76,15 +81,19 @@ public class AdvanceEngineConfig {
 	/** The schema resolver. */
 	public AdvanceLocalSchemaResolver schemaResolver;
 	/** A JDBC based datastore datasource. */
-	protected AdvanceJDBCDataSource jdbcDataStore;
+	protected AdvanceJDBCDataSource jdbcDataSource;
 	/** The local datastore object. */
 	protected LocalDataStore localDataStore;
+	/** The JDBC data store. */
+	protected JDBCDataStore jdbcDataStore;
+	/** The JDBC pool. */
+	protected BoundedPool<Connection> jdbcPool;
 	/** The local keystores. */
 	public final Map<String, AdvanceKeyStore> keystores = Maps.newHashMap();
 	/** The scheduler mappings. */
-	public final EnumMap<SchedulerPreference, Scheduler> schedulerMap = new EnumMap<SchedulerPreference, Scheduler>(SchedulerPreference.class);
+	public final EnumMap<AdvanceSchedulerPreference, Scheduler> schedulerMap = new EnumMap<AdvanceSchedulerPreference, Scheduler>(AdvanceSchedulerPreference.class);
 	/** The backing executor services to allow peaceful shutdown. */
-	public final EnumMap<SchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<SchedulerPreference, ExecutorService>(SchedulerPreference.class);
+	public final EnumMap<AdvanceSchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<AdvanceSchedulerPreference, ExecutorService>(AdvanceSchedulerPreference.class);
 	/**
 	 * Create the lookup.
 	 * @param blockRegistries The block registries
@@ -121,7 +130,7 @@ public class AdvanceEngineConfig {
 	 * @return the scheduler
 	 */
 	@NonNull
-	public Scheduler get(@NonNull SchedulerPreference pref) {
+	public Scheduler get(@NonNull AdvanceSchedulerPreference pref) {
 		return schedulerMap.get(pref);
 	}
 	/**
@@ -169,23 +178,27 @@ public class AdvanceEngineConfig {
 		}
 		// initialize datastore
 		XElement ds = configXML.childElement("datastore");
-		jdbcDataStore = new AdvanceJDBCDataSource();
+		jdbcDataSource = new AdvanceJDBCDataSource();
 		
-		jdbcDataStore.driver = ds.get("driver");
-		jdbcDataStore.url = ds.get("url");
-		jdbcDataStore.password(AdvanceCreateModifyInfo.getPassword(ds, "password"));
+		jdbcDataSource.driver = ds.get("driver");
+		jdbcDataSource.url = ds.get("url");
+		jdbcDataSource.password(AdvanceCreateModifyInfo.getPassword(ds, "password"));
 		
-		if ("LOCAL".equals(jdbcDataStore.driver)) {
+		if ("LOCAL".equals(jdbcDataSource.driver)) {
 			localDataStore = new LocalDataStore();
-			if (jdbcDataStore.password() != null) {
-				localDataStore.loadEncrypted(jdbcDataStore.url, jdbcDataStore.password());
+			if (jdbcDataSource.password() != null) {
+				localDataStore.loadEncrypted(jdbcDataSource.url, jdbcDataSource.password());
 			} else {
-				localDataStore.load(jdbcDataStore.url);
+				localDataStore.load(jdbcDataSource.url);
 			}
 		} else {
-			jdbcDataStore.user = ds.get("user");
-			jdbcDataStore.schema = ds.get("schema");
-			jdbcDataStore.poolSize = ds.getInt("poolsize");
+			jdbcDataSource.user = ds.get("user");
+			jdbcDataSource.schema = ds.get("schema");
+			jdbcDataSource.poolSize = ds.getInt("poolsize");
+			
+			jdbcPool = new BoundedPool<Connection>(jdbcDataSource.poolSize, 
+					new JDBCPoolManager(jdbcDataSource));
+			jdbcDataStore = new JDBCDataStore(null, jdbcPool); // TODO JDBC update
 		}
 	}
 	/**
@@ -203,13 +216,19 @@ public class AdvanceEngineConfig {
 			}
 		}
 		if (localDataStore != null) {
-			if (jdbcDataStore.password() != null) {
-				localDataStore.saveEncrypted(jdbcDataStore.url, jdbcDataStore.password());
+			if (jdbcDataSource.password() != null) {
+				localDataStore.saveEncrypted(jdbcDataSource.url, jdbcDataSource.password());
 			} else {
-				localDataStore.save(jdbcDataStore.url);
+				localDataStore.save(jdbcDataSource.url);
+			}
+		} else
+		if (jdbcPool != null) {
+			try {
+				jdbcPool.close();
+			} catch (IOException ex) {
+				LOG.error(ex.toString(), ex);
 			}
 		}
-		
 	}
 	/**
 	 * Initialize the schedulers from the configuration.
@@ -218,7 +237,7 @@ public class AdvanceEngineConfig {
 	protected void initSchedulers(Iterable<XElement> schedulerConfigs) {
 		initNowScheduler();
 		for (XElement sc : schedulerConfigs) {
-			createScheduler(SchedulerPreference.valueOf(sc.get("type")), sc.get("concurrency"), 
+			createScheduler(AdvanceSchedulerPreference.valueOf(sc.get("type")), sc.get("concurrency"), 
 					sc.get("priority"));
 		}
 	}
@@ -229,40 +248,20 @@ public class AdvanceEngineConfig {
 	 * @param priority the priority percent value (0..100) or IDLE, VERY_LOW, LOW, NORMAL, ABOVE_NORMAL, HIGH, VERY_HIGH, MAX
 	 */
 	protected void createScheduler(
-			SchedulerPreference sp,
+			AdvanceSchedulerPreference sp,
 			String concurrency, String priority) {
 		int n = Runtime.getRuntime().availableProcessors();
 		if (!"ALL_CORES".equals(concurrency)) {
 			n = Integer.parseInt(concurrency);
 		}
 		int p = Thread.NORM_PRIORITY;
-		if ("IDLE".equals(priority)) {
-			p = Thread.MIN_PRIORITY;
-		} else
-		if ("MAX".equals(priority)) {
-			p = Thread.MAX_PRIORITY;
-		} else
-		if ("VERY_LOW".equals(priority)) {
-			p = Thread.MIN_PRIORITY + 1;
-		} else
-		if ("LOW".equals(priority)) {
-			p = Thread.NORM_PRIORITY - 1;
-		} else
-		if ("NORMAL".equals(priority)) {
-			p = Thread.NORM_PRIORITY;
-		} else
-		if ("ABOVE_NORMAL".equals(priority)) {
-			p = Thread.NORM_PRIORITY + 1;
-		} else
-		if ("HIGH".equals(priority)) {
-			p = Thread.MAX_PRIORITY - 2;
-		} else
-		if ("VERY_HIGH".equals(priority)) {
-			p = Thread.MAX_PRIORITY - 1;
+		if (priority.length() > 0 && Character.isAlphabetic(priority.charAt(0))) {
+			AdvanceSchedulerPriority ep = AdvanceSchedulerPriority.valueOf(priority);
+			p = ep.priority;
 		} else {
+			// priority in percent
 			p = Thread.MIN_PRIORITY + Integer.parseInt(priority) * (Thread.MAX_PRIORITY - Thread.MIN_PRIORITY) / 100;
 		}
-		
 		final int prio = p;
 		
 		ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(n, new ThreadFactory() {
@@ -295,7 +294,7 @@ public class AdvanceEngineConfig {
 	protected void initNowScheduler() {
 		// ------------------------------------------------------
 		// Create the current thread scheduler
-		schedulerMap.put(SchedulerPreference.NOW, new Scheduler() {
+		schedulerMap.put(AdvanceSchedulerPreference.NOW, new Scheduler() {
 			@Override
 			public Closeable schedule(Runnable run) {
 				run.run();
