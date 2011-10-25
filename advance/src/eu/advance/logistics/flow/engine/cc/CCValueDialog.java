@@ -43,6 +43,7 @@ import java.util.Map;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -51,6 +52,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicTextUI.BasicCaret;
@@ -104,6 +107,8 @@ public class CCValueDialog extends JFrame {
 	protected JButton next;
 	/** Find previous. */
 	protected JButton prev;
+	/** Toggle word wrap. */
+	protected JCheckBox wrap;
 	/**
 	 * Creates the dialog GUI.
 	 * @param labels the label manager.
@@ -124,7 +129,7 @@ public class CCValueDialog extends JFrame {
 		gl.setAutoCreateContainerGaps(true);
 		gl.setAutoCreateGaps(true);
 		
-		text = new JTextArea(25, 80);
+		text = new JTextArea(25, 70);
 		text.setEditable(false);
 		text.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
 		tree = new JTree(new DefaultTreeModel(null));
@@ -144,6 +149,24 @@ public class CCValueDialog extends JFrame {
 			}
 		});
 		new WrappingCaret(text);
+		
+		text.addCaretListener(new CaretListener() {
+			@Override
+			public void caretUpdate(CaretEvent e) {
+				if (!treeSelecting) {
+					selectNode(e.getDot());
+				}
+			}
+		});
+		
+		wrap = new JCheckBox(labels.get("Word wrap"));
+		wrap.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				text.setLineWrap(wrap.isSelected());
+				text.setWrapStyleWord(wrap.isSelected());
+			}
+		});
 		
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(tree), new JScrollPane(text));
 		split.setOneTouchExpandable(true);
@@ -206,7 +229,7 @@ public class CCValueDialog extends JFrame {
 		gl.setHorizontalGroup(
 			gl.createParallelGroup(Alignment.CENTER)
 			.addComponent(engineInfo)
-			.addComponent(topSeparator, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+			.addComponent(topSeparator)
 			.addGroup(
 				gl.createSequentialGroup()
 				.addComponent(realmLabel)
@@ -221,13 +244,14 @@ public class CCValueDialog extends JFrame {
 				.addComponent(find, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 				.addComponent(next)
 				.addComponent(prev)
+				.addComponent(wrap)
 			)
 			.addComponent(split)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
 			.addComponent(engineInfo)
-			.addComponent(topSeparator)
+			.addComponent(topSeparator, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
 				.addComponent(realmLabel)
@@ -238,6 +262,7 @@ public class CCValueDialog extends JFrame {
 				.addComponent(find)
 				.addComponent(next)
 				.addComponent(prev)
+				.addComponent(wrap)
 			)
 			.addComponent(split)
 		);

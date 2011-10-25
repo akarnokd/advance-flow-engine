@@ -46,6 +46,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1678,10 +1679,6 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		pager.setItems(list);
 		pager.setSelectedItem(item);
 	}
-	/** Show the results of the last compilation. */
-	void doLastCompilationResult() {
-		LOG.error("Implement!");
-	}
 	/** Shutdown engine. */
 	void doShutdown() {
 		int c = JOptionPane.showConfirmDialog(this, get("Are you sure?"), "Shutting down engine " + engineURL, JOptionPane.YES_NO_OPTION);
@@ -2484,6 +2481,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 						} else {
 							GUIUtils.infoMessage(CCMain.this, get("Verification successful!"));
 						}
+						showCompilationResult(CCMain.this, r, "");
 					}
 				}
 			}).execute();
@@ -3144,10 +3142,20 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		dialog.setVisible(true);
 	}
 	/**
-	 * Create new engine.
+	 * Display the engine dialog.
+	 * @param open show the open file dialog?
 	 */
-	void doCreateEngine() {
-		final CCEngineDialog dialog = new CCEngineDialog(this, this);
+	void doDisplayEngineDialog(boolean open) {
+		final CCEngineDialog dialog = new CCEngineDialog(this, this, new CCGetterSetter<File>() {
+			@Override
+			public File get() {
+				return lastDirectory;
+			}
+			@Override
+			public void set(File value) {
+				lastDirectory = value;
+			}
+		});
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -3158,13 +3166,128 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			dialog.pack();
 			dialog.setLocationRelativeTo(this);
 		}
-		dialog.setTitle(get("Create Engine"));
+		dialog.setTitle(get("Manage engine configuration"));
 		dialog.setVisible(true);
+		if (open) {
+			dialog.doOpen();
+		}
 	}
 	/**
 	 * Open existing engine configuration. 
 	 */
 	void doOpenEngine() {
-		//TODO
+		doDisplayEngineDialog(true);
+	}
+	/**
+	 * Calls doCreateEngine(null).
+	 */
+	void doCreateEngine() {
+		doDisplayEngineDialog(true);
+	}
+	/** Show the results of the last compilation. */
+	void doLastCompilationResult() {
+		final CCListingFrame<AdvanceRealm> f = new CCListingFrame<AdvanceRealm>(this);
+		f.setCellTitleFunction(from("Name", String.class, "Created", String.class, "Modified", String.class, "Status", String.class));
+		f.setCellValueFunction(new Func2<AdvanceRealm, Integer, Object>() {
+			@Override
+			public Object invoke(AdvanceRealm param1, Integer param2) {
+				switch (param2) {
+				case 0:
+					return param1.name;
+				case 1:
+					return createdAtBy(param1);
+				case 2:
+					return modifiedAtBy(param1);
+				case 3:
+					return param1.status.toString();
+				default:
+					return null;
+				}
+			}
+		});
+		f.setRetrieveFunction(new Action1<String>() {
+			@Override
+			public void invoke(String value) {
+				GUIUtils.getWorker(new ListWorkItem<AdvanceRealm>(f) {
+					@Override
+					public List<AdvanceRealm> retrieve() throws Exception {
+						return engine.datastore().queryRealms();
+					}
+				}).execute();
+			}
+		});
+		f.setColumnCount(4);
+		f.setDisplayItem(new Action1<AdvanceRealm>() {
+			@Override
+			public void invoke(AdvanceRealm value) {
+				doCompilationResult(f, value.name);
+			}
+		});
+		f.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		f.setExtraButton(0, "View...", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<AdvanceRealm> list = f.getSelectedItems();
+				if (list.size() == 1) {
+					doCompilationResult(f, list.get(0).name);
+				}
+			}
+		});
+		displayFrame(f, "compilation-", "Compilation results");
+	}
+	/**
+	 * Display the compilation result of the target realm.
+	 * @param f the parent frame
+	 * @param realm the realm name.
+	 */
+	void doCompilationResult(final JFrame f, final String realm) {
+		GUIUtils.getWorker(new WorkItem() {
+			/** The exception. */
+			Throwable t;
+			/** The result. */
+			AdvanceCompilationResult r;
+			@Override
+			public void run() {
+				try {
+					r = engine.queryCompilationResult(realm);
+				} catch (Throwable t) {
+					this.t = t;
+				}
+			}
+			@Override
+			public void done() {
+				if (t != null) {
+					GUIUtils.errorMessage(f, t);
+				} else
+				if (r != null) {
+					showCompilationResult(f, r, realm);
+				} else {
+					GUIUtils.infoMessage(f, get("No compilation result found."));
+				}
+			}
+		}).execute();
+	}
+	/**
+	 * Display the compilation result data.
+	 * @param f the parent frame
+	 * @param r the compilation result
+	 * @param realm the realm name
+	 */
+	void showCompilationResult(JFrame f, AdvanceCompilationResult r, String realm) {
+		XElement x = new XElement("compilation-result");
+		r.save(x);
+		CCDebugRow row = new CCDebugRow();
+		row.value = Option.some(x);
+		row.timestamp = new Date();
+		row.watch = new CCWatchSettings();
+		row.watch.realm = realm;
+		row.watch.block = "";
+		row.watch.blockType = "";
+		row.watch.port = "";
+		
+		CCValueDialog d = new CCValueDialog(CCMain.this, row);
+		setEngineInfo(d.engineInfo);
+		d.setLocationRelativeTo(f);
+		d.setVisible(true);
 	}
 }

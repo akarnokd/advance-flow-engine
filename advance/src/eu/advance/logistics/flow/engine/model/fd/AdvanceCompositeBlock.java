@@ -184,17 +184,17 @@ public class AdvanceCompositeBlock implements XSerializable {
 		return result;
 	}
 	/**
-	 * Serialize the given composite block into a full {@code flow-descriptor.xsd} based XML.
+	 * Serialize the given composite block into a full {@code flow-description.xsd} based XML.
 	 * @param root the root composite block.
 	 * @return the serialized XML
 	 */
 	public static XElement serializeFlow(AdvanceCompositeBlock root) {
-		XElement result = new XElement("flow-descriptor");
+		XElement result = new XElement("flow-description");
 		root.save(result.add("composite-block"));
 		return result;
 	}
 	/**
-	 * @return serialize this composite block into a full a full {@code flow-descriptor.xsd} based XML.
+	 * @return serialize this composite block into a full a full {@code flow-description.xsd} based XML.
 	 */
 	public XElement serializeFlow() {
 		return serializeFlow(this);

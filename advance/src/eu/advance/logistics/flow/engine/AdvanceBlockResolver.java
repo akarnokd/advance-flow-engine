@@ -34,7 +34,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.SchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 
 /**
  * Class that locates and creates blocks based on their name.
@@ -71,13 +71,13 @@ public class AdvanceBlockResolver {
 		AdvanceBlockRegistryEntry e = blocks.get(name);
 		try {
 			Class<?> clazz = Class.forName(e.clazz);
-			if (AdvanceBlock.class.isInstance(clazz)) {
+			if (AdvanceBlock.class.isAssignableFrom(clazz)) {
 				try {
 					Constructor<?> c = clazz.getConstructor(
 							Integer.TYPE, 
 							AdvanceCompositeBlock.class, 
 							String.class, 
-							SchedulerPreference.class);
+							AdvanceSchedulerPreference.class);
 					return AdvanceBlock.class.cast(c.newInstance(gid, parent, name, e.scheduler));
 				} catch (NoSuchMethodException ex) {
 					LOG.error("Missing constructor of {int, AdvanceCompositeBlock, String, SchedulerPreference}", ex);

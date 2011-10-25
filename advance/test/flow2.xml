@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-descriptor>
+  <composite-block id='1' x='0' y='0'>
+    <block id='b2' type='Merge' x='0' y='0'/>
+    <block id='b3' type='Sink' x='0' y='0'/>
+    <constant id='c3' type='advance:string' x='0' y='0'>
+      <string>S1</string>
+    </constant>
+    <constant id='c4' type='advance:integer' x='0' y='0'>
+      <integer>1</integer>
+    </constant>
+    <bind id='w3' source-block='c3' source-parameter='' destination-block='b2' destination-parameter='1'/>
+    <bind id='w4' source-block='c4' source-parameter='' destination-block='b2' destination-parameter='2'/>
+    <bind id='w5' source-block='b2' source-parameter='out' destination-block='b3' destination-parameter='1'/>
+  </composite-block>
+</flow-descriptor>
