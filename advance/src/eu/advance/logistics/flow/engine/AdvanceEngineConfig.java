@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.reactive4java.base.Closeables;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.util.DefaultScheduler;
 
@@ -60,7 +61,6 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPriority;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.util.ReactiveEx;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -298,7 +298,7 @@ public class AdvanceEngineConfig {
 			@Override
 			public Closeable schedule(Runnable run) {
 				run.run();
-				return ReactiveEx.emptyCloseable();
+				return Closeables.emptyCloseable();
 			}
 
 			@Override
@@ -309,7 +309,7 @@ public class AdvanceEngineConfig {
 				} catch (InterruptedException ex) {
 					LOG.info(ex.toString(), ex);
 				}
-				return ReactiveEx.emptyCloseable();
+				return Closeables.emptyCloseable();
 			}
 
 			@Override
@@ -326,7 +326,7 @@ public class AdvanceEngineConfig {
 				} catch (CancellationException ex) {
 					LOG.debug(ex.toString(), ex);
 				}
-				return ReactiveEx.emptyCloseable();
+				return Closeables.emptyCloseable();
 			}
 			
 		});

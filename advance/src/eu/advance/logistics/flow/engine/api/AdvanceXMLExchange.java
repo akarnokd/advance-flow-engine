@@ -21,11 +21,15 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.CloseableIterable;
+import hu.akarnokd.reactive4java.base.CloseableIterator;
 import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -33,18 +37,40 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * An interface wrapping a blocking iterable which returns one or multiple values.
  * @author akarnokd, 2011.10.04.
  */
-public class AdvanceXMLExchange implements Iterable<XElement> {
+public class AdvanceXMLExchange implements CloseableIterable<XElement> {
 	/** Expect multiple responses? */
 	public final boolean multiple;
 	/** The iterable sequence. */
-	private Iterable<XElement> sequence;
+	private CloseableIterable<XElement> sequence;
 	/**
 	 * No response.
 	 * @return no response
 	 */
 	public static AdvanceXMLExchange none() {
 		AdvanceXMLExchange r = new AdvanceXMLExchange(false);
-		r.sequence = Collections.emptyList();
+		r.sequence = new CloseableIterable<XElement>() {
+			@Override
+			public CloseableIterator<XElement> iterator() {
+				return new CloseableIterator<XElement>() {
+					@Override
+					public boolean hasNext() {
+						return false;
+					}
+					@Override
+					public XElement next() {
+						throw new NoSuchElementException();
+					}
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+					@Override
+					public void close() throws IOException {
+						// NO operation
+					}
+				};
+			}
+		};
 		return r;
 	}
 	/**
@@ -54,7 +80,32 @@ public class AdvanceXMLExchange implements Iterable<XElement> {
 	 */
 	public static AdvanceXMLExchange single(XElement response) {
 		AdvanceXMLExchange r = new AdvanceXMLExchange(false);
-		r.sequence = Collections.singletonList(response);
+		final Iterable<XElement> singleton = Collections.singletonList(response);
+		r.sequence = new CloseableIterable<XElement>() {
+			@Override
+			public CloseableIterator<XElement> iterator() {
+				return new CloseableIterator<XElement>() {
+					/** The backing iterator. */
+					Iterator<XElement> it = singleton.iterator();
+					@Override
+					public boolean hasNext() {
+						return it.hasNext();
+					}
+					@Override
+					public XElement next() {
+						return it.next();
+					}
+					@Override
+					public void remove() {
+						it.remove();
+					}
+					@Override
+					public void close() throws IOException {
+						// NO operation
+					}
+				};
+			}
+		};
 		return r;
 	}
 	/**
@@ -75,7 +126,7 @@ public class AdvanceXMLExchange implements Iterable<XElement> {
 		this.multiple = multiple;
 	}
 	@Override
-	public Iterator<XElement> iterator() {
+	public CloseableIterator<XElement> iterator() {
 		return sequence.iterator();
 	}
 }
