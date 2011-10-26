@@ -21,11 +21,15 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.reactive.Observer;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +65,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
@@ -68,6 +73,8 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.util.Triplet;
+import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
+import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
@@ -446,6 +453,38 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		// ---------------------------------------------------------------------------------
 		
 		AdvanceTypeInference.infer(relations, result);
+		
+		if (result.wireTypes.size() > 0) {
+			List<Pair<XType, URI>> baseTypes = Lists.newArrayList();
+			try {
+				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:object")), new URI("advance:object")));
+				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:integer")), new URI("advance:integer")));
+				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:real")), new URI("advance:real")));
+				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:string")), new URI("advance:string")));
+				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:boolean")), new URI("advance:boolean")));
+				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:timestamp")), new URI("advance:timestamp")));
+				
+				Deque<AdvanceType> types = Lists.newLinkedList();
+				for (AdvanceType at : result.wireTypes.values()) {
+					types.add(at);
+				}
+				while (!types.isEmpty()) {
+					AdvanceType t = types.removeFirst();
+					if (t.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+						types.addAll(t.typeArguments);
+					} else {
+						for (Pair<XType, URI> xt : baseTypes) {
+							if (SchemaParser.compare(xt.first, t.type) == XRelation.EQUAL) {
+								t.typeURI = xt.second;
+								break;
+							}
+						}
+					}
+				}
+			} catch (URISyntaxException ex) {
+				LOG.error(ex.toString(), ex);
+			}
+		}
 		
 		return result;
 	}
