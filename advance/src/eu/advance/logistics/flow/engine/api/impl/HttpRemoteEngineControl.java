@@ -328,7 +328,7 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 			public Closeable register(final
 					Observer<? super AdvanceParameterDiagnostic> observer) {
 				return comm.receive(XSerializables.createRequest(
-						"debug-block", "realm", realm, "block-id", blockId, "port", port), new NewThreadScheduler())
+						"debug-parameter", "realm", realm, "block-id", blockId, "port", port), new NewThreadScheduler())
 				.register(new Observer<XElement>() {
 					@Override
 					public void error(Throwable ex) {

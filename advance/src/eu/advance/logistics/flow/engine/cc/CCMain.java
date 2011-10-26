@@ -28,11 +28,13 @@ import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +44,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -55,6 +58,7 @@ import java.util.Properties;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -65,6 +69,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -299,7 +304,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			LOG.error(ex.toString(), ex);
 		}
 	}
-	
+
 	/**
 	 * Exit the application.
 	 */
@@ -309,7 +314,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		} finally {
 			saveConfig();
 		}
-		
+
 	}
 	/**
 	 * Disconnect from the current engine.
@@ -342,9 +347,9 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				doExit();
 			}
 		});
-		
+
 		initGUI();
-		
+
 		pack();
 		setLocationRelativeTo(null);
 		loadConfig();
@@ -357,10 +362,120 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				CheckThreadViolationRepaintManager.install();
 				CCMain f = new CCMain();
 				f.setVisible(true);
 			}
 		});
+	}
+	/**
+	 * <p>
+	 * This class is used to detect Event Dispatch Thread rule violations.<br/>
+	 * See <a href="http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html">How to Use Threads</a> for more info
+	 * </p>
+	 * <p>
+	 * This is a modification of original idea of Scott Delap.<br/>
+	 * Initial version of <code>ThreadCheckingRepaintManager</code> can be found here<br>
+	 * <a href="http://www.clientjava.com/blog/2004/08/20/1093059428000.html">Easily Find Swing Threading Mistakes</a>
+	 * </p>
+	 * <p>
+	 * Alex Ruiz modified to make a test fail if an EDT violation is detected.
+	 * </p>
+	 *
+	 * @author Scott Delap
+	 * @author Alexander Potochkin
+	 *
+	 * https://swinghelper.dev.java.net/
+	 */
+	public static class CheckThreadViolationRepaintManager extends RepaintManager {
+
+		/**
+		 * Creates a new <code>{@link CheckThreadViolationRepaintManager}</code> and sets it as the current repaint manager.
+		 * @return the created (and installed) repaint manager.
+		 * @see RepaintManager#setCurrentManager(RepaintManager)
+		 */
+		public static CheckThreadViolationRepaintManager install() {
+			CheckThreadViolationRepaintManager repaintManager = new CheckThreadViolationRepaintManager();
+			setCurrentManager(repaintManager);
+			return repaintManager;
+		}
+
+		// it is recommended to pass the complete check
+		/** Pass complete check? */
+		private boolean completeCheck = true;
+		/** The last component. */
+		private WeakReference<JComponent> lastComponent;
+		/**
+		 * Constructor.
+		 * @param completeCheck pass complete check?
+		 */
+		public CheckThreadViolationRepaintManager(boolean completeCheck) {
+			this.completeCheck = completeCheck;
+		}
+		/**
+		 * Default constructor with pass complete check set to true.
+		 */
+		public CheckThreadViolationRepaintManager() {
+			this(true);
+		}
+		/** @return true if complete check is on. */
+		public boolean isCompleteCheck() {
+			return completeCheck;
+		}
+		/**
+		 * Set the complete check flag.
+		 * @param completeCheck do complete check?
+		 */
+		public void setCompleteCheck(boolean completeCheck) {
+			this.completeCheck = completeCheck;
+		}
+
+		@Override public synchronized void addInvalidComponent(JComponent component) {
+			checkThreadViolations(component);
+			super.addInvalidComponent(component);
+		}
+
+		@Override public void addDirtyRegion(JComponent component, int x, int y, int w, int h) {
+			checkThreadViolations(component);
+			super.addDirtyRegion(component, x, y, w, h);
+		}
+		/**
+		 * Check thread violations.
+		 * @param c the component
+		 */
+		private void checkThreadViolations(JComponent c) {
+			if (!SwingUtilities.isEventDispatchThread() && (completeCheck || c.isShowing())) {
+				boolean isRepaint = false;
+				boolean fromSwing = false;
+				boolean imageUpdate = false;
+				StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+				for (StackTraceElement st : stackTrace) {
+					if (isRepaint && st.getClassName().startsWith("javax.swing.")) {
+						fromSwing = true;
+					}
+					if (isRepaint && "imageUpdate".equals(st.getMethodName())) {
+						imageUpdate = true;
+					}
+					if ("repaint".equals(st.getMethodName())) {
+						isRepaint = true;
+						fromSwing = false;
+					}
+				}
+				// assuming it is java.awt.image.ImageObserver.imageUpdate(...)
+				// image was asynchronously updated, that's ok
+				if (imageUpdate) {
+					return;
+				}
+				// no problems here, since repaint() is thread safe
+				if (isRepaint && !fromSwing) {
+					return;
+				}
+				// ignore the last processed component
+				if (lastComponent != null && c == lastComponent.get()) { return; }
+				lastComponent = new WeakReference<JComponent>(c);
+				new Exception("EDT violation").printStackTrace();
+			}
+		}
 	}
 	/**
 	 * Initialize the GUI.
@@ -370,28 +485,30 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		addItem(fromMethod(this, "doCreateEngine"), "Engine", "New...");
 		addItem(fromMethod(this, "doOpenEngine"), "Engine", "Open...");
 		locateMenu("Engine").addSeparator();
+		addItem(fromMethod(this, "doRunInProcess"), "Engine", "Run in-process...");
+		locateMenu("Engine").addSeparator();
 		addItem(fromMethod(this, "doLocalLogin"), "Engine", "Login embedded...");
 		addItem(fromMethod(this, "doRemoteLogin"), "Engine", "Login remote...");
 		locateMenu("Engine").addSeparator();
 		addItem(fromMethod(this, "doExit"), "Engine", "Exit");
-		
+
 		addItem(fromMethod(this, "doManageLocalKeyStores"), "Keystores", "Manage local keystores...");
 		menusToEnable.put(addItem(fromMethod(this, "doManageKeyStores"), "Keystores", "Manage engine keystores..."), AdvanceUserRights.LIST_KEYSTORES);
-		
+
 		menusToEnable.put(addItem(fromMethod(this, "doDownloadFlow"), "Flow", "Download..."), AdvanceUserRights.LIST_KEYSTORES);
 		menusToEnable.put(addItem(fromMethod(this, "doUploadFlow"), "Flow", "Upload..."), AdvanceUserRights.LIST_REALMS);
 		locateMenu("Flow").addSeparator();
 		menusToEnable.put(addItem(fromMethod(this, "doVerifyFlow"), "Flow", "Verify..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doDebugFlow"), "Flow", "Debug..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doLastCompilationResult"), "Flow", "Last compilation result..."), AdvanceUserRights.LIST_REALMS);
-		
+
 		menusToEnable.put(addItem(fromMethod(this, "doManageRealms"), "Administration", "Manage realms..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageUsers"), "Administration", "Manage users..."), AdvanceUserRights.LIST_USERS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageNotificationGroups"), "Administration", "Manage notification groups..."), AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
 		menusToEnable.put(addItem(fromMethod(this, "doListBlocks"), "Administration", "List blocks..."), AdvanceUserRights.LIST_BLOCKS);
 		locateMenu("Administration").addSeparator();
 		menusToEnable.put(addItem(fromMethod(this, "doShutdown"), "Administration", "Shutdown"), AdvanceUserRights.SHUTDOWN);
-		
+
 		menusToEnable.put(addItem(fromMethod(this, "doJDBCDataSources"), "Data sources", "JDBC..."), AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
 		menusToEnable.put(addItem(fromMethod(this, "doSOAPDataSources"), "Data sources", "SOAP..."), AdvanceUserRights.LIST_SOAP_CHANNELS);
 		menusToEnable.put(addItem(fromMethod(this, "doJMSDataSources"), "Data sources", "JMS..."), AdvanceUserRights.LIST_JMS_ENDPOINTS);
@@ -399,71 +516,71 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		menusToEnable.put(addItem(fromMethod(this, "doFTPDataSources"), "Data sources", "FTP..."), AdvanceUserRights.LIST_FTP_DATA_SOURCES);
 		menusToEnable.put(addItem(fromMethod(this, "doLocalDataSources"), "Data sources", "Local..."), AdvanceUserRights.LIST_LOCAL_FILE_DATA_SOURCES);
 		menusToEnable.put(addItem(fromMethod(this, "doEmailDataSources"), "Data sources", "Email..."), AdvanceUserRights.LIST_EMAIL);
-		
+
 		ImageIcon icon = new ImageIcon(getClass().getResource("advlogo_192x128.png"));
 		JLabel label = new JLabel(icon);
-		
+
 		JPanel cp = new JPanel();
-		
+
 		Container c = getContentPane();
 		c.setLayout(new GridBagLayout());
 		c.add(cp);
-		
+
 		GroupLayout gl = new GroupLayout(cp);
 		cp.setLayout(gl);
-		
+
 		gl.setAutoCreateContainerGaps(true);
 		gl.setAutoCreateGaps(true);
 
 		JLabel urlLabel0 = new JLabel(get("Engine:"));
 		JLabel verLabel0 = new JLabel(get("Version:"));
 		JLabel userLabel0 = new JLabel(get("User:"));
-		
+
 		urlLabel = new JLabel();
 		verLabel = new JLabel();
 		userLabel = new JLabel();
-		
+
 		gl.setHorizontalGroup(
-			gl.createParallelGroup(Alignment.CENTER)
-			.addGroup(
+				gl.createParallelGroup(Alignment.CENTER)
+				.addGroup(
+						gl.createSequentialGroup()
+						.addGroup(
+								gl.createParallelGroup()
+								.addComponent(urlLabel0)
+								.addComponent(verLabel0)
+								.addComponent(userLabel0)
+								)
+								.addGroup(
+										gl.createParallelGroup()
+										.addComponent(urlLabel)
+										.addComponent(verLabel)
+										.addComponent(userLabel)
+										)
+						)
+						.addComponent(label)
+				);
+
+		gl.setVerticalGroup(
 				gl.createSequentialGroup()
 				.addGroup(
-					gl.createParallelGroup()
-					.addComponent(urlLabel0)
-					.addComponent(verLabel0)
-					.addComponent(userLabel0)
-				)
-				.addGroup(
-					gl.createParallelGroup()
-					.addComponent(urlLabel)
-					.addComponent(verLabel)
-					.addComponent(userLabel)
-				)
-			)
-			.addComponent(label)
-		);
-		
-		gl.setVerticalGroup(
-			gl.createSequentialGroup()
-			.addGroup(
-				gl.createParallelGroup(Alignment.BASELINE)
-				.addComponent(urlLabel0)
-				.addComponent(urlLabel)
-			)
-			.addGroup(
-				gl.createParallelGroup(Alignment.BASELINE)
-				.addComponent(verLabel0)
-				.addComponent(verLabel)
-			)
-			.addGroup(
-				gl.createParallelGroup(Alignment.BASELINE)
-				.addComponent(userLabel0)
-				.addComponent(userLabel)
-			)
-			.addComponent(label)
-		);
-		
-		
+						gl.createParallelGroup(Alignment.BASELINE)
+						.addComponent(urlLabel0)
+						.addComponent(urlLabel)
+						)
+						.addGroup(
+								gl.createParallelGroup(Alignment.BASELINE)
+								.addComponent(verLabel0)
+								.addComponent(verLabel)
+								)
+								.addGroup(
+										gl.createParallelGroup(Alignment.BASELINE)
+										.addComponent(userLabel0)
+										.addComponent(userLabel)
+										)
+										.addComponent(label)
+				);
+
+
 		enableDisableMenus();
 	}
 	/**
@@ -512,15 +629,15 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		} else {
 			mi.setEnabled(false);
 		}
-		
+
 		JMenu level0 = findOrCreateMenu(get(path[0]));
 		JMenu parent = level0;
 		for (int i = 1; i < path.length - 1; i++) {
 			parent = findOrCreateMenu(level0, get(path[i]));
 		}
-		
+
 		parent.add(mi);
-		
+
 		return mi;
 	}
 	/**
@@ -716,7 +833,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}).execute();
 			}
 		});
-		
+
 		if (user.rights.contains(AdvanceUserRights.CREATE_REALM)) {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
@@ -827,9 +944,9 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			});
 		}
-		
+
 		f.setColumnCount(4);
-		
+
 		displayFrame(f, "managerealms-", "Manage realms");
 	}
 	/**
@@ -869,7 +986,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}).execute();
 			}
 		});
-		
+
 		if (user.rights.contains(AdvanceUserRights.CREATE_USER)) {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
@@ -879,7 +996,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 					d.pack();
 					d.setLocationRelativeTo(f);
 					d.setVisible(true);
-					
+
 					d.addWindowListener(new WindowAdapter() {
 						@Override
 						public void windowClosing(WindowEvent e) {
@@ -959,7 +1076,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 		f.setColumnCount(5);
-		
+
 		if (user.rights.contains(AdvanceUserRights.CREATE_JDBC_DATA_SOURCE)) {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
@@ -1000,8 +1117,8 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			});
 		}
-		
-		
+
+
 		displayFrame(f, "managejdbc-", "Manage JDBC data sources");
 	}
 	/**
@@ -1268,9 +1385,9 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 					if (param1.protocol == AdvanceFTPProtocols.FTPS) {
 						prot = "ftps";
 					} else
-					if (param1.protocol == AdvanceFTPProtocols.SFTP) {
-						prot = "sftp";
-					}
+						if (param1.protocol == AdvanceFTPProtocols.SFTP) {
+							prot = "sftp";
+						}
 					return prot + "://" + param1.address + "/" + param1.remoteDirectory;
 				case 2:
 					return createdAtBy(param1);
@@ -1556,7 +1673,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 		dialog.pager.setItems(list);
-		
+
 		final Action0 retrieveAction = new Action0() {
 			@Override
 			public void invoke() {
@@ -1593,7 +1710,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}).execute();
 			}
 		};
-		
+
 		dialog.pager.setSelect(new Action1<AdvanceWebDataSource>() {
 			@Override
 			public void invoke(AdvanceWebDataSource value) {
@@ -1620,7 +1737,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				retrieveAction.invoke();
 			}
 		});
-		
+
 		Func1<AdvanceWebDataSource, Throwable> saver = new Func1<AdvanceWebDataSource, Throwable>() {
 			@Override
 			public Throwable invoke(AdvanceWebDataSource param1) {
@@ -1632,17 +1749,17 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			}
 		};
-		
+
 		dialog.buttons.setSave(createSaver(wd, dialog, false, saver));
 		dialog.buttons.setSaveAndClose(createSaver(wd, dialog, true, saver));
-		
+
 		wd.login.setManageKeyStores(new Action0() {
 			@Override
 			public void invoke() {
 				doManageKeyStores();
 			}
 		});
-		
+
 		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
 			@Override
 			public List<AdvanceKeyStore> invoke() throws Throwable {
@@ -1653,7 +1770,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				wd.setKeyStores(value);
 			}
 		}).execute();
-		
+
 		return dialog;
 	}
 	/**
@@ -1710,9 +1827,9 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * @return the dialog created
 	 */
 	CCDetailDialog<AdvanceUser> createUserDialog(final List<AdvanceUser> list, final AdvanceUser selected) {
-		
+
 		final CCUserDetails ud = new CCUserDetails(this);
-		
+
 		ud.login.setManageKeyStores(new Action0() {
 			@Override
 			public void invoke() {
@@ -1720,7 +1837,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 
-		
+
 		final CCDetailDialog<AdvanceUser> dialog = new CCDetailDialog<AdvanceUser>(this, ud);
 		dialog.setTitle(get("Web Data Source Details"));
 		dialog.pager.setItemName(new Func1<AdvanceUser, String>() {
@@ -1730,7 +1847,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 		dialog.pager.setItems(list);
-		
+
 		final Action0 retrieveAction = new Action0() {
 			@Override
 			public void invoke() {
@@ -1771,7 +1888,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}).execute();
 			}
 		};
-		
+
 		dialog.pager.setSelect(new Action1<AdvanceUser>() {
 			@Override
 			public void invoke(AdvanceUser value) {
@@ -1798,8 +1915,8 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				retrieveAction.invoke();
 			}
 		});
-		
-		
+
+
 		Func1<AdvanceUser, Throwable> saver = new Func1<AdvanceUser, Throwable>() {
 			@Override
 			public Throwable invoke(AdvanceUser param1) {
@@ -1811,10 +1928,10 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			}
 		};
-		
+
 		dialog.buttons.setSave(createSaver(ud, dialog, false, saver));
 		dialog.buttons.setSaveAndClose(createSaver(ud, dialog, true, saver));
-		
+
 		return dialog;
 	}
 	@Override
@@ -1825,12 +1942,12 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			final V detailPanel,
 			final Func1<T, String> namer,
 			final Func1<? super K, ? extends Option<? extends T>> retriever,
-			final Func1<T, Throwable> saver
+					final Func1<T, Throwable> saver
 			) {
 		final CCDetailDialog<T> dialog = new CCDetailDialog<T>(this, detailPanel);
 		dialog.pager.setItemName(namer);
 		dialog.pager.setItems(list);
-		
+
 		final Action0 retrieveAction = new Action0() {
 			@Override
 			public void invoke() {
@@ -1864,7 +1981,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}).execute();
 			}
 		};
-		
+
 		dialog.pager.setSelect(new Action1<T>() {
 			@Override
 			public void invoke(T value) {
@@ -1890,11 +2007,11 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				retrieveAction.invoke();
 			}
 		});
-		
-		
+
+
 		dialog.buttons.setSave(createSaver(detailPanel, dialog, false, saver));
 		dialog.buttons.setSaveAndClose(createSaver(detailPanel, dialog, true, saver));
-		
+
 		return dialog;
 	}
 	/**
@@ -1918,7 +2035,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				if (e == null) {
 					return;
 				}
-				
+
 				GUIUtils.getWorker(new WorkItem() {
 					/** The exception. */
 					protected Throwable t;
@@ -1992,9 +2109,9 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 					if (t != null) {
 						GUIUtils.errorMessage(parent, t);
 					} else
-					if (!result.isEmpty()) {
-						GUIUtils.errorMessage(parent, result);
-					}
+						if (!result.isEmpty()) {
+							GUIUtils.errorMessage(parent, result);
+						}
 				}
 			}).execute();
 		}
@@ -2015,35 +2132,35 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 		return createDetailDialog(list, selected,
-			d,
-			new Func1<AdvanceJDBCDataSource, String>() {
-				@Override
-				public String invoke(AdvanceJDBCDataSource param1) {
-					return param1.name + " [" + param1.url + "]";
-				}
-			},
-			new Func1<String, Option<AdvanceJDBCDataSource>>() {
-				@Override
-				public Option<AdvanceJDBCDataSource> invoke(String param1) {
-					try {
-						return Option.some(engine.datastore().queryJDBCDataSource(param1));
-					} catch (Throwable t) {
-						return Option.error(t);
-					}
-				}
-			},
-			new Func1<AdvanceJDBCDataSource, Throwable>() {
-				@Override
-				public Throwable invoke(AdvanceJDBCDataSource param1) {
-					try {
-						engine.datastore().updateJDBCDataSource(param1);
-						return null;
-					} catch (Throwable t) {
-						return t;
-					}
+				d,
+				new Func1<AdvanceJDBCDataSource, String>() {
+			@Override
+			public String invoke(AdvanceJDBCDataSource param1) {
+				return param1.name + " [" + param1.url + "]";
+			}
+		},
+		new Func1<String, Option<AdvanceJDBCDataSource>>() {
+			@Override
+			public Option<AdvanceJDBCDataSource> invoke(String param1) {
+				try {
+					return Option.some(engine.datastore().queryJDBCDataSource(param1));
+				} catch (Throwable t) {
+					return Option.error(t);
 				}
 			}
-		);
+		},
+		new Func1<AdvanceJDBCDataSource, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceJDBCDataSource param1) {
+				try {
+					engine.datastore().updateJDBCDataSource(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		}
+				);
 	}
 	/**
 	 * Create a SOAP detail dialog.
@@ -2055,38 +2172,38 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	CCDetailDialog<AdvanceSOAPChannel> createSOAPDialog(final JFrame f,
 			List<AdvanceSOAPChannel> list, AdvanceSOAPChannel selected) {
 		final CCSOAPDetails d = new CCSOAPDetails(this);
-		
+
 		final CCDetailDialog<AdvanceSOAPChannel> dialog = createDetailDialog(list, selected,
 				d,
 				new Func1<AdvanceSOAPChannel, String>() {
-					@Override
-					public String invoke(AdvanceSOAPChannel param1) {
-						return param1.name + " [" + param1.endpoint + "]";
-					}
-				},
-				new Func1<String, Option<AdvanceSOAPChannel>>() {
-					@Override
-					public Option<AdvanceSOAPChannel> invoke(String param1) {
-						try {
-							return Option.some(engine.datastore().querySOAPChannel(param1));
-						} catch (Throwable t) {
-							return Option.error(t);
-						}
-					}
-				},
-				new Func1<AdvanceSOAPChannel, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceSOAPChannel param1) {
-						try {
-							engine.datastore().updateSOAPChannel(param1);
-							return null;
-						} catch (Throwable t) {
-							return t;
-						}
-					}
+			@Override
+			public String invoke(AdvanceSOAPChannel param1) {
+				return param1.name + " [" + param1.endpoint + "]";
+			}
+		},
+		new Func1<String, Option<AdvanceSOAPChannel>>() {
+			@Override
+			public Option<AdvanceSOAPChannel> invoke(String param1) {
+				try {
+					return Option.some(engine.datastore().querySOAPChannel(param1));
+				} catch (Throwable t) {
+					return Option.error(t);
 				}
-			);
-		
+			}
+		},
+		new Func1<AdvanceSOAPChannel, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceSOAPChannel param1) {
+				try {
+					engine.datastore().updateSOAPChannel(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		}
+				);
+
 		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
 			@Override
 			public List<AdvanceKeyStore> invoke() throws Throwable {
@@ -2172,43 +2289,43 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 
 			}
 		});
-		
+
 		final CCDetailDialog<AdvanceJMSEndpoint> dialog = createDetailDialog(list, selected,
 				d,
 				new Func1<AdvanceJMSEndpoint, String>() {
-					@Override
-					public String invoke(AdvanceJMSEndpoint param1) {
-						return param1.name + " [" + param1.url + "]";
-					}
-				},
-				new Func1<String, Option<AdvanceJMSEndpoint>>() {
-					@Override
-					public Option<AdvanceJMSEndpoint> invoke(String param1) {
-						try {
-							return Option.some(engine.datastore().queryJMSEndpoint(param1));
-						} catch (Throwable t) {
-							return Option.error(t);
-						}
-					}
-				},
-				new Func1<AdvanceJMSEndpoint, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceJMSEndpoint param1) {
-						try {
-							engine.datastore().updateJMSEndpoint(param1);
-							return null;
-						} catch (Throwable t) {
-							return t;
-						}
-					}
+			@Override
+			public String invoke(AdvanceJMSEndpoint param1) {
+				return param1.name + " [" + param1.url + "]";
+			}
+		},
+		new Func1<String, Option<AdvanceJMSEndpoint>>() {
+			@Override
+			public Option<AdvanceJMSEndpoint> invoke(String param1) {
+				try {
+					return Option.some(engine.datastore().queryJMSEndpoint(param1));
+				} catch (Throwable t) {
+					return Option.error(t);
 				}
-			);
-		
+			}
+		},
+		new Func1<AdvanceJMSEndpoint, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceJMSEndpoint param1) {
+				try {
+					engine.datastore().updateJMSEndpoint(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		}
+				);
+
 		setEngineInfo(dialog.engineInfo);
 		dialog.pack();
 		dialog.setLocationRelativeTo(f);
 		dialog.setVisible(true);
-		
+
 		return dialog;
 	}
 	/**
@@ -2226,7 +2343,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 
 			}
 		});
-		
+
 		d.login.setManageKeyStores(new Action0() {
 			@Override
 			public void invoke() {
@@ -2234,45 +2351,45 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 
-		
+
 		final CCDetailDialog<AdvanceFTPDataSource> dialog = createDetailDialog(list, selected,
 				d,
 				new Func1<AdvanceFTPDataSource, String>() {
-					@Override
-					public String invoke(AdvanceFTPDataSource param1) {
-						String prot = "ftp";
-						if (param1.protocol == AdvanceFTPProtocols.FTPS) {
-							prot = "ftps";
-						} else
-						if (param1.protocol == AdvanceFTPProtocols.SFTP) {
-							prot = "sftp";
-						}
-						return param1.name + " [" + prot + "://" + param1.address + "/" + param1.remoteDirectory + "]";
+			@Override
+			public String invoke(AdvanceFTPDataSource param1) {
+				String prot = "ftp";
+				if (param1.protocol == AdvanceFTPProtocols.FTPS) {
+					prot = "ftps";
+				} else
+					if (param1.protocol == AdvanceFTPProtocols.SFTP) {
+						prot = "sftp";
 					}
-				},
-				new Func1<String, Option<AdvanceFTPDataSource>>() {
-					@Override
-					public Option<AdvanceFTPDataSource> invoke(String param1) {
-						try {
-							return Option.some(engine.datastore().queryFTPDataSource(param1));
-						} catch (Throwable t) {
-							return Option.error(t);
-						}
-					}
-				},
-				new Func1<AdvanceFTPDataSource, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceFTPDataSource param1) {
-						try {
-							engine.datastore().updateFTPDataSource(param1);
-							return null;
-						} catch (Throwable t) {
-							return t;
-						}
-					}
+				return param1.name + " [" + prot + "://" + param1.address + "/" + param1.remoteDirectory + "]";
+			}
+		},
+		new Func1<String, Option<AdvanceFTPDataSource>>() {
+			@Override
+			public Option<AdvanceFTPDataSource> invoke(String param1) {
+				try {
+					return Option.some(engine.datastore().queryFTPDataSource(param1));
+				} catch (Throwable t) {
+					return Option.error(t);
 				}
-			);
-		
+			}
+		},
+		new Func1<AdvanceFTPDataSource, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceFTPDataSource param1) {
+				try {
+					engine.datastore().updateFTPDataSource(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		}
+				);
+
 		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
 			@Override
 			public List<AdvanceKeyStore> invoke() throws Throwable {
@@ -2292,37 +2409,37 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 */
 	void createLocalDialog(JFrame f, List<AdvanceLocalFileDataSource> list, AdvanceLocalFileDataSource selected) {
 		final CCLocalDetails d = new CCLocalDetails(this);
-		
+
 		final CCDetailDialog<AdvanceLocalFileDataSource> dialog = createDetailDialog(list, selected,
 				d,
 				new Func1<AdvanceLocalFileDataSource, String>() {
-					@Override
-					public String invoke(AdvanceLocalFileDataSource param1) {
-						return param1.name + " [" + param1.directory + "]";
-					}
-				},
-				new Func1<String, Option<AdvanceLocalFileDataSource>>() {
-					@Override
-					public Option<AdvanceLocalFileDataSource> invoke(String param1) {
-						try {
-							return Option.some(engine.datastore().queryLocalFileDataSource(param1));
-						} catch (Throwable t) {
-							return Option.error(t);
-						}
-					}
-				},
-				new Func1<AdvanceLocalFileDataSource, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceLocalFileDataSource param1) {
-						try {
-							engine.datastore().updateLocalFileDataSource(param1);
-							return null;
-						} catch (Throwable t) {
-							return t;
-						}
-					}
+			@Override
+			public String invoke(AdvanceLocalFileDataSource param1) {
+				return param1.name + " [" + param1.directory + "]";
+			}
+		},
+		new Func1<String, Option<AdvanceLocalFileDataSource>>() {
+			@Override
+			public Option<AdvanceLocalFileDataSource> invoke(String param1) {
+				try {
+					return Option.some(engine.datastore().queryLocalFileDataSource(param1));
+				} catch (Throwable t) {
+					return Option.error(t);
 				}
-			);
+			}
+		},
+		new Func1<AdvanceLocalFileDataSource, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceLocalFileDataSource param1) {
+				try {
+					engine.datastore().updateLocalFileDataSource(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		}
+				);
 		setEngineInfo(dialog.engineInfo);
 		dialog.pack();
 		dialog.setLocationRelativeTo(f);
@@ -2333,8 +2450,8 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		final CCGroups g = new CCGroups(this, engine.datastore());
 
 		final String prefix = "managegroups-";
-		
-		
+
+
 		g.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -2348,7 +2465,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		setEngineInfo(g.engineInfo);
 		g.setVisible(true);
 		g.refresh();
-		
+
 	}
 	/**
 	 * Download a flow.
@@ -2526,7 +2643,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		};
 		final String prefix = "blocks-";
-		
+
 		g.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -2632,7 +2749,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 */
 	void createEmailDialog(JFrame f, List<AdvanceEmailBox> list, AdvanceEmailBox selected) {
 		final CCEmailDetails d = new CCEmailDetails(this);
-		
+
 		d.login.setManageKeyStores(new Action0() {
 			@Override
 			public void invoke() {
@@ -2640,38 +2757,38 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 
-		
+
 		final CCDetailDialog<AdvanceEmailBox> dialog = createDetailDialog(list, selected,
 				d,
 				new Func1<AdvanceEmailBox, String>() {
-					@Override
-					public String invoke(AdvanceEmailBox param1) {
-						return param1.name + " [" + param1.send + "://" + param1.sendAddress + " | " + param1.receive + "://" + param1.receiveAddress + "]";
-					}
-				},
-				new Func1<String, Option<AdvanceEmailBox>>() {
-					@Override
-					public Option<AdvanceEmailBox> invoke(String param1) {
-						try {
-							return Option.some(engine.datastore().queryEmailBox(param1));
-						} catch (Throwable t) {
-							return Option.error(t);
-						}
-					}
-				},
-				new Func1<AdvanceEmailBox, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceEmailBox param1) {
-						try {
-							engine.datastore().updateEmailBox(param1);
-							return null;
-						} catch (Throwable t) {
-							return t;
-						}
-					}
+			@Override
+			public String invoke(AdvanceEmailBox param1) {
+				return param1.name + " [" + param1.send + "://" + param1.sendAddress + " | " + param1.receive + "://" + param1.receiveAddress + "]";
+			}
+		},
+		new Func1<String, Option<AdvanceEmailBox>>() {
+			@Override
+			public Option<AdvanceEmailBox> invoke(String param1) {
+				try {
+					return Option.some(engine.datastore().queryEmailBox(param1));
+				} catch (Throwable t) {
+					return Option.error(t);
 				}
-			);
-		
+			}
+		},
+		new Func1<AdvanceEmailBox, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceEmailBox param1) {
+				try {
+					engine.datastore().updateEmailBox(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		}
+				);
+
 		GUIUtils.getWorker(new RetrieverWorkItem<List<AdvanceKeyStore>>(dialog, f) {
 			@Override
 			public List<AdvanceKeyStore> invoke() throws Throwable {
@@ -2697,7 +2814,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		final CCListingFrame<AdvanceKeyStore> f = new CCListingFrame<AdvanceKeyStore>(this);
 
 		f.setCellTitleFunction(from("Name", String.class, "Location", String.class, "Created", String.class, "Modified", String.class));
-		
+
 		f.setCellValueFunction(new Func2<AdvanceKeyStore, Integer, Object>() { 
 			@Override
 			public Object invoke(AdvanceKeyStore param1, Integer param2) {
@@ -2731,7 +2848,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 			}
 		});
 
-		
+
 		if (local || user.rights.contains(AdvanceUserRights.CREATE_KEYSTORE)) {
 			f.setExtraButton(0, "Create...", new ActionListener() {
 				@Override
@@ -2764,7 +2881,6 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			});
 		}
-		
 		displayFrame(f, "managee" + (local ? "local" : "engine") + "ks-", "Manage " + (local ? "local" : "engine") + " keystores");
 		f.showEngineInfo(!local);
 	}
@@ -2803,7 +2919,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		public void generateKey(AdvanceGenerateKey key) throws Exception {
 			engine.generateKey(key);
 		}
-		
+
 		@Override
 		public String exportCertificate(AdvanceKeyStoreExport request)
 				throws Exception {
@@ -2814,7 +2930,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		public String exportKey(AdvanceKeyStoreExport request) throws Exception {
 			return engine.exportPrivateKey(request);
 		}
-		
+
 		@Override
 		public String exportSigningRequest(AdvanceKeyStoreExport request)
 				throws Exception {
@@ -3025,46 +3141,47 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		d.setKeyManager(keyManager);
 		keyManager.setParent(d);
 		d.showBrowse(!local);
-		
+
 		final CCDetailDialog<AdvanceKeyStore> dialog = createDetailDialog(list, selected,
 				d,
 				new Func1<AdvanceKeyStore, String>() {
-					@Override
-					public String invoke(AdvanceKeyStore param1) {
-						return param1.name + " [" + param1.location + "]";
-					}
-				},
-				new Func1<String, Option<AdvanceKeyStore>>() {
-					@Override
-					public Option<AdvanceKeyStore> invoke(final String param1) {
-						try {
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									d.queryKeys(param1);
-								}
-							});
-							return Option.some(d.keyManager.queryKeyStore(param1));
-						} catch (Throwable t) {
-							return Option.error(t);
+			@Override
+			public String invoke(AdvanceKeyStore param1) {
+				return param1.name + " [" + param1.location + "]";
+			}
+		},
+		new Func1<String, Option<AdvanceKeyStore>>() {
+			@Override
+			public Option<AdvanceKeyStore> invoke(final String param1) {
+				try {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							d.queryKeys(param1);
 						}
-					}
-				},
-				new Func1<AdvanceKeyStore, Throwable>() {
-					@Override
-					public Throwable invoke(AdvanceKeyStore param1) {
-						try {
-							d.keyManager.updateKeyStore(param1);
-							return null;
-						} catch (Throwable t) {
-							return t;
-						}
-					}
+					});
+					return Option.some(d.keyManager.queryKeyStore(param1));
+				} catch (Throwable t) {
+					return Option.error(t);
 				}
-			);
-		
+			}
+		},
+		new Func1<AdvanceKeyStore, Throwable>() {
+			@Override
+			public Throwable invoke(AdvanceKeyStore param1) {
+				try {
+					d.keyManager.updateKeyStore(param1);
+					return null;
+				} catch (Throwable t) {
+					return t;
+				}
+			}
+		}
+				);
+
 		setEngineInfo(dialog.engineInfo);
 		dialog.showEngineInfo(!local);
+		d.showBrowse(local);
 		d.setEngineInfo(dialog.engineInfo);
 		dialog.setResizable(true);
 		dialog.addWindowListener(new WindowAdapter() {
@@ -3079,7 +3196,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		}
 		dialog.setTitle(get("Keystore details"));
 		dialog.setVisible(true);
-		
+
 	}
 	/** Open the remote login dialog. */
 	void doRemoteLogin() {
@@ -3106,25 +3223,28 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				doManageLocalKeyStores();
 			}
 		});
-		
-		if (dialog.display()) {
-			disconnectEngine();
-			engine = dialog.takeEngine();
-			engineURL = dialog.takeEngineURL();
-			try {
-				version = engine.queryVersion();
-				user = engine.getUser();
-				localEngine = true;
-				enableDisableMenus();
-			} catch (Exception ex) {
-				LOG.error(ex.toString(), ex);
-				GUIUtils.errorMessage(this, ex);
-			}
+		dialog.setLoginAction(new Action0() {
+			@Override
+			public void invoke() {
+				disconnectEngine();
+				engine = dialog.takeEngine();
+				engineURL = dialog.takeEngineURL();
+				try {
+					version = engine.queryVersion();
+					user = engine.getUser();
+					localEngine = false;
+					enableDisableMenus();
+				} catch (Exception ex) {
+					LOG.error(ex.toString(), ex);
+					GUIUtils.errorMessage(CCMain.this, ex);
+				}
 
-			urlLabel.setText(engineURL.toString());
-			verLabel.setText(version.toString());
-			userLabel.setText(user.name + " <" + user.email + ">");
-		}
+				urlLabel.setText(engineURL.toString());
+				verLabel.setText(version.toString());
+				userLabel.setText(user.name + " <" + user.email + ">");
+			}
+		});
+		dialog.display();
 	}
 	/** Debug a flow. */
 	void doDebugFlow() {
@@ -3260,11 +3380,11 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				if (t != null) {
 					GUIUtils.errorMessage(f, t);
 				} else
-				if (r != null) {
-					showCompilationResult(f, r, realm);
-				} else {
-					GUIUtils.infoMessage(f, get("No compilation result found."));
-				}
+					if (r != null) {
+						showCompilationResult(f, r, realm);
+					} else {
+						GUIUtils.infoMessage(f, get("No compilation result found."));
+					}
 			}
 		}).execute();
 	}
@@ -3285,7 +3405,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		row.watch.block = "";
 		row.watch.blockType = "";
 		row.watch.port = "";
-		
+
 		CCValueDialog d = new CCValueDialog(CCMain.this, row);
 		setEngineInfo(d.engineInfo);
 		d.setLocationRelativeTo(f);
@@ -3308,10 +3428,78 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		row.watch.block = "";
 		row.watch.blockType = "";
 		row.watch.port = "";
-		
+
 		CCValueDialog d = new CCValueDialog(CCMain.this, row);
 		setEngineInfo(d.engineInfo);
 		d.setLocationRelativeTo(f);
 		d.setVisible(true);
+	}
+	/**
+	 * Run a remote flow engine in process.
+	 */
+	void doRunInProcess() {
+		JFileChooser fc = new JFileChooser(lastDirectory);
+		fc.setFileFilter(new FileNameExtensionFilter("Engine config (*.XML)", "xml"));
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			final File f = fc.getSelectedFile();
+			lastDirectory = f.getParentFile();
+
+			final JFrame engineFrame = new JFrame(get("In-process engine "));
+			engineFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			JButton eshutdown = new JButton(get("Shutdown"));
+			JLabel elabel = new JLabel(f.toString());
+			eshutdown.setMargin(new Insets(5, 5, 5, 5));
+			engineFrame.getContentPane().setLayout(new BorderLayout());
+			engineFrame.getContentPane().add(elabel, BorderLayout.NORTH);
+			engineFrame.getContentPane().add(eshutdown, BorderLayout.CENTER);
+
+			final AdvanceFlowEngine fe = new AdvanceFlowEngine(f);
+
+			final Action0 shutdownAction = new Action0() {
+				@Override
+				public void invoke() {
+					try {
+						fe.shutdown();
+					} catch (Throwable t) {
+						GUIUtils.errorMessage(CCMain.this, t);
+					}
+				}
+			};
+			engineFrame.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					shutdownAction.invoke();
+				}
+			});
+			eshutdown.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					shutdownAction.invoke();
+					engineFrame.dispose();
+				}
+			});
+			engineFrame.pack();
+			engineFrame.setLocationRelativeTo(this);
+			engineFrame.setVisible(true);
+
+			GUIUtils.getWorker(new WorkItem() {
+				/** The error. */
+				Throwable t;
+				@Override
+				public void run() {
+					try {
+						fe.run();
+					} catch (Throwable t) {
+
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(engineFrame, t);
+					}
+				}
+			}).execute();
+		}
 	}
 }

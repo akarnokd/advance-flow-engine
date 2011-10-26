@@ -382,7 +382,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			}
 			throw new AdvanceControlException("Missing block " + blockId + " in realm " + realm);
 		}
-		throw new AdvanceControlException("Missing realm " + realm);
+		throw new AdvanceControlException("Realm does not have compiled and running blocks: " + realm);
 	}
 	@Override
 	public AdvanceCompositeBlock queryFlow(
@@ -606,20 +606,22 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		r.status = AdvanceRealmStatus.STOPPING;
 		r.modifiedAt = new Date();
 		datastore.updateRealm(r);
-		
-		List<AdvanceBlock> blocks = realmRuntime.remove(r.name);
-		if (blocks == null) {
-			LOG.info("Shutdown realm is empty: " + r.name);
-		} else {
-			executor.done(blocks);
-			for (AdvanceBlock b : blocks) {
-				XElement state = b.saveState();
-				datastore.updateBlockState(r.name, b.getDescription().id, state);
+		try {
+			List<AdvanceBlock> blocks = realmRuntime.remove(r.name);
+			if (blocks == null) {
+				LOG.info("Shutdown realm is empty: " + r.name);
+			} else {
+				executor.done(blocks);
+				for (AdvanceBlock b : blocks) {
+					XElement state = b.saveState();
+					datastore.updateBlockState(r.name, b.getDescription().id, state);
+				}
 			}
+		} finally {
+			r.status = afterStatus;
+			r.modifiedAt = new Date();
+			datastore.updateRealm(r);
 		}
-		r.status = afterStatus;
-		r.modifiedAt = new Date();
-		datastore.updateRealm(r);
 	}
 	@Override
 	public AdvanceCompilationResult queryCompilationResult(String realm)

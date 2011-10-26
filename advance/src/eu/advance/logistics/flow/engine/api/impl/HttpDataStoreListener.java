@@ -63,113 +63,131 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 	}
 	@Nullable
 	@Override
-	public void dispatch(@NonNull AdvanceXMLExchange exch) throws IOException, AdvanceControlException {
-		XElement request = exch.request();
-		String userName = exch.userName();
+	public AdvanceXMLExchange dispatch(@NonNull final XElement request, @NonNull final String userName) throws IOException, AdvanceControlException {
 		AdvanceDataStore ds = new CheckedDataStore(datastore, userName);
 		String function = request.name;
 		if ("query-realms".equals(function)) {
-			exch.next(XSerializables.storeList("realms", "realm", ds.queryRealms()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("realms", "realm", ds.queryRealms()));
 		} else
 		if ("query-realm".equals(function)) {
-			exch.next(XSerializables.storeItem("realm", ds.queryRealm(request.get("realm"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("realm", ds.queryRealm(request.get("realm"))));
 		} else
 		if ("create-realm".equals(function)) {
 			ds.createRealm(request.get("realm"), userName);
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-realm".equals(function)) {
 			ds.deleteRealm(request.get("realm"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("update-realm".equals(function)) {
 			ds.updateRealm(XSerializables.parseItem(request, AdvanceRealm.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-users".equals(function)) {
-			exch.next(XSerializables.storeList("users", "user", ds.queryUsers()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("users", "user", ds.queryUsers()));
 		} else
 		if ("query-user".equals(function)) {
-			exch.next(XSerializables.storeItem("user", ds.queryUser(request.get("user-name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("user", ds.queryUser(request.get("user-name"))));
 		} else
 		if ("enable-user".equals(function)) {
 			ds.enableUser(request.get("user-name"), request.getBoolean("enabled"), userName);
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-user".equals(function)) {
 			ds.deleteUser(request.get("user-name"), userName);
+			return AdvanceXMLExchange.none();
 		} else
 		if ("update-user".equals(function)) {
 			ds.updateUser(XSerializables.parseItem(request, AdvanceUser.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-notification-groups".equals(function)) {
-			exch.next(LocalDataStore.createGroups("notification-groups", ds.queryNotificationGroups()));
+			return AdvanceXMLExchange.single(LocalDataStore.createGroups("notification-groups", ds.queryNotificationGroups()));
 		} else
 		if ("update-notification-groups".equals(function)) {
 			ds.updateNotificationGroups(LocalDataStore.parseGroups(request));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-jdbc-data-sources".equals(function)) {
-			exch.next(XSerializables.storeList("jdbc-data-sources", "jdbc-source", ds.queryJDBCDataSources()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("jdbc-data-sources", "jdbc-source", ds.queryJDBCDataSources()));
 		} else
 		if ("update-jdbc-data-source".equals(function)) {
 			ds.updateJDBCDataSource(XSerializables.parseItem(request, AdvanceJDBCDataSource.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-jdbc-data-source".equals(function)) {
 			ds.deleteJDBCDataSource(request.get("data-source-name"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-jms-endpoints".equals(function)) {
-			exch.next(XSerializables.storeList("jms-endpoints", "endpoint", ds.queryJMSEndpoints()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("jms-endpoints", "endpoint", ds.queryJMSEndpoints()));
 		} else
 		if ("update-jms-endpoint".equals(function)) {
 			ds.updateJMSEndpoint(XSerializables.parseItem(request, AdvanceJMSEndpoint.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-jms-endpoint".equals(function)) {
 			ds.deleteJMSEndpoint(request.get("jms-name"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-web-data-sources".equals(function)) {
-			exch.next(XSerializables.storeList("web-data-sources", "web-source", ds.queryWebDataSources()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("web-data-sources", "web-source", ds.queryWebDataSources()));
 		} else
 		if ("update-web-data-source".equals(function)) {
 			ds.updateWebDataSource(XSerializables.parseItem(request, AdvanceWebDataSource.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-web-data-source".equals(function)) {
 			ds.deleteWebDataSource(request.get("web-name"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-ftp-data-sources".equals(function)) {
-			exch.next(XSerializables.storeList("ftp-data-sources", "ftp-source", ds.queryFTPDataSources()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("ftp-data-sources", "ftp-source", ds.queryFTPDataSources()));
 		} else
 		if ("update-ftp-data-source".equals(function)) {
 			ds.updateFTPDataSource(XSerializables.parseItem(request, AdvanceFTPDataSource.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-ftp-data-source".equals(function)) {
 			ds.deleteFTPDataSource(request.get("ftp-name"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-local-file-data-sources".equals(function)) {
-			exch.next(XSerializables.storeList("local-file-data-sources", "local-source", ds.queryLocalFileDataSources()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("local-file-data-sources", "local-source", ds.queryLocalFileDataSources()));
 		} else
 		if ("update-local-file-data-source".equals(function)) {
 			ds.updateLocalFileDataSource(XSerializables.parseItem(request, AdvanceLocalFileDataSource.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-local-file-data-source".equals(function)) {
 			ds.deleteLocalFileDataSource(request.get("file-name"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-keystores".equals(function)) {
-			exch.next(XSerializables.storeList("keystores", "keystore", ds.queryKeyStores()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("keystores", "keystore", ds.queryKeyStores()));
 		} else
 		if ("query-keystore".equals(function)) {
-			exch.next(XSerializables.storeItem("keystore", ds.queryKeyStore(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("keystore", ds.queryKeyStore(request.get("name"))));
 		} else
 		if ("has-user-right".equals(function)) {
 			XElement e = new XElement("boolean");
 			e.content = String.valueOf(ds.hasUserRight(userName, AdvanceUserRights.valueOf(request.get("expected"))));
+			return AdvanceXMLExchange.single(e);
 		} else
 		if ("has-user-realm-right".equals(function)) {
 			XElement e = new XElement("boolean");
 			e.content = String.valueOf(ds.hasUserRight(userName, request.get("realm"), 
 					AdvanceUserRealmRights.valueOf(request.get("expected"))));
-			exch.next(e);
+			return AdvanceXMLExchange.single(e);
 		} else
 		if ("update-keystore".equals(function)) {
 			ds.updateKeyStore(XSerializables.parseItem(request, AdvanceKeyStore.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-keystore".equals(function)) {
 			ds.deleteKeyStore(request.get("keystore"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-notification-group".equals(function)) {
 			Collection<String> contacts = ds.queryNotificationGroup(AdvanceNotificationGroupType.valueOf(request.get("type")), request.get("name"));
@@ -177,58 +195,65 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			for (String s : contacts) {
 				response.add("contact").set("value", s);
 			}
-			exch.next(response);
+			return AdvanceXMLExchange.single(response);
 		} else
 		if ("query-jdbc-data-source".equals(function)) {
-			exch.next(XSerializables.storeItem("jdbc-source", ds.queryJDBCDataSource(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("jdbc-source", ds.queryJDBCDataSource(request.get("name"))));
 		} else
 		if ("query-jms-endpoint".equals(function)) {
-			exch.next(XSerializables.storeItem("endpoint", ds.queryJMSEndpoint(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("endpoint", ds.queryJMSEndpoint(request.get("name"))));
 		} else
 		if ("query-soap-channel".equals(function)) {
-			exch.next(XSerializables.storeItem("channel", ds.querySOAPChannel(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("channel", ds.querySOAPChannel(request.get("name"))));
 		} else
 		if ("query-web-data-source".equals(function)) {
-			exch.next(XSerializables.storeItem("web-source", ds.queryWebDataSource(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("web-source", ds.queryWebDataSource(request.get("name"))));
 		} else
 		if ("query-local-file-data-source".equals(function)) {
-			exch.next(XSerializables.storeItem("local-source", ds.queryLocalFileDataSource(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("local-source", ds.queryLocalFileDataSource(request.get("name"))));
 		} else
 		if ("query-block-state".equals(function)) {
-			exch.next(ds.queryBlockState(request.get("realm"), request.get("block-id")));
+			return AdvanceXMLExchange.single(ds.queryBlockState(request.get("realm"), request.get("block-id")));
 		} else
 		if ("update-block-state".equals(function)) {
 			ds.updateBlockState(request.get("realm"), request.get("block-id"), request.children().get(0));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-flow".equals(function)) {
-			exch.next(ds.queryFlow(request.get("realm")));
+			return AdvanceXMLExchange.single(ds.queryFlow(request.get("realm")));
 		} else
 		if ("query-soap-channels".equals(function)) {
-			exch.next(XSerializables.storeList("soap-channels", "channel", ds.querySOAPChannels()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("soap-channels", "channel", ds.querySOAPChannels()));
 		} else
 		if ("update-flow".equals(function)) {
 			ds.updateFlow(request.get("realm"), request.children().get(0).copy());
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-block-states".equals(function)) {
 			ds.deleteBlockStates(request.get("realm"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("query-email-boxes".equals(function)) {
-			exch.next(XSerializables.storeList("email-boxes", "email-box", ds.queryEmailBoxes()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("email-boxes", "email-box", ds.queryEmailBoxes()));
 		} else
 		if ("query-email-box".equals(function)) {
-			exch.next(XSerializables.storeItem("email-box", ds.queryEmailBox(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("email-box", ds.queryEmailBox(request.get("name"))));
 		} else
 		if ("update-email-box".equals(function)) {
 			ds.updateEmailBox(XSerializables.parseItem(request, AdvanceEmailBox.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-email-box".equals(function)) {
 			ds.deleteEmailBox(request.get("name"));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("update-soap-channel".equals(function)) {
 			ds.updateSOAPChannel(XSerializables.parseItem(request, AdvanceSOAPChannel.CREATOR));
+			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-soap-channel".equals(function)) {
 			ds.deleteSOAPChannel(request.get("name"));
+			return AdvanceXMLExchange.none();
 		} else {
 			throw new AdvanceControlException("Unknown request " + request);
 		}

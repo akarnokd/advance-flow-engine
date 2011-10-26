@@ -868,10 +868,18 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 					e.createdBy = keyStore.modifiedBy;
 					e.modifiedAt = new Date();
 					e.modifiedBy = keyStore.modifiedBy;
-					
-					mgr.create();
-					mgr.save(e.location, e.password());
-					
+
+					File f = new File(e.location);
+					if (f.canRead()) {
+						try {
+							mgr.load(e.location, e.password());
+						} catch (KeystoreFault ex) {
+							throw new AdvanceControlException("Keystore exists but could not load: " + e.location);
+						}
+					} else {
+						mgr.create();
+						mgr.save(e.location, e.password());
+					}					
 					keystores.put(e.name, e);
 				} else {
 					// check if the location or the password changed

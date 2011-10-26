@@ -735,6 +735,7 @@ public class CCDebugDialog extends JFrame {
 						cm.addElement(r.id + ": " + r.type + " " + r.keywords);
 					}
 					blocks.setModel(cm);
+					blocks.setSelectedIndex(-1);
 					if (refs.size() == 0) {
 						GUIUtils.infoMessage(CCDebugDialog.this, labels.get("No blocks in realm " + realm));
 					}

@@ -21,7 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.IOException;
 
@@ -34,9 +35,9 @@ import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
-import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
@@ -67,29 +68,27 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 	}
 	@Nullable
 	@Override
-	public void dispatch(@NonNull final AdvanceXMLExchange exch) throws IOException, AdvanceControlException {
-		XElement request = exch.request();
-		String userName = exch.userName();
+	public AdvanceXMLExchange dispatch(@NonNull final XElement request, @NonNull final String userName) throws IOException, AdvanceControlException {
 		AdvanceEngineControl ctrl = new CheckedEngineControl(control, userName);
 		String function = request.name;
 		LOG.debug(function);
 		if ("get-user".equals(function)) {
-			exch.next(XSerializables.storeItem("user", ctrl.getUser()));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("user", ctrl.getUser()));
 		} else
 		if ("query-blocks".equals(function)) {
-			exch.next(XSerializables.storeList("blocks", "block", ctrl.queryBlocks()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("blocks", "block", ctrl.queryBlocks()));
 		} else
 		if ("query-schemas".equals(function)) {
-			exch.next(XSerializables.storeList("schemas", "schema", ctrl.querySchemas()));
+			return AdvanceXMLExchange.single(XSerializables.storeList("schemas", "schema", ctrl.querySchemas()));
 		} else
 		if ("query-version".equals(function)) {
-			exch.next(XSerializables.storeItem("version", ctrl.queryVersion()));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("version", ctrl.queryVersion()));
 		} else
 		if ("update-schema".equals(function)) {
 			ctrl.updateSchema(request.get("name"), request.children().get(0).copy());
 		} else
 		if ("query-schema".equals(function)) {
-			exch.next(XSerializables.storeItem("schema", ctrl.querySchema(request.get("name"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("schema", ctrl.querySchema(request.get("name"))));
 		} else
 		if ("delete-key-entry".equals(function)) {
 			ctrl.deleteKeyEntry(request.get("keystore"), request.get("keyalias"));
@@ -102,12 +101,12 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		if ("export-certificate".equals(function)) {
 			XElement response = new XElement("certificate");
 			response.content = ctrl.exportCertificate(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR));
-			exch.next(response);
+			return AdvanceXMLExchange.single(response);
 		} else
 		if ("export-private-key".equals(function)) {
 			XElement response = new XElement("private-key");
 			response.content = ctrl.exportPrivateKey(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR));
-			exch.next(response);
+			return AdvanceXMLExchange.single(response);
 		} else
 		if ("import-certificate".equals(function)) {
 			ctrl.importCertificate(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
@@ -121,7 +120,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		if ("export-signing-request".equals(function)) {
 			XElement response = new XElement("signing-request");
 			response.content = ctrl.exportSigningRequest(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR));
-			exch.next(response);
+			return AdvanceXMLExchange.single(response);
 		} else
 		if ("import-signing-response".equals(function)) {
 			ctrl.importSigningResponse(XSerializables.parseItem(request, AdvanceKeyStoreExport.CREATOR), request.content);
@@ -130,20 +129,20 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		if ("test-jdbc-data-source".equals(function)) {
 			XElement result = new XElement("datastore-test-result");
 			result.content = ctrl.testJDBCDataSource(request.get("dataSourceName")).toString();
-			exch.next(result);
+			return AdvanceXMLExchange.single(result);
 		} else
 		if ("test-jms-endpoint".equals(function)) {
 			XElement result = new XElement("datastore-test-result");
 			result.content = ctrl.testJMSEndpoint(request.get("jms-name")).toString();
-			exch.next(result);
+			return AdvanceXMLExchange.single(result);
 		} else
 		if ("test-ftp-data-source".equals(function)) {
 			XElement result = new XElement("datastore-test-result");
 			result.content =  ctrl.testFTPDataSource(request.get("jms-name")).toString();
-			exch.next(result);
+			return AdvanceXMLExchange.single(result);
 		} else
 		if ("query-keys".equals(function)) {
-			exch.next(XSerializables.storeList("keys", "keyentry", ctrl.queryKeys(request.get("keystore"))));
+			return AdvanceXMLExchange.single(XSerializables.storeList("keys", "keyentry", ctrl.queryKeys(request.get("keystore"))));
 		} else
 		if ("stop-realm".equals(function)) {
 			ctrl.stopRealm(request.get("name"), request.get("by-user"));
@@ -154,7 +153,7 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 			
 		} else
 		if ("query-flow".equals(function)) {
-			exch.next(AdvanceCompositeBlock.serializeFlow(ctrl.queryFlow(request.get("realm"))));
+			return AdvanceXMLExchange.single(AdvanceCompositeBlock.serializeFlow(ctrl.queryFlow(request.get("realm"))));
 		} else
 		if ("update-flow".equals(function)) {
 			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(request.children().get(0));
@@ -162,74 +161,28 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 			
 		} else
 		if ("verify-flow".equals(function)) {
-			exch.next(XSerializables.storeItem("compilation-result", 
+			return AdvanceXMLExchange.single(XSerializables.storeItem("compilation-result", 
 					ctrl.verifyFlow(AdvanceCompositeBlock.parseFlow(request.children().get(0)))));
 		} else
 		if ("debug-block".equals(function)) {
 			final String realm = request.get("realm");
-			exch.startMany();
-			ctrl.debugBlock(request.get("realm"), request.get("block-id")).register(new Observer<AdvanceBlockDiagnostic>() {
+			return AdvanceXMLExchange.multiple(Reactive.select(ctrl.debugBlock(request.get("realm"), request.get("block-id")), new Func1<AdvanceBlockDiagnostic, XElement>() {
 				@Override
-				public void error(Throwable ex) {
-					LOG.error(ex.toString(), ex);
-					try {
-						exch.finishMany();
-					} catch (IOException exc) {
-						LOG.error(exc.toString(), exc);
-					}
+				public XElement invoke(AdvanceBlockDiagnostic param1) {
+					param1.realm = realm;
+					return XSerializables.storeItem("block-diagnostic", param1);
 				}
-				@Override
-				public void finish() {
-					try {
-						exch.finishMany();
-					} catch (IOException ex) {
-						LOG.error(ex.toString(), ex);
-					}
-				}
-				@Override
-				public void next(AdvanceBlockDiagnostic value) {
-					value.realm = realm;
-					try {
-						exch.next(XSerializables.storeItem("block-diagnostic", value));
-					} catch (IOException ex) {
-						LOG.error(ex.toString(), ex);
-					}
-				}
-			});
+			}));
 		} else
 		if ("debug-parameter".equals(function)) {
 			final String realm = request.get("realm");
-			exch.startMany();
-			ctrl.debugParameter(realm, request.get("block-id"), request.get("port"))
-			.register(new Observer<AdvanceParameterDiagnostic>() {
+			return AdvanceXMLExchange.multiple(Reactive.select(ctrl.debugParameter(request.get("realm"), request.get("block-id"), request.get("port")), new Func1<AdvanceParameterDiagnostic, XElement>() {
 				@Override
-				public void error(Throwable ex) {
-					LOG.error(ex.toString(), ex);
-					try {
-						exch.finishMany();
-					} catch (IOException exc) {
-						LOG.error(exc.toString(), exc);
-					}
+				public XElement invoke(AdvanceParameterDiagnostic param1) {
+					param1.realm = realm;
+					return XSerializables.storeItem("parameter-diagnostic", param1);
 				}
-				@Override
-				public void finish() {
-					try {
-						exch.finishMany();
-					} catch (IOException ex) {
-						LOG.error(ex.toString(), ex);
-					}
-				}
-				@Override
-				public void next(AdvanceParameterDiagnostic value) {
-					try {
-						value.realm = realm;
-						exch.next(XSerializables.storeItem("parameter-diagnostic", value));
-					} catch (IOException ex) {
-						LOG.error(ex.toString(), ex);
-					}
-				}
-			});
-			
+			}));
 		} else
 		if ("inject-value".equals(function)) {
 			String realm = request.get("realm");
@@ -245,10 +198,11 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 			ctrl.deleteSchema(request.get("name"));
 		} else
 		if ("query-compilation-result".equals(function)) {
-			exch.next(XSerializables.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm"))));
+			return AdvanceXMLExchange.single(XSerializables.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm"))));
 		} else {
 			// try datastore
-			datastoreListener.dispatch(exch);
+			return datastoreListener.dispatch(request, userName);
 		}
+		return AdvanceXMLExchange.none();
 	}
 }
