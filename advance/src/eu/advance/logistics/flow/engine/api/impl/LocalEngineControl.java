@@ -609,7 +609,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		
 		List<AdvanceBlock> blocks = realmRuntime.remove(r.name);
 		if (blocks == null) {
-			LOG.warn("Realm is empty: " + r.name);
+			LOG.info("Shutdown realm is empty: " + r.name);
 		} else {
 			executor.done(blocks);
 			for (AdvanceBlock b : blocks) {

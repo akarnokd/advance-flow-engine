@@ -654,9 +654,23 @@ public final class SchemaParser {
 			return XRelation.EQUAL;
 		} else
 		if (t1.capabilities.size() == 0) {
+			XType ct2 = t2.capabilities.get(0).complexType;
+			if (ct2 == null) {
+				return XRelation.NONE;
+			} else
+			if (ct2.capabilities.size() == 0) {
+				return XRelation.EQUAL;
+			}
 			return XRelation.SUPER;
 		} else
 		if (t2.capabilities.size() == 0) {
+			XType ct1 = t1.capabilities.get(0).complexType;
+			if (ct1 == null) {
+				return XRelation.NONE;
+			} else
+			if (ct1.capabilities.size() == 0) {
+				return XRelation.EQUAL;
+			}
 			return XRelation.EXTENDS;
 		} else
 		if ((t1.capabilities.get(0).complexType == null) != (t2.capabilities.get(0).complexType == null)) {

@@ -2390,6 +2390,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 							if (b == null) {
 								GUIUtils.infoMessage(frame, format("Realm %s was empty.", rname));
 							}
+							showFlow(frame, b, rname);
 							doDownloadFlowAction(frame, realms);
 						}
 					}
@@ -3275,6 +3276,29 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 */
 	void showCompilationResult(JFrame f, AdvanceCompilationResult r, String realm) {
 		XElement x = new XElement("compilation-result");
+		r.save(x);
+		CCDebugRow row = new CCDebugRow();
+		row.value = Option.some(x);
+		row.timestamp = new Date();
+		row.watch = new CCWatchSettings();
+		row.watch.realm = realm;
+		row.watch.block = "";
+		row.watch.blockType = "";
+		row.watch.port = "";
+		
+		CCValueDialog d = new CCValueDialog(CCMain.this, row);
+		setEngineInfo(d.engineInfo);
+		d.setLocationRelativeTo(f);
+		d.setVisible(true);
+	}
+	/**
+	 * Display the compilation result data.
+	 * @param f the parent frame
+	 * @param r the compilation result
+	 * @param realm the realm name
+	 */
+	void showFlow(JFrame f, AdvanceCompositeBlock r, String realm) {
+		XElement x = new XElement("flow-description");
 		r.save(x);
 		CCDebugRow row = new CCDebugRow();
 		row.value = Option.some(x);

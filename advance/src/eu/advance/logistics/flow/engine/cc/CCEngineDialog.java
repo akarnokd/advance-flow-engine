@@ -1572,7 +1572,7 @@ public class CCEngineDialog extends JFrame {
 			XElement xkeystore = result.add("keystore");
 			xkeystore.set("name", aks.name, "file", aks.location);
 			AdvanceCreateModifyInfo.setPassword(xkeystore, "password", aks.password());
-			if (xkeystore.name.equals(serverKeyStore.getSelectedItem())) {
+			if (aks.name.equals(serverKeyStore.getSelectedItem())) {
 				try {
 					KeyStore ks = aks.open();
 					if (ks.getKey(serverKeyAlias.getText(), p1) == null) {

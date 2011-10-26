@@ -207,6 +207,7 @@ public final class AdvanceTypeInference {
 			}
 		}
 		// FIXME not sure this is correct
+		
 		// if we get here, all wires should have some type
 		for (AdvanceType type : Sets.union(upperBound.keySet(), lowerBound.keySet())) {
 			AdvanceType computedType = null;
