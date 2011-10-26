@@ -21,37 +21,61 @@
 
 package eu.advance.logistics.flow.engine.api;
 
-import java.io.IOException;
+import hu.akarnokd.reactive4java.reactive.Observable;
+import hu.akarnokd.reactive4java.reactive.Reactive;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import java.util.Collections;
+import java.util.Iterator;
+
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * The interface to provide information about the request and give opportunities for direct
- * or streaming responses.
+ * An interface wrapping a blocking iterable which returns one or multiple values.
  * @author akarnokd, 2011.10.04.
  */
-public interface AdvanceXMLExchange {
-	/** @return the logged-in user name. */
-	@NonNull 
-	String userName();
-	/** @return the request object. */
-	@NonNull 
-	XElement request();
-	/** 
-	 * Indicate that there will be multiple responses.
-	 * @throws IOException if the multiresponse could not be sent 
-	 */
-	void startMany() throws IOException;
+public class AdvanceXMLExchange implements Iterable<XElement> {
+	/** Expect multiple responses? */
+	public final boolean multiple;
+	/** The iterable sequence. */
+	private Iterable<XElement> sequence;
 	/**
-	 * Send the next response XML.
-	 * @param value the value to send
-	 * @throws IOException if a network error occurs
+	 * No response.
+	 * @return no response
 	 */
-	void next(XElement value) throws IOException;
+	public static AdvanceXMLExchange none() {
+		AdvanceXMLExchange r = new AdvanceXMLExchange(false);
+		r.sequence = Collections.emptyList();
+		return r;
+	}
 	/**
-	 * Indicate the completion of the multiple responses response.
-	 * @throws IOException if a network error occurs
+	 * Single response.
+	 * @param response the response
+	 * @return an exchange object with single response
 	 */
-	void finishMany() throws IOException;
+	public static AdvanceXMLExchange single(XElement response) {
+		AdvanceXMLExchange r = new AdvanceXMLExchange(false);
+		r.sequence = Collections.singletonList(response);
+		return r;
+	}
+	/**
+	 * Return multiple values.
+	 * @param source the source observable
+	 * @return the exchange with multiple objects
+	 */
+	public static AdvanceXMLExchange multiple(Observable<XElement> source) {
+		AdvanceXMLExchange r = new AdvanceXMLExchange(true);
+		r.sequence = Reactive.toIterable(source);
+		return r;
+	}
+	/**
+	 * Create a single element returner.
+	 * @param multiple 
+	 */
+	protected AdvanceXMLExchange(boolean multiple) {
+		this.multiple = multiple;
+	}
+	@Override
+	public Iterator<XElement> iterator() {
+		return sequence.iterator();
+	}
 }

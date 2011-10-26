@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.cc;
 
+import hu.akarnokd.reactive4java.base.Action0;
 import hu.akarnokd.reactive4java.base.Func0;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.interactive.Interactive;
@@ -30,6 +31,8 @@ import java.awt.Container;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -40,9 +43,11 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -120,9 +125,12 @@ public class CCRemoteLogin extends JDialog {
 		AdvanceLoginType type;
 		/** Last login date. */
 		Date timestamp;
+		/** The verification keystore. */
+		String verify;
 		@Override
 		public void load(XElement source) {
 			address = source.get("address");
+			verify = source.get("verify");
 			user = source.get("user");
 			password = AdvanceCreateModifyInfo.getPassword(source, "password");
 			keystore = source.get("keystore");
@@ -135,7 +143,9 @@ public class CCRemoteLogin extends JDialog {
 		}
 		@Override
 		public void save(XElement destination) {
-			destination.set("address", address, "user", user, "keystore", keystore, "type", type, "timestamp", timestamp);
+			destination.set("address", address, "user", user, 
+					"keystore", keystore, "type", type, 
+					"timestamp", timestamp, "verify", verify);
 			AdvanceCreateModifyInfo.setPassword(destination, "password", password);
 		}
 	}
@@ -147,12 +157,16 @@ public class CCRemoteLogin extends JDialog {
 	protected JButton newButton;
 	/** Delete selected entries. */
 	protected JButton deleteButton;
+	/** The keystore to use for verifying the server key. */
+	protected JComboBox<String> serverVerify;
 	/**
 	 * The remote logins.
 	 */
 	protected final File configFile = new File("conf/advance-remote-logins.xml");
 	/** The list of keystores. */
 	protected final List<AdvanceKeyStore> keystores = Lists.newArrayList();
+	/** The login action. */
+	protected Action0 loginAction;
 	/**
 	 * Create the GUI.
 	 * @param labels the label manager
@@ -174,6 +188,8 @@ public class CCRemoteLogin extends JDialog {
 		login.setBorder(BorderFactory.createTitledBorder(labels.get("Authentication")));
 		address = new JTextField();
 		records = new JLabel(labels.format("Records: %d", 0));
+		
+		serverVerify = new JComboBox<String>();
 		
 		Container c = getContentPane();
 		GroupLayout gl = new GroupLayout(c);
@@ -249,13 +265,21 @@ public class CCRemoteLogin extends JDialog {
 			}
 		};
 		
-		setModal(true);
+//		setModal(true);
 		
 		table = new JTable(model);
 		table.setAutoCreateRowSorter(true);
 		JScrollPane scroll = new JScrollPane(table);
 		JLabel addressLabel = new JLabel(labels.get("Address:"));
 		help = new HelpPanel();
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() > 1 && table.getSelectedRow() >= 0) {
+					doLogin();
+				}
+			}
+		});
 		
 		loginButton = new JButton(labels.get("Login"));
 		loginButton.addActionListener(new ActionListener() {
@@ -307,6 +331,11 @@ public class CCRemoteLogin extends JDialog {
 					RemoteLogin rl = rows.get(idx);
 					
 					address.setText(rl.address);
+					if (rl.verify == null || rl.verify.isEmpty()) {
+						serverVerify.setSelectedIndex(0);
+					} else {
+						serverVerify.setSelectedItem(rl.verify);
+					}
 
 					login.clear();
 					login.setLoginType(rl.type);
@@ -341,6 +370,7 @@ public class CCRemoteLogin extends JDialog {
 				return label;
 			}
 		});
+		JLabel serverVerifyLabel = new JLabel(labels.get("Server verification keystore:"));
 		
 		gl.setHorizontalGroup(
 			gl.createParallelGroup(Alignment.CENTER)
@@ -354,6 +384,11 @@ public class CCRemoteLogin extends JDialog {
 				gl.createSequentialGroup()
 				.addComponent(addressLabel)
 				.addComponent(address)
+			)
+			.addGroup(
+				gl.createSequentialGroup()
+				.addComponent(serverVerifyLabel)
+				.addComponent(serverVerify)
 			)
 			.addComponent(login)
 			.addComponent(help)
@@ -375,6 +410,11 @@ public class CCRemoteLogin extends JDialog {
 				gl.createParallelGroup(Alignment.BASELINE)
 				.addComponent(addressLabel)
 				.addComponent(address, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+			)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(serverVerifyLabel)
+				.addComponent(serverVerify, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			)
 			.addComponent(login)
 			.addComponent(help, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -437,6 +477,12 @@ public class CCRemoteLogin extends JDialog {
 				return param1.name;
 			}
 		}));
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>();
+		model.addElement("");
+		for (AdvanceKeyStore ks : keystores) {
+			model.addElement(ks.name);
+		}
+		serverVerify.setModel(model);
 	}
 	/**
 	 * Set the fields.
@@ -447,6 +493,9 @@ public class CCRemoteLogin extends JDialog {
 		rl.address = address.getText();
 		rl.type = login.getLoginType();
 		rl.timestamp = new Date();
+		if (serverVerify.getSelectedIndex() > 0) {
+			rl.verify = (String)serverVerify.getSelectedItem();
+		}
 		if (rl.type == AdvanceLoginType.BASIC) {
 			rl.user = login.getUserName();
 			if (rl.user.isEmpty()) {
@@ -467,6 +516,7 @@ public class CCRemoteLogin extends JDialog {
 				return false;
 			}
 		}
+		
 		return true;
 	}
 	/**
@@ -513,13 +563,18 @@ public class CCRemoteLogin extends JDialog {
 							if (aks.name.equals(s.keystore)) {
 								auth.password(s.password);
 								auth.authStore = aks.open();
-								auth.certStore = auth.authStore;
 								break;
 							}
 						}
+						if (auth.authStore == null) {
+							t = new IllegalArgumentException("Missing authentication keystore " + s.keystore);
+						}
 					}
-					if (auth.authStore == null) {
-						t = new IllegalArgumentException("Missing keystore " + s.keystore);
+					for (AdvanceKeyStore aks : keystores) {
+						if (aks.name.equals(s.verify)) {
+							auth.certStore = aks.open();
+							break;
+						}
 					}
 					u = new URL(s.address);
 					ec = new HttpRemoteEngineControl(u, auth);
@@ -537,6 +592,7 @@ public class CCRemoteLogin extends JDialog {
 					engine = ec;
 					engineURL = u;
 					close();
+					loginAction.invoke();
 				}
 			}
 		}).execute();
@@ -564,5 +620,12 @@ public class CCRemoteLogin extends JDialog {
 	public URL takeEngineURL() {
 		return engineURL;
 	}
-
+	/**
+	 * Set the action to perform on a successful login.
+	 * @param action the action.
+	 */
+	public void setLoginAction(Action0 action) {
+		this.loginAction = action;
+		
+	}
 }

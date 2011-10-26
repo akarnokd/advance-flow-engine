@@ -24,7 +24,7 @@ package eu.advance.logistics.flow.engine.api;
 import java.io.IOException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Base interface for the capability to dispatch an XML message and the logged-in user name.
@@ -33,10 +33,13 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 public interface AdvanceHttpListener {
 	/**
 	 * Dispatch a {@code request} under the given {@code userName}.
-	 * @param exch the request-response exchange
+	 * @param request the request object
+	 * @param userName the logged-in user
+	 * @return the exchange sequence
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user rights are inadequate
 	 */
-	@Nullable
-	void dispatch(@NonNull AdvanceXMLExchange exch) throws IOException, AdvanceControlException;
+	@NonNull
+	AdvanceXMLExchange dispatch(@NonNull final XElement request, 
+			@NonNull final String userName) throws IOException, AdvanceControlException;
 }

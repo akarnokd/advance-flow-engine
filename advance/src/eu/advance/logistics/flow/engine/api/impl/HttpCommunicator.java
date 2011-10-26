@@ -25,10 +25,12 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Observer;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -283,59 +285,69 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 							out.close();
 						}
 						final AtomicBoolean closed = new AtomicBoolean();
-						final InputStream in = c.getInputStream();
-						final Closeable cs = scheduler.schedule(new Runnable() {
-							@Override
-							public void run() {
-								try {
+						if (c.getResponseCode() < 400) {
+							final InputStream in = c.getInputStream();
+							final Closeable cs = scheduler.schedule(new Runnable() {
+								@Override
+								public void run() {
 									try {
-										XMLInputFactory inf = XMLInputFactory.newInstance();
-										XMLStreamReader ir = inf.createXMLStreamReader(in);
 										try {
-											ir.nextTag();
-											while (ir.hasNext()) {
-												XElement e = XElement.parseXMLFragment(ir);
-												observer.next(e);
+											XMLInputFactory inf = XMLInputFactory.newInstance();
+											XMLStreamReader ir = inf.createXMLStreamReader(in);
+											try {
+												ir.nextTag();
+												while (ir.hasNext()) {
+													XElement e = XElement.parseXMLFragment(ir);
+													observer.next(e);
+												}
+												observer.finish();
+											} finally {
+												ir.close();
 											}
-											observer.finish();
 										} finally {
-											ir.close();
+											in.close();
+										}
+									} catch (IOException ex) {
+										LOG.error(ex.toString(), ex);
+										if (!closed.get()) {
+											observer.error(ex);
+										}
+									} catch (XMLStreamException ex) {
+										LOG.error(ex.toString(), ex);
+										if (!closed.get()) {
+											observer.error(ex);
 										}
 									} finally {
+										c.disconnect();
+									}
+								}
+							});
+							return new Closeable() {
+								@Override
+								public void close() throws IOException {
+									closed.set(true);
+									try {
+										cs.close();
+									} catch (IOException ex) {
+										LOG.warn(ex.toString(), ex);
+									}
+									try {
 										in.close();
+									} catch (IOException ex) {
+										LOG.warn(ex.toString(), ex);
 									}
-								} catch (IOException ex) {
-									LOG.error(ex.toString(), ex);
-									if (!closed.get()) {
-										observer.error(ex);
-									}
-								} catch (XMLStreamException ex) {
-									LOG.error(ex.toString(), ex);
-									if (!closed.get()) {
-										observer.error(ex);
-									}
-								} finally {
 									c.disconnect();
 								}
-							}
-						});
-						return new Closeable() {
-							@Override
-							public void close() throws IOException {
-								closed.set(true);
-								try {
-									cs.close();
-								} catch (IOException ex) {
-									LOG.warn(ex.toString(), ex);
+							};
+						} else {
+							getHttpError(c);
+							return new Closeable() {
+								@Override
+								public void close() throws IOException {
+									// nothing to do
 								}
-								try {
-									in.close();
-								} catch (IOException ex) {
-									LOG.warn(ex.toString(), ex);
-								}
-								c.disconnect();
-							}
-						};
+							};
+						}
 					} catch (IOException ex) {
 						LOG.error(ex.toString(), ex);
 						observer.error(ex);
@@ -346,6 +358,32 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 					observer.error(ex);
 					return ReactiveEx.emptyCloseable();
 				}
+			}
+
+			/**
+			 * Extracts the error contents from the connection and throws an IOException with it.
+			 * @param c the connection
+			 * @throws IOException the exception thrown
+			 */
+			public void getHttpError(final HttpURLConnection c)
+					throws IOException {
+				BufferedReader in = new BufferedReader(new InputStreamReader(c.getErrorStream(), "UTF-8"));
+				StringBuilder b = new StringBuilder();
+				try {
+					char[] buf = new char[8192];
+					while (!Thread.currentThread().isInterrupted()) {
+						int read = in.read(buf);
+						if (read > 0) {
+							b.append(buf, 0, read);
+						} else
+						if (read < 0) {
+							break;
+						}
+					}
+				} finally {
+					in.close();
+				}
+				throw new IOException(b.toString());
 			}
 		};
 	}

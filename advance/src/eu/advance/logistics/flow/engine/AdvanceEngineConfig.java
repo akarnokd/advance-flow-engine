@@ -81,11 +81,11 @@ public class AdvanceEngineConfig {
 	/** The schema resolver. */
 	public AdvanceLocalSchemaResolver schemaResolver;
 	/** A JDBC based datastore datasource. */
-	protected AdvanceJDBCDataSource jdbcDataSource;
+	private AdvanceJDBCDataSource jdbcDataSource;
 	/** The local datastore object. */
-	protected LocalDataStore localDataStore;
+	private LocalDataStore localDataStore;
 	/** The JDBC data store. */
-	protected JDBCDataStore jdbcDataStore;
+	private JDBCDataStore jdbcDataStore;
 	/** The JDBC pool. */
 	protected BoundedPool<Connection> jdbcPool;
 	/** The local keystores. */
@@ -255,7 +255,7 @@ public class AdvanceEngineConfig {
 			n = Integer.parseInt(concurrency);
 		}
 		int p = Thread.NORM_PRIORITY;
-		if (priority.length() > 0 && Character.isAlphabetic(priority.charAt(0))) {
+		if (priority.length() > 0 && Character.isLetter(priority.charAt(0))) {
 			AdvanceSchedulerPriority ep = AdvanceSchedulerPriority.valueOf(priority);
 			p = ep.priority;
 		} else {
@@ -333,6 +333,6 @@ public class AdvanceEngineConfig {
 	}
 	/** @return the datastore object. */
 	public AdvanceDataStore datastore() {
-		return localDataStore;
+		return localDataStore != null ? localDataStore : jdbcDataStore;
 	}
 }

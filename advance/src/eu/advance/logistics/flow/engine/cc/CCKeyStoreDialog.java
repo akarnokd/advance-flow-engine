@@ -140,7 +140,20 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 		importExport.setIcon(new ImageIcon(getClass().getResource("down.png")));
 		importExport.setHorizontalTextPosition(SwingConstants.TRAILING);
 		delete = new JButton(labels.get("Delete"));
+		delete.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doDelete();
+			}
+		});
 		browse = new JButton("Browse...");
+		browse.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doBrowse();
+			}
+		});
+		
 		
 		generate.setVisible(false);
 		importExport.setVisible(false);
@@ -462,6 +475,8 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 			public void done() {
 				if (t != null) {
 					GUIUtils.errorMessage(CCKeyStoreDialog.this, t);
+				} else {
+					queryKeys(keyStore);
 				}
 			}
 		}).execute();
@@ -900,5 +915,22 @@ public class CCKeyStoreDialog extends JPanel implements CCLoadSave<AdvanceKeySto
 		mnuExportKey.setEnabled(en);
 		mnuImportRSA.setEnabled(en);
 		mnuExportRSA.setEnabled(en);
+	}
+	/** Delete the selected keys. */
+	void doDelete() {
+		if (JOptionPane.showConfirmDialog(this, labels.get("Are you sure"), labels.get("Delete keys"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			deleteKeys(name.getText());
+		}
+	}
+	/**
+	 * Browse for a keystore.
+	 */
+	void doBrowse() {
+		JFileChooser fc = new JFileChooser(keyManager.getCurrentDir());
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			File f = fc.getSelectedFile();
+			keyManager.setCurrentDir(f.getParentFile());
+			location.setText(f.toString());
+		}
 	}
 }

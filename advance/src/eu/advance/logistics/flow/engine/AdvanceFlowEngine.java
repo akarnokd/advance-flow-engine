@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,9 +60,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.impl.HttpEngineControlListener;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
@@ -93,16 +94,30 @@ public class AdvanceFlowEngine implements Runnable {
 	private HttpsServer certServer;
 	/** The listener to translate XML requests into control requests. */
 	private HttpEngineControlListener engineListener;
+	/** The configuration file. */
+	private final File configFile;
+	/**
+	 * The engine control.
+	 */
+	private LocalEngineControl control;
+	/**
+	 * Create the flow engine and refer the configuration file.
+	 * @param configFile the configuration file.
+	 */
+	public AdvanceFlowEngine(File configFile) {
+		this.configFile = configFile;
+		
+	}
 	@Override
 	public void run() {
 		LOG.info("Advance Flow Engine Started");
 		
 		config = new AdvanceEngineConfig();
 		try {
-			XElement xconfig = XElement.parseXML("conf/flow_engine_config.xml");
+			XElement xconfig = XElement.parseXML(configFile);
 			config.initialize(xconfig);
 			AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, config.blockResolver, config.schedulerMap);
-			LocalEngineControl control = new LocalEngineControl(config.localDataStore, config.schemas, compiler, compiler) {
+			control = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler) {
 				@Override
 				public void shutdown() throws IOException,
 						AdvanceControlException {
@@ -157,12 +172,12 @@ public class AdvanceFlowEngine implements Runnable {
 			
 			basicServer = createServer(config.listener.basicPort, kmf, null);
 			HttpContext basicCtx = basicServer.createContext("/", handler);
-			setBasicAuthenticator(basicCtx, config.localDataStore);
+			setBasicAuthenticator(basicCtx, config.datastore());
 			
 			certServer = createServer(config.listener.certificatePort, kmf, tmf);
 			
 			HttpContext certCtx = certServer.createContext("/", handler);
-			setCertAuthenticator(certCtx, cks, config.localDataStore);
+			setCertAuthenticator(certCtx, cks, config.datastore());
 			
 			basicServer.start();
 			certServer.start();
@@ -191,63 +206,50 @@ public class AdvanceFlowEngine implements Runnable {
 					in.close();
 				}
 				final XElement frequest = xrequest;
+				final String userName = (String)request.getAttribute(LOGIN_USERNAME);
+				
+				request.getResponseHeaders().add("Content-Type", "text/xml;charset=utf-8");
+				
+				final OutputStream out = request.getResponseBody();
 				try {
-					final String userName = (String)request.getAttribute(LOGIN_USERNAME);
-					
-					request.getResponseHeaders().add("Content-Type", "text/xml;charset=utf-8");
-					final OutputStream out = request.getResponseBody();
+					AdvanceXMLExchange xchg = null;
 					try {
-						engineListener.dispatch(new AdvanceXMLExchange() {
-							/** Is there a multiple response? */
-							private boolean multiResponse;
-							/** Send out the headers? */
-							private boolean first;
-							@Override
-							public void next(XElement value) throws IOException {
-								if (first) {
-									request.sendResponseHeaders(200, 0);
-									first = false;
-								}
-								value.save(out);
-							}
-							
-							@Override
-							public void finishMany() throws IOException {
-								if (multiResponse) {
-									out.write("</multiple-fragments>".getBytes("UTF-8"));
-								} else {
-									LOG.error("startMany was not called!");
-								}
-							}
-							
-							@Override
-							public String userName() {
-								return userName;
-							}
-							
-							@Override
-							public XElement request() {
-								return frequest;
-							}
-							
-							@Override
-							public void startMany() throws IOException {
-								multiResponse = true;
-								if (first) {
-									request.sendResponseHeaders(200, 0);
-									first = false;
-								}
-								out.write("<?xml version='1.0' encoding='UTF-8'?><multiple-fragments>".getBytes("UTF-8"));
-							}
-						});
-					} finally {
-						out.close();
+						xchg = engineListener.dispatch(frequest, userName);
+					} catch (Throwable ex) {
+						LOG.error(ex.toString(), ex);
+						sendResponse(request, 403, ex.toString());
+						return;
 					}
-				} catch (IOException ex) {
-					LOG.error(ex.toString(), ex);
-				} catch (AdvanceControlException ex) {
-					LOG.error(ex.toString(), ex);
-					sendResponse(request, 403, ex.toString());
+
+					request.sendResponseHeaders(200, 0);
+					if (xchg.multiple) {
+						out.write("<?xml version='1.0' encoding='UTF-8'?><multiple-fragments>".getBytes("UTF-8"));
+					} else {
+						out.write("<?xml version='1.0' encoding='UTF-8'?>".getBytes("UTF-8"));
+					}
+					try {
+						try {
+							for (XElement e : xchg) {
+								out.write(e.toString().getBytes("UTF-8"));
+							}
+						} catch (Throwable t) {
+							if (xchg.multiple) {
+								out.write("<advance-exception>".getBytes("UTF-8"));
+								out.write(t.toString().getBytes("UTF-8"));
+								out.write("</advance-exception>\r\n".getBytes("UTF-8"));
+							}
+						}
+					} finally {
+						if (xchg.multiple) {
+							out.write("</multiple-fragments>".getBytes("UTF-8"));
+						}
+					}
+				} finally {
+					try {
+						out.close();
+					} catch (IOException exc) {
+						LOG.error(exc.toString(), exc);
+					}
 				}
 			}
 			/**
@@ -402,13 +404,26 @@ public class AdvanceFlowEngine implements Runnable {
 		}
 		return null;
 	}
-	
+	/**
+	 * Shut down the services.
+	 * @throws IOException on network error
+	 * @throws AdvanceControlException on rights issues
+	 */
+	public void shutdown() throws IOException, AdvanceControlException {
+		if (control != null) {
+			control.shutdown();
+		}
+	}
 	/**
 	 * The main program.
 	 * @param args no arguments at the moment
 	 */
 	public static void main(String[] args) {
-		AdvanceFlowEngine afe = new AdvanceFlowEngine();
+		File c = new File("conf/flow_engine_config.xml");
+		if (args.length > 0) {
+			c = new File(args[0]);
+		}
+		AdvanceFlowEngine afe = new AdvanceFlowEngine(c);
 		afe.run();
 	}
 }
