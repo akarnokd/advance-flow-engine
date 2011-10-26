@@ -20,9 +20,9 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar" sourcepath="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/monetdb-1.17-jdbc.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.16-bin.jar"/>
-	<classpathentry kind="lib" path="lib/reactive4java-0.94.jar" sourcepath="lib/reactive4java-0.94.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/guava-10.0.jar" sourcepath="lib/guava-10.0.jar"/>
 	<classpathentry kind="lib" path="lib/j2ssh-0.2.9.jar" sourcepath="lib/j2ssh-0.2.9.jar"/>
+	<classpathentry kind="lib" path="lib/reactive4java-0.95.jar" sourcepath="lib/reactive4java-0.95.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

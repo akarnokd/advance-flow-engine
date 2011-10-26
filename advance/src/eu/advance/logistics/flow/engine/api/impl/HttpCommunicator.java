@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.reactive4java.base.Closeables;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Observer;
@@ -57,7 +58,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.util.ReactiveEx;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -351,12 +351,12 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 					} catch (IOException ex) {
 						LOG.error(ex.toString(), ex);
 						observer.error(ex);
-						return ReactiveEx.emptyCloseable();
+						return Closeables.emptyCloseable();
 					}
 				} catch (IOException ex) {
 					LOG.error(ex.toString(), ex);
 					observer.error(ex);
-					return ReactiveEx.emptyCloseable();
+					return Closeables.emptyCloseable();
 				}
 			}
 

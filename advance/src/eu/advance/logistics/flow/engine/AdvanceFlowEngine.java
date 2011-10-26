@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.reactive4java.base.CloseableIterator;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,7 +87,7 @@ public class AdvanceFlowEngine implements Runnable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The version of the flow engine. */
-	public static final String VERSION = "0.05.129";
+	public static final String VERSION = "0.05.133";
 	/** The configuration. */
 	private AdvanceEngineConfig config;
 	/** The basic server. */
@@ -228,16 +230,21 @@ public class AdvanceFlowEngine implements Runnable {
 						out.write("<?xml version='1.0' encoding='UTF-8'?>".getBytes("UTF-8"));
 					}
 					try {
+						CloseableIterator<XElement> it = xchg.iterator();
 						try {
-							for (XElement e : xchg) {
-								out.write(e.toString().getBytes("UTF-8"));
+							while (it.hasNext()) {
+								out.write(it.next().toString().getBytes("UTF-8"));
 							}
+						} catch (IOException ex) {
+							LOG.error(ex.toString(), ex);
 						} catch (Throwable t) {
 							if (xchg.multiple) {
 								out.write("<advance-exception>".getBytes("UTF-8"));
 								out.write(t.toString().getBytes("UTF-8"));
 								out.write("</advance-exception>\r\n".getBytes("UTF-8"));
 							}
+						} finally {
+							it.close();
 						}
 					} finally {
 						if (xchg.multiple) {
