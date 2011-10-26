@@ -31,11 +31,15 @@ import org.openide.awt.ActionID;
 id = "eu.advance.logistics.flow.engine.controlcenter.LoginAction")
 @ActionRegistration(displayName = "#CTL_LoginAction")
 @ActionReferences({
+    @ActionReference(path = "Shortcuts", name = "D-L"),
     @ActionReference(path = "Menu/RemoteFlowEngine", position = 100)
 })
 public final class LoginAction implements ActionListener {
 
+    @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO implement action body
+        LoginDialog loginDialog = new LoginDialog();
+        loginDialog.setLocationRelativeTo(loginDialog.getOwner());
+        loginDialog.setVisible(true);
     }
 }

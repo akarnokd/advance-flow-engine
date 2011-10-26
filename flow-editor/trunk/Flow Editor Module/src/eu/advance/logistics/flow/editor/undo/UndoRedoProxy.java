@@ -92,6 +92,7 @@ public class UndoRedoProxy implements UndoRedo {
     public void undo() throws CannotUndoException {
         if (active != null) {
             active.undo();
+            cs.fireChange();
         }
     }
 
@@ -99,6 +100,7 @@ public class UndoRedoProxy implements UndoRedo {
     public void redo() throws CannotRedoException {
         if (active != null) {
             active.redo();
+            cs.fireChange();
         }
     }
 }

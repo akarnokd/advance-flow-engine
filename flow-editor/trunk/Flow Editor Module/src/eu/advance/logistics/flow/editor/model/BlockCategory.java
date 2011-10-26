@@ -22,7 +22,7 @@ package eu.advance.logistics.flow.editor.model;
 
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import com.google.common.base.Objects;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

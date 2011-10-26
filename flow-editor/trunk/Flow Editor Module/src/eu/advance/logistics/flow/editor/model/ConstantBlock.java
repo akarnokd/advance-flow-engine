@@ -20,8 +20,8 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.model.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 
 /**
  * <b>ConstantBlock</b>

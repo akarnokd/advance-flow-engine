@@ -21,8 +21,8 @@
 package eu.advance.logistics.flow.editor;
 
 import com.google.common.io.Closeables;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;

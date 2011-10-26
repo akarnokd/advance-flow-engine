@@ -18,8 +18,9 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.editor;
+package eu.advance.logistics.flow.editor.model;
 
+import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
@@ -27,13 +28,13 @@ import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.model.AdvanceBlockBind;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.model.AdvanceBlockReference;
-import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.model.AdvanceCompositeBlockParameterDescription;
-import eu.advance.logistics.flow.model.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import java.awt.Point;
 import java.util.List;
 import java.util.Locale;
@@ -114,7 +115,7 @@ class FlowDescriptionIO {
         }
     }
 
-    static AdvanceCompositeBlock save(CompositeBlock parent) {
+    static AdvanceCompositeBlock build(CompositeBlock parent) {
         AdvanceCompositeBlock aCompositeBlock = new AdvanceCompositeBlock();
         aCompositeBlock.id = parent.getId();
         for (BlockParameter param : parent.getInputs()) {
@@ -132,7 +133,7 @@ class FlowDescriptionIO {
                 saveLocation(aBlockRef.keywords, block);
                 aCompositeBlock.blocks.put(aBlockRef.id, aBlockRef);
             } else if (block instanceof CompositeBlock) {
-                AdvanceCompositeBlock aCompositeBlockChild = save((CompositeBlock) block);
+                AdvanceCompositeBlock aCompositeBlockChild = build((CompositeBlock) block);
                 saveLocation(aCompositeBlockChild.keywords, block);
                 aCompositeBlock.composites.put(aCompositeBlockChild.id, aCompositeBlockChild);
             } else if (block instanceof ConstantBlock) {
@@ -171,7 +172,6 @@ class FlowDescriptionIO {
         d.documentation = s.documentation;
         d.id = s.id;
         d.type = s.type;
-        d.variance = s.variance;
         return d;
     }
 

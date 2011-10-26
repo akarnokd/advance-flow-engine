@@ -20,21 +20,31 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
+import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import org.openide.awt.ActionRegistration;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionID;
+import javax.swing.AbstractAction;
+import org.openide.util.NbBundle;
 
-@ActionID(category = "RemoteFlowEngine",
-id = "eu.advance.logistics.flow.engine.controlcenter.ManageKeystoresAction")
-@ActionRegistration(displayName = "#CTL_ManageKeystoresAction")
-@ActionReferences({
-    @ActionReference(path = "Menu/RemoteFlowEngine", position = 200)
-})
-public final class ManageKeystoresAction implements ActionListener {
+//@ActionID(category = "RemoteFlowEngine",
+//id = "eu.advance.logistics.flow.engine.controlcenter.ManageKeystoresAction")
+//@ActionRegistration(displayName = "#CTL_ManageKeystoresAction")
+//@ActionReferences({
+//    @ActionReference(path = "Menu/RemoteFlowEngine", position = 200)
+//})
+public final class ManageKeystoresAction  extends AbstractAction {
 
+    public ManageKeystoresAction() {
+        putValue(NAME, NbBundle.getMessage(ManageKeystoresAction.class, "CTL_ManageKeystoresAction"));
+        setEnabled(false);
+        EngineController.getInstance().getEventBus().register(this);
+    }
+
+    @Subscribe
+    public void onEngine(EngineController ec) {
+        setEnabled(ec.getEngine() != null);
+    }
+
+    @Override
     public void actionPerformed(ActionEvent e) {
         // TODO implement action body
     }

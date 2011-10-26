@@ -29,7 +29,7 @@ import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
-import eu.advance.logistics.flow.model.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;

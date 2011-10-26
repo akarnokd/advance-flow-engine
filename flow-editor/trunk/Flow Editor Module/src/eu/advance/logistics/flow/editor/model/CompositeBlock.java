@@ -22,7 +22,7 @@ package eu.advance.logistics.flow.editor.model;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

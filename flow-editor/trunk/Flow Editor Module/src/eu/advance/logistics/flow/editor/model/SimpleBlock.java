@@ -20,8 +20,8 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 
 /**
  * <b>SimpleBlock</b>

@@ -27,7 +27,6 @@ import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;

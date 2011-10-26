@@ -10,11 +10,69 @@
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-ManageKeystoresAction.instance">
+                <attr name="position" intvalue="200"/>
+            </file>
             <file name="separator2.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 <attr name="position" intvalue="250"/>
             </file>
-
+            <file name="eu-advance-logistics-flow-engine-controlcenter-DownloadFlowAction.instance">
+                <attr name="position" intvalue="300"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-UploadFlowAction.instance">
+                <attr name="position" intvalue="400"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-DebugFlowAction.instance">
+                <attr name="position" intvalue="500"/>
+            </file>
+            <file name="separator3.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="550"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-ManageRealmsAction.instance">
+                <attr name="position" intvalue="600"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-ManageUsersAction.instance">
+                <attr name="position" intvalue="700"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-ManageGroupsAction.instance">
+                <attr name="position" intvalue="800"/>
+            </file>
+            <file name="separator4.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="850"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-JDBCDataSourceAction.instance">
+                <attr name="position" intvalue="900"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-SOAPChannelsAction.instance">
+                <attr name="position" intvalue="1000"/>
+            </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-JavaMessagingAction.instance">
+                <attr name="position" intvalue="1100"/>
+            </file>
+            <!--file name="separator5.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1150"/>
+            </file-->
+            <file name="eu-advance-logistics-flow-engine-controlcenter-WebDataSourcesAction.instance">
+                <attr name="position" intvalue="1200"/>
+            </file>            
+            <file name="eu-advance-logistics-flow-engine-controlcenter-FTPDataSourcesAction.instance">
+                <attr name="position" intvalue="1300"/>
+            </file>            
+            <file name="eu-advance-logistics-flow-engine-controlcenter-FileDataSourcesAction.instance">
+                <attr name="position" intvalue="1400"/>
+            </file>            
         </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-D.shadow">
+            <attr name="originalFile" stringvalue="Menu/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-DownloadFlowAction.instance"/>
+        </file>
+        <file name="D-U.shadow">
+            <attr name="originalFile" stringvalue="Menu/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-UploadFlowAction.instance"/>
+        </file>
     </folder>
 </filesystem>

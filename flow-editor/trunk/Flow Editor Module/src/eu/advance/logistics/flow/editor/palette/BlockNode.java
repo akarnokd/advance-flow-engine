@@ -25,7 +25,7 @@ import eu.advance.logistics.flow.editor.diagram.SceneDropAction;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.datatransfer.Transferable;
