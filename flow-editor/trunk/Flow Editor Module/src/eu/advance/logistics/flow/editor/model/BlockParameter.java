@@ -21,7 +21,7 @@
 package eu.advance.logistics.flow.editor.model;
 
 import com.google.common.base.Objects;
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 
 /**
  * <b>BlockParameter</b>

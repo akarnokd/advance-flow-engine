@@ -1,7 +1,17 @@
 package eu.advance.logistics.flow.editor.model;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.List;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -9,6 +19,9 @@ import java.util.List;
  */
 public class FlowDescription extends CompositeBlock {
 
+    public static FlowDescription create(AdvanceCompositeBlock compositeBlock) {
+        return FlowDescriptionIO.create(compositeBlock);
+    }
     private List<FlowDescriptionListener> listeners = Lists.newArrayList();
     private CompositeBlock activeBlock;
 
@@ -43,5 +56,39 @@ public class FlowDescription extends CompositeBlock {
 
     public void removeListener(FlowDescriptionListener l) {
         listeners.remove(l);
+    }
+
+    public AdvanceCompositeBlock build() {
+        return FlowDescriptionIO.build(this);
+    }
+
+    public static void save(OutputStream s, AdvanceCompositeBlock compositeBlock) throws IOException {
+        XElement root = AdvanceCompositeBlock.serializeFlow(compositeBlock);
+        BufferedWriter out = null;
+        try {
+            out = new BufferedWriter(new OutputStreamWriter(s));
+            // temporary header fix
+            String header = "<?xml version='1.0' encoding='UTF-8'?>\n<flow-descriptor xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"flow-description.xsd\">";
+            out.write(root.toString().replace("<flow-descriptor>", header));
+            //
+            out.flush();
+        } finally {
+            Closeables.closeQuietly(out);
+        }
+
+    }
+
+    public static AdvanceCompositeBlock load(InputStream s) throws IOException {
+        XElement root = null;
+        InputStream in = null;
+        try {
+            in = new BufferedInputStream(s);
+            root = XElement.parseXML(in);
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            Closeables.closeQuietly(in);
+        }
+        return (root != null) ? AdvanceCompositeBlock.parseFlow(root) : null;
     }
 }

@@ -22,22 +22,23 @@ package eu.advance.logistics.flow.editor;
 
 import com.google.common.collect.Maps;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
-import eu.advance.logistics.flow.model.AdvanceBlockDescription;
-import eu.advance.logistics.flow.model.AdvanceResolver;
-import eu.advance.logistics.flow.model.AdvanceType;
-import eu.advance.logistics.xml.typesystem.XElement;
-import eu.advance.logistics.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.io.StringReader;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
@@ -59,6 +60,7 @@ public class BlockRegistry {
     private Map<AdvanceBlockDescription, BlockCategory> descriptions = Maps.newHashMap();
     private Map<String, AdvanceBlockDescription> types = Maps.newHashMap();
     private Map<String, XType> xtypes = Maps.newHashMap();
+    private AdvanceLocalSchemaResolver schemaResolver;
 
     private BlockRegistry() {
     }
@@ -186,13 +188,13 @@ public class BlockRegistry {
 
         xtypes.clear();
         try {
-            xtypes.put("collection", AdvanceResolver.resolveSchema(new URI("advance:collection")));
-            xtypes.put("boolean", AdvanceResolver.resolveSchema(new URI("advance:boolean")));
-            xtypes.put("integer", AdvanceResolver.resolveSchema(new URI("advance:integer")));
-            xtypes.put("object", AdvanceResolver.resolveSchema(new URI("advance:object")));
-            xtypes.put("real", AdvanceResolver.resolveSchema(new URI("advance:real")));
-            xtypes.put("string", AdvanceResolver.resolveSchema(new URI("advance:string")));
-            xtypes.put("timestamp", AdvanceResolver.resolveSchema(new URI("advance:timestamp")));
+            xtypes.put("collection", resolveSchema(new URI("advance:collection")));
+            xtypes.put("boolean", resolveSchema(new URI("advance:boolean")));
+            xtypes.put("integer", resolveSchema(new URI("advance:integer")));
+            xtypes.put("object", resolveSchema(new URI("advance:object")));
+            xtypes.put("real", resolveSchema(new URI("advance:real")));
+            xtypes.put("string", resolveSchema(new URI("advance:string")));
+            xtypes.put("timestamp", resolveSchema(new URI("advance:timestamp")));
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -226,5 +228,21 @@ public class BlockRegistry {
         a1.typeVariableName = null;
         a1.typeArguments.add(a2);
         return a1;
+    }
+
+    public XType resolveSchema(URI uri) {
+        if (schemaResolver == null) {
+            File schemasDir = InstalledFileLocator.getDefault().locate("schemas", "eu.advance.logistics.core", false);  // NOI18N
+            if (schemasDir.isDirectory()) {
+                String[] schemaLocations = new String[1];
+                try {
+                    schemaLocations[0] = schemasDir.getCanonicalPath();
+                } catch (IOException ex) {
+                    schemaLocations[0] = schemasDir.getAbsolutePath();
+                }
+                schemaResolver = new AdvanceLocalSchemaResolver(Arrays.asList(schemaLocations));
+            }
+        }
+        return schemaResolver.resolve(uri);
     }
 }

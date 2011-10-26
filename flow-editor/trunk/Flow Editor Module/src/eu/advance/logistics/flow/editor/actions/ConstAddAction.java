@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
-import eu.advance.logistics.flow.model.AdvanceConstantBlock;
-import eu.advance.logistics.flow.model.AdvanceResolver;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -110,7 +111,8 @@ public class ConstAddAction extends AbstractAction {
         } catch (URISyntaxException ex) {
             Exceptions.printStackTrace(ex);
         }
-        c.type = AdvanceResolver.resolveSchema(c.typeURI);
+
+        c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
         c.value = new XElement("integer");
         c.value.content = Integer.toString(5);
         XElement temp = new XElement("constant");

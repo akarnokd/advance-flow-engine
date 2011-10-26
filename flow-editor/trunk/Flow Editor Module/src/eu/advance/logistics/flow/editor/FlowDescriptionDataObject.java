@@ -20,18 +20,13 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import com.google.common.io.Closeables;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
-import eu.advance.logistics.flow.model.AdvanceCompositeBlock;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import java.awt.EventQueue;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
@@ -106,21 +101,11 @@ public class FlowDescriptionDataObject extends MultiDataObject {
         try {
             FlowDescription fd = getLookup().lookup(FlowDescription.class);
             fd.fire(FlowDescriptionChange.SAVING, fd);
-            AdvanceCompositeBlock compositeBlock = FlowDescriptionIO.save(fd);
-            XElement root = AdvanceCompositeBlock.serializeFlow(compositeBlock);
-            BufferedWriter out = null;
             try {
-                out = new BufferedWriter(new OutputStreamWriter(getPrimaryFile().getOutputStream()));
-                // temporary header fix
-                String header = "<?xml version='1.0' encoding='UTF-8'?>\n<flow-descriptor xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"flow-description.xsd\">";
-                out.write(root.toString().replace("<flow-descriptor>", header));
-                //
-                out.flush();
+                FlowDescription.save(getPrimaryFile().getOutputStream(), fd.build());
                 setModified(false);
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
-            } finally {
-                Closeables.closeQuietly(out);
             }
         } finally {
             ph.finish();
@@ -148,21 +133,10 @@ public class FlowDescriptionDataObject extends MultiDataObject {
             ProgressHandle ph = ProgressHandleFactory.createHandle(NbBundle.getBundle(FlowDescriptionDataObject.class).getString("LOADING"));
             ph.start();
             try {
-                XElement root = null;
-                InputStream in = null;
-                try {
-                    in = getPrimaryFile().getInputStream();
-                    root = XElement.parseXML(in);
-                } catch (Exception ex) {
-                    Exceptions.printStackTrace(ex);
-                } finally {
-                    Closeables.closeQuietly(in);
-                }
-
-                AdvanceCompositeBlock compositeBlock = (root != null) ? AdvanceCompositeBlock.parseFlow(root) : null;
+                AdvanceCompositeBlock compositeBlock = FlowDescription.load(getPrimaryFile().getInputStream());
                 if (compositeBlock != null) {
                     compositeBlock.id = getPrimaryFile().getName();
-                    final FlowDescription flowDesc = FlowDescriptionIO.create(compositeBlock);
+                    final FlowDescription flowDesc = FlowDescription.create(compositeBlock);
                     flowDesc.setActiveBlock(flowDesc);
                     flowDesc.addListener(new FlowDescriptionListener() {
 
@@ -193,7 +167,8 @@ public class FlowDescriptionDataObject extends MultiDataObject {
                     NotifyDescriptor nd = new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notify(nd);
                 }
-
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
             } finally {
                 ph.finish();
             }

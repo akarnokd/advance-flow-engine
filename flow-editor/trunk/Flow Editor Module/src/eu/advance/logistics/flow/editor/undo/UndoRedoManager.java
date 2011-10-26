@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.editor.undo;
 
-import eu.advance.logistics.flow.editor.*;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.CannotRedoException;
@@ -40,18 +39,18 @@ import org.openide.util.MutexException;
 public class UndoRedoManager extends UndoManager implements UndoRedo {
 
     private final ChangeSupport cs = new ChangeSupport(this);
-    private Mutex.ExceptionAction runUndo = new Mutex.ExceptionAction() {
+    private Mutex.ExceptionAction<Void> runUndo = new Mutex.ExceptionAction<Void>() {
 
         @Override
-        public Object run() throws Exception {
+        public Void run() throws Exception {
             superUndo();
             return null;
         }
     };
-    private Mutex.ExceptionAction runRedo = new Mutex.ExceptionAction() {
+    private Mutex.ExceptionAction<Void> runRedo = new Mutex.ExceptionAction<Void>() {
 
         @Override
-        public Object run() throws Exception {
+        public Void run() throws Exception {
             superRedo();
             return null;
         }

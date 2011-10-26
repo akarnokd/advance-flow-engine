@@ -21,8 +21,8 @@
 package eu.advance.logistics.flow.editor.actions;
 
 import eu.advance.logistics.flow.editor.model.BlockParameter;
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
-import eu.advance.logistics.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.event.ActionEvent;
 import java.io.StringReader;
 import javax.swing.AbstractAction;

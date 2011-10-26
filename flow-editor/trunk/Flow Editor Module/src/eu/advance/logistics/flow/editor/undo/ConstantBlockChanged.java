@@ -21,7 +21,7 @@
 package eu.advance.logistics.flow.editor.undo;
 
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
-import eu.advance.logistics.flow.model.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 
 /**
  *

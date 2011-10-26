@@ -20,12 +20,12 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
-import eu.advance.logistics.flow.editor.actions.DeleteBlockAction;
-import eu.advance.logistics.flow.editor.actions.GroupBlockAction;
 import com.google.common.collect.Lists;
 import eu.advance.logistics.flow.editor.FlowDescriptionDataObject;
 import eu.advance.logistics.flow.editor.actions.ConstAddAction;
 import eu.advance.logistics.flow.editor.actions.ConstEditAction;
+import eu.advance.logistics.flow.editor.actions.DeleteBlockAction;
+import eu.advance.logistics.flow.editor.actions.GroupBlockAction;
 import eu.advance.logistics.flow.editor.actions.ParamAddAction;
 import eu.advance.logistics.flow.editor.actions.ParamEditAction;
 import eu.advance.logistics.flow.editor.actions.ParamRemoveAction;
@@ -45,12 +45,12 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.AlignWithMoveDecorator;
 import org.netbeans.api.visual.action.InplaceEditorProvider;
 import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.action.WidgetAction.State;
-import org.netbeans.api.visual.action.WidgetAction.WidgetKeyEvent;
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.graph.GraphPinScene;
@@ -155,7 +155,12 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
             }
         });
 
-        moveAction = ActionFactory.createAlignWithMoveAction(mainLayer, upperLayer, null);
+
+        //moveAction = ActionFactory.createAlignWithMoveAction(mainLayer, upperLayer, null);
+        AlignWithMoveDecorator decorator = ActionFactory.createDefaultAlignWithMoveDecorator();
+        WidgetMoveSupport sp = new WidgetMoveSupport(this, mainLayer, upperLayer, decorator);
+        moveAction = ActionFactory.createMoveAction(sp, sp);
+
         connectAction = ActionFactory.createConnectAction(connectionLayer, connectionManager);
 
     }
@@ -238,7 +243,7 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
             return null;
         }
         if (node instanceof ConstantBlock) {
-            final ConstantBlock cb = (ConstantBlock)node;
+            final ConstantBlock cb = (ConstantBlock) node;
             ConstantBlockWidget widget = new ConstantBlockWidget(this, scheme);
             mainLayer.addChild(widget);
             widget.getActions().addAction(createObjectHoverAction());
@@ -450,7 +455,7 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
             return null;
         }
         if (pin.owner instanceof ConstantBlock) {
-            return ((ConstantBlockWidget)findWidget(pin.owner)).getNodeAnchor();
+            return ((ConstantBlockWidget) findWidget(pin.owner)).getNodeAnchor();
         }
 
         Widget pinWidget = findWidget(pin);

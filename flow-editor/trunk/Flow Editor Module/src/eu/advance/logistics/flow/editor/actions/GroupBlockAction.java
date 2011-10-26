@@ -24,7 +24,7 @@ import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.model.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
