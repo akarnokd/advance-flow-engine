@@ -24,6 +24,7 @@ package eu.advance.logistics.flow.engine.block;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -42,6 +43,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.google.common.collect.Lists;
 
@@ -174,6 +176,23 @@ public class Log extends AdvanceBlock {
 						d.setVisible(true);
 					}
 				}
+			}
+		});
+		table.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -7615930689752608644L;
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table,
+					Object value, boolean isSelected, boolean hasFocus,
+					int row, int column) {
+				JLabel label = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+						row, column);
+				
+				label.setText(value.toString());
+				return label;
 			}
 		});
 		JScrollPane sp = new JScrollPane(table);
