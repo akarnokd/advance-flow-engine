@@ -234,6 +234,7 @@ public class AdvanceFlowEngine implements Runnable {
 						try {
 							while (it.hasNext()) {
 								out.write(it.next().toString().getBytes("UTF-8"));
+								out.flush();
 							}
 						} catch (IOException ex) {
 							LOG.error(ex.toString(), ex);
