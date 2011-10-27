@@ -42,6 +42,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;
@@ -148,10 +149,12 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				for (AdvancePort p : ab.inputs) {
 					if (p instanceof AdvanceBlockPort) {
 						ConstantOrBlock cb = walkBinding(ab.parent, ab.id, p.name());
-						for  (AdvanceBlock ab2 : flow) {
-							if (ab2.parent == cb.composite && ab2.id.equals(cb.block)) {
-								((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
-								break;
+						if (cb != null) {
+							for  (AdvanceBlock ab2 : flow) {
+								if (ab2.parent == cb.composite && ab2.id.equals(cb.block)) {
+									((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
+									break;
+								}
 							}
 						}
 					}
@@ -204,10 +207,13 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 * @param param the starting parameter
 	 * @return the constant block or null
 	 */
+	@Nullable
 	ConstantOrBlock walkBinding(AdvanceCompositeBlock start, String block, String param) {
 		while (!Thread.currentThread().isInterrupted()) {
+			boolean foundBinding = false;
 			for (AdvanceBlockBind bb : start.bindings) {
 				if (bb.destinationBlock.equals(block) && bb.destinationParameter.equals(param)) {
+					foundBinding = true;
 					if (start.constants.containsKey(bb.sourceBlock)) {
 						// constant found in the current level
 						ConstantOrBlock result = new ConstantOrBlock();
@@ -241,6 +247,9 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					}
 					return null;
 				}
+			}
+			if (!foundBinding) {
+				break;
 			}
 		}
 		return null;
