@@ -167,6 +167,8 @@ public class CCLocalLogin extends JDialog {
 	protected URL engineURL;
 	/** The opened engine. */
 	protected AdvanceEngineControl engine;
+	/** The backing configuration. */
+	protected AdvanceEngineConfig engineConfig;
 	/** The new user field. */
 	protected JTextField newUser;
 	/** The new path field. */
@@ -476,22 +478,25 @@ public class CCLocalLogin extends JDialog {
 	 * @return if the opening was successful
 	 */
 	protected boolean openLocalEngine(File file, String userName) {
-		final AdvanceEngineConfig config = new AdvanceEngineConfig();
+		engineConfig = new AdvanceEngineConfig();
 		try {
-			config.initialize(XElement.parseXML(file));
+			engineConfig.initialize(XElement.parseXML(file));
 			
-			AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, 
-					config.blockResolver, config.schedulerMap);
-			AdvanceDataStore datastore = config.datastore();
+			AdvanceCompiler compiler = new AdvanceCompiler(engineConfig.schemaResolver, 
+					engineConfig.blockResolver, engineConfig.schedulerMap);
+			AdvanceDataStore datastore = engineConfig.datastore();
 			if (datastore.queryUsers().isEmpty()) {
 				addFirst(datastore);
 			}
-			engine = new LocalEngineControl(datastore, config.schemas, compiler, compiler) {
+			engine = new LocalEngineControl(datastore, engineConfig.schemas, compiler, compiler) {
 				@Override
 				public void shutdown() throws IOException,
 						AdvanceControlException {
-					super.shutdown();
-					config.close();
+					try {
+						super.shutdown();
+					} finally {
+						engineConfig.close();
+					}
 				}
 			};
 			engine = new CheckedEngineControl(engine, userName);
@@ -566,6 +571,15 @@ public class CCLocalLogin extends JDialog {
 		AdvanceEngineControl e = engine;
 		engine = null;
 		return e;
+	}
+	/**
+	 * Takes the engine config record.
+	 * @return the engine config record
+	 */
+	public AdvanceEngineConfig takeConfig() {
+		AdvanceEngineConfig ec = engineConfig;
+		engineConfig = null;
+		return ec;
 	}
 	/**
 	 * @return the engineURL

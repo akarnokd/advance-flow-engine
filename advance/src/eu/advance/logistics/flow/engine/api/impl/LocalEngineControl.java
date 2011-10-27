@@ -333,7 +333,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			throws IOException, AdvanceControlException {
 		AdvanceRealm r = datastore.queryRealm(name);
 		if (r != null) {
-			if (r.status == AdvanceRealmStatus.STOPPED || r.status == AdvanceRealmStatus.ERROR) {
+			if (r.status == AdvanceRealmStatus.STOPPED 
+					|| r.status == AdvanceRealmStatus.ERROR
+					|| r.status == AdvanceRealmStatus.RESUME) {
 				r.modifiedBy = byUser;
 				tryStartRealm(r);
 			} else {
@@ -366,7 +368,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		List<AdvanceBlock> blocks = realmRuntime.get(realm);
 		if (blocks != null) {
 			for (AdvanceBlock b : blocks) {
-				if (b.getDescription().id.equals(blockId)) {
+				if (b.id.equals(blockId)) {
 					for (AdvancePort p : b.inputs) {
 						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
 							return ((AdvanceBlockPort)p).getDiagnosticPort();
@@ -555,23 +557,30 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		
 		try {
 			XElement xflow = datastore.queryFlow(r.name);
+			LOG.debug("Parsing flow");
 			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(xflow);
+			LOG.debug("Verifying flow");
 			AdvanceCompilationResult verify = compiler.verify(flow);
 			realmVerifications.put(r.name, verify);
 			if (verify.success()) {
+				LOG.debug("Compiling flow");
 				List<AdvanceBlock> blocks = compiler.compile(flow);
 				realmRuntime.put(r.name, blocks);
+				LOG.debug("Restoring block state");
 				for (AdvanceBlock b : blocks) {
 					XElement state = datastore.queryBlockState(r.name, b.getDescription().id);
 					if (state != null) {
 						b.restoreState(state);
 					}
 				}
+				LOG.debug("Running blocks");
 				executor.run(blocks);
+				LOG.debug("Start success");
 				r.status = AdvanceRealmStatus.RUNNING;
 				r.modifiedAt = new Date();
 				datastore.updateRealm(r);
 			} else {
+				LOG.debug("Start failed");
 				r.status = AdvanceRealmStatus.ERROR;
 				r.modifiedAt = new Date();
 				datastore.updateRealm(r);
@@ -608,9 +617,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		datastore.updateRealm(r);
 		try {
 			List<AdvanceBlock> blocks = realmRuntime.remove(r.name);
-			if (blocks == null) {
-				LOG.info("Shutdown realm is empty: " + r.name);
-			} else {
+			if (blocks != null) {
 				executor.done(blocks);
 				for (AdvanceBlock b : blocks) {
 					XElement state = b.saveState();

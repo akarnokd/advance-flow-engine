@@ -35,6 +35,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -49,12 +50,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+
+import eu.advance.logistics.flow.engine.cc.CCFiltering.FilterItem;
 
 /**
  * A generic listing frame containing engine information, a
@@ -88,6 +93,8 @@ public class CCListingFrame<T> extends JFrame {
 	protected final LabelManager labels;
 	/** The refresh button. */
 	protected JButton refresh;
+	/** The filter function receiving the filter program, the current row and returns a boolean if the row should pass. */
+	private Func2<List<FilterItem>, T, Boolean> filterFunction;
 	/**
 	 * The table model.
 	 */
@@ -188,7 +195,7 @@ public class CCListingFrame<T> extends JFrame {
 		filter.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				refresh();
+				doFilter();
 			}
 		});
 		refresh = new JButton(labels.get("Refresh"));
@@ -415,5 +422,38 @@ public class CCListingFrame<T> extends JFrame {
 		}
 		
 		return result;
+	}
+	/** Filter the rows. */
+	void doFilter() {
+		@SuppressWarnings("unchecked") TableRowSorter<AbstractTableModel> rs = (TableRowSorter<AbstractTableModel>)table.getRowSorter();
+		if (filter.getText().isEmpty() || filterFunction == null) {
+			rs.setRowFilter(null);
+			return;
+		}
+		try {
+			final List<FilterItem> fis = CCFiltering.parse(filter.getText());
+			rs.setRowFilter(new RowFilter<AbstractTableModel, Integer>() {
+				@Override
+				public boolean include(
+						javax.swing.RowFilter.Entry<? extends AbstractTableModel, ? extends Integer> entry) {
+					Integer idx = entry.getIdentifier();
+					T row = rows.get(idx);
+					
+					return filterFunction.invoke(fis, row);
+				}
+			});
+			
+			
+		} catch (ParseException ex) {
+			GUIUtils.errorMessage(this, ex);
+		}
+	}
+	/**
+	 * Sets the filter function.
+	 * @param filterFunction the filter function receiving the filter program, the row and should 
+	 * return a boolean indicating whether the row should stay
+	 */
+	public void setFilterFunction(Func2<List<FilterItem>, T, Boolean> filterFunction) {
+		this.filterFunction = filterFunction;
 	}
 }

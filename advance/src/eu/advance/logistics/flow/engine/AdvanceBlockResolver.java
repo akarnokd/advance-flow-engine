@@ -62,23 +62,22 @@ public class AdvanceBlockResolver {
 	}
 	/**
 	 * Create a concrete block by using the given settings.
-	 * @param gid the global block id
+	 * @param id the global block id
 	 * @param parent the parent composite block
-	 * @param name the level block identifier
+	 * @param type the block type
 	 * @return the new block instance 
 	 */
-	public AdvanceBlock create(int gid, AdvanceCompositeBlock parent, String name) {
-		AdvanceBlockRegistryEntry e = blocks.get(name);
+	public AdvanceBlock create(String id, AdvanceCompositeBlock parent, String type) {
+		AdvanceBlockRegistryEntry e = blocks.get(type);
 		try {
 			Class<?> clazz = Class.forName(e.clazz);
 			if (AdvanceBlock.class.isAssignableFrom(clazz)) {
 				try {
 					Constructor<?> c = clazz.getConstructor(
-							Integer.TYPE, 
-							AdvanceCompositeBlock.class, 
 							String.class, 
+							AdvanceCompositeBlock.class, 
 							AdvanceSchedulerPreference.class);
-					return AdvanceBlock.class.cast(c.newInstance(gid, parent, name, e.scheduler));
+					return AdvanceBlock.class.cast(c.newInstance(id, parent, e.scheduler));
 				} catch (NoSuchMethodException ex) {
 					LOG.error("Missing constructor of {int, AdvanceCompositeBlock, String, SchedulerPreference}", ex);
 				} catch (SecurityException ex) {
@@ -93,7 +92,7 @@ public class AdvanceBlockResolver {
 					LOG.error(ex.toString(), ex);
 				}
 			} else {
-				LOG.error("Block " + name + " of class " + e.clazz + " is not an AdvanceBlock");
+				LOG.error("Block " + type + " of class " + e.clazz + " is not an AdvanceBlock");
 			}
 		} catch (ClassNotFoundException ex) {
 			LOG.error(ex.toString(), ex);

@@ -58,6 +58,8 @@ public class MissingBlockError implements AdvanceCompilationError {
 	}
 	@Override
 	public void save(XElement destination) {
+		destination.set("type", getClass().getSimpleName());
+		destination.set("message", toString());
 		destination.set("id", id, "type", type);
 	}
 	/** Creates a new instance of this class. */

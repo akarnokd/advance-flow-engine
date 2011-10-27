@@ -54,6 +54,8 @@ public class MissingDestinationError implements AdvanceCompilationError {
 	}
 	@Override
 	public void save(XElement destination) {
+		destination.set("type", getClass().getSimpleName());
+		destination.set("message", toString());
 		binding.save(destination.add("binding"));
 	}
 	/** Creates a new instance of this class. */

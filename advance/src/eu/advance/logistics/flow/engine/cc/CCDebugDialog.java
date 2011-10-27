@@ -422,7 +422,7 @@ public class CCDebugDialog extends JFrame {
 		createMenu();
 		getRealmsAndBlocks();
 		applySelectionState();
-		test();
+//		test();
 	}
 	/** Create test data. */
 	void test() {
@@ -583,6 +583,11 @@ public class CCDebugDialog extends JFrame {
 				}
 				
 			});
+			CCDebugRow r = new CCDebugRow();
+			r.watch = ws;
+			r.timestamp = new Date();
+			r.value = Option.none();
+			addRow(r);
 		} catch (Throwable t) {
 			GUIUtils.errorMessage(this, t);
 		}
@@ -631,6 +636,11 @@ public class CCDebugDialog extends JFrame {
 				}
 				
 			});
+			CCDebugRow r = new CCDebugRow();
+			r.watch = ws;
+			r.timestamp = new Date();
+			r.value = Option.none();
+			addRow(r);
 		} catch (Throwable t) {
 			GUIUtils.errorMessage(this, t);
 		}

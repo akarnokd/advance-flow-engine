@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow-description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../schemas/flow-description.xsd">
+	<composite-block id="1">
+		<block id="b1" type="Button"></block>
+		<constant type="advance:string" id="c1"><string>Click click click!</string></constant>
+		<block id="b2" type="Gate"/>
+		<constant type="advance:string" id="c2"><string>Relay</string></constant>
+		<block id='log1' type='Log'/>
+		<block id='log0' type='Log'/>
+		<bind source-block='c1' source-parameter="" destination-block="b1" destination-parameter="title" id="w1"/>
+		<bind source-block='c2' source-parameter="" destination-block="b2" destination-parameter="title" id="w2"/>
+		<bind source-block='b1' source-parameter='out' destination-block='log0' destination-parameter='in' id="w3"/>
+		<bind source-block='b2' source-parameter='out' destination-block='log1' destination-parameter="in" id='w4'/>
+		<bind source-block='log0' source-parameter="out" destination-block="b2" destination-parameter="in" id='w5'/>
+	</composite-block>
+</flow-description>

@@ -43,14 +43,13 @@ public class Reverse extends AdvanceBlock {
 	
 	/**
 	 * Constructor.
-	 * @param gid the block global id
+	 * @param id the block global id
 	 * @param parent the parent composite block
-	 * @param name the block's type name
 	 * @param schedulerPreference the scheduler preference
 	 */
-	public Reverse(int gid, AdvanceCompositeBlock parent, String name,
+	public Reverse(String id, AdvanceCompositeBlock parent, 
 			AdvanceSchedulerPreference schedulerPreference) {
-		super(gid, parent, name, schedulerPreference);
+		super(id, parent, schedulerPreference);
 	}
 
 	@Override
