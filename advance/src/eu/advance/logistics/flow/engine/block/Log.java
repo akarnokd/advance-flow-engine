@@ -34,9 +34,13 @@ import java.util.Map;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 import com.google.common.collect.Lists;
@@ -65,6 +69,8 @@ public class Log extends AdvanceBlock {
 	protected AbstractTableModel model;
 	/** The table. */
 	protected JTable table;
+	/** The number of rows. */
+	protected JLabel rowcount;
 	/**
 	 * Constructor.
 	 * @param id the block global id
@@ -92,7 +98,7 @@ public class Log extends AdvanceBlock {
 	protected void createGUI() {
 		frame = new JFrame("Log");
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		
+		rowcount = new JLabel("Rows: 0");
 		model = new AbstractTableModel() {
 			/** */
 			private static final long serialVersionUID = -3454726369103170368L;
@@ -129,6 +135,12 @@ public class Log extends AdvanceBlock {
 				return "Value";
 			}
 		};
+		model.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				rowcount.setText(String.format("Rows %d, Total %d", table.getRowCount(), rows.size()));
+			}
+		});
 		
 		table = new JTable(model);
 		table.setAutoCreateRowSorter(true);
@@ -173,12 +185,14 @@ public class Log extends AdvanceBlock {
 		gl.setAutoCreateContainerGaps(true);
 		
 		gl.setHorizontalGroup(
-			gl.createSequentialGroup()
+			gl.createParallelGroup(Alignment.CENTER)
 			.addComponent(sp)
+			.addComponent(rowcount)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
 			.addComponent(sp)
+			.addComponent(rowcount)
 		);
 		frame.pack();
 		frame.setLocationRelativeTo(null);

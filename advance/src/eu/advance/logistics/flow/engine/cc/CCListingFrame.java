@@ -378,11 +378,14 @@ public class CCListingFrame<T> extends JFrame {
 	 * @param index the button index (zero based)
 	 * @param title the title label
 	 * @param action the action
+	 * @return the button
 	 */
-	public void setExtraButton(int index, String title, ActionListener action) {
-		extra[index].setText(labels.get(title));
-		extra[index].addActionListener(action);
-		extra[index].setVisible(true);
+	public JButton setExtraButton(int index, String title, ActionListener action) {
+		JButton result = extra[index];
+		result.setText(labels.get(title));
+		result.addActionListener(action);
+		result.setVisible(true);
+		return result;
 	}
 	/** @return the list of selected items. */
 	public List<T> getSelectedItems() {

@@ -991,7 +991,6 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			XElement result = map.get(blockId);
 			return result;
 		}
-		LOG.error("Missing realm: " + realm);
 		return null;
 	}
 	@Override
