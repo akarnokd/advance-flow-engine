@@ -138,7 +138,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					consts.put(bdp.id, cb.constant);
 				}
 			}
-			AdvanceBlock ab = blockResolver.create(flow.size(), root, br.type);
+			AdvanceBlock ab = blockResolver.create(br.id, root, br.type);
 			ab.init(bd, consts);
 			flow.add(ab);
 		}
@@ -147,9 +147,9 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			for (AdvanceBlock ab : flow) {
 				for (AdvancePort p : ab.inputs) {
 					if (p instanceof AdvanceBlockPort) {
-						ConstantOrBlock cb = walkBinding(ab.parent, ab.getDescription().id, p.name());
+						ConstantOrBlock cb = walkBinding(ab.parent, ab.id, p.name());
 						for  (AdvanceBlock ab2 : flow) {
-							if (ab2.parent == cb.composite && ab2.name.equals(cb.block)) {
+							if (ab2.parent == cb.composite && ab2.id.equals(cb.block)) {
 								((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
 								break;
 							}
@@ -200,7 +200,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	/**
 	 * Walk the binding graph to locate a root constant block or return null if no such block was found.
 	 * @param start the starting composite block
-	 * @param block the starting block
+	 * @param block the starting block identifier
 	 * @param param the starting parameter
 	 * @return the constant block or null
 	 */

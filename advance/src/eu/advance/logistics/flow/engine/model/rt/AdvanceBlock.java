@@ -57,9 +57,7 @@ public abstract class AdvanceBlock {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlock.class);
 	/** The global identifier of this block. */ 
-	protected final int gid;
-	/** The block identifier within the current composite level. */
-	public final String name;
+	public final String id;
 	/** The input ports. */
 	public final List<AdvancePort> inputs;
 	/** The output ports. */
@@ -74,22 +72,19 @@ public abstract class AdvanceBlock {
 	protected final List<Closeable> functionClose;
 	/** The preferred scheduler type. Filled in by the AdvanceBlockLookup.create(). */
 	public final AdvanceSchedulerPreference schedulerPreference;
-//	/** The scheduler instance to use. Filled in by the AdvanceCompiler.run(). */
-//	public Scheduler scheduler;
+	/** The scheduler instance to use. Filled in by the AdvanceCompiler.run(). */
+	private Scheduler scheduler;
 	/**
 	 * Constructor.  
-	 * @param gid The global identifier of this block. 
+	 * @param id The global identifier of this block. 
 	 * @param parent the parent composite block.
-	 * @param name the level identifier
 	 * @param schedulerPreference the scheduler preference
 	 */
-	public AdvanceBlock(int gid, 
+	public AdvanceBlock(String id, 
 			AdvanceCompositeBlock parent, 
-			String name, 
 			AdvanceSchedulerPreference schedulerPreference) {
-		this.gid = gid;
+		this.id = id;
 		this.parent = parent;
-		this.name = name;
 		this.schedulerPreference = schedulerPreference;
 		this.inputs = Lists.newArrayList();
 		this.outputs = Lists.newArrayList();
@@ -108,18 +103,17 @@ public abstract class AdvanceBlock {
 			AdvanceConstantBlock cb = constantParams.get(in.id); 
 			if (cb == null) {
 				AdvanceBlockPort p = new AdvanceBlockPort(this, in.id);
-//				p.type = AdvanceResolver.resolveSchema(in.type);
+				p.init();
 				inputs.add(p);
 			} else {
 				AdvanceConstantPort p = new AdvanceConstantPort(this, in.id);
 				p.value = cb.value;
-//				p.type = AdvanceResolver.resolveSchema(in.type);
 				inputs.add(p);
 			}
 		}
 		for (AdvanceBlockParameterDescription out : desc.outputs.values()) {
 			AdvanceBlockPort p = new AdvanceBlockPort(this, out.id);
-//			p.type = AdvanceResolver.resolveSchema(out.type);
+			p.init();
 			outputs.add(p);
 		}
 		diagnostic = new DefaultObservable<AdvanceBlockDiagnostic>(false, false);
@@ -152,6 +146,7 @@ public abstract class AdvanceBlock {
 	 * @return the observer to trigger in the run phase
 	 */
 	public Observer<Void> run(final Scheduler scheduler) {
+		this.scheduler = scheduler;
 		List<AdvancePort> reactivePorts = getReactivePorts(); 
 		
 		if (inputs.size() == 0 || reactivePorts.size() == 0) {
@@ -307,10 +302,6 @@ public abstract class AdvanceBlock {
 		}
 		diagnostic.finish();
 	}
-	/** @return the block global id. */
-	public int getGid() {
-		return gid;
-	}
 	/** @return the block's description. */
 	public AdvanceBlockDescription getDescription() {
 		return description;
@@ -350,5 +341,12 @@ public abstract class AdvanceBlock {
 	 */
 	public void restoreState(XElement state) {
 		
+	}
+	/**
+	 * The scheduler for this block.
+	 * @return the scheduler, null until the run() method is invoked
+	 */
+	public Scheduler scheduler() {
+		return scheduler;
 	}
 }

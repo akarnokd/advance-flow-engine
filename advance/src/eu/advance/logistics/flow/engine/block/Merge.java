@@ -46,14 +46,13 @@ public class Merge extends AdvanceBlock {
 	
 	/**
 	 * Constructor.
-	 * @param gid the block global id
+	 * @param id the block global id
 	 * @param parent the parent composite block
-	 * @param name the block's type name
 	 * @param schedulerPreference the scheduler preference
 	 */
-	public Merge(int gid, AdvanceCompositeBlock parent, String name,
+	public Merge(String id, AdvanceCompositeBlock parent, 
 			AdvanceSchedulerPreference schedulerPreference) {
-		super(gid, parent, name, schedulerPreference);
+		super(id, parent, schedulerPreference);
 	}
 
 	

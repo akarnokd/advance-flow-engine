@@ -39,14 +39,14 @@ public class GetItem extends AdvanceBlock {
 	
 	/**
 	 * Constructor.
-	 * @param gid the block global id
+	 * @param id the block global id
 	 * @param parent the parent composite block
 	 * @param name the block's type name
 	 * @param schedulerPreference the scheduler preference
 	 */
-	public GetItem(int gid, AdvanceCompositeBlock parent, String name,
+	public GetItem(String id, AdvanceCompositeBlock parent, String name,
 			AdvanceSchedulerPreference schedulerPreference) {
-		super(gid, parent, name, schedulerPreference);
+		super(id, parent, schedulerPreference);
 	}
 
 	@Override

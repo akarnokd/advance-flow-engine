@@ -72,6 +72,8 @@ public class TypeMismatchError implements AdvanceCompilationError {
 	}
 	@Override
 	public void save(XElement destination) {
+		destination.set("type", getClass().getSimpleName());
+		destination.set("message", toString());
 		binding.save(destination.add("binding"));
 		left.save(destination.add("left-type"));
 		right.save(destination.add("right-type"));

@@ -3,6 +3,14 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.05.133 Notes
+----------------------
+
+Fixed some bugs and functional issues with the flow engine.
+
+Updated Reactive4Java library to version 0.95.
+
+
 Version 0.05.129 Notes
 ----------------------
 

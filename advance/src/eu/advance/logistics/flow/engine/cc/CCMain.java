@@ -106,6 +106,8 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.Identifiable;
 import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
+import eu.advance.logistics.flow.engine.cc.CCFiltering.FilterItem;
+import eu.advance.logistics.flow.engine.cc.CCFiltering.FilterOp;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
@@ -944,10 +946,76 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			});
 		}
+		f.setFilterFunction(new Func2<List<FilterItem>, AdvanceRealm, Boolean>() {
+			@Override
+			public Boolean invoke(List<FilterItem> param1, AdvanceRealm param2) {
+				for (FilterItem fi : param1) {
+					if ("name".equals(fi.name)) {
+						if (!filterStringOp(fi.op, param2.name, fi.values)) {
+							return false;
+						}
+					} else
+					if ("created at".equals(fi.name)) {
+						if (!filterDateOp(fi.op, param2.createdAt, fi.values)) {
+							return false;
+						}
+					} else
+					if ("created by".equals(fi.name)) {
+						if (!filterStringOp(fi.op, param2.createdBy, fi.values)) {
+							return false;
+						}
+					} else
+					if ("modified at".equals(fi.name)) {
+						if (!filterDateOp(fi.op, param2.modifiedAt, fi.values)) {
+							return false;
+						}
+					} else
+					if ("modified by".equals(fi.name)) {
+						if (!filterStringOp(fi.op, param2.modifiedBy, fi.values)) {
+							return false;
+						}
+					} else
+					if ("status".equals(fi.name)) {
+						if (!filterStringOp(fi.op, param2.status.toString(), fi.values)) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		});
 
 		f.setColumnCount(4);
 
 		displayFrame(f, "managerealms-", "Manage realms");
+	}
+	/**
+	 * Filter a string according to the operator.
+	 * @param op the operator
+	 * @param currentValue the current value
+	 * @param testValues the test values
+	 * @return true if the test succeeds
+	 */
+	boolean filterStringOp(FilterOp op, String currentValue, List<String> testValues) {
+		switch (op) {
+		// TODO implement
+		default:
+			return false;
+		}
+	}
+	/**
+	 * Filter a date according to the operator.
+	 * @param op the operator
+	 * @param currentValue the current value
+	 * @param testValues the test values
+	 * @return true if succeeds
+	 */
+	boolean filterDateOp(FilterOp op, Date currentValue, List<String> testValues) {
+		switch (op) {
+		// TODO implement
+		default:
+			return false;
+		}
 	}
 	/**
 	 * Do manage realms.
