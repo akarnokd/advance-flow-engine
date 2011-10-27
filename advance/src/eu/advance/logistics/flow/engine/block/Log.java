@@ -178,7 +178,7 @@ public class Log extends AdvanceBlock {
 				}
 			}
 		});
-		table.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+		table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
 			/**
 			 * 
 			 */

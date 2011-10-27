@@ -397,9 +397,9 @@ public class CCDebugDialog extends JFrame {
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
 			.addComponent(engineInfo)
-			.addComponent(topSeparator)
+			.addComponent(topSeparator, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			.addGroup(g.second)
-			.addComponent(middleSeparator)
+			.addComponent(middleSeparator, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
 				.addComponent(filterLabel)

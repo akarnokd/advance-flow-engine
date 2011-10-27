@@ -7,10 +7,15 @@
 		<constant type="advance:string" id="c2"><string>Relay</string></constant>
 		<block id='log1' type='Log'/>
 		<block id='log0' type='Log'/>
+		<block id='merge1' type='Merge'/>
+		<block id='text1' type='InputBox'/>
+		
 		<bind source-block='c1' source-parameter="" destination-block="b1" destination-parameter="title" id="w1"/>
 		<bind source-block='c2' source-parameter="" destination-block="b2" destination-parameter="title" id="w2"/>
 		<bind source-block='b1' source-parameter='out' destination-block='log0' destination-parameter='in' id="w3"/>
-		<bind source-block='b2' source-parameter='out' destination-block='log1' destination-parameter="in" id='w4'/>
+		<bind source-block='b2' source-parameter='out' destination-block='merge1' destination-parameter="1" id='w4'/>
 		<bind source-block='log0' source-parameter="out" destination-block="b2" destination-parameter="in" id='w5'/>
+		<bind source-block='text1' source-parameter='out' destination-block='merge1' destination-parameter="2" id='w6'/>
+		<bind source-block='merge1' source-parameter='out' destination-block='log1' destination-parameter="in" id='w7'/>
 	</composite-block>
 </flow-description>

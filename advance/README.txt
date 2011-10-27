@@ -3,6 +3,15 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.05.138 Notes
+----------------------
+
+Fixed several engine and communication related bugs.
+
+Updated Reactive4Java library to version 0.95.1 due several bugs.
+
+Updated the ECC to have more convenient realm management.
+
 Version 0.05.133 Notes
 ----------------------
 
