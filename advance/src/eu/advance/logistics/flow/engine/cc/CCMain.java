@@ -68,6 +68,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
@@ -866,68 +867,67 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			});
 		}
-		f.setExtraButton(1, "Start", new ActionListener() {
+		final JPopupMenu popup = new JPopupMenu();
+		JMenuItem mnuStart = new JMenuItem(get("Start"));
+		JMenuItem mnuStop = new JMenuItem(get("Stop"));
+		JMenuItem mnuUpload = new JMenuItem(get("Upload..."));
+		JMenuItem mnuDownload = new JMenuItem(get("Download..."));
+		JMenuItem mnuResult = new JMenuItem(get("Compilation result..."));
+
+		popup.add(mnuStart);
+		popup.add(mnuStop);
+		popup.addSeparator();
+		popup.add(mnuUpload);
+		popup.add(mnuDownload);
+		popup.add(mnuResult);
+		
+		mnuStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final List<AdvanceRealm> sel = f.getSelectedItems();
-				GUIUtils.getWorker(new WorkItem() {
-					/** The error. */
-					Throwable t;
-					@Override
-					public void run() {
-						for (AdvanceRealm r : sel) {
-							if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.START)) {
-								try {
-									engine.startRealm(r.name, user.name);
-								} catch (Throwable t) {
-									this.t = t;
-									break;
-								}
-							}
-						}
-					}
-					@Override
-					public void done() {
-						if (t != null) {
-							GUIUtils.errorMessage(f, t);
-						} else {
-							f.refresh();
-						}
-					}
-				}).execute();
+				doStartRealm(f);
 			}
 		});
-		f.setExtraButton(2, "Stop", new ActionListener() {
+		mnuStop.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final List<AdvanceRealm> sel = f.getSelectedItems();
-				GUIUtils.getWorker(new WorkItem() {
-					/** The error. */
-					Throwable t;
-					@Override
-					public void run() {
-						for (AdvanceRealm r : sel) {
-							if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.STOP)) {
-								try {
-									engine.stopRealm(r.name, user.name);
-								} catch (Throwable t) {
-									this.t = t;
-									break;
-								}
-							}
-						}
-					}
-					@Override
-					public void done() {
-						if (t != null) {
-							GUIUtils.errorMessage(f, t);
-						} else {
-							f.refresh();
-						}
-					}
-				}).execute();
+				doStopRealm(f);
 			}
 		});
+		
+		// TODO
+		mnuUpload.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<AdvanceRealm> list = f.getSelectedItems();
+				if (list.size() == 1) {
+					doUploadFlowAction(f, list.get(0).name);
+				}
+			}
+		});
+		mnuDownload.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doDownloadFlowAction(f, f.getSelectedItems().iterator());
+			}
+		});
+		mnuResult.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<AdvanceRealm> list = f.getSelectedItems();
+				if (list.size() == 1) {
+					doCompilationResult(f, list.get(0).name);
+				}
+			}
+		});
+		
+		JButton btn = f.setExtraButton(1, "Actions", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Component source = (Component)e.getSource();
+				popup.show(source, 0, source.getHeight());
+			}
+		});
+		btn.setIcon(new ImageIcon(getClass().getResource("down.png")));
 		if (user.rights.contains(AdvanceUserRights.DELETE_REALM)) {
 			f.setExtraButton(3, "Delete", new ActionListener() {
 				@Override
@@ -988,6 +988,38 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		f.setColumnCount(4);
 
 		displayFrame(f, "managerealms-", "Manage realms");
+	}
+	/**
+	 * Stop the selected realms.
+	 * @param f the parent frame
+	 */
+	public void doStopRealm(final CCListingFrame<AdvanceRealm> f) {
+		final List<AdvanceRealm> sel = f.getSelectedItems();
+		GUIUtils.getWorker(new WorkItem() {
+			/** The error. */
+			Throwable t;
+			@Override
+			public void run() {
+				for (AdvanceRealm r : sel) {
+					if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.STOP)) {
+						try {
+							engine.stopRealm(r.name, user.name);
+						} catch (Throwable t) {
+							this.t = t;
+							break;
+						}
+					}
+				}
+			}
+			@Override
+			public void done() {
+				if (t != null) {
+					GUIUtils.errorMessage(f, t);
+				} else {
+					f.refresh();
+				}
+			}
+		}).execute();
 	}
 	/**
 	 * Filter a string according to the operator.
@@ -3569,5 +3601,37 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			}).execute();
 		}
+	}
+	/**
+	 * Start the selected realms.
+	 * @param f the frame of the realms
+	 */
+	public void doStartRealm(final CCListingFrame<AdvanceRealm> f) {
+		final List<AdvanceRealm> sel = f.getSelectedItems();
+		GUIUtils.getWorker(new WorkItem() {
+			/** The error. */
+			Throwable t;
+			@Override
+			public void run() {
+				for (AdvanceRealm r : sel) {
+					if (user.realmRights.containsEntry(r.name, AdvanceUserRealmRights.START)) {
+						try {
+							engine.startRealm(r.name, user.name);
+						} catch (Throwable t) {
+							this.t = t;
+							break;
+						}
+					}
+				}
+			}
+			@Override
+			public void done() {
+				if (t != null) {
+					GUIUtils.errorMessage(f, t);
+				} else {
+					f.refresh();
+				}
+			}
+		}).execute();
 	}
 }
