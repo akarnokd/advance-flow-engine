@@ -174,7 +174,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 		return false;
 	}
 	/**
-	 * Parse a {@code flow-descriptor.xsd} based XML.
+	 * Parse a {@code flow-description.xsd} based XML.
 	 * @param flow the flow XML tree
 	 * @return the composite block
 	 */

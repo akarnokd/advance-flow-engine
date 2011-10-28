@@ -74,7 +74,7 @@ public class CCSOAPDetails extends JPanel implements
 	/** Is encrypted? */
 	protected JCheckBox encrypted;
 	/** The available keystores. */
-	protected JComboBox<String> keystores;
+	protected JComboBox keystores;
 	/** Manage keystores button. */
 	protected JButton manageKeyStores;
 	/** Text field. */
@@ -97,7 +97,7 @@ public class CCSOAPDetails extends JPanel implements
 		targetNamespace = new JTextField();
 		methodName = new JTextField();
 		encrypted = new JCheckBox(labels.get("Encrypted channel"));
-		keystores = new JComboBox<String>();
+		keystores = new JComboBox();
 		manageKeyStores = new JButton(labels.get("Manage keystores..."));
 		alias = new JTextField();
 		password = new JPasswordField();
@@ -277,7 +277,7 @@ public class CCSOAPDetails extends JPanel implements
 	 * @param keystores the keystore
 	 */
 	public void setKeyStores(Iterable<AdvanceKeyStore> keystores) {
-		this.keystores.setModel(new DefaultComboBoxModel<String>(
+		this.keystores.setModel(new DefaultComboBoxModel(
 		Iterables.toArray(Interactive.select(keystores, new Func1<AdvanceKeyStore, String>() {
 			@Override
 			public String invoke(AdvanceKeyStore param1) {

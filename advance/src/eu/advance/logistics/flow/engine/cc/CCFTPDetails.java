@@ -59,7 +59,7 @@ public class CCFTPDetails extends JPanel implements
 	/** The name. */
 	protected JTextField name;
 	/** The protocol. */
-	protected JComboBox<AdvanceFTPProtocols> protocol;
+	protected JComboBox protocol;
 	/** The address. */
 	protected JTextField address;
 	/** The remote directory. */
@@ -78,7 +78,7 @@ public class CCFTPDetails extends JPanel implements
 		test.setVisible(false);
 		
 		name = new JTextField();
-		protocol = new JComboBox<AdvanceFTPProtocols>(AdvanceFTPProtocols.values());
+		protocol = new JComboBox(AdvanceFTPProtocols.values());
 		address = new JTextField();
 		directory = new JTextField();
 		

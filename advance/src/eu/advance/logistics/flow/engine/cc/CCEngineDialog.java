@@ -103,9 +103,9 @@ public class CCEngineDialog extends JFrame {
 	/** The basic login port. */
 	protected JFormattedTextField basicAuthPort;
 	/** The certificates of the client. */
-	protected JComboBox<String> clientKeyStore;
+	protected JComboBox clientKeyStore;
 	/** The server keys and certificate. */
-	protected JComboBox<String> serverKeyStore;
+	protected JComboBox serverKeyStore;
 	/** The server's key password. */
 	protected JPasswordField serverPassword;
 	/** The server's key password. */
@@ -127,7 +127,7 @@ public class CCEngineDialog extends JFrame {
 	/** The custom driver. */
 	protected JTextField dsCustomDriver;
 	/** The set of predefined drivers. */
-	protected JComboBox<AdvanceJDBCDrivers> dsDriver;
+	protected JComboBox dsDriver;
 	/** The custom driver label. */
 	protected JLabel dsCustomDriverLabel;
 	/** The user name. */
@@ -261,12 +261,12 @@ public class CCEngineDialog extends JFrame {
 		basicAuthPort = new JFormattedTextField(8444);
 		certAuthPort = new JFormattedTextField(8443);
 		
-		serverKeyStore = new JComboBox<String>();
+		serverKeyStore = new JComboBox();
 		serverKeyAlias = new JTextField();
 		serverPassword = new JPasswordField();
 		serverPasswordAgain = new JPasswordField();
 		
-		clientKeyStore = new JComboBox<String>();
+		clientKeyStore = new JComboBox();
 		
 		Pair<Group, Group> g = GUIUtils.createForm(gl, 2,
 			labels.get("Basic authentication port:"), basicAuthPort,
@@ -512,7 +512,7 @@ public class CCEngineDialog extends JFrame {
 		
 		dsUrl = new JTextField();
 		dsCustomDriver = new JTextField();
-		dsDriver = new JComboBox<AdvanceJDBCDrivers>(AdvanceJDBCDrivers.values());
+		dsDriver = new JComboBox(AdvanceJDBCDrivers.values());
 		dsDriver.setSelectedItem(AdvanceJDBCDrivers.GENERIC);
 		dsDriver.addActionListener(new ActionListener() {
 			@Override
@@ -1057,8 +1057,8 @@ public class CCEngineDialog extends JFrame {
 		Object s1 = serverKeyStore.getSelectedItem();
 		Object s2 = clientKeyStore.getSelectedItem();
 
-		DefaultComboBoxModel<String> m1 = new DefaultComboBoxModel<String>();
-		DefaultComboBoxModel<String> m2 = new DefaultComboBoxModel<String>();
+		DefaultComboBoxModel m1 = new DefaultComboBoxModel();
+		DefaultComboBoxModel m2 = new DefaultComboBoxModel();
 		for (AdvanceKeyStore ks : keystores) {
 			m1.addElement(ks.name);
 			m2.addElement(ks.name);
@@ -1213,7 +1213,7 @@ public class CCEngineDialog extends JFrame {
 		/** The number. */
 		protected JFormattedTextField number;
 		/** Priority. */
-		protected JComboBox<AdvanceSchedulerPriority> priority;
+		protected JComboBox priority;
 		/** The priority mode. */
 		protected JRadioButton priorityMode;
 		/** The priority percent. */
@@ -1235,7 +1235,7 @@ public class CCEngineDialog extends JFrame {
 			bg.add(numCores);
 			
 			number = new JFormattedTextField(1);
-			priority = new JComboBox<AdvanceSchedulerPriority>(AdvanceSchedulerPriority.values());
+			priority = new JComboBox(AdvanceSchedulerPriority.values());
 			priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
 			priorityMode = new JRadioButton(labels.get("Priority level:"));
 			priorityPercent = new JRadioButton(labels.get("Priority:"));
@@ -1466,7 +1466,7 @@ public class CCEngineDialog extends JFrame {
 			panel.number.setValue(Integer.parseInt(concur));
 		}
 		int p = Thread.NORM_PRIORITY;
-		if (priority.length() > 0 && Character.isAlphabetic(priority.charAt(0))) {
+		if (priority.length() > 0 && Character.isLetter(priority.charAt(0))) {
 			AdvanceSchedulerPriority pi = AdvanceSchedulerPriority.valueOf(priority);
 			panel.priority.setSelectedItem(pi);
 			panel.priorityNumber.setValue(pi.priority * 10);

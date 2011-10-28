@@ -61,7 +61,7 @@ public class CCKeyGenDialog extends JDialog {
 	/** The key name. */
 	protected JTextField name;
 	/** The algorithm. */
-	protected JComboBox<String> algorithm;
+	protected JComboBox algorithm;
 	/** The key length. */
 	protected JFormattedTextField keyLength;
 	/** The password. */
@@ -121,7 +121,7 @@ public class CCKeyGenDialog extends JDialog {
 		issuer = new DNFields();
 		subject = new DNFields();
 		name = new JTextField();
-		algorithm = new JComboBox<String>(new String[] { "RSA", "DSA" });
+		algorithm = new JComboBox(new String[] { "RSA", "DSA" });
 		keyLength = new JFormattedTextField(1024);
 		password = new JPasswordField();
 		passwordAgain = new JPasswordField();
