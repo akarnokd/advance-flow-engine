@@ -115,15 +115,15 @@ public class CCDebugDialog extends JFrame {
 	/** Clear filter button. */
 	protected JButton clearFilter;
 	/** The filter function. */
-	protected JComboBox<String> filter;
+	protected JComboBox filter;
 	/** The maximum number of rows. */
 	protected JFormattedTextField rowLimit;
 	/** The realm list. */
-	protected JComboBox<String> realms;
+	protected JComboBox realms;
 	/** The block list. */
-	protected JComboBox<String> blocks;
+	protected JComboBox blocks;
 	/** The port list. */
-	protected JComboBox<String> ports;
+	protected JComboBox ports;
 	/** Refresh realms. */
 	protected JButton refreshRealms;
 	/** Watch at block level. */
@@ -178,7 +178,7 @@ public class CCDebugDialog extends JFrame {
 		
 		records = new JLabel(labels.format("Records %d / %d", 0, 0));
 		JSeparator topSeparator = new JSeparator(JSeparator.HORIZONTAL);
-		realms = new JComboBox<String>();
+		realms = new JComboBox();
 		realms.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -188,7 +188,7 @@ public class CCDebugDialog extends JFrame {
 				}				
 			}
 		});
-		blocks = new JComboBox<String>();
+		blocks = new JComboBox();
 		blocks.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -197,7 +197,7 @@ public class CCDebugDialog extends JFrame {
 					AdvanceBlockReference r = blockRefs.get(blocks.getSelectedIndex());
 					AdvanceBlockRegistryEntry re = blockTypes.get(r.type);
 					if (re != null) {
-						DefaultComboBoxModel<String> pm = new DefaultComboBoxModel<String>();
+						DefaultComboBoxModel pm = new DefaultComboBoxModel();
 						portList.clear();
 						for (AdvanceBlockParameterDescription p : re.inputs.values()) {
 							portList.add(p);
@@ -212,9 +212,9 @@ public class CCDebugDialog extends JFrame {
 				}
 			}
 		});
-		ports = new JComboBox<String>();
+		ports = new JComboBox();
 		
-		filter = new JComboBox<String>();
+		filter = new JComboBox();
 		filter.setEditable(true);
 		applyFilter = new JButton(new ImageIcon(getClass().getResource("filter.png")));
 		clearFilter = new JButton(new ImageIcon(getClass().getResource("clear.png")));
@@ -699,7 +699,7 @@ public class CCDebugDialog extends JFrame {
 				if (t != null) {
 					GUIUtils.errorMessage(CCDebugDialog.this, t);
 				} else {
-					realms.setModel(new DefaultComboBoxModel<String>(list.toArray(new String[0])));
+					realms.setModel(new DefaultComboBoxModel(list.toArray(new String[0])));
 					realms.setSelectedIndex(-1);
 					blockTypes.clear();
 					blockTypes.putAll(map);
@@ -740,7 +740,7 @@ public class CCDebugDialog extends JFrame {
 				} else {
 					blockRefs.clear();
 					blockRefs.addAll(refs);
-					DefaultComboBoxModel<String> cm = new DefaultComboBoxModel<String>();
+					DefaultComboBoxModel cm = new DefaultComboBoxModel();
 					for (AdvanceBlockReference r : refs) {
 						cm.addElement(r.id + ": " + r.type + " " + r.keywords);
 					}

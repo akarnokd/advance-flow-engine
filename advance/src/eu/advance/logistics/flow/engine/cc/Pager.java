@@ -65,10 +65,10 @@ public class Pager<T extends Identifiable<?>> extends JPanel {
 	/** Go to last element. */
 	protected JButton last;
 	/** The combobox with options. */
-	protected JComboBox<String> options;
+	protected JComboBox options;
 	/** Constructs the GUI. */
 	public Pager() {
-		options = new JComboBox<String>();
+		options = new JComboBox();
 		options.addActionListener(GUIUtils.createFromMethod(this, "doSelect"));
 		first = createButton("First24", GUIUtils.createFromMethod(this, "doFirst"));
 		back = createButton("Back24", GUIUtils.createFromMethod(this, "doBack"));
@@ -130,7 +130,7 @@ public class Pager<T extends Identifiable<?>> extends JPanel {
 			optionItems[i] = onItemName.invoke(t);
 			i++;
 		}
-		options.setModel(new DefaultComboBoxModel<String>(optionItems));
+		options.setModel(new DefaultComboBoxModel(optionItems));
 		adjustButtons();
 	}
 	/** Go to the first element. */

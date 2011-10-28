@@ -71,7 +71,7 @@ public class CCGroups extends JFrame {
 	/** The split pane. */
 	protected JSplitPane split;
 	/** The group types. */
-	protected JComboBox<AdvanceNotificationGroupType> groupTypes;
+	protected JComboBox groupTypes;
 	/** The notification groups. */
 	protected final Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> map = Maps.newHashMap();
 	/** The current ng type. */
@@ -119,7 +119,7 @@ public class CCGroups extends JFrame {
 		
 		JLabel typeLabel = new JLabel(labels.get("Group type:"));
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createGroups(), createContacts());
-		groupTypes = new JComboBox<AdvanceNotificationGroupType>(AdvanceNotificationGroupType.values());
+		groupTypes = new JComboBox(AdvanceNotificationGroupType.values());
 		
 		groupTypes.addActionListener(GUIUtils.createFromMethod(this, "doGroupTypeChange"));
 		

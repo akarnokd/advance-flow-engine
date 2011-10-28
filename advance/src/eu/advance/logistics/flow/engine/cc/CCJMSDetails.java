@@ -55,7 +55,7 @@ public class CCJMSDetails extends JPanel implements
 	/** Text field. */
 	protected JTextField name;
 	/** The available drivers. */
-	protected JComboBox<AdvanceJMSDrivers> driver;
+	protected JComboBox driver;
 	/** Text field. */
 	protected JTextField customDriver;
 	/** The url. */
@@ -84,7 +84,7 @@ public class CCJMSDetails extends JPanel implements
 		gl.setAutoCreateGaps(true);
 		
 		name = new JTextField();
-		driver = new JComboBox<AdvanceJMSDrivers>(AdvanceJMSDrivers.values());
+		driver = new JComboBox(AdvanceJMSDrivers.values());
 		customDriver = new JTextField();
 		url = new JTextField();
 		user = new JTextField();

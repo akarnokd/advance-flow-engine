@@ -158,7 +158,7 @@ public class CCRemoteLogin extends JDialog {
 	/** Delete selected entries. */
 	protected JButton deleteButton;
 	/** The keystore to use for verifying the server key. */
-	protected JComboBox<String> serverVerify;
+	protected JComboBox serverVerify;
 	/**
 	 * The remote logins.
 	 */
@@ -189,7 +189,7 @@ public class CCRemoteLogin extends JDialog {
 		address = new JTextField();
 		records = new JLabel(labels.format("Records: %d", 0));
 		
-		serverVerify = new JComboBox<String>();
+		serverVerify = new JComboBox();
 		
 		Container c = getContentPane();
 		GroupLayout gl = new GroupLayout(c);
@@ -477,7 +477,7 @@ public class CCRemoteLogin extends JDialog {
 				return param1.name;
 			}
 		}));
-		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>();
+		DefaultComboBoxModel model = new DefaultComboBoxModel();
 		model.addElement("");
 		for (AdvanceKeyStore ks : keystores) {
 			model.addElement(ks.name);

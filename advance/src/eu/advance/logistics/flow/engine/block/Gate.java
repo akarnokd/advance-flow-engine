@@ -32,7 +32,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
+import javax.swing.GroupLayout.Alignment;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
@@ -50,6 +52,8 @@ public class Gate extends AdvanceBlock {
 	protected JFrame frame;
 	/** The peer button. */
 	protected JButton button;
+	/** The queue length. */
+	protected JLabel queueLength;
 	/** The deferred button title. */
 	protected String buttonTitleDefer = "Click me";
 	/** The queued messages. */
@@ -85,6 +89,7 @@ public class Gate extends AdvanceBlock {
 		frame = new JFrame("Gate");
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		button = new JButton(buttonTitleDefer);
+		queueLength = new JLabel("Queue length: 0");
 		
 		Container c = frame.getContentPane();
 		GroupLayout gl = new GroupLayout(c);
@@ -93,11 +98,13 @@ public class Gate extends AdvanceBlock {
 		gl.setAutoCreateContainerGaps(true);
 		
 		gl.setHorizontalGroup(
-			gl.createSequentialGroup()
+			gl.createParallelGroup(Alignment.CENTER)
+			.addComponent(queueLength)
 			.addComponent(button)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
+			.addComponent(queueLength)
 			.addComponent(button)
 		);
 		frame.pack();
@@ -111,6 +118,13 @@ public class Gate extends AdvanceBlock {
 					@Override
 					public void run() {
 						XElement e = messages.poll();
+						final int size = messages.size();
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								queueLength.setText(String.format("Queue length: %d", size));
+							}
+						});
 						if (e != null) {
 							dispatchOutput(Collections.singletonMap("out", e));
 						}
@@ -123,9 +137,11 @@ public class Gate extends AdvanceBlock {
 	protected void invoke(Map<String, XElement> params) {
 		final String title = params.get("title").content;
 		messages.add(params.get("in"));
+		final int size = messages.size();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				queueLength.setText(String.format("Queue length: %d", size));
 				button.setText(title);
 				frame.pack();
 			}

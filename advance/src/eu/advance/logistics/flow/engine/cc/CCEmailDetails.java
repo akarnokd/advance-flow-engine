@@ -49,11 +49,11 @@ public class CCEmailDetails extends JPanel implements CCLoadSave<AdvanceEmailBox
 	/** The login type. */
 	protected LoginTypePanel login;
 	/** The send protocol. */
-	protected JComboBox<AdvanceEmailSendProtocols> sendProtocol;
+	protected JComboBox sendProtocol;
 	/** The send address. */
 	protected JTextField sendAddress;
 	/** The receive protocol. */
-	protected JComboBox<AdvanceEmailReceiveProtocols> receiveProtocol;
+	protected JComboBox receiveProtocol;
 	/** The receive address. */
 	protected JTextField receiveAddress;
 	/** The remote folder. */
@@ -75,9 +75,9 @@ public class CCEmailDetails extends JPanel implements CCLoadSave<AdvanceEmailBox
 		name = new JTextField();
 		email = new JTextField();
 		folder = new JTextField("INBOX");
-		sendProtocol = new JComboBox<AdvanceEmailSendProtocols>(AdvanceEmailSendProtocols.values());
+		sendProtocol = new JComboBox(AdvanceEmailSendProtocols.values());
 		sendAddress = new JTextField();
-		receiveProtocol = new JComboBox<AdvanceEmailReceiveProtocols>(AdvanceEmailReceiveProtocols.values());
+		receiveProtocol = new JComboBox(AdvanceEmailReceiveProtocols.values());
 		receiveAddress = new JTextField();
 		login = new LoginTypePanel(labels);
 		

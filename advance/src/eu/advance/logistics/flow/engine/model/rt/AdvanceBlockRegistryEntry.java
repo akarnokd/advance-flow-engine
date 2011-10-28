@@ -23,7 +23,6 @@ package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Func0;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -105,7 +104,7 @@ implements XSerializable {
 	 */
 	public static List<AdvanceBlockRegistryEntry> parseDefaultRegistry() {
 		try {
-			InputStream in = new FileInputStream("schemas/block-registry.xml");
+			InputStream in = AdvanceBlockRegistryEntry.class.getResourceAsStream("/block-registry.xml");
 			try {
 				return parseRegistry(XElement.parseXML(in));
 			} finally {
