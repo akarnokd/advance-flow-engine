@@ -24,9 +24,13 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
+import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteEngineControl;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
+import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -118,13 +122,13 @@ public class EngineController {
         return engineVersion;
     }
 
-    public boolean login(String address, String username, char[] password) {
+    public boolean login(String address, String username, char[] password, String serverCert) {
         reset();
         try {
             if (address.startsWith("file:")) {
                 return loginLocal(username);
             } else {
-                return login(new URL(address), username, password);
+                return login(new URL(address), username, password, serverCert);
             }
         } catch (MalformedURLException ex) {
             Exceptions.printStackTrace(ex);
@@ -143,15 +147,35 @@ public class EngineController {
         return (engine != null);
     }
 
-    public boolean login(URL address, String username, char[] password) {
+    public boolean login(URL address, String username, char[] password, String serverCert) {
         reset();
         try {
             if (address.getProtocol().equals("file")) {
                 return loginLocal(username);
             } else {
-                engine = new HttpRemoteEngineControl(
-                        address, username, password);
+ 		AdvanceHttpAuthentication auth = new AdvanceHttpAuthentication();
+
+ 		auth.name = username;
+		auth.password(password);
+		auth.loginType = AdvanceLoginType.BASIC;
+		
+                if (serverCert != null) {
+                    KeystoreManager mgr = new KeystoreManager();
+                    mgr.create();
+                    FileInputStream in = new FileInputStream(serverCert);
+                    try {
+                            mgr.importCertificate(address.getHost(), in);
+                    } finally {
+                            in.close();
+                    }
+
+                    auth.certStore = mgr.getKeyStore();
+                }
+		
+		engine = new HttpRemoteEngineControl(address, auth);
+                
                 engineAddress = address.toString();
+                engineVersion = engine.queryVersion().toString();
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);

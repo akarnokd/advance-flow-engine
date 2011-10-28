@@ -106,11 +106,18 @@ class FlowDescriptionIO {
 
         for (AdvanceBlockBind advBind : advCompositeBlock.bindings) {
             BlockParameter src = parent.findBlockParameter(advBind.sourceBlock, advBind.sourceParameter);
+            if (src == null) {
+                src = parent.findBlockParameter(advBind.sourceBlock, ConstantBlock.DEFAULT_PARAMETER_NAME);
+            }
             BlockParameter dst = parent.findBlockParameter(advBind.destinationBlock, advBind.destinationParameter);
             if (src != null && dst != null) {
                 parent.createBind(advBind.id, src, dst);
             } else {
-                System.out.println(NbBundle.getBundle(FlowDescriptionIO.class).getString("UNABLE_CREATE_BIND") + advBind.sourceBlock + "." + advBind.sourceParameter + " -> " + advBind.destinationBlock + "." + advBind.destinationParameter);
+                try {
+                    System.out.println(NbBundle.getBundle(FlowDescriptionIO.class).getString("UNABLE_CREATE_BIND") + advBind.sourceBlock + "." + advBind.sourceParameter + " -> " + advBind.destinationBlock + "." + advBind.destinationParameter);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
             }
         }
     }

@@ -43,6 +43,7 @@ public class LoginInfo {
     public Date lastLogin;
     public String username;
     public String password;
+    public String serverCert;
 
     static void read(File file, List<LoginInfo> data) throws Exception {
         final DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -57,6 +58,7 @@ public class LoginInfo {
                 info.address = e.getAttribute("address");
                 info.username = e.getAttribute("username");
                 info.password = e.getAttribute("password");
+                info.serverCert = e.getAttribute("server-cert");
                 if ((str = e.getAttribute("lastLogin")) != null) {
                     long time = Long.parseLong(str);
                     if (time != 0) {
@@ -84,6 +86,9 @@ public class LoginInfo {
             }
             if (info.lastLogin != null) {
                 e.setAttribute("lastLogin", Long.toString(info.lastLogin.getTime()));
+            }
+            if (info.serverCert != null) {
+                e.setAttribute("server-cert", info.serverCert);
             }
             root.appendChild(e);
         }

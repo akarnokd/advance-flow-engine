@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.Date;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -37,6 +38,7 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.swing.etable.ETable;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -125,9 +127,11 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
         if (info != null) {
             usernameText.setText(info.username);
             passwordText.setText(info.password);
+            serverCertPath.setText(info.serverCert);
         } else {
             usernameText.setText("");
             passwordText.setText("");
+            serverCertPath.setText("");
         }
     }
 
@@ -228,6 +232,10 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator3 = new javax.swing.JSeparator();
         remeberCheck = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        serverCertPath = new javax.swing.JTextField();
+        browseCert = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(LoginDialog.class, "LoginDialog.title")); // NOI18N
@@ -329,7 +337,7 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 10);
         getContentPane().add(buttonsPanel, gridBagConstraints);
@@ -425,10 +433,49 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_LEADING;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 20);
         getContentPane().add(remeberCheck, gridBagConstraints);
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(LoginDialog.class, "LoginDialog.jLabel1.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_LEADING;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 10);
+        jPanel2.add(jLabel1, gridBagConstraints);
+
+        serverCertPath.setText(org.openide.util.NbBundle.getMessage(LoginDialog.class, "LoginDialog.serverCertPath.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE;
+        gridBagConstraints.weightx = 1.0;
+        jPanel2.add(serverCertPath, gridBagConstraints);
+
+        browseCert.setText(org.openide.util.NbBundle.getMessage(LoginDialog.class, "LoginDialog.browseCert.text")); // NOI18N
+        browseCert.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseCertActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        jPanel2.add(browseCert, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(jPanel2, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -468,13 +515,25 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void browseCertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseCertActionPerformed
+        JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(new FileNameExtensionFilter("Certificates (*.CER)", "cer", "cert", "crt"));
+        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            serverCertPath.setText(fc.getSelectedFile().toString());
+        }
+    }//GEN-LAST:event_browseCertActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JLabel addressLabel;
     private javax.swing.JTextField addressText;
+    private javax.swing.JButton browseCert;
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JButton loginButton;
@@ -486,6 +545,7 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
     private javax.swing.JPanel recordsPanel;
     private javax.swing.JCheckBox remeberCheck;
     private javax.swing.JScrollPane scrollpane;
+    private javax.swing.JTextField serverCertPath;
     private javax.swing.JPanel upPanel;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JTextField usernameText;
@@ -497,13 +557,14 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
         final char[] password = passwordText.getText().toCharArray();
         final boolean saveCredentials = remeberCheck.isSelected();
         final LoginProgressDialog dlg = new LoginProgressDialog();
-
+        final String serverCert = serverCertPath.getText();
+        
         new SwingWorker() {
 
             @Override
             protected Object doInBackground() throws Exception {
                 EngineController ec = EngineController.getInstance();
-                if (ec.login(address, username, password)) {
+                if (ec.login(address, username, password, serverCert)) {
                     // successfully logged in -> save last login info and changes
                     if (saveCredentials) {
                         info.username = username;

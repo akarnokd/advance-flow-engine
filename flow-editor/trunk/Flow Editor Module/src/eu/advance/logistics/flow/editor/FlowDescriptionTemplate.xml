@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<flow-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flow-description.xsd">
+<flow-description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flow-description.xsd">
   <composite-block id='flow-description-1'>
     <input id='in2' displayname='in2' variance='nonvariant' type='advance:collection' documentation=''>
       <type-argument type-variable='T'/>
@@ -42,4 +42,4 @@
     <bind id='bind6' source-block='m1' source-parameter='out' destination-block='r1' destination-parameter='in'/>
     <bind id='bind7' source-block='r1' source-parameter='out' destination-block='g1' destination-parameter='in'/>
   </composite-block>
-</flow-descriptor>
+</flow-description>
