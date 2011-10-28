@@ -155,7 +155,7 @@ public final class TreeBrowserTopComponent extends TopComponent
             }
         } else if (Registry.PROP_TC_CLOSED.equals(pname)) {
             TopComponent tc = (TopComponent) evt.getNewValue();
-            if (tc == tcReference.get()) {
+            if (tcReference != null && tc == tcReference.get()) {
                 tcReference = null;
                 setDataObject(null);
             }

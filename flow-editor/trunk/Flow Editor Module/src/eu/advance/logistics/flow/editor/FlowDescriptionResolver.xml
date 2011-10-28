@@ -7,9 +7,9 @@ and open the template in the editor.
 <MIME-resolver>
     <file>
         <ext name="xml"/>
-        <resolver mime="text/flow-descriptor+xml">
+        <resolver mime="text/flow-description+xml">
             <xml-rule>
-                <element name="flow-descriptor"/>
+                <element name="flow-description"/>
             </xml-rule>
         </resolver>
     </file>

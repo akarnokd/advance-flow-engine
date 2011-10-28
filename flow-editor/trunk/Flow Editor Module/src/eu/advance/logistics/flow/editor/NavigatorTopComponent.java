@@ -124,7 +124,7 @@ public final class NavigatorTopComponent extends TopComponent
             }
         } else if (Registry.PROP_TC_CLOSED.equals(pname)) {
             TopComponent tc = (TopComponent) evt.getNewValue();
-            if (tc == tcReference.get()) {
+            if (tcReference != null && tc == tcReference.get()) {
                 removeAll();
                 validate();
                 tcReference = null;

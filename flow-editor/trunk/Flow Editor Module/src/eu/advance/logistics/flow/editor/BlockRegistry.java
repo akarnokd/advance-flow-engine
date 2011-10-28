@@ -233,7 +233,7 @@ public class BlockRegistry {
     public XType resolveSchema(URI uri) {
         if (schemaResolver == null) {
             File schemasDir = InstalledFileLocator.getDefault().locate("schemas", "eu.advance.logistics.core", false);  // NOI18N
-            if (schemasDir.isDirectory()) {
+            if (schemasDir != null && schemasDir.isDirectory()) {
                 String[] schemaLocations = new String[1];
                 try {
                     schemaLocations[0] = schemasDir.getCanonicalPath();
@@ -241,6 +241,8 @@ public class BlockRegistry {
                     schemaLocations[0] = schemasDir.getAbsolutePath();
                 }
                 schemaResolver = new AdvanceLocalSchemaResolver(Arrays.asList(schemaLocations));
+            } else {
+                schemaResolver = new AdvanceLocalSchemaResolver(Arrays.<String>asList());
             }
         }
         return schemaResolver.resolve(uri);

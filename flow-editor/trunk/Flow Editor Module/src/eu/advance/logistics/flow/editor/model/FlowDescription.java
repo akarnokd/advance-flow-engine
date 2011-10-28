@@ -68,8 +68,8 @@ public class FlowDescription extends CompositeBlock {
         try {
             out = new BufferedWriter(new OutputStreamWriter(s));
             // temporary header fix
-            String header = "<?xml version='1.0' encoding='UTF-8'?>\n<flow-descriptor xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"flow-description.xsd\">";
-            out.write(root.toString().replace("<flow-descriptor>", header));
+            String header = "<?xml version='1.0' encoding='UTF-8'?>\n<flow-description xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"flow-description.xsd\">";
+            out.write(root.toString().replace("<flow-description>", header));
             //
             out.flush();
         } finally {
