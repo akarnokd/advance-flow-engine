@@ -21,12 +21,12 @@
 package eu.advance.logistics.flow.editor.actions;
 
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
+import eu.advance.logistics.flow.editor.undo.ConstantBlockChanged;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.event.ActionEvent;
-import java.io.StringReader;
 import javax.swing.AbstractAction;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -35,40 +35,34 @@ import org.openide.util.NbBundle;
  */
 public class ConstEditAction extends AbstractAction {
 
+    private UndoRedoSupport undoRedoSupport;
     private ConstantBlock target;
 
-    public ConstEditAction(ConstantBlock target) {
+    public ConstEditAction(UndoRedoSupport urs, ConstantBlock target) {
+        this.undoRedoSupport = urs;
         this.target = target;
         putValue(NAME, NbBundle.getBundle(ConstEditAction.class).getString("EDIT"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        XElement temp = new XElement("constant");        
-        for (String s : target.getConstant().keywords) {
-            if (s.startsWith("location(")) {
-                target.getConstant().keywords.remove(s);
-                break;
-            }
+        AdvanceConstantBlock currentConstant = target.getConstant();
+        String content = EditSupport.edit(currentConstant.value.content, currentConstant.typeURI);
+        if (content == null) {
+            return;
         }
-        target.getConstant().save(temp);
-        while (true) {
-            EditDialog dlg = new EditDialog();
-            dlg.setDefaultValue(temp.toString());
-            dlg.setVisible(true);
-            String value = dlg.getValue();
-            if (value == null) {
-                return;
-            }
-            try {
-                XElement xe = XElement.parseXML(new StringReader(value));
-                AdvanceConstantBlock c = new AdvanceConstantBlock();
-                c.load(xe);
-                target.setConstant(c);
-                return;
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
+        AdvanceConstantBlock newConstant = clone(target.getConstant());
+        newConstant.value.content = content;
+        undoRedoSupport.start();
+        target.setConstant(newConstant);
+        undoRedoSupport.commit(new ConstantBlockChanged(target, currentConstant, newConstant));
+    }
+
+    private static AdvanceConstantBlock clone(AdvanceConstantBlock source) {
+        AdvanceConstantBlock cloned = new AdvanceConstantBlock();
+        XElement temp = new XElement("constant");
+        source.save(temp);
+        cloned.load(temp);
+        return cloned;
     }
 }

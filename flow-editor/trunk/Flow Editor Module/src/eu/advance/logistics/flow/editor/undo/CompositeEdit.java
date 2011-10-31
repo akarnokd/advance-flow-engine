@@ -20,32 +20,43 @@
  */
 package eu.advance.logistics.flow.editor.undo;
 
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
+import com.google.common.collect.Lists;
+import java.util.List;
 
 /**
  *
  * @author TTS
  */
-public abstract class UndoableEdit extends AbstractUndoableEdit {
+public class CompositeEdit extends UndoableEdit {
 
-    protected abstract void restore(boolean redo);
+    private String name;
+    private List<UndoableEdit> edits = Lists.newArrayList();
 
-    @Override
-    public void redo() throws CannotRedoException {
-        super.redo();
-        restore(true);
+    public CompositeEdit(String name) {
+        this.name = name;
     }
-    
+
+    public void add(UndoableEdit edit) {
+        edits.add(edit);
+    }
+
     @Override
-    public void undo() throws CannotUndoException {
-        super.undo();
-        restore(false);
+    protected void restore(boolean redo) {
+        for (UndoableEdit edit : edits) {
+            edit.restore(redo);
+        }
+    }
+
+    @Override
+    public String getPresentationName() {
+        return name;
     }
 
     @Override
     public void die() {
         super.die();
+        for (UndoableEdit edit : edits) {
+            edit.die();
+        }
     }
 }

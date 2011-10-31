@@ -24,6 +24,7 @@ import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import java.awt.EventQueue;
 import java.io.IOException;
@@ -149,12 +150,17 @@ public class FlowDescriptionDataObject extends MultiDataObject {
                         }
                     });
                     getInstanceContent().add(flowDesc);
+
+                    final UndoRedoSupport urs = new UndoRedoSupport();
+                    flowDesc.addListener(urs);
+                    getInstanceContent().add(urs);
+
                     setModified(false);
                     EventQueue.invokeLater(new Runnable() {
 
                         @Override
                         public void run() {
-                            getInstanceContent().add(FlowScene.create(flowDesc));
+                            getInstanceContent().add(FlowScene.create(urs, flowDesc));
                             EditorTopComponent tc = new EditorTopComponent(FlowDescriptionDataObject.this);
                             getInstanceContent().add(tc);
                             tc.setActivatedNodes(new Node[]{getNodeDelegate()});

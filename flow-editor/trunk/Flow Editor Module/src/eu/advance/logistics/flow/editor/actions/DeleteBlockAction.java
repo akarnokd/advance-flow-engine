@@ -24,6 +24,17 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.BlockBind;
+import eu.advance.logistics.flow.editor.model.CompositeBlock;
+import eu.advance.logistics.flow.editor.model.ConstantBlock;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.model.SimpleBlock;
+import eu.advance.logistics.flow.editor.undo.BindRemoved;
+import eu.advance.logistics.flow.editor.undo.CompositeBlockRemoved;
+import eu.advance.logistics.flow.editor.undo.CompositeEdit;
+import eu.advance.logistics.flow.editor.undo.ConstantBlockRemoved;
+import eu.advance.logistics.flow.editor.undo.SimpleBlockRemoved;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.editor.undo.UndoableEdit;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import javax.swing.AbstractAction;
@@ -35,31 +46,45 @@ import org.openide.util.NbBundle;
  */
 public class DeleteBlockAction extends AbstractAction {
 
+    private UndoRedoSupport undoRedoSupport;
+    private FlowDescription flowDescription;
     private List<AbstractBlock> blocks;
 
-    public DeleteBlockAction(AbstractBlock block) {
-        this(Lists.newArrayList(block));
+    public DeleteBlockAction(UndoRedoSupport urs, FlowDescription fd, AbstractBlock block) {
+        this(urs, fd, Lists.newArrayList(block));
         putValue(NAME, NbBundle.getBundle(DeleteBlockAction.class).getString("DELETE_BLOCK"));
     }
 
-    public DeleteBlockAction(List<AbstractBlock> blocks) {
+    public DeleteBlockAction(UndoRedoSupport urs, FlowDescription fd, List<AbstractBlock> blocks) {
+        this.undoRedoSupport = urs;
+        this.flowDescription = fd;
         this.blocks = blocks;
         putValue(NAME, NbBundle.getBundle(DeleteBlockAction.class).getString("DELETE_SELECTION") + " (" + blocks.size() + ")");
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        undoRedoSupport.start();
+        CompositeEdit edit = new CompositeEdit((String) getValue(NAME));
         for (AbstractBlock block : blocks) {
-            List<BlockBind> binds = block.getActiveBinds();
-            // TODO if !binds.isEmpty() ask user...
-            for (BlockBind bind : binds) {
-                bind.destroy();
+            UndoableEdit blockEdit = createDeleteEdit(block);
+            if (block != null) {
+                List<BlockBind> binds = block.getActiveBinds();
+                // TODO if !binds.isEmpty() ask user...
+                for (BlockBind bind : binds) {
+                    CompositeBlock parent = bind.getParent();
+                    bind.destroy();
+                    edit.add(new BindRemoved(parent, bind));
+                }
+                block.destroy();
+                edit.add(blockEdit);
             }
-            block.destroy();
         }
+        undoRedoSupport.commit(edit);
     }
 
     public static DeleteBlockAction build(FlowScene scene) {
+        UndoRedoSupport urs = scene.getUndoRedoSupport();
         List<AbstractBlock> blocks = Lists.newArrayList();
         for (Object sel : scene.getSelectedObjects()) {
             if (sel instanceof AbstractBlock) {
@@ -69,6 +94,19 @@ public class DeleteBlockAction extends AbstractAction {
                 }
             }
         }
-        return blocks.isEmpty() ? null : new DeleteBlockAction(blocks);
+        return blocks.isEmpty() ? null : new DeleteBlockAction(urs, scene.getFlowDescription(), blocks);
+    }
+
+    private static UndoableEdit createDeleteEdit(AbstractBlock block) {
+        CompositeBlock parent = block.getParent();
+        if (block instanceof SimpleBlock) {
+            return new SimpleBlockRemoved(parent, (SimpleBlock) block);
+        } else if (block instanceof ConstantBlock) {
+            return new ConstantBlockRemoved(parent, (ConstantBlock) block);
+        } else if (block instanceof CompositeBlock) {
+            return new CompositeBlockRemoved(parent, (CompositeBlock) block);
+        } else {
+            return null;
+        }
     }
 }

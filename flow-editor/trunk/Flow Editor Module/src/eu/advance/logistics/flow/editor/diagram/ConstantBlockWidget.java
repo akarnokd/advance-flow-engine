@@ -20,14 +20,13 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
-import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
@@ -43,11 +42,12 @@ public class ConstantBlockWidget extends Widget {
     private LabelWidget typeWidget;
     private Anchor nodeAnchor;
     private ColorScheme scheme;
+    private ConstantBlock block;
 
-    ConstantBlockWidget(Scene scene, ColorScheme scheme) {
+    ConstantBlockWidget(Scene scene, ColorScheme scheme, ConstantBlock constBlock) {
         super(scene);
-        assert scheme != null;
         this.scheme = scheme;
+        this.block = constBlock;
 
         nodeAnchor = new BlockAnchor(this, false, scheme);
 
@@ -67,9 +67,15 @@ public class ConstantBlockWidget extends Widget {
         valueWidget.setFont(scene.getDefaultFont().deriveFont(Font.BOLD));
         header.addChild(valueWidget);
 
+        update();
 
         scheme.installUI(this);
         notifyStateChanged(ObjectState.createNormal(), ObjectState.createNormal());
+    }
+
+    void update() {
+        setNodeType(block.getTypeAsString());
+        setNodeValue(block.getValueAsString());
     }
 
     /**
@@ -82,15 +88,11 @@ public class ConstantBlockWidget extends Widget {
         scheme.updateUI(this, previousState, state);
     }
 
-    public String getNodeValue() {
-        return valueWidget.getLabel();
+    private void setNodeValue(String value) {
+        valueWidget.setLabel(value != null ? value.trim() : null);
     }
 
-    public void setNodeValue(String value) {
-        valueWidget.setLabel(value);
-    }
-
-    public void setNodeType(String type) {
+    private void setNodeType(String type) {
         typeWidget.setLabel(type != null ? "[" + type + "]" : null);
     }
 
@@ -98,7 +100,7 @@ public class ConstantBlockWidget extends Widget {
      * Returns a node anchor.
      * @return the node anchor
      */
-    public Anchor getNodeAnchor() {
+    Anchor getNodeAnchor() {
         return nodeAnchor;
     }
 
@@ -106,7 +108,7 @@ public class ConstantBlockWidget extends Widget {
      * Returns a header widget.
      * @return the header widget
      */
-    public Widget getHeader() {
+    Widget getHeader() {
         return header;
     }
 }

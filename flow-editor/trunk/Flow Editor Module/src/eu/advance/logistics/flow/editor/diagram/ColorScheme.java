@@ -130,7 +130,7 @@ public class ColorScheme {
     }
 
     boolean isNodeMinimizeButtonOnRight(BlockWidget widget) {
-        return false;
+        return true;
     }
 
     Image getMinimizeWidgetImage(BlockWidget widget) {

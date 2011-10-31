@@ -20,18 +20,14 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
-import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
+import eu.advance.logistics.flow.editor.undo.ParameterCreated;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.io.StringReader;
 import javax.swing.AbstractAction;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -40,11 +36,13 @@ import org.openide.util.NbBundle;
  */
 public class ParamAddAction extends AbstractAction {
 
+    private UndoRedoSupport undoRedoSupport;
     private CompositeBlock block;
     private BlockParameter.Type type;
     private Point location;
 
-    public ParamAddAction(CompositeBlock block, BlockParameter.Type type) {
+    public ParamAddAction(UndoRedoSupport urs, CompositeBlock block, BlockParameter.Type type) {
+        this.undoRedoSupport = urs;
         this.block = block;
         this.type = type;
         putValue(NAME, NbBundle.getBundle(ParamAddAction.class).getString("ADD") + type + "...");
@@ -52,50 +50,30 @@ public class ParamAddAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine("id", type + " name");
-        if (DialogDisplayer.getDefault().notify(nd) != NotifyDescriptor.OK_OPTION) {
+        String tag = type.name().toLowerCase();
+        ParameterDescriptionDialog2 dlg = ParameterDescriptionDialog2.create(tag);
+        if (dlg == null) {
             return;
         }
-        String paramId = nd.getInputText();
-        if (paramId == null || paramId.isEmpty()) {
+        dlg.setTitle("Add new " + tag);
+        dlg.setVisible(true);
+        AdvanceBlockParameterDescription desc = dlg.getResult();
+        if (desc == null) {
             return;
         }
-        String s = getParamDescAsText(paramId);
-        while (true) {
-            EditDialog dlg = new EditDialog();
-            dlg.setDefaultValue(s);
-            dlg.setVisible(true);
 
-            s = dlg.getValue();
-            if (s == null) {
-                return;
-            }
-            try {
-                XElement xe = XElement.parseXML(new StringReader(s));
-                AdvanceBlockParameterDescription desc = new AdvanceBlockParameterDescription();
-                desc.load(xe);
-                if (type == BlockParameter.Type.INPUT) {
-                    block.createInput(desc);
-                } else {
-                    block.createOutput(desc);
-                }
-                return;
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-            }
+        undoRedoSupport.start();
+        BlockParameter param = null;
+        if (type == BlockParameter.Type.INPUT) {
+            param = block.createInput(desc);
+        } else if (type == BlockParameter.Type.OUTPUT) {
+            param = block.createOutput(desc);
         }
-    }
 
-    private String getParamDescAsText(String paramId) {
-        String tag = type.toString().toLowerCase();
-        AdvanceBlockParameterDescription desc = new AdvanceBlockParameterDescription();
-        desc.id = paramId;
-        desc.displayName = paramId;
-        //desc.documentation = "";
-        desc.type = BlockRegistry.getInstance().getDefaultAdvanceType();
-        XElement x = new XElement(tag);
-        desc.save(x);
-        return x.toString();
+        // check param: createInput/createOutput can return null
+        if (param != null) {
+            undoRedoSupport.commit(new ParameterCreated(block, param));
+        }
     }
 
     public Point getLocation() {

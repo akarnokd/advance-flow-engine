@@ -342,8 +342,8 @@
                 <binary-origin>release/modules/ext/j2ssh-0.2.9.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/reactive4java-0.94.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/reactive4java-0.94.jar</binary-origin>
+                <runtime-relative-path>ext/reactive4java-0.95.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/reactive4java-0.95.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/annotations.jar</runtime-relative-path>

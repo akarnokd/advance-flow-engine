@@ -44,9 +44,8 @@ id = "eu.advance.logistics.flow.editor.OpenFlowAction")
 @ActionRegistration(displayName = "#CTL_OpenFlowAction",
 iconBase = "eu/advance/logistics/flow/editor/images/openProject.png")
 @ActionReferences({
-    @ActionReference(path = "Menu/File", position = 100),
-    @ActionReference(path = "Shortcuts", name = "D-O"),
-    @ActionReference(path = "Toolbars/File", position = 350)
+    @ActionReference(path = "Menu/File", position = 300),
+    @ActionReference(path = "Shortcuts", name = "D-K")
 })
 public final class OpenFlowAction implements ActionListener {
 

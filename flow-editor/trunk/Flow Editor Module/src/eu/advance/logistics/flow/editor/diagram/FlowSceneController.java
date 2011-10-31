@@ -100,7 +100,8 @@ class FlowSceneController implements FlowDescriptionListener {
                 scene.validate();
                 break;
             case PARAMETER_RENAMED:
-                parameterRenamed((BlockParameter) params[0]);
+            case PARAMETER_CHANGED:
+                parameterRenamedOrChanged((BlockParameter) params[0]);
                 break;
             case CLOSED:
                 scene = null;
@@ -128,6 +129,7 @@ class FlowSceneController implements FlowDescriptionListener {
         BlockWidget widget = (BlockWidget) scene.findWidget(block);
         if (widget != null) {
             widget.setNodeName(block.getId());
+            scene.validate();
         } else {
             // something wrong!
         }
@@ -148,8 +150,8 @@ class FlowSceneController implements FlowDescriptionListener {
         if (widget == null) {
             widget = (ConstantBlockWidget) scene.findWidget(block);
         }
-        widget.setNodeType(block.getTypeAsString());
-        widget.setNodeValue(block.getValueAsString());
+        widget.update();
+        scene.validate();
     }
 
     private void blockRemoved(AbstractBlock block) {
@@ -181,13 +183,15 @@ class FlowSceneController implements FlowDescriptionListener {
     private void bindErrorMessage(BlockBind bind) {
         BlockConnectionWidget w = (BlockConnectionWidget) scene.findWidget(bind);
         w.setError(bind.getErrorMessage() != null);
+        scene.validate();
         scene.repaint();
     }
 
-    private void parameterRenamed(BlockParameter param) {
+    private void parameterRenamedOrChanged(BlockParameter param) {
         Widget w = scene.findWidget(param);
         if (w instanceof PinWidget) {
-            ((PinWidget) w).setPinName(param.getDisplayName());
+            WidgetBuilder.configure(((PinWidget) w), param);
+            scene.validate();
         }
     }
 

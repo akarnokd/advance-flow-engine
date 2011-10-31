@@ -27,6 +27,7 @@ import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
@@ -66,29 +67,29 @@ class WidgetBuilder {
             final Image catImg = cat.getImageObject();
             widget.setNodeImage(catImg);
 
-            widget.addGlyph(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/config.png"),
-                    new Runnable() {
-
-                        @Override
-                        public void run() {
-                            NotifyDescriptor nd = new NotifyDescriptor.Message(widget.getNodeName());
-                            DialogDisplayer.getDefault().notify(nd);
-                        }
-                    });
+//            widget.addGlyph(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/config.png"),
+//                    new Runnable() {
+//
+//                        @Override
+//                        public void run() {
+//                            NotifyDescriptor nd = new NotifyDescriptor.Message(widget.getNodeName());
+//                            DialogDisplayer.getDefault().notify(nd);
+//                        }
+//                    });
         } else if (block instanceof CompositeBlock) {
             final CompositeBlock compositeBlock = (CompositeBlock) block;
             widget.setNodeImage(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/palette/images/block.png"));
 
-            widget.addGlyph(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/database.png"),
-                    new Runnable() {
-
-                        @Override
-                        public void run() {
-                            // TODO
-                            NotifyDescriptor nd = new NotifyDescriptor.Message(widget.getNodeName());
-                            DialogDisplayer.getDefault().notify(nd);
-                        }
-                    });
+//            widget.addGlyph(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/database.png"),
+//                    new Runnable() {
+//
+//                        @Override
+//                        public void run() {
+//                            // TODO
+//                            NotifyDescriptor nd = new NotifyDescriptor.Message(widget.getNodeName());
+//                            DialogDisplayer.getDefault().notify(nd);
+//                        }
+//                    });
             widget.getActions().addAction(new WidgetAction.Adapter() {
 
                 @Override
@@ -114,14 +115,14 @@ class WidgetBuilder {
             });
         }
 
-        if (Math.random() > 0.5) {
-            widget.addGlyph(
-                    ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/alert_16.png"),
-                    null);
-        }
-        widget.addGlyph(
-                ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/deployment_in_test.png"),
-                null);
+//        if (Math.random() > 0.5) {
+//            widget.addGlyph(
+//                    ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/alert_16.png"),
+//                    null);
+//        }
+//        widget.addGlyph(
+//                ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/deployment_in_test.png"),
+//                null);
 
         for (BlockParameter param : sort(block.getInputs())) {
             scene.addPin(block, param);
@@ -133,8 +134,6 @@ class WidgetBuilder {
     }
 
     void configure(final ConstantBlockWidget widget, ConstantBlock block) {
-        widget.setNodeValue(block.getId());
-
         widget.getActions().addAction(new WidgetAction.Adapter() {
 
             @Override
@@ -166,5 +165,22 @@ class WidgetBuilder {
         labelWidget.setAlignment(LabelWidget.Alignment.CENTER);
         labelWidget.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
         return labelWidget;
+    }
+
+    static void configure(PinWidget w, BlockParameter param) {
+        w.setPinName(param.getDisplayName());
+        AdvanceBlockParameterDescription d = param.getDescription();
+        if (d.displayName != null || d.documentation != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html>");
+            if (d.displayName != null) {
+                sb.append("<b>").append(d.displayName).append("</b><br>");
+            }
+            if (d.documentation != null) {
+                sb.append(d.documentation);
+            }
+            sb.append("</html>");
+            w.setToolTipText(sb.toString());
+        }
     }
 }

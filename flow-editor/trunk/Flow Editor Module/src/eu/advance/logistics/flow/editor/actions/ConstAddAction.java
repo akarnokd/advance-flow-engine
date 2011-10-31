@@ -20,23 +20,24 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
-import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
+import eu.advance.logistics.flow.editor.undo.BindCreated;
+import eu.advance.logistics.flow.editor.undo.BlockMoved;
+import eu.advance.logistics.flow.editor.undo.CompositeEdit;
+import eu.advance.logistics.flow.editor.undo.ConstantBlockAdded;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import javax.swing.AbstractAction;
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -45,12 +46,14 @@ import org.openide.util.NbBundle;
  */
 public class ConstAddAction extends AbstractAction {
 
+    private UndoRedoSupport undoRedoSupport;
     private FlowScene scene;
     private CompositeBlock parent;
     private BlockParameter target;
     private Point location;
 
-    public ConstAddAction(FlowScene scene, CompositeBlock parent, BlockParameter target) {
+    public ConstAddAction(UndoRedoSupport urs, FlowScene scene, CompositeBlock parent, BlockParameter target) {
+        this.undoRedoSupport = urs;
         this.scene = scene;
         this.parent = parent;
         this.target = target;
@@ -64,10 +67,16 @@ public class ConstAddAction extends AbstractAction {
             return;
         }
 
+        undoRedoSupport.start();
+        String name = NbBundle.getBundle(ConstAddAction.class).getString("ADD_CONSTANT");
+        CompositeEdit edit = new CompositeEdit(name);
+
         ConstantBlock block = parent.createConstant(c.id);
         block.setConstant(c);
+        edit.add(new ConstantBlockAdded(parent, block));
 
-        parent.createBind(block.getParameter(), target);
+        BlockBind bind = parent.createBind(block.getParameter(), target);
+        edit.add(new BindCreated(parent, bind));
 
         Widget w1 = scene.findWidget(target);
         Widget w2 = scene.findWidget(block);
@@ -75,46 +84,32 @@ public class ConstAddAction extends AbstractAction {
             Point loc = w1.convertLocalToScene(w1.getLocation());
             Rectangle r = w2.getBounds();
             loc.x -= r.width + 80;
-            w2.setPreferredLocation(w2.convertSceneToLocal(loc));
+            loc = w2.convertSceneToLocal(loc);
+            //w2.setPreferredLocation(loc);
+            Point old = block.getLocation();
+            block.setLocation(loc);
+            edit.add(new BlockMoved(block, old, loc));
             scene.validate();
             scene.repaint();
         }
 
+        undoRedoSupport.commit(edit);
     }
 
     private AdvanceConstantBlock getAdvanceConstantBlock() {
-        String value = getDefault();
-        while (true) {
-            EditDialog dlg = new EditDialog();
-            dlg.setDefaultValue(value);
-            dlg.setVisible(true);
-            value = dlg.getValue();
-            if (value == null) {
-                return null;
-            }
-            try {
-                XElement xe = XElement.parseXML(new StringReader(value));
-                AdvanceConstantBlock c = new AdvanceConstantBlock();
-                c.load(xe);
-                return c;
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-    }
-
-    private String getDefault() {
         AdvanceConstantBlock c = new AdvanceConstantBlock();
         c.id = parent.generateConstantId();
-        try {
-            c.typeURI = new URI("advance:integer");
-        } catch (URISyntaxException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        AdvanceBlockParameterDescription d = target.getDescription();
+        c.typeURI = d.type.typeURI;
+        c.type = d.type.type;
+        //c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
+        c.value = new XElement(c.typeURI.getSchemeSpecificPart());
+        c.value.content = "";
+        c.value.content = EditSupport.edit(c.value.content, c.typeURI);
+        return c.value.content != null ? c : null;
+    }
 
-        c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
-        c.value = new XElement("integer");
-        c.value.content = Integer.toString(5);
+    public static String convertToXml(AdvanceConstantBlock c) {
         XElement temp = new XElement("constant");
         c.save(temp);
         return temp.toString();

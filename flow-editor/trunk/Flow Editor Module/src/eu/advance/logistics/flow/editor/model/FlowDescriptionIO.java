@@ -21,23 +21,16 @@
 package eu.advance.logistics.flow.editor.model;
 
 import eu.advance.logistics.flow.editor.BlockRegistry;
-import eu.advance.logistics.flow.editor.model.AbstractBlock;
-import eu.advance.logistics.flow.editor.model.SimpleBlock;
-import eu.advance.logistics.flow.editor.model.BlockParameter;
-import eu.advance.logistics.flow.editor.model.BlockBind;
-import eu.advance.logistics.flow.editor.model.CompositeBlock;
-import eu.advance.logistics.flow.editor.model.ConstantBlock;
-import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockVisuals;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import java.awt.Point;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.openide.util.NbBundle;
 
@@ -80,7 +73,7 @@ class FlowDescriptionIO {
             AdvanceBlockDescription advBlockDesc = r.findType(advBlock.type);
             if (advBlockDesc != null) {
                 SimpleBlock block = parent.createBlock(advBlock.id, advBlockDesc);
-                readLocation(advBlock.keywords, block);
+                readLocation(advBlock.keywords, advBlock.visuals, block);
             }
         }
 
@@ -90,7 +83,7 @@ class FlowDescriptionIO {
                 System.err.println("ID " + e.getKey() + " != " + advComposite.id);
             }
             CompositeBlock composite = parent.createComposite(advComposite.id);
-            readLocation(advComposite.keywords, composite);
+            readLocation(advComposite.keywords, advComposite.visuals, composite);
             read(composite, advComposite);
         }
 
@@ -100,7 +93,7 @@ class FlowDescriptionIO {
                 System.err.println("ID " + e.getKey() + " != " + advConstant.id);
             }
             ConstantBlock constant = parent.createConstant(advConstant.id);
-            readLocation(advConstant.keywords, constant);
+            readLocation(advConstant.keywords, advConstant.visuals, constant);
             constant.setConstant(advConstant);
         }
 
@@ -114,7 +107,7 @@ class FlowDescriptionIO {
                 parent.createBind(advBind.id, src, dst);
             } else {
                 try {
-                    System.out.println(NbBundle.getBundle(FlowDescriptionIO.class).getString("UNABLE_CREATE_BIND") + advBind.sourceBlock + "." + advBind.sourceParameter + " -> " + advBind.destinationBlock + "." + advBind.destinationParameter);
+                System.out.println(NbBundle.getBundle(FlowDescriptionIO.class).getString("UNABLE_CREATE_BIND") + advBind.sourceBlock + "." + advBind.sourceParameter + " -> " + advBind.destinationBlock + "." + advBind.destinationParameter);
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
@@ -126,10 +119,10 @@ class FlowDescriptionIO {
         AdvanceCompositeBlock aCompositeBlock = new AdvanceCompositeBlock();
         aCompositeBlock.id = parent.getId();
         for (BlockParameter param : parent.getInputs()) {
-            aCompositeBlock.inputs.put(param.getId(), convert(param.description));
+            aCompositeBlock.inputs.put(param.getId(), convert(param.getDescription()));
         }
         for (BlockParameter param : parent.getOutputs()) {
-            aCompositeBlock.outputs.put(param.getId(), convert(param.description));
+            aCompositeBlock.outputs.put(param.getId(), convert(param.getDescription()));
         }
         for (AbstractBlock block : parent.getChildren()) {
             if (block instanceof SimpleBlock) {
@@ -137,11 +130,11 @@ class FlowDescriptionIO {
                 aBlockRef.id = block.getId();
                 aBlockRef.parent = aCompositeBlock;
                 aBlockRef.type = ((SimpleBlock) block).description.id;
-                saveLocation(aBlockRef.keywords, block);
+                saveLocation(aBlockRef.keywords, aBlockRef.visuals, block);
                 aCompositeBlock.blocks.put(aBlockRef.id, aBlockRef);
             } else if (block instanceof CompositeBlock) {
                 AdvanceCompositeBlock aCompositeBlockChild = build((CompositeBlock) block);
-                saveLocation(aCompositeBlockChild.keywords, block);
+                saveLocation(aCompositeBlockChild.keywords, aCompositeBlockChild.visuals, block);
                 aCompositeBlock.composites.put(aCompositeBlockChild.id, aCompositeBlockChild);
             } else if (block instanceof ConstantBlock) {
                 ConstantBlock cb = (ConstantBlock) block;
@@ -152,7 +145,7 @@ class FlowDescriptionIO {
                 aConstantBlock.typeURI = cb.getConstant().typeURI;
                 aConstantBlock.type = cb.getConstant().type;
                 aConstantBlock.value = cb.getConstant().value;
-                saveLocation(aConstantBlock.keywords, block);
+                saveLocation(aConstantBlock.keywords, aConstantBlock.visuals, block);
                 aCompositeBlock.constants.put(aConstantBlock.id, aConstantBlock);
             }
         }
@@ -163,11 +156,11 @@ class FlowDescriptionIO {
             if (bind.source.owner != parent) {
                 aBlockBind.sourceBlock = bind.source.owner.getId();
             }
-            aBlockBind.sourceParameter = bind.source.description.id;
+            aBlockBind.sourceParameter = bind.source.getId();
             if (bind.destination.owner != parent) {
                 aBlockBind.destinationBlock = bind.destination.owner.getId();
             }
-            aBlockBind.destinationParameter = bind.destination.description.id;
+            aBlockBind.destinationParameter = bind.destination.getId();
             aCompositeBlock.bindings.add(aBlockBind);
         }
         return aCompositeBlock;
@@ -182,14 +175,22 @@ class FlowDescriptionIO {
         return d;
     }
 
-    private static void saveLocation(List<String> keywords, AbstractBlock block) {
+    private static AdvanceBlockVisuals saveLocation(List<String> keywords, AdvanceBlockVisuals abv, AbstractBlock block) {
+        for (String s : keywords) {
+            if (s.startsWith("location(")) {
+                keywords.remove(s);
+                break;
+            }
+        }
         Point p = block.getLocation();
         if (p != null) {
-            keywords.add(String.format(Locale.ENGLISH, "location(%d;%d)", p.x, p.y));
+            abv.x = p.x;
+            abv.y = p.y;
         }
+        return abv;
     }
 
-    private static void readLocation(List<String> keywords, AbstractBlock block) {
+    private static void readLocation(List<String> keywords, AdvanceBlockVisuals abv, AbstractBlock block) {
         for (String s : keywords) {
             if (s.startsWith("location(")) {
                 String[] v = s.substring("location(".length(), s.length() - 1).split(";");
@@ -197,5 +198,6 @@ class FlowDescriptionIO {
                 return;
             }
         }
+        block.setLocation(new Point(abv.x, abv.y));
     }
 }

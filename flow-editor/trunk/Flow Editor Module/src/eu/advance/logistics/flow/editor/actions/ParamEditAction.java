@@ -21,12 +21,15 @@
 package eu.advance.logistics.flow.editor.actions;
 
 import eu.advance.logistics.flow.editor.model.BlockParameter;
+import eu.advance.logistics.flow.editor.undo.CompositeEdit;
+import eu.advance.logistics.flow.editor.undo.ParameterChanged;
+import eu.advance.logistics.flow.editor.undo.ParameterRenamed;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.event.ActionEvent;
-import java.io.StringReader;
 import javax.swing.AbstractAction;
-import org.openide.util.Exceptions;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 
 /**
@@ -35,9 +38,11 @@ import org.openide.util.NbBundle;
  */
 public class ParamEditAction extends AbstractAction {
 
+    private UndoRedoSupport undoRedoSupport;
     private BlockParameter parameter;
 
-    public ParamEditAction(BlockParameter param) {
+    public ParamEditAction(UndoRedoSupport urs, BlockParameter param) {
+        this.undoRedoSupport = urs;
         this.parameter = param;
         putValue(NAME, NbBundle.getBundle(ParamEditAction.class).getString("EDIT"));
     }
@@ -45,31 +50,30 @@ public class ParamEditAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         String tag = parameter.type.toString().toLowerCase();
-        XElement x = new XElement(tag);
-        parameter.description.save(x);
-        String s = x.toString();
-        while (true) {
-            EditDialog dlg = new EditDialog();
-            dlg.setDefaultValue(s);
-            dlg.setVisible(true);
-
-            s = dlg.getValue();
-            if (s == null) {
+        ParameterDescriptionDialog2 dlg = ParameterDescriptionDialog2.create(tag);
+        if (dlg == null) {
+            return;
+        }
+        dlg.setTitle("Edit " + tag);
+        AdvanceBlockParameterDescription old = parameter.getDescription();
+        dlg.setParameterDescription(old);
+        dlg.setVisible(true);
+        AdvanceBlockParameterDescription d = dlg.getResult();
+        if (d != null) {
+            if (!parameter.canChangeId(d.id)) {
+                NotifyDescriptor nd = new NotifyDescriptor.Message("ID aleady used!");
+                DialogDisplayer.getDefault().notify(nd);
                 return;
             }
-            try {
-                XElement xe = XElement.parseXML(new StringReader(s));
-                AdvanceBlockParameterDescription desc = new AdvanceBlockParameterDescription();
-                desc.load(xe);
-//                if (!parameter.getId().equals(desc.id)) {
-//                    parameter.setId(desc.id); // check if ID already exists
-//                }
-                desc.id = parameter.getId();
-                parameter.description = desc;
-                return;
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
+            undoRedoSupport.start();
+            CompositeEdit edit = new CompositeEdit((String) getValue(NAME));
+            parameter.setDescription(d);
+            edit.add(new ParameterChanged(parameter, old, d));
+            if (!old.id.equals(d.id)) {
+                parameter.setId(d.id);
+                edit.add(new ParameterRenamed(parameter, old.id, d.id));
             }
+            undoRedoSupport.commit(edit);
         }
     }
 }

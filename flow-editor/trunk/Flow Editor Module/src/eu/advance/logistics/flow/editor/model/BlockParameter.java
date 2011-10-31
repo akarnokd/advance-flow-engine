@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import com.google.common.base.Objects;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 
 /**
@@ -32,27 +31,45 @@ public class BlockParameter implements Comparable<BlockParameter> {
 
     public final AbstractBlock owner;
     public final Type type;
-    public AdvanceBlockParameterDescription description;
+    private AdvanceBlockParameterDescription description;
+    private String id;
 
     public BlockParameter(AbstractBlock parent, AdvanceBlockParameterDescription desc, Type type) {
         this.owner = parent;
         this.description = desc;
         this.type = type;
+        this.id = desc.id;
+    }
+
+    public AdvanceBlockParameterDescription getDescription() {
+        return description;
+    }
+
+    public void setDescription(AdvanceBlockParameterDescription description) {
+        AdvanceBlockParameterDescription old = this.description;
+        this.description = description;
+        owner.getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_CHANGED, this, old, description);
+    }
+
+    public boolean canChangeId(String id) {
+        BlockParameter p = owner.getInputOrOutputParameter(id);
+        return p == this || p == null;
     }
 
     public void setId(String id) {
         owner.updateId(this, id);
-        String old = id;
+        String old = this.id;
         description.id = id;
-        owner.getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_RENAMED, this);
+        this.id = id;
+        owner.getFlowDiagram().fire(FlowDescriptionChange.PARAMETER_RENAMED, this, old, id);
     }
 
     public String getId() {
-        return description.id;
+        return id;
     }
 
     public String getPath() {
-        return owner.id + "." + description.id;
+        return owner.id + "." + id;
     }
 
     public String getDisplayName() {
@@ -63,27 +80,13 @@ public class BlockParameter implements Comparable<BlockParameter> {
         }
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final BlockParameter other = (BlockParameter) obj;
-        return Objects.equal(description.id, other.description.id)
-                && Objects.equal(owner, other.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return getPath().hashCode();
+    public FlowDescription getFlowDescription() {
+        return owner.getFlowDiagram();
     }
 
     @Override
     public int compareTo(BlockParameter o) {
-        return description.id.compareTo(o.description.id);
+        return id.compareTo(o.id);
     }
 
     public void destroy() {

@@ -46,20 +46,20 @@ public class BlockBind implements Comparable<BlockBind> {
         return src.equals(source) && dst.equals(destination);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof BlockBind) {
-            final BlockBind conn = ((BlockBind) obj);
-            return equals(conn.source, conn.destination);
-        }
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(source, destination);
-    }
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (obj instanceof BlockBind) {
+//            final BlockBind conn = ((BlockBind) obj);
+//            return equals(conn.source, conn.destination);
+//        }
+//
+//        return false;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hashCode(source, destination);
+//    }
 
     @Override
     public int compareTo(BlockBind other) {
@@ -70,6 +70,10 @@ public class BlockBind implements Comparable<BlockBind> {
         parent.removeBind(this);
     }
 
+    public CompositeBlock getParent() {
+        return parent;
+    }
+    
     public String getErrorMessage() {
         return errorMessage;
     }
@@ -77,6 +81,10 @@ public class BlockBind implements Comparable<BlockBind> {
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
         parent.getFlowDiagram().fire(FlowDescriptionChange.BIND_ERROR_MESSAGE, this);
+    }
+    
+    public FlowDescription getFlowDescription() {
+        return parent.getFlowDiagram();
     }
     
 }

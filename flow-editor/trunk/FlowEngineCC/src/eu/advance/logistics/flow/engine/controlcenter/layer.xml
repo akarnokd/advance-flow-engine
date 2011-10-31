@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="RemoteFlowEngine">
+            <file name="eu-advance-logistics-flow-engine-controlcenter-VerifyFlowAction.instance"/>
+        </folder>
+    </folder>
     <folder name="Menu">
         <folder name="GoTo_hidden"/>
         <folder name="RemoteFlowEngine">
@@ -30,6 +35,11 @@
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 <attr name="position" intvalue="550"/>
             </file>
+            <file name="eu-advance-logistics-flow-engine-controlcenter-VerifyFlowAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-VerifyFlowAction.instance"/>
+                <attr name="position" intvalue="600"/>
+            </file>
+            <!--
             <file name="eu-advance-logistics-flow-engine-controlcenter-ManageRealmsAction.instance">
                 <attr name="position" intvalue="600"/>
             </file>
@@ -52,10 +62,6 @@
             <file name="eu-advance-logistics-flow-engine-controlcenter-JavaMessagingAction.instance">
                 <attr name="position" intvalue="1100"/>
             </file>
-            <!--file name="separator5.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                <attr name="position" intvalue="1150"/>
-            </file-->
             <file name="eu-advance-logistics-flow-engine-controlcenter-WebDataSourcesAction.instance">
                 <attr name="position" intvalue="1200"/>
             </file>            
@@ -65,6 +71,7 @@
             <file name="eu-advance-logistics-flow-engine-controlcenter-FileDataSourcesAction.instance">
                 <attr name="position" intvalue="1400"/>
             </file>            
+            -->
         </folder>
     </folder>
     <folder name="Shortcuts">
@@ -74,5 +81,13 @@
         <file name="D-U.shadow">
             <attr name="originalFile" stringvalue="Menu/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-UploadFlowAction.instance"/>
         </file>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="File">
+            <file name="eu-advance-logistics-flow-engine-controlcenter-VerifyFlowAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-VerifyFlowAction.instance"/>
+                <attr name="position" intvalue="500"/>
+            </file>
+        </folder>
     </folder>
 </filesystem>
