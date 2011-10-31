@@ -93,6 +93,14 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
         return param;
     }
 
+    boolean containsId(BlockParameter param, String id) {
+        if (param.type == Type.INPUT) {
+            return inputParameters.containsKey(id);
+        } else {
+            return outputParameters.containsKey(id);
+        }
+    }
+
     void updateId(BlockParameter param, String id) {
         if (param.type == Type.INPUT) {
             updateId(inputParameters, param, param.getId(), id);

@@ -6,6 +6,8 @@ package eu.advance.logistics.flow.editor.diagram;
 
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
+import eu.advance.logistics.flow.editor.undo.BlockMoved;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -50,11 +52,16 @@ public class WidgetMoveSupport extends AlignWithSupport implements MoveStrategy,
     public void movementFinished(Widget widget) {
         hide();
 
+        UndoRedoSupport urs = scene.getUndoRedoSupport();
         Point loc = widget.getPreferredLocation();
         if (loc != null) {
             Object obj = scene.findObject(widget);
             if (obj instanceof AbstractBlock) {
-                ((AbstractBlock) obj).setLocation(loc);
+                AbstractBlock block =((AbstractBlock) obj);
+                urs.start();
+                Point old = block.getLocation();
+                block.setLocation(loc);
+                urs.commit(new BlockMoved(block, old, loc));
             }
         }
     }

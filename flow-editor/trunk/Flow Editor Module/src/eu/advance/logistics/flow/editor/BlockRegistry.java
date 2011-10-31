@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
@@ -35,6 +36,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -232,18 +234,16 @@ public class BlockRegistry {
 
     public XType resolveSchema(URI uri) {
         if (schemaResolver == null) {
-            File schemasDir = InstalledFileLocator.getDefault().locate("schemas", "eu.advance.logistics.core", false);  // NOI18N
+            List<String> schemaLocations = Lists.newArrayList();
+            File schemasDir = InstalledFileLocator.getDefault().locate("LocalEngine/schemas", "eu.advance.logistics.core", false);  // NOI18N
             if (schemasDir != null && schemasDir.isDirectory()) {
-                String[] schemaLocations = new String[1];
                 try {
-                    schemaLocations[0] = schemasDir.getCanonicalPath();
+                    schemaLocations.add(schemasDir.getCanonicalPath().replace('\\', '/'));
                 } catch (IOException ex) {
-                    schemaLocations[0] = schemasDir.getAbsolutePath();
+                    schemaLocations.add(schemasDir.getAbsolutePath().replace('\\', '/'));
                 }
-                schemaResolver = new AdvanceLocalSchemaResolver(Arrays.asList(schemaLocations));
-            } else {
-                schemaResolver = new AdvanceLocalSchemaResolver(Arrays.<String>asList());
             }
+            schemaResolver = new AdvanceLocalSchemaResolver(schemaLocations);
         }
         return schemaResolver.resolve(uri);
     }

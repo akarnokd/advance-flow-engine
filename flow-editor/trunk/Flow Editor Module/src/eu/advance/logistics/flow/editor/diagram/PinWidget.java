@@ -33,7 +33,7 @@ import org.netbeans.api.visual.widget.Widget;
  *
  * @author TTS
  */
-public class PinWidget extends Widget {
+public class PinWidget extends Widget implements Comparable<PinWidget> {
 
     private ColorScheme scheme;
     private ImageWidget iconWidget;
@@ -46,7 +46,7 @@ public class PinWidget extends Widget {
      * @param scene the scene
      * @param scheme the color scheme
      */
-    public PinWidget(Scene scene, ColorScheme scheme, boolean invertType, boolean invertIcon) {
+    public PinWidget(Scene scene, ColorScheme scheme, String name, boolean invertType, boolean invertIcon) {
         super(scene);
         assert scheme != null;
         this.scheme = scheme;
@@ -63,7 +63,9 @@ public class PinWidget extends Widget {
             addChild(iconWidget = new ImageWidget(scene));
             addChild(nameWidget = new LabelWidget(scene));
         }
-
+        
+        nameWidget.setLabel(name);
+        
         scheme.installUI(this);
         notifyStateChanged(ObjectState.createNormal(), ObjectState.createNormal());
     }
@@ -104,7 +106,7 @@ public class PinWidget extends Widget {
     public void setLabelIcon(Image image) {
         iconWidget.setImage(image);
     }
-
+    
     /**
      * Creates a horizontally oriented anchor similar to VMDNodeWidget.createAnchorPin
      * @return the anchor
@@ -118,5 +120,10 @@ public class PinWidget extends Widget {
 
     public boolean isInverted() {
         return inverted;
+    }
+
+    @Override
+    public int compareTo(PinWidget o) {
+        return getPinName().compareTo(o.getPinName());
     }
 }

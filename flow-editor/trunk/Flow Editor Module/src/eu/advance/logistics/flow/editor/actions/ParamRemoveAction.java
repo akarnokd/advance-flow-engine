@@ -20,7 +20,10 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
+import eu.advance.logistics.flow.editor.undo.ParameterRemoved;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import org.openide.DialogDisplayer;
@@ -33,19 +36,24 @@ import org.openide.util.NbBundle;
  */
 public class ParamRemoveAction extends AbstractAction {
 
+    private UndoRedoSupport undoRedoSupport;
     private BlockParameter parameter;
 
-    public ParamRemoveAction(BlockParameter param) {
+    public ParamRemoveAction(UndoRedoSupport urs, BlockParameter param) {
+        this.undoRedoSupport = urs;
         this.parameter = param;
         putValue(NAME, NbBundle.getBundle(ParamRemoveAction.class).getString("REMOVE"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getBundle(ParamRemoveAction.class).getString("REMOVE_CONFIRM") + parameter.description.displayName + "?",
+        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getBundle(ParamRemoveAction.class).getString("REMOVE_CONFIRM") + parameter.getDisplayName() + "?",
                 NotifyDescriptor.YES_NO_OPTION);
         if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.YES_OPTION) {
+            undoRedoSupport.start();
+            AbstractBlock owner = parameter.owner;
             parameter.destroy();
+            undoRedoSupport.commit(new ParameterRemoved(owner, parameter));
         }
     }
 }

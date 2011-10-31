@@ -28,6 +28,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.Collections;
 import java.util.List;
 import java.util.WeakHashMap;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -63,10 +64,10 @@ public class BlockWidget extends Widget implements StateModel.Listener, VMDMinim
     private Anchor nodeAnchor;
     private ColorScheme scheme;
     private WeakHashMap<Anchor, Anchor> proxyAnchorCache = new WeakHashMap<Anchor, Anchor>();
-    private Widget inParams;
-    private Widget outParams;
-    private List<Widget> inPins = Lists.newArrayList();
-    private List<Widget> outPins = Lists.newArrayList();
+    private Widget inParamsWidget;
+    private Widget outParamsWidget;
+    private List<PinWidget> inPins = Lists.newArrayList();
+    private List<PinWidget> outPins = Lists.newArrayList();
 
     /**
      * Creates a node widget with a specific color scheme.
@@ -126,17 +127,17 @@ public class BlockWidget extends Widget implements StateModel.Listener, VMDMinim
 //        Widget topLayer = new Widget(scene);
 //        addChild(topLayer);
 
-        inParams = new Widget(scene);
-        inParams.setCheckClipping(true);
-        inParams.setLayout(LayoutFactory.createVerticalFlowLayout());
-        outParams = new Widget(scene);
-        outParams.setCheckClipping(true);
-        outParams.setLayout(LayoutFactory.createVerticalFlowLayout());
+        inParamsWidget = new Widget(scene);
+        inParamsWidget.setCheckClipping(true);
+        inParamsWidget.setLayout(LayoutFactory.createVerticalFlowLayout());
+        outParamsWidget = new Widget(scene);
+        outParamsWidget.setCheckClipping(true);
+        outParamsWidget.setLayout(LayoutFactory.createVerticalFlowLayout());
 
         addChild(WidgetBuilder.createLabel(scene, "INPUT", true));
-        addChild(inParams);
+        addChild(inParamsWidget);
         addChild(WidgetBuilder.createLabel(scene, "OUTPUT", true));
-        addChild(outParams);
+        addChild(outParamsWidget);
 
         stateModel = new StateModel();
         stateModel.addListener(this);
@@ -244,22 +245,32 @@ public class BlockWidget extends Widget implements StateModel.Listener, VMDMinim
      * Attaches a pin widget to the node widget.
      * @param widget the pin widget
      */
-    public void attachPinWidget(Widget widget, boolean input) {
+    public void attachPinWidget(PinWidget widget, boolean input) {
         if (input) {
-            attachPinWidget(widget, inPins, inParams);
+            attachPinWidget(widget, inPins, inParamsWidget);
         } else {
-            attachPinWidget(widget, outPins, outParams);
+            attachPinWidget(widget, outPins, outParamsWidget);
         }
     }
-    public void attachPinWidget(Widget widget, List<Widget> params, Widget parent) {
+
+    private void attachPinWidget(PinWidget widget, List<PinWidget> params, Widget parent) {
         widget.setCheckClipping(true);
-        parent.removeChildren(params);
+        if (stateModel.getBooleanState() && isMinimizableWidget(widget)) {
+            widget.setPreferredBounds(new Rectangle());
+        }
+        
         params.add(widget);
+        Collections.sort(params);
+        
+        parent.removeChildren();
         for (Widget w : params) {
             parent.addChild(w);
         }
-        if (stateModel.getBooleanState() && isMinimizableWidget(widget)) {
-            widget.setPreferredBounds(new Rectangle());
+    }
+
+    void detachPinWidget(PinWidget pinWidget) {
+        if (!(inPins.remove(pinWidget) || outPins.remove(pinWidget))) {
+            System.err.println("Pin widget not removed!");
         }
     }
 

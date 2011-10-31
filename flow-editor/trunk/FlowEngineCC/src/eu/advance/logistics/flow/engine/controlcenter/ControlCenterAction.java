@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.editor.actions;
+package eu.advance.logistics.flow.engine.controlcenter;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,21 +26,22 @@ import org.openide.awt.ActionRegistration;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionID;
-import org.openide.awt.StatusDisplayer;
 
-@ActionID(category = "Tools",
-id = "eu.advance.logistics.flow.editor.actions.TestAction")
-@ActionRegistration(iconBase = "eu/advance/logistics/flow/editor/actions/buildProject.png",
-displayName = "#CTL_TestAction")
+/**
+ * Opens the ECC program.
+ * 
+ * @author TTS
+ */
+@ActionID(category = "Edit",
+id = "eu.advance.logistics.flow.engine.controlcenter.ControlCenterAction")
+@ActionRegistration(displayName = "#CTL_ControlCenterAction")
 @ActionReferences({
-    @ActionReference(path = "Menu/Tools", position = 0, separatorAfter = 50),
-    @ActionReference(path = "Toolbars/File", position = 500),
-    @ActionReference(path = "Shortcuts", name = "D-T")
+    @ActionReference(path = "Menu/RemoteFlowEngine", position = 0, separatorAfter = 50)
 })
-public final class TestAction implements ActionListener {
+public final class ControlCenterAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        StatusDisplayer.getDefault().setStatusText("Engine check");
+        eu.advance.logistics.flow.engine.cc.CCMain.main(new String[0]);
     }
 }

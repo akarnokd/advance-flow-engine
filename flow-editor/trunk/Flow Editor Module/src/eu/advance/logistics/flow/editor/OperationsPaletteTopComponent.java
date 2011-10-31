@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -95,17 +96,11 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
         file = InstalledFileLocator.getDefault().locate("categories.xml", "eu.advance.logistics.core", false);  // NOI18N
         BlockRegistry.getInstance().readCategories(file);
 
-//        file = InstalledFileLocator.getDefault().locate("block-registry.xml", "eu.advance.logistics.core", false);  // NOI18N
-        InputStream u = getClass().getResourceAsStream("/block-registry.xml");
-        if (u != null) {
-            BlockRegistryDataObject.read(u);
-        } else {
-            file = InstalledFileLocator.getDefault().locate("block-registry.xml", "eu.advance.logistics.core", false);  // NOI18N
-            try {
-                BlockRegistryDataObject.read(new FileInputStream(file));
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-            }
+        file = InstalledFileLocator.getDefault().locate("LocalEngine/schemas/block-registry.xml", "eu.advance.logistics.core", false);  // NOI18N
+        try {
+            BlockRegistryDataObject.read(new FileInputStream(file));
+        } catch (FileNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
         }
     }
 

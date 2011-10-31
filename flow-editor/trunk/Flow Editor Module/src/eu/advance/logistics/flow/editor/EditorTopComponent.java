@@ -20,10 +20,9 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import eu.advance.logistics.flow.editor.undo.UndoRedoProxy;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
-import eu.advance.logistics.flow.editor.undo.UndoRedoListener;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import java.awt.BorderLayout;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
@@ -52,7 +51,7 @@ public final class EditorTopComponent extends TopComponent {
     private JComponent viewportView;
     private FlowDescriptionDataObject dataObject;
     private BreadcrumbView breadcrumbView = new BreadcrumbView();
-    private UndoRedoProxy undoRedoProxy = new UndoRedoProxy();
+    private UndoRedo undoRedo;
 
     public EditorTopComponent(FlowDescriptionDataObject dataObject) {
         this.dataObject = dataObject;
@@ -67,13 +66,13 @@ public final class EditorTopComponent extends TopComponent {
         viewportView = scene.createView();
 
         scrollpane.setViewportView(viewportView);
-        
+
         add(breadcrumbView.getControl(), BorderLayout.NORTH);
         FlowDescription fd = dataObject.getLookup().lookup(FlowDescription.class);
         breadcrumbView.populate(fd.getActiveBlock());
         fd.addListener(breadcrumbView);
 
-        fd.addListener(new UndoRedoListener(fd, undoRedoProxy));
+        undoRedo = dataObject.getLookup().lookup(UndoRedoSupport.class).getUndoRedo();
 
         //associateLookup(Lookups.fixed(new Object[]{flowDiagramController}));
     }
@@ -97,12 +96,13 @@ public final class EditorTopComponent extends TopComponent {
 
     @Override
     public UndoRedo getUndoRedo() {
-        return undoRedoProxy;
+        return undoRedo;
     }
 
     private FlowScene getScene() {
         return dataObject.getLookup().lookup(FlowScene.class);
     }
+
     @Override
     public void componentOpened() {
     }

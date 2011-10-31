@@ -45,8 +45,8 @@ import org.openide.util.Exceptions;
         iconBase="eu/advance/logistics/flow/editor/images/newProject.png")
 @ActionReferences(value = {
     @ActionReference(path = "Shortcuts", name = "D-N"),
-    @ActionReference(path = "Menu/File", position = 300),
-    @ActionReference(path = "Toolbars/File", position=350)
+    @ActionReference(path = "Menu/File", position = 100),
+    @ActionReference(path = "Toolbars/File", position=300)
 })
 public final class NewFlowAction implements ActionListener {
 

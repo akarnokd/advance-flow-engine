@@ -22,8 +22,14 @@ package eu.advance.logistics.flow.editor.actions;
 
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.undo.BlockMoved;
+import eu.advance.logistics.flow.editor.undo.CompositeBlockAdded;
+import eu.advance.logistics.flow.editor.undo.CompositeEdit;
+import eu.advance.logistics.flow.editor.undo.ParameterCreated;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -58,17 +64,30 @@ public class GroupBlockAction extends AbstractAction {
 //                }
 //            }
 //        }
-        CompositeBlock cb = flowDescription.getActiveBlock().createComposite();
+        UndoRedoSupport urs = scene.getUndoRedoSupport();
+        urs.start();
+        String name = NbBundle.getBundle(GroupBlockAction.class).getString("CREATE_GROUP");
+        CompositeEdit edit = new CompositeEdit(name);
+        CompositeBlock parent = flowDescription.getActiveBlock();
+        CompositeBlock cb = parent.createComposite();
+        edit.add(new CompositeBlockAdded(parent, cb));
         if (location != null) {
+            Point old = cb.getLocation();
             cb.setLocation(location);
+            edit.add(new BlockMoved(cb, old, location));
         }
+        BlockParameter param;
         AdvanceBlockParameterDescription inParam = new AdvanceBlockParameterDescription();
         inParam.type = BlockRegistry.getInstance().getDefaultAdvanceType();
-        cb.createInput(inParam);
-        
+        param = cb.createInput(inParam);
+        edit.add(new ParameterCreated(cb, param));
+
         AdvanceBlockParameterDescription outParam = new AdvanceBlockParameterDescription();
         outParam.type = BlockRegistry.getInstance().getDefaultAdvanceType();
-        cb.createOutput(outParam);
+        param = cb.createOutput(outParam);
+        edit.add(new ParameterCreated(cb, param));
+        
+        urs.commit(edit);
     }
 
     public Point getLocation() {

@@ -20,32 +20,40 @@
  */
 package eu.advance.logistics.flow.editor.undo;
 
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
+import eu.advance.logistics.flow.editor.model.BlockParameter;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 
 /**
  *
  * @author TTS
  */
-public abstract class UndoableEdit extends AbstractUndoableEdit {
+public class ParameterChanged extends UndoableEdit {
 
-    protected abstract void restore(boolean redo);
+    private BlockParameter parameter;
+    private AdvanceBlockParameterDescription old;
+    private AdvanceBlockParameterDescription desc;
+    private String name;
 
-    @Override
-    public void redo() throws CannotRedoException {
-        super.redo();
-        restore(true);
+    public ParameterChanged(BlockParameter parameter, AdvanceBlockParameterDescription old, AdvanceBlockParameterDescription desc) {
+        this.parameter = parameter;
+        this.old = old;
+        this.desc = desc;
+        name = "Changed " + parameter.type.toString().toLowerCase();
     }
-    
+
     @Override
-    public void undo() throws CannotUndoException {
-        super.undo();
-        restore(false);
+    protected void restore(boolean redo) {
+        parameter.setDescription(redo ? desc : old);
+    }
+
+    @Override
+    public String getPresentationName() {
+        return name;
     }
 
     @Override
     public void die() {
         super.die();
+        parameter = null;
     }
 }
