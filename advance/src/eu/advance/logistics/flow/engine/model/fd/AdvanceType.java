@@ -74,7 +74,9 @@ public class AdvanceType implements XSerializable {
 		result.typeVariableName = typeVariableName;
 		result.typeURI = typeURI;
 		result.type = type;
-		result.typeVariable = typeVariable.copy();
+		if (typeVariable != null) {
+			result.typeVariable = typeVariable.copy();
+		}
 		for (AdvanceType ta : typeArguments) {
 			result.typeArguments.add(ta.copy());
 		}
