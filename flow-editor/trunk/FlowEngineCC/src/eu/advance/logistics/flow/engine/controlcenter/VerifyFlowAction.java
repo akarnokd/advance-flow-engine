@@ -31,6 +31,7 @@ import javax.swing.AbstractAction;
 import javax.swing.SwingWorker;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.awt.NotificationDisplayer;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
@@ -101,7 +102,11 @@ public final class VerifyFlowAction extends AbstractAction {
             try {
                 AdvanceCompilationResult result = (AdvanceCompilationResult) get();
                 if (result != null) {
-                    StatusDisplayer.getDefault().setStatusText("Verification result: " + (result.success() ? "OK" : "FAILED"));
+                    boolean ok = result.success();
+                    String text = "Verification result: " + (ok ? "OK" : "FAILED");
+                    NotificationDisplayer.getDefault().notify("Verify flow",
+                            Commons.getNotificationIcon(ok), text, null);
+                    StatusDisplayer.getDefault().setStatusText(text);
                 }
             } catch (ExecutionException ex) {
                 Exceptions.printStackTrace(ex.getCause());

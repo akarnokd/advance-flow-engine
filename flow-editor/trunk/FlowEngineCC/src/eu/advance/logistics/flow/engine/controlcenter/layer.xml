@@ -39,10 +39,10 @@
                 <attr name="originalFile" stringvalue="Actions/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-VerifyFlowAction.instance"/>
                 <attr name="position" intvalue="600"/>
             </file>
-            <!--
             <file name="eu-advance-logistics-flow-engine-controlcenter-ManageRealmsAction.instance">
-                <attr name="position" intvalue="600"/>
+                <attr name="position" intvalue="700"/>
             </file>
+            <!--
             <file name="eu-advance-logistics-flow-engine-controlcenter-ManageUsersAction.instance">
                 <attr name="position" intvalue="700"/>
             </file>

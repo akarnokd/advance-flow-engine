@@ -22,13 +22,17 @@ package eu.advance.logistics.flow.engine.controlcenter;
 
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -39,27 +43,16 @@ class Commons {
     private Commons() {
     }
 
-    static void fixRights(AdvanceEngineControl engine, String realm, AdvanceUserRealmRights rights) throws IOException, AdvanceControlException {
+    static void fixRights(AdvanceEngineControl engine, AdvanceRealm realm, AdvanceUserRealmRights rights) throws IOException, AdvanceControlException {
         AdvanceUser u = engine.getUser();
         if (!u.realmRights.containsEntry(realm, rights)) {
-            u.realmRights.put(realm, rights);
+            u.realmRights.put(realm.name, rights);
             engine.datastore().updateUser(u);
         }
     }
 
     static FileFilter createFileFilter() {
-        return new FileFilter() {
-
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase().endsWith(".xml"); // NOI18N
-            }
-
-            @Override
-            public String getDescription() {
-                return "Flow description (*.xml)";
-            }
-        };
+        return new FileNameExtensionFilter("Flow description (*.xml)", "xml");
     }
 
     static int syncTableSelection(JTable table, MouseEvent e) {
@@ -71,5 +64,13 @@ class Commons {
         }
 
         return table.getSelectedRow();
+    }
+
+    static Icon getNotificationIcon(boolean ok) {
+        if (ok) {
+            return ImageUtilities.loadImageIcon("eu/advance/logistics/flow/engine/controlcenter/ok_16.png", false);
+        } else {
+            return ImageUtilities.loadImageIcon("eu/advance/logistics/flow/engine/controlcenter/alert_16.png", false);
+        }
     }
 }
