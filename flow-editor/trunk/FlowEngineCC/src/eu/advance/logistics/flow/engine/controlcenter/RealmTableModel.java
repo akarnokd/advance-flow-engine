@@ -20,11 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
+import com.google.common.collect.Lists;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -32,10 +35,11 @@ import javax.swing.table.AbstractTableModel;
  */
 class RealmTableModel extends AbstractTableModel {
 
-    private List<AdvanceRealm> data;
+    private List<AdvanceRealm> data = Lists.newArrayList();
+    private int columns;
 
-    RealmTableModel(Collection<AdvanceRealm> data) {
-        this.data = new ArrayList<AdvanceRealm>(data);
+    RealmTableModel(boolean extended) {
+        columns = extended ? 6 : 4;
     }
 
     @Override
@@ -45,28 +49,29 @@ class RealmTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return columns;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        AdvanceRealm realm = data.get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return data.get(rowIndex).name;
+                return realm.name;
             case 1:
-                return data.get(rowIndex).createdAt;
+                return realm.createdAt;
             case 2:
-                return data.get(rowIndex).modifiedAt;
+                return realm.modifiedAt;
             case 3:
-                return data.get(rowIndex).status;
+                return realm.status;
             default:
-                return null;
+                return realm;
         }
     }
 
     @Override
     public String getColumnName(int column) {
-           switch (column) {
+        switch (column) {
             case 0:
                 return "Name";
             case 1:
@@ -76,12 +81,54 @@ class RealmTableModel extends AbstractTableModel {
             case 3:
                 return "Status";
             default:
-                return Integer.toString(column);
+                return "";
         }
     }
-    
+
     AdvanceRealm getRealm(int index) {
         return data.get(index);
     }
 
+    private void update(List<AdvanceRealm> list) {
+        data.clear();
+        data = list;
+        fireTableDataChanged();
+    }
+
+    void refresh() {
+        final ProgressHandle ph = ProgressHandleFactory.createHandle("Retrieving realms list...");
+        ph.setInitialDelay(0);
+        ph.start();
+        new SwingWorker<List<AdvanceRealm>, Void>() {
+
+            @Override
+            protected List<AdvanceRealm> doInBackground() throws Exception {
+                return EngineController.getInstance().getEngine().datastore().queryRealms();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    update(get());
+                } catch (Exception ex) {
+                    Exceptions.printStackTrace(ex);
+                } finally {
+                    ph.finish();
+                }
+            }
+        }.execute();
+    }
+
+    void remove(int row) {
+        data.remove(row);
+        fireTableRowsDeleted(row, row);
+    }
+
+    void update(int row) {
+        fireTableRowsUpdated(row, row);
+    }
+
+    void update(int row, int column) {
+        fireTableCellUpdated(row, column);
+    }
 }

@@ -30,6 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
@@ -42,6 +44,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.NotificationDisplayer;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -89,7 +92,7 @@ public final class UploadFlowAction extends AbstractAction {
             return;
         }
 
-        final RealmTableModel tableModel = new RealmTableModel(data);
+        final RealmTableModel tableModel = new RealmTableModel(false);
         final ListDialog dlg = new ListDialog(tableModel);
         final JButton btn = dlg.getConfirmButton();
         dlg.setTitle(NbBundle.getMessage(UploadFlowAction.class, "UploadFlowAction.title"));
@@ -112,15 +115,21 @@ public final class UploadFlowAction extends AbstractAction {
                     // should not happen
                     return;
                 }
-                String realm = tableModel.getRealm(index).name;
+                AdvanceRealm realm = tableModel.getRealm(index);
+                boolean ok = false;
                 try {
                     Commons.fixRights(engine, realm, AdvanceUserRealmRights.WRITE);
-                    engine.updateFlow(realm, item.flow, engine.getUser().name);
-                    StatusDisplayer.getDefault().setStatusText(item.name + " uploaded");
+                    engine.updateFlow(realm.name, item.flow, engine.getUser().name);
+                    ok = true;
                     dlg.dispose();
                 } catch (Exception ex) {
                     Exceptions.printStackTrace(ex);
                 }
+
+                String text = item.name + (ok ? " uploaded" : " not uploaded");
+                NotificationDisplayer.getDefault().notify(dlg.getTitle(),
+                        Commons.getNotificationIcon(ok), text, null);
+                StatusDisplayer.getDefault().setStatusText(text);
             }
         };
         btn.addActionListener(uploadAction);
@@ -134,6 +143,14 @@ public final class UploadFlowAction extends AbstractAction {
                 }
 
             }
+        });
+        dlg.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowOpened(WindowEvent e) {
+                tableModel.refresh();
+            }
+            
         });
 
         dlg.setLocationRelativeTo(dlg.getOwner());

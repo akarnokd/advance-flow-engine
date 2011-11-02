@@ -30,6 +30,8 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
@@ -80,7 +82,7 @@ public final class DownloadFlowAction extends AbstractAction {
             }
         }
         if (data != null) {
-            final RealmTableModel tableModel = new RealmTableModel(data);
+            final RealmTableModel tableModel = new RealmTableModel(false);
             final ListDialog dlg = new ListDialog(tableModel);
             final JButton btn = dlg.getConfirmButton();
             dlg.setTitle(NbBundle.getMessage(DownloadFlowAction.class, "DownloadFlowAction.title"));
@@ -103,13 +105,13 @@ public final class DownloadFlowAction extends AbstractAction {
                         // should not happen
                         return;
                     }
-                    String realm = tableModel.getRealm(index).name;
+                    AdvanceRealm realm = tableModel.getRealm(index);
 
                     // download the flow
                     AdvanceCompositeBlock flow = null;
                     try {
                         Commons.fixRights(engine, realm, AdvanceUserRealmRights.READ);
-                        XElement root = engine.datastore().queryFlow(realm);
+                        XElement root = engine.datastore().queryFlow(realm.name);
                         if (root != null) {
                             flow = AdvanceCompositeBlock.parseFlow(root);
                         } else {
@@ -157,7 +159,13 @@ public final class DownloadFlowAction extends AbstractAction {
 
                 }
             });
+            dlg.addWindowListener(new WindowAdapter() {
 
+                @Override
+                public void windowOpened(WindowEvent e) {
+                    tableModel.refresh();
+                }
+            });
 
             dlg.setLocationRelativeTo(dlg.getOwner());
             dlg.setVisible(true);

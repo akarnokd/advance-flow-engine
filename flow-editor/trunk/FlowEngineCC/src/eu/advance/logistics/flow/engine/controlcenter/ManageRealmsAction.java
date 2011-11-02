@@ -21,11 +21,10 @@
 package eu.advance.logistics.flow.engine.controlcenter;
 
 import com.google.common.eventbus.Subscribe;
-import java.awt.Frame;
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import org.openide.util.NbBundle;
-import org.openide.windows.WindowManager;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.ManageRealmsAction")
@@ -33,7 +32,7 @@ import org.openide.windows.WindowManager;
 //@ActionReferences({
 //    @ActionReference(path = "Menu/RemoteFlowEngine", position = 600)
 //})
-public final class ManageRealmsAction  extends AbstractAction {
+public final class ManageRealmsAction extends AbstractAction {
 
     public ManageRealmsAction() {
         putValue(NAME, NbBundle.getMessage(ManageRealmsAction.class, "CTL_ManageRealmsAction"));
@@ -48,9 +47,11 @@ public final class ManageRealmsAction  extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        final Frame mainWindow = WindowManager.getDefault().getMainWindow();
-        final ManageRealmsDialog manageRealmsDialog = new ManageRealmsDialog(mainWindow, true);
-        manageRealmsDialog.setLocationRelativeTo(mainWindow);
-        manageRealmsDialog.setVisible(true);
+        AdvanceEngineControl engine = EngineController.getInstance().getEngine();
+        if (engine != null) {
+            final ManageRealmsDialog dlg = new ManageRealmsDialog(engine);
+            dlg.setLocationRelativeTo(dlg.getOwner());
+            dlg.setVisible(true);
+        }
     }
 }

@@ -141,6 +141,7 @@ public class EngineController {
             File dir = checkLocalEngine();
             engine = BasicLocalEngine.create(username, dir.getCanonicalPath());
             engineAddress = dir.toString();
+            engineVersion = engine.queryVersion().toString();
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }

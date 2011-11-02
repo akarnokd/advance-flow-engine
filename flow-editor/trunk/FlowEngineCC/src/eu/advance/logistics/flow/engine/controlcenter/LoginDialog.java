@@ -42,6 +42,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.swing.etable.ETable;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.StatusDisplayer;
 import org.openide.explorer.ExplorerManager;
 import org.openide.util.Exceptions;
 import org.openide.windows.WindowManager;
@@ -134,8 +135,6 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
             serverCertPath.setText("");
         }
     }
-
-
 
     private Action createEditAction(int index) {
         final LoginInfo target = model.getLoginInfo(index);
@@ -523,7 +522,6 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
             serverCertPath.setText(fc.getSelectedFile().toString());
         }
     }//GEN-LAST:event_browseCertActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JLabel addressLabel;
@@ -558,7 +556,7 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
         final boolean saveCredentials = remeberCheck.isSelected();
         final LoginProgressDialog dlg = new LoginProgressDialog();
         final String serverCert = serverCertPath.getText();
-        
+
         new SwingWorker() {
 
             @Override
@@ -587,6 +585,7 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
                     EngineController ec = EngineController.getInstance();
                     dlg.dispose();
                     if (ec.getEngine() != null) {
+                        StatusDisplayer.getDefault().setStatusText("Logged " + ec.getEngineAddress() + " version " + ec.getEngineVersion());
                         dispose();
                     }
                     ec.getEventBus().post(ec);
