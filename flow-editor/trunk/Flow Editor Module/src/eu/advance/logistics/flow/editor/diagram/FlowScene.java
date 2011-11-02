@@ -39,6 +39,7 @@ import eu.advance.logistics.flow.editor.undo.BindRemoved;
 import eu.advance.logistics.flow.editor.undo.BlockRenamed;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
@@ -230,7 +231,13 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
             }
         }
         if (needsValidation) {
-            connectionLayer.revalidate();
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    revalidate();
+                }
+            });
         }
     }
 

@@ -42,8 +42,14 @@ public class CompositeEdit extends UndoableEdit {
 
     @Override
     protected void restore(boolean redo) {
-        for (UndoableEdit edit : edits) {
-            edit.restore(redo);
+        if (redo) {
+            for (UndoableEdit edit : edits) {
+                edit.restore(true);
+            }
+        } else {
+            for (int i = edits.size() - 1; i >= 0; i--) {
+                edits.get(i).restore(false);
+            }
         }
     }
 

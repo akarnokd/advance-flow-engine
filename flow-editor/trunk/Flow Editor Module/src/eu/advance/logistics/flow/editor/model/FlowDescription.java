@@ -47,8 +47,10 @@ public class FlowDescription extends CompositeBlock {
     }
 
     public void fire(FlowDescriptionChange event, Object... params) {
-        for (FlowDescriptionListener l : listeners) {
-            l.flowDescriptionChanged(event, params);
+        int n = listeners.size();
+        FlowDescriptionListener[] temp = listeners.toArray(new FlowDescriptionListener[n]);
+        for (int i = 0; i < n; i++) {
+            temp[i].flowDescriptionChanged(event, params);
         }
     }
 
@@ -69,7 +71,7 @@ public class FlowDescription extends CompositeBlock {
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new OutputStreamWriter(s));
-            
+
             // temporary header fix
             String header = "<?xml version='1.0' encoding='UTF-8'?>\n<flow-description xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"flow-description.xsd\">";
             // Fix serialization bug: we replace the wrong root element 
@@ -77,8 +79,8 @@ public class FlowDescription extends CompositeBlock {
             String str = root.toString();
             str = str.replace("<flow-descriptor>", header);
             str = str.replace("</flow-descriptor>", "</flow-description>");
-            
-            out.write(str);            
+
+            out.write(str);
             out.flush();
         } finally {
             Closeables.closeQuietly(out);
