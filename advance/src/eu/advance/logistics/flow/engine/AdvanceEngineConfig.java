@@ -94,6 +94,8 @@ public class AdvanceEngineConfig {
 	public final EnumMap<AdvanceSchedulerPreference, Scheduler> schedulerMap = new EnumMap<AdvanceSchedulerPreference, Scheduler>(AdvanceSchedulerPreference.class);
 	/** The backing executor services to allow peaceful shutdown. */
 	public final EnumMap<AdvanceSchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<AdvanceSchedulerPreference, ExecutorService>(AdvanceSchedulerPreference.class);
+	/** The working directory. */
+	protected String workDir;
 	/**
 	 * Create the lookup.
 	 * @param blockRegistries The block registries
@@ -112,7 +114,7 @@ public class AdvanceEngineConfig {
 			}
 			for (XElement br : blockRegistries) {
 				for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
-						XElement.parseXML(br.get("file")))) {
+						XElement.parseXML(workDir + "/" + br.get("file")))) {
 					blocks.put(e.id, e);
 				}
 			}
@@ -136,8 +138,10 @@ public class AdvanceEngineConfig {
 	/**
 	 * Initialize the configuration from the given config XML tree.
 	 * @param configXML the configuration tree
+	 * @param workDir the working directory to resolve relative configuration entries
 	 */
-	public void initialize(XElement configXML) {
+	public void initialize(XElement configXML, String workDir) {
+		this.workDir = workDir;
 		// load listeners
 		listener = new AdvanceListenerConfig();
 		listener.load(configXML.childElement("listener"));
@@ -150,7 +154,7 @@ public class AdvanceEngineConfig {
 		// load schema locations
 		schemas.clear();
 		for (XElement xs : configXML.childrenWithName("schemas")) {
-			schemas.add(xs.get("location"));
+			schemas.add(workDir + "/" + xs.get("location"));
 		}
 		schemaResolver = new AdvanceLocalSchemaResolver(schemas);
 		
@@ -158,7 +162,7 @@ public class AdvanceEngineConfig {
 		for (XElement xks : configXML.childrenWithName("keystore")) {
 			AdvanceKeyStore e = new AdvanceKeyStore();
 			e.name = xks.get("name");
-			e.location = xks.get("file");
+			e.location = workDir + "/" + xks.get("file");
 
 			e.password(AdvanceCreateModifyInfo.getPassword(xks, "password"));
 			
@@ -187,9 +191,9 @@ public class AdvanceEngineConfig {
 		if ("LOCAL".equals(jdbcDataSource.driver)) {
 			localDataStore = new LocalDataStore();
 			if (jdbcDataSource.password() != null) {
-				localDataStore.loadEncrypted(jdbcDataSource.url, jdbcDataSource.password());
+				localDataStore.loadEncrypted(workDir + "/" + jdbcDataSource.url, jdbcDataSource.password());
 			} else {
-				localDataStore.load(jdbcDataSource.url);
+				localDataStore.load(workDir + "/" + jdbcDataSource.url);
 			}
 		} else {
 			jdbcDataSource.user = ds.get("user");

@@ -60,6 +60,7 @@ import com.sun.net.httpserver.HttpsServer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
@@ -87,7 +88,7 @@ public class AdvanceFlowEngine implements Runnable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The version of the flow engine. */
-	public static final String VERSION = "0.06.139";
+	public static final String VERSION = "0.07.146";
 	/** The configuration. */
 	private AdvanceEngineConfig config;
 	/** The basic server. */
@@ -102,13 +103,16 @@ public class AdvanceFlowEngine implements Runnable {
 	 * The engine control.
 	 */
 	private LocalEngineControl control;
+	/** The working directory. */
+	private final String workDir;
 	/**
 	 * Create the flow engine and refer the configuration file.
 	 * @param configFile the configuration file.
+	 * @param workDir the working directory
 	 */
-	public AdvanceFlowEngine(File configFile) {
+	public AdvanceFlowEngine(File configFile, String workDir) {
 		this.configFile = configFile;
-		
+		this.workDir = workDir;
 	}
 	@Override
 	public void run() {
@@ -117,16 +121,20 @@ public class AdvanceFlowEngine implements Runnable {
 		config = new AdvanceEngineConfig();
 		try {
 			XElement xconfig = XElement.parseXML(configFile);
-			config.initialize(xconfig);
+			config.initialize(xconfig, workDir);
 			AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, config.blockResolver, config.schedulerMap);
-			control = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler) {
+			control = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler, workDir) {
 				@Override
 				public void shutdown() throws IOException,
 						AdvanceControlException {
 					LOG.info("Shutting down basic server.");
-					basicServer.stop(5);
+					if (basicServer != null) {
+						basicServer.stop(5);
+					}
 					LOG.info("Shutting down certificate server.");
-					certServer.stop(5);
+					if (certServer != null) {
+						certServer.stop(5);
+					}
 					LOG.info("Server listeners shut down.");
 					super.shutdown();
 					config.close();
@@ -134,14 +142,12 @@ public class AdvanceFlowEngine implements Runnable {
 			};
 			engineListener = new HttpEngineControlListener(control);
 			initListeners();
-		} catch (IOException ex) {
-			LOG.error(ex.toString(), ex);
-		} catch (XMLStreamException ex) {
+		} catch (Throwable ex) {
 			LOG.error(ex.toString(), ex);
 		}
 		
 		
-		LOG.info("Advance Flow Engine Terminated");
+		LOG.info("Advance Flow Engine Initialization complete");
 	}
 	/** Initialize the listeners. */
 	public void initListeners() {
@@ -217,9 +223,17 @@ public class AdvanceFlowEngine implements Runnable {
 					AdvanceXMLExchange xchg = null;
 					try {
 						xchg = engineListener.dispatch(frequest, userName);
-					} catch (Throwable ex) {
+					} catch (AdvanceAccessDenied ex) {
+						LOG.error(ex.toString(), ex);
+						sendResponse(request, 401, ex.toString());
+						return;
+					} catch (AdvanceControlException ex) {
 						LOG.error(ex.toString(), ex);
 						sendResponse(request, 403, ex.toString());
+						return;
+					} catch (Throwable ex) {
+						LOG.error(ex.toString(), ex);
+						sendResponse(request, 500, ex.toString());
 						return;
 					}
 
@@ -427,11 +441,15 @@ public class AdvanceFlowEngine implements Runnable {
 	 * @param args no arguments at the moment
 	 */
 	public static void main(String[] args) {
-		File c = new File("conf/flow_engine_config.xml");
+		String workDir = System.getProperty("user.home") + ".advance-flow-editor-ws";
+		File c = new File(workDir, "flow_engine_config.xml");
 		if (args.length > 0) {
 			c = new File(args[0]);
+			if (args.length > 1) {
+				workDir = args[1];
+			}
 		}
-		AdvanceFlowEngine afe = new AdvanceFlowEngine(c);
+		AdvanceFlowEngine afe = new AdvanceFlowEngine(c, workDir);
 		afe.run();
 	}
 }

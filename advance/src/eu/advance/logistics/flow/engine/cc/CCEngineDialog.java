@@ -172,6 +172,8 @@ public class CCEngineDialog extends JFrame {
 	protected File fileName;
 	/** The tabs. */
 	protected JTabbedPane tabs;
+	/** The working directory for the configuration elements. */
+	protected File workDir;
 	/**
 	 * The label manager.
 	 * @param labels the label manager
@@ -196,7 +198,7 @@ public class CCEngineDialog extends JFrame {
 		JMenuBar mainMenu = new JMenuBar();
 		
 		JMenu file = new JMenu(labels.get("File"));
-		JMenuItem fileNew = new JMenuItem(labels.get("New"));
+		JMenuItem fileNew = new JMenuItem(labels.get("New..."));
 		fileNew.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -837,6 +839,7 @@ public class CCEngineDialog extends JFrame {
 		if (d.approved) {
 			AdvanceKeyStore ks = new AdvanceKeyStore();
 			ks.name = d.name.getText();
+			ks.locationPrefix = workDir.getAbsolutePath() + "/";
 			ks.location = d.location.getText();
 			ks.password(d.password.getPassword());
 			keystores.add(ks);
@@ -909,10 +912,10 @@ public class CCEngineDialog extends JFrame {
 					if (next.password() == null) {
 						next.password(prev.password());
 					}
-					mgr.load(prev.location, prev.password());
+					File prevLoc = new File(workDir, prev.location);
+					mgr.load(prevLoc.getAbsolutePath(), prev.password());
 					if (!prev.location.equals(next.location)) {
-						File f = new File(prev.location);
-						f.delete();
+						prevLoc.delete();
 					}
 					for (int i = 0; i < keystores.size(); i++) {
 						AdvanceKeyStore ks = keystores.get(i);
@@ -925,7 +928,9 @@ public class CCEngineDialog extends JFrame {
 					mgr.create();
 					keystores.add(next);
 				}
-				mgr.save(next.location, next.password());
+				File nextLoc = new File(workDir, next.location);
+				mgr.save(nextLoc.getAbsolutePath(), next.password());
+				next.locationPrefix = workDir.getAbsolutePath() + "/";
 			}
 			
 			@Override
@@ -1042,6 +1047,7 @@ public class CCEngineDialog extends JFrame {
 				}
 			);
 		
+		dialog.showCreateModify(false);
 		dialog.showEngineInfo(false);
 		dialog.setResizable(true);
 		dialog.pack();
@@ -1370,6 +1376,8 @@ public class CCEngineDialog extends JFrame {
 			AdvanceKeyStore aks = new AdvanceKeyStore();
 			aks.name = xkeystore.get("name");
 			aks.location = xkeystore.get("file");
+			aks.locationPrefix = workDir.getAbsolutePath() + "/";
+
 			aks.password(AdvanceCreateModifyInfo.getPassword(xkeystore, "password"));
 			keystores.add(aks);
 		}
@@ -1650,6 +1658,11 @@ public class CCEngineDialog extends JFrame {
 		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 			fileName = fc.getSelectedFile();
 			lastDir.set(fileName.getParentFile());
+
+			workDir = fc.getSelectedFile().getParentFile();
+			
+			doSelectWorkDir();
+			
 			try {
 				load(XElement.parseXML(fileName));
 			} catch (IOException ex) {
@@ -1657,6 +1670,20 @@ public class CCEngineDialog extends JFrame {
 			} catch (XMLStreamException ex) {
 				LOG.error(ex.toString(), ex);
 			}
+
+		}
+	}
+	/**
+	 * Select the working directory.
+	 */
+	public void doSelectWorkDir() {
+		JFileChooser fc;
+		fc = new JFileChooser(lastDir.get());
+		fc.setDialogTitle(labels.get("Select working directory"));
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		workDir = lastDir.get();
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			workDir = fc.getSelectedFile();
 		}
 	}
 	/**
@@ -1670,6 +1697,7 @@ public class CCEngineDialog extends JFrame {
 		clearSchedulers();
 		clearListener();
 		updateKeyStoreLists();
+		doSelectWorkDir();
 	}
 	/**
 	 * Save the settings.

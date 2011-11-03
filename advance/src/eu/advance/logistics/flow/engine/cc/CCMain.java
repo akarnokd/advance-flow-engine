@@ -54,6 +54,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -125,6 +126,8 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	protected static final Logger LOG = LoggerFactory.getLogger(CCMain.class);
 	/** */
 	private static final long serialVersionUID = 4606185730689523838L;
+	/** The directory where all settings will be saved. */
+	protected File workingDirectory;
 	/** The engine control. */
 	protected AdvanceEngineControl engine;
 	/** The engine URL. */
@@ -134,7 +137,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	/** The logged in user. */
 	protected AdvanceUser user;
 	/** The config file. */
-	protected final	File configFile = new File("conf/advance-flow-engine-control-center-config.xml");
+	protected final	String configFile = "advance-ecc-config.xml";
 	/** The menus to enable with rights. */
 	public Multimap<JMenuItem, AdvanceUserRights> menusToEnable = HashMultimap.create();
 	/** The connected URL. */
@@ -172,9 +175,10 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	}
 	/** Load the configuration. */
 	protected void loadConfig() {
-		if (configFile.canRead()) {
+		File cf = new File(workingDirectory, configFile);
+		if (cf.canRead()) {
 			try {
-				FileInputStream fin = new FileInputStream(configFile);
+				FileInputStream fin = new FileInputStream(cf);
 				try {
 					props.loadFromXML(fin);
 					applyConfig(props);
@@ -295,9 +299,10 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	}
 	/** Save the configuration. */
 	public void saveConfig() {
+		File cf = new File(workingDirectory, configFile);
 		try {
 			storeConfig(props);
-			FileOutputStream fout = new FileOutputStream(configFile);
+			FileOutputStream fout = new FileOutputStream(cf);
 			try {
 				props.storeToXML(fout, "Advance Flow Engine Control Center configuration");
 			} finally {
@@ -339,9 +344,17 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	}
 	/**
 	 * Constructor. Initializes the main window.
+	 * @param workDir the directory where to save the settings
 	 */
-	public CCMain() {
+	public CCMain(String workDir) {
 		super();
+		workingDirectory = new File(workDir);
+		if (!workingDirectory.exists()) {
+			if (!workingDirectory.mkdirs()) {
+				System.err.println("Working directory could not be created.");
+			}
+		}
+		lastDirectory = workingDirectory;
 		setTitle(format("ADVANCE Flow Engine Control Center v%s", AdvanceFlowEngine.VERSION));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -362,11 +375,16 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * @param args no arguments
 	 */
 	public static void main(String[] args) {
+		String workDir = System.getProperty("user.home") + "/.advance-flow-editor-ws";
+		if (args.length == 1) {
+			workDir = args[0];
+		}
+		final String fWorkDir = workDir;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				CheckThreadViolationRepaintManager.install();
-				CCMain f = new CCMain();
+//				CheckThreadViolationRepaintManager.install();
+				CCMain f = new CCMain(fWorkDir);
 				f.setVisible(true);
 			}
 		});
@@ -1708,7 +1726,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * Login into a local engine.
 	 */
 	void doLocalLogin() {
-		final CCLocalLogin login = new CCLocalLogin(this);
+		final CCLocalLogin login = new CCLocalLogin(this, workingDirectory);
 		login.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -3087,7 +3105,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		/** The keystores. */
 		protected Map<String, AdvanceKeyStore> keyStores = Maps.newHashMap();
 		/** The local keystores file. */
-		protected File keyStoreFile = new File("conf/local-keystores.xml");
+		protected File keyStoreFile = new File(workingDirectory, "local-keystores.xml");
 		@Override
 		public void setParent(Component c) {
 			this.parent = c;
@@ -3300,7 +3318,16 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	}
 	/** Open the remote login dialog. */
 	void doRemoteLogin() {
-		final CCRemoteLogin dialog = new CCRemoteLogin(this);
+		final CCRemoteLogin dialog = new CCRemoteLogin(this, workingDirectory, new CCGetterSetter<File>() {
+			@Override
+			public File get() {
+				return lastDirectory;
+			}
+			@Override
+			public void set(File value) {
+				lastDirectory = value;
+			}
+		});
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -3391,6 +3418,8 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		dialog.setVisible(true);
 		if (open) {
 			dialog.doOpen();
+		} else {
+			dialog.doNew();
 		}
 	}
 	/**
@@ -3403,7 +3432,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * Calls doCreateEngine(null).
 	 */
 	void doCreateEngine() {
-		doDisplayEngineDialog(true);
+		doDisplayEngineDialog(false);
 	}
 	/** Show the results of the last compilation. */
 	void doLastCompilationResult() {
@@ -3540,67 +3569,100 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	void doRunInProcess() {
 		JFileChooser fc = new JFileChooser(lastDirectory);
 		fc.setFileFilter(new FileNameExtensionFilter("Engine config (*.XML)", "xml"));
-		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			final File f = fc.getSelectedFile();
-			lastDirectory = f.getParentFile();
-
-			final JFrame engineFrame = new JFrame(get("In-process engine "));
-			engineFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-			JButton eshutdown = new JButton(get("Shutdown"));
-			JLabel elabel = new JLabel(f.toString());
-			eshutdown.setMargin(new Insets(5, 5, 5, 5));
-			engineFrame.getContentPane().setLayout(new BorderLayout());
-			engineFrame.getContentPane().add(elabel, BorderLayout.NORTH);
-			engineFrame.getContentPane().add(eshutdown, BorderLayout.CENTER);
-
-			final AdvanceFlowEngine fe = new AdvanceFlowEngine(f);
-
-			final Action0 shutdownAction = new Action0() {
-				@Override
-				public void invoke() {
-					try {
-						fe.shutdown();
-					} catch (Throwable t) {
-						GUIUtils.errorMessage(CCMain.this, t);
-					}
-				}
-			};
-			engineFrame.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					shutdownAction.invoke();
-				}
-			});
-			eshutdown.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					shutdownAction.invoke();
-					engineFrame.dispose();
-				}
-			});
-			engineFrame.pack();
-			engineFrame.setLocationRelativeTo(this);
-			engineFrame.setVisible(true);
-
-			GUIUtils.getWorker(new WorkItem() {
-				/** The error. */
-				Throwable t;
-				@Override
-				public void run() {
-					try {
-						fe.run();
-					} catch (Throwable t) {
-
-					}
-				}
-				@Override
-				public void done() {
-					if (t != null) {
-						GUIUtils.errorMessage(engineFrame, t);
-					}
-				}
-			}).execute();
+		if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+			return;
 		}
+		final File f = fc.getSelectedFile();
+		lastDirectory = f.getParentFile();
+
+		fc = new JFileChooser(lastDirectory);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fc.setDialogTitle(get("Select working directory"));
+		
+		String workDir = f.getParent();
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			workDir = fc.getSelectedFile().getAbsolutePath();
+		}
+		
+		final JFrame engineFrame = new JFrame(get("In-process engine "));
+		engineFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		final JButton eshutdown = new JButton(get("Shutdown"));
+		JLabel elabel = new JLabel(f.toString());
+		eshutdown.setMargin(new Insets(5, 5, 5, 5));
+		engineFrame.getContentPane().setLayout(new BorderLayout());
+		engineFrame.getContentPane().add(elabel, BorderLayout.NORTH);
+		engineFrame.getContentPane().add(eshutdown, BorderLayout.CENTER);
+
+		final AdvanceFlowEngine fe = new AdvanceFlowEngine(f, workDir);
+
+		final AtomicBoolean doDispose = new AtomicBoolean(true);
+		
+		final Action0 shutdownAction = new Action0() {
+			@Override
+			public void invoke() {
+				if (eshutdown.isEnabled()) {
+					eshutdown.setEnabled(false);
+					GUIUtils.getWorker(new WorkItem() {
+						/** The exception. */
+						Throwable t = null;
+						@Override
+						public void run() {
+							try {
+								fe.shutdown();
+							} catch (Throwable t) {
+								this.t = t;
+							}
+						}
+						@Override
+						public void done() {
+							if (t != null) {
+								GUIUtils.errorMessage(CCMain.this, t);
+							}
+							if (doDispose.get()) {
+								engineFrame.dispose();
+							}
+						}
+					}).execute();
+				}
+			}
+		};
+		engineFrame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (eshutdown.isEnabled()) {
+					doDispose.set(false);
+					shutdownAction.invoke();
+				}
+			}
+		});
+		eshutdown.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				shutdownAction.invoke();
+			}
+		});
+		engineFrame.pack();
+		engineFrame.setLocationRelativeTo(this);
+		engineFrame.setVisible(true);
+
+		GUIUtils.getWorker(new WorkItem() {
+			/** The error. */
+			Throwable t;
+			@Override
+			public void run() {
+				try {
+					fe.run();
+				} catch (Throwable t) {
+
+				}
+			}
+			@Override
+			public void done() {
+				if (t != null) {
+					GUIUtils.errorMessage(engineFrame, t);
+				}
+			}
+		}).execute();
 	}
 	/**
 	 * Start the selected realms.

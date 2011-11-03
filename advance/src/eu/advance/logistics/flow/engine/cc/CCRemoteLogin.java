@@ -36,6 +36,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -49,6 +50,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -60,6 +62,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.xml.stream.XMLStreamException;
@@ -78,6 +81,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteEngineControl;
+import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
@@ -127,14 +131,22 @@ public class CCRemoteLogin extends JDialog {
 		Date timestamp;
 		/** The verification keystore. */
 		String verify;
+		/** The concrete certificate file. */
+		String cert;
 		@Override
 		public void load(XElement source) {
 			address = source.get("address");
 			verify = source.get("verify");
+			cert = source.get("cert");
 			user = source.get("user");
 			password = AdvanceCreateModifyInfo.getPassword(source, "password");
 			keystore = source.get("keystore");
-			type = AdvanceLoginType.valueOf(source.get("type"));
+			String stype = source.get("type");
+			if (stype == null || stype.isEmpty()) {
+				type = AdvanceLoginType.BASIC;
+			} else {
+				type = AdvanceLoginType.valueOf(stype);
+			}
 			try {
 				timestamp = XElement.parseDateTime(source.get("timestamp"));
 			} catch (ParseException ex) {
@@ -145,7 +157,7 @@ public class CCRemoteLogin extends JDialog {
 		public void save(XElement destination) {
 			destination.set("address", address, "user", user, 
 					"keystore", keystore, "type", type, 
-					"timestamp", timestamp, "verify", verify);
+					"timestamp", timestamp, "verify", verify, "cert", cert);
 			AdvanceCreateModifyInfo.setPassword(destination, "password", password);
 		}
 	}
@@ -159,20 +171,31 @@ public class CCRemoteLogin extends JDialog {
 	protected JButton deleteButton;
 	/** The keystore to use for verifying the server key. */
 	protected JComboBox serverVerify;
+	/** The server certificate file. */
+	protected JTextField serverCert;
 	/**
 	 * The remote logins.
 	 */
-	protected final File configFile = new File("conf/advance-remote-logins.xml");
+	protected final String configFile = "advance-ecc-remote-logins.xml";
 	/** The list of keystores. */
 	protected final List<AdvanceKeyStore> keystores = Lists.newArrayList();
 	/** The login action. */
 	protected Action0 loginAction;
+	/** The working directory. */
+	protected final File workingDirectory;
+	/** The last load/save directory. */
+	protected final CCGetterSetter<File> lastDirectory;
 	/**
 	 * Create the GUI.
 	 * @param labels the label manager
+	 * @param workingDirectory the working directory
+	 * @param lastDirectory the last file open/save directory
 	 */
-	public CCRemoteLogin(@NonNull final LabelManager labels) {
+	public CCRemoteLogin(@NonNull final LabelManager labels, File workingDirectory, 
+			CCGetterSetter<File> lastDirectory) {
 		this.labels = labels;
+		this.workingDirectory = workingDirectory;
+		this.lastDirectory = lastDirectory;
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle(labels.get("Remote login"));
 		
@@ -190,6 +213,16 @@ public class CCRemoteLogin extends JDialog {
 		records = new JLabel(labels.format("Records: %d", 0));
 		
 		serverVerify = new JComboBox();
+		serverCert = new JTextField();
+		JLabel serverCertLabel = new JLabel(labels.get("Server certificate file:"));
+		
+		JButton browseCert = new JButton(labels.get("Browse..."));
+		browseCert.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doBrowseCert();
+			}
+		});
 		
 		Container c = getContentPane();
 		GroupLayout gl = new GroupLayout(c);
@@ -336,6 +369,7 @@ public class CCRemoteLogin extends JDialog {
 					} else {
 						serverVerify.setSelectedItem(rl.verify);
 					}
+					serverCert.setText(rl.cert);
 
 					login.clear();
 					login.setLoginType(rl.type);
@@ -350,6 +384,8 @@ public class CCRemoteLogin extends JDialog {
 				} else {
 					login.clear();
 					address.setText("");
+					serverCert.setText("");
+					serverVerify.setSelectedIndex(0);
 				}
 			}
 		});
@@ -390,6 +426,12 @@ public class CCRemoteLogin extends JDialog {
 				.addComponent(serverVerifyLabel)
 				.addComponent(serverVerify)
 			)
+			.addGroup(
+				gl.createSequentialGroup()
+				.addComponent(serverCertLabel)
+				.addComponent(serverCert)
+				.addComponent(browseCert)
+			)
 			.addComponent(login)
 			.addComponent(help)
 			.addGroup(
@@ -416,6 +458,12 @@ public class CCRemoteLogin extends JDialog {
 				.addComponent(serverVerifyLabel)
 				.addComponent(serverVerify, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(serverCertLabel)
+				.addComponent(serverCert)
+				.addComponent(browseCert)
+			)
 			.addComponent(login)
 			.addComponent(help, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			.addGroup(
@@ -432,14 +480,41 @@ public class CCRemoteLogin extends JDialog {
 	 */
 	protected void load() {
 		rows.clear();
-		if (configFile.canRead()) {
+		File cf = new File(workingDirectory, configFile);
+		if (cf.canRead()) {
 			try {
-				rows.addAll(XSerializables.parseList(XElement.parseXML(configFile), "remote-login", new Func0<RemoteLogin>() {
+				for (RemoteLogin rl : XSerializables.parseList(XElement.parseXML(cf), "remote-login", new Func0<RemoteLogin>() {
 					@Override
 					public RemoteLogin invoke() {
 						return new RemoteLogin();
 					}
-				}));
+				})) {
+					addToRows(rl);
+				}
+			} catch (IOException ex) {
+				LOG.error(ex.toString(), ex);
+			} catch (XMLStreamException ex) {
+				LOG.error(ex.toString(), ex);
+			}
+		}
+		cf = new File(workingDirectory, "login-info.xml");
+		if (cf.canRead()) {
+			try {
+				XElement e = XElement.parseXML(cf);
+				for (XElement xi : e.childrenWithName("item")) {
+					String address = xi.get("address");
+					if (!address.startsWith("file:")) {
+						RemoteLogin ll = new RemoteLogin();
+						ll.address = address;
+						ll.type = AdvanceLoginType.BASIC;
+						ll.user = xi.get("username");
+						ll.password = xi.get("password").toCharArray();
+						ll.timestamp = new Date(xi.getLong("lastLogin"));
+						ll.cert = xi.get("cert");
+						
+						addToRows(ll);
+					}
+				}
 			} catch (IOException ex) {
 				LOG.error(ex.toString(), ex);
 			} catch (XMLStreamException ex) {
@@ -449,11 +524,26 @@ public class CCRemoteLogin extends JDialog {
 		GUIUtils.autoResizeColWidth(table, model);
 	}
 	/**
+	 * Add to the available rows but only if no duplication is present.
+	 * @param rl the remote loing settings
+	 */
+	void addToRows(RemoteLogin rl) {
+		for (RemoteLogin rl2 : rows) {
+			if (rl2.address.equals(rl.address) 
+					&& rl2.user.equals(rl.user) 
+					&& rl2.type == rl.type 
+					&& Objects.equal(rl2.cert, rl.cert)) {
+				return;
+			}
+		}
+		rows.add(rl);
+	}
+	/**
 	 * Save values of the logins.
 	 */
 	protected void save() {
 		try {
-			XSerializables.storeList("remote-logins", "remote-login", rows).save(configFile);
+			XSerializables.storeList("remote-logins", "remote-login", rows).save(new File(workingDirectory, configFile));
 		} catch (IOException ex) {
 			LOG.error(ex.toString(), ex);
 		}
@@ -496,6 +586,7 @@ public class CCRemoteLogin extends JDialog {
 		if (serverVerify.getSelectedIndex() > 0) {
 			rl.verify = (String)serverVerify.getSelectedItem();
 		}
+		rl.cert = serverCert.getText();
 		if (rl.type == AdvanceLoginType.BASIC) {
 			rl.user = login.getUserName();
 			if (rl.user.isEmpty()) {
@@ -577,6 +668,18 @@ public class CCRemoteLogin extends JDialog {
 						}
 					}
 					u = new URL(s.address);
+					if ((s.verify == null || s.verify.isEmpty()) && s.cert != null && !s.cert.isEmpty()) {
+	                    KeystoreManager mgr = new KeystoreManager();
+	                    mgr.create();
+	                    FileInputStream in = new FileInputStream(s.cert);
+	                    try {
+	                            mgr.importCertificate(u.getHost(), in);
+	                    } finally {
+	                            in.close();
+	                    }
+
+	                    auth.certStore = mgr.getKeyStore();
+					}
 					ec = new HttpRemoteEngineControl(u, auth);
 					// try to retrieve the user
 					ec.getUser();
@@ -627,5 +730,17 @@ public class CCRemoteLogin extends JDialog {
 	public void setLoginAction(Action0 action) {
 		this.loginAction = action;
 		
+	}
+	/**
+	 * Browse for server certificate.
+	 */
+	void doBrowseCert() {
+		JFileChooser fc = new JFileChooser(lastDirectory.get());
+		fc.setFileFilter(new FileNameExtensionFilter("Certificates (*.CER)", "cer", "cert", "crt"));
+		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			File f = fc.getSelectedFile();
+			lastDirectory.set(f.getParentFile());
+			serverCert.setText(f.getAbsolutePath());
+		}
 	}
 }
