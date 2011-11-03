@@ -33,6 +33,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -76,6 +77,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
+import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
@@ -96,6 +98,8 @@ public class CCLocalLogin extends JDialog {
 	public static class LastLocalLogin implements XSerializable {
 		/** The path to the configuration file. */
 		public String path;
+		/** The working directory. */
+		public String workDir;
 		/** The timestamp of the last login. */
 		public Date timestamp;
 		/** The user name used to login. */
@@ -116,10 +120,14 @@ public class CCLocalLogin extends JDialog {
 				LOG.error(ex.toString(), ex);
 			}
 			user = source.get("user");
+			workDir = source.get("work-dir");
+			if (workDir == null || workDir.isEmpty()) {
+				workDir = new File(path).getParent();
+			}
 		}
 		@Override
 		public void save(XElement destination) {
-			destination.set("path", path, "timestamp", timestamp, "user", user);
+			destination.set("path", path, "timestamp", timestamp, "user", user, "workDir", workDir);
 		}
 	}
 	/** The rows. */
@@ -173,18 +181,24 @@ public class CCLocalLogin extends JDialog {
 	protected JTextField newUser;
 	/** The new path field. */
 	protected JTextField newPath;
+	/** The working directory. */
+	protected JTextField workDir;
 	/** Delete the selected entries. */
 	protected JButton deleteButton;
 	/** The login button. */
 	protected JButton login;
 	/** The last login save location. */
-	private File config = new File("conf/advance-ecc-local-logins.xml");
+	protected String config = "advance-ecc-local-logins.xml";
+	/** The working directory. */
+	protected final File workingDirectory;
 	/**
 	 * Create the GUI.
 	 * @param labels the label manager.
+	 * @param workingDirectory where the configuration is saved
 	 */
-	public CCLocalLogin(LabelManager labels) {
+	public CCLocalLogin(LabelManager labels, File workingDirectory) {
 		this.labels = labels;
+		this.workingDirectory = workingDirectory;
 		init();
 	}
 	/** Create the GUI elements. */
@@ -217,6 +231,7 @@ public class CCLocalLogin extends JDialog {
 					int idx = table.convertRowIndexToModel(i);
 					newPath.setText(rows.get(idx).path);
 					newUser.setText(rows.get(idx).user);
+					workDir.setText(rows.get(idx).workDir);
 					enableLoginIf();
 				}
 			}
@@ -257,6 +272,8 @@ public class CCLocalLogin extends JDialog {
 				doBrowse();
 			}
 		});
+		workDir = new JTextField();
+		
 		newUser = new JTextField();
 		DocumentListener dl = new DocumentListener() {
 			@Override
@@ -344,6 +361,8 @@ public class CCLocalLogin extends JDialog {
 		
 		int hh = help.getPreferredSize().height;
 		
+		JLabel workDirLabel = new JLabel(labels.get("Working directory:"));
+		
 		gl.setHorizontalGroup(
 			gl.createParallelGroup(Alignment.CENTER)
 			.addComponent(tableScroll)
@@ -357,11 +376,13 @@ public class CCLocalLogin extends JDialog {
 				.addGroup(
 					gl.createParallelGroup()
 					.addComponent(newPathLabel)
+					.addComponent(workDirLabel)
 					.addComponent(newUserLabel)
 				)
 				.addGroup(
 					gl.createParallelGroup()
 					.addComponent(newPath)
+					.addComponent(workDir)
 					.addComponent(newUser)
 				)
 				.addComponent(browse)
@@ -391,6 +412,11 @@ public class CCLocalLogin extends JDialog {
 				.addComponent(newPathLabel)
 				.addComponent(newPath, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 				.addComponent(browse)
+			)
+			.addGroup(
+				gl.createParallelGroup(Alignment.BASELINE)
+				.addComponent(workDirLabel)
+				.addComponent(workDir, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 			)
 			.addGroup(
 				gl.createParallelGroup(Alignment.BASELINE)
@@ -427,15 +453,57 @@ public class CCLocalLogin extends JDialog {
 		fc.addChoosableFileFilter(new FileNameExtensionFilter(labels.get("Config files (*.xml)"), "xml"));
 		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 			newPath.setText(fc.getSelectedFile().getAbsolutePath());
+			workDir.setText(fc.getSelectedFile().getParent());
 		}
 	}
 	/** Load last login information. */
 	void loadConfig() {
-		if (config.canRead()) {
+		File cf = new File(workingDirectory, config);
+		if (cf.canRead()) {
 			try {
-				XElement e = XElement.parseXML(config);
+				XElement e = XElement.parseXML(cf);
 				rows.clear();
 				rows.addAll(XSerializables.parseList(e, "last-login", LastLocalLogin.CREATOR));
+			} catch (IOException ex) {
+				LOG.error(ex.toString(), ex);
+			} catch (XMLStreamException ex) {
+				LOG.error(ex.toString(), ex);
+			}
+		}
+		cf = new File(workingDirectory, "login-info.xml");
+		if (cf.canRead()) {
+			try {
+				XElement e = XElement.parseXML(cf);
+				outer:
+				for (XElement xi : e.childrenWithName("item")) {
+					String address = xi.get("address");
+					if (address.startsWith("file:")) {
+						LastLocalLogin ll = new LastLocalLogin();
+						ll.path = address.substring(5);
+						while (ll.path.startsWith("/")) {
+							ll.path = ll.path.substring(1);
+						}
+						if (!new File(ll.path).exists()) {
+							FileWriter w = new FileWriter(ll.path + "/flow-engine-config.xml");
+							try {
+								w.write(BasicLocalEngine.defaultConfigFile());
+							} finally {
+								w.close();
+							}
+						}
+						ll.workDir = ll.path;
+						ll.path += "/flow-engine-config.xml";
+						ll.user = xi.get("username");
+						ll.timestamp = new Date(xi.getLong("lastLogin"));
+						
+						for (LastLocalLogin llOld : rows) {
+							if (llOld.path.equals(ll.path)) {
+								continue outer;
+							}
+						}
+						rows.add(ll);
+					}
+				}
 			} catch (IOException ex) {
 				LOG.error(ex.toString(), ex);
 			} catch (XMLStreamException ex) {
@@ -446,7 +514,7 @@ public class CCLocalLogin extends JDialog {
 	/** Save a configuration. */
 	void saveConfig() {
 		try {
-			XSerializables.storeList("last-logins", "last-login", rows).save(config);
+			XSerializables.storeList("last-logins", "last-login", rows).save(new File(workingDirectory, config));
 		} catch (IOException ex) {
 			LOG.error(ex.toString(), ex);
 		}			
@@ -465,7 +533,7 @@ public class CCLocalLogin extends JDialog {
 	 */
 	void doLogin() {
 		if (!newPath.getText().isEmpty() && !newUser.getText().isEmpty()) {
-			if (openLocalEngine(new File(newPath.getText()), newUser.getText())) {
+			if (openLocalEngine(new File(newPath.getText()), newUser.getText(), workDir.getText())) {
 				doUpdateRows();
 				doClose();
 			}
@@ -476,11 +544,12 @@ public class CCLocalLogin extends JDialog {
 	 * @param file the engine configuration file
 	 * @param userName the logged-in user name
 	 * @return if the opening was successful
+	 * @param workDir the working directory
 	 */
-	protected boolean openLocalEngine(File file, String userName) {
+	protected boolean openLocalEngine(File file, String userName, String workDir) {
 		engineConfig = new AdvanceEngineConfig();
 		try {
-			engineConfig.initialize(XElement.parseXML(file));
+			engineConfig.initialize(XElement.parseXML(file), workDir);
 			
 			AdvanceCompiler compiler = new AdvanceCompiler(engineConfig.schemaResolver, 
 					engineConfig.blockResolver, engineConfig.schedulerMap);
@@ -488,7 +557,7 @@ public class CCLocalLogin extends JDialog {
 			if (datastore.queryUsers().isEmpty()) {
 				addFirst(datastore);
 			}
-			engine = new LocalEngineControl(datastore, engineConfig.schemas, compiler, compiler) {
+			engine = new LocalEngineControl(datastore, engineConfig.schemas, compiler, compiler, workDir) {
 				@Override
 				public void shutdown() throws IOException,
 						AdvanceControlException {
@@ -591,6 +660,7 @@ public class CCLocalLogin extends JDialog {
 	void doNew() {
 		newPath.setText("");
 		newUser.setText("");
+		workDir.setText("");
 		table.clearSelection();
 	}
 	/**
@@ -599,7 +669,9 @@ public class CCLocalLogin extends JDialog {
 	void doUpdateRows() {
 		int idx = 0;
 		for (LastLocalLogin lll : rows) {
-			if (lll.path.equals(newPath.getText()) && lll.user.equals(newUser.getText())) {
+			if (lll.path.equals(newPath.getText()) 
+					&& lll.user.equals(newUser.getText())
+					&& lll.workDir.equals(workDir.getText())) {
 				lll.timestamp = new Date();
 				model.fireTableDataChanged();
 				return;
@@ -610,6 +682,7 @@ public class CCLocalLogin extends JDialog {
 		lll.path = newPath.getText();
 		lll.timestamp = new Date();
 		lll.user = newUser.getText();
+		lll.workDir = workDir.getText();
 		
 		rows.add(lll);
 		model.fireTableRowsInserted(idx, idx);

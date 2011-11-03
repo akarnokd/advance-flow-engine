@@ -79,24 +79,30 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	}
 	@Override
 	public void load(XElement source) {
-		try {
-			createdAt = XElement.parseDateTime(source.get("created-at"));
-		} catch (ParseException ex) {
-			LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
+		String s = source.get("created-at");
+		if (s != null && !s.isEmpty()) {
+			try {
+				createdAt = XElement.parseDateTime(s);
+			} catch (ParseException ex) {
+				LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
+			}
 		}
 		createdBy = source.get("created-by");
-		try {
-			modifiedAt = XElement.parseDateTime(source.get("modified-at"));
-		} catch (ParseException ex) {
-			LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
+		s = source.get("modified-at");
+		if (s != null && !s.isEmpty()) {
+			try {
+				modifiedAt = XElement.parseDateTime(s);
+			} catch (ParseException ex) {
+				LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
+			}
 		}
 		modifiedBy = source.get("modified-by");
 	}
 	@Override
 	public void save(XElement destination) {
-		destination.set("created-at", XElement.formatDateTime(createdAt));
+		destination.set("created-at", createdAt);
 		destination.set("created-by", createdBy);
-		destination.set("modified-at", XElement.formatDateTime(modifiedAt));
+		destination.set("modified-at", modifiedAt);
 		destination.set("modified-by", modifiedBy);
 	}
 	/**

@@ -158,16 +158,20 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 			} finally {
 				out.close();
 			}
-			InputStream in = c.getInputStream();
-			try {
-				byte[] buffer = new byte[8192];
-				while (true) {
-					if (in.read(buffer) < 0) {
-						break;
+			if (c.getResponseCode() < 400) {
+				InputStream in = c.getInputStream();
+				try {
+					byte[] buffer = new byte[8192];
+					while (true) {
+						if (in.read(buffer) < 0) {
+							break;
+						}
 					}
+				} finally {
+					in.close();
 				}
-			} finally {
-				in.close();
+			} else {
+				getHttpError(c);
 			}
 		} finally {		
 			c.disconnect();
@@ -193,12 +197,17 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 			} finally {
 				out.close();
 			}
-			InputStream in = c.getInputStream();
-			try {
-				XElement result = XElement.parseXML(in);
-				return result;
-			} finally {
-				in.close();
+			if (c.getResponseCode() < 400) {
+				InputStream in = c.getInputStream();
+				try {
+					XElement result = XElement.parseXML(in);
+					return result;
+				} finally {
+					in.close();
+				}
+			} else {
+				getHttpError(c);
+				return null;
 			}
 		} catch (XMLStreamException ex) {
 			LOG.error(ex.toString(), ex);
@@ -219,12 +228,17 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 			c.setRequestMethod("GET");
 			c.connect();
 			
-			InputStream in = c.getInputStream();
-			try {
-				XElement result = XElement.parseXML(in);
-				return result;
-			} finally {
-				in.close();
+			if (c.getResponseCode() < 400) {
+				InputStream in = c.getInputStream();
+				try {
+					XElement result = XElement.parseXML(in);
+					return result;
+				} finally {
+					in.close();
+				}
+			} else {
+				getHttpError(c);
+				return null;
 			}
 		} catch (XMLStreamException ex) {
 			LOG.error(ex.toString(), ex);
@@ -359,32 +373,31 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 					return Closeables.emptyCloseable();
 				}
 			}
-
-			/**
-			 * Extracts the error contents from the connection and throws an IOException with it.
-			 * @param c the connection
-			 * @throws IOException the exception thrown
-			 */
-			public void getHttpError(final HttpURLConnection c)
-					throws IOException {
-				BufferedReader in = new BufferedReader(new InputStreamReader(c.getErrorStream(), "UTF-8"));
-				StringBuilder b = new StringBuilder();
-				try {
-					char[] buf = new char[8192];
-					while (!Thread.currentThread().isInterrupted()) {
-						int read = in.read(buf);
-						if (read > 0) {
-							b.append(buf, 0, read);
-						} else
-						if (read < 0) {
-							break;
-						}
-					}
-				} finally {
-					in.close();
-				}
-				throw new IOException(b.toString());
-			}
 		};
+	}
+	/**
+	 * Extracts the error contents from the connection and throws an IOException with it.
+	 * @param c the connection
+	 * @throws IOException the exception thrown
+	 */
+	public static void getHttpError(final HttpURLConnection c)
+			throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(c.getErrorStream(), "UTF-8"));
+		StringBuilder b = new StringBuilder();
+		try {
+			char[] buf = new char[8192];
+			while (!Thread.currentThread().isInterrupted()) {
+				int read = in.read(buf);
+				if (read > 0) {
+					b.append(buf, 0, read);
+				} else
+				if (read < 0) {
+					break;
+				}
+			}
+		} finally {
+			in.close();
+		}
+		throw new IOException(b.toString());
 	}
 }

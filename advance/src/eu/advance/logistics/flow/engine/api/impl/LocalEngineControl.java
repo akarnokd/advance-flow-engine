@@ -92,17 +92,24 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	 * The output of the realm verification.
 	 */
 	protected final Map<String, AdvanceCompilationResult> realmVerifications = Maps.newConcurrentMap();
+	/** The working directory. */
+	protected final String workDir;
 	/**
 	 * Constructor initializing the configuration.
 	 * @param datastore the backing datastore to use
 	 * @param schemas the sequence of schemas
 	 * @param compiler the compiler used to (re)compile a realm
 	 * @param executor the flow executor
+	 * @param workDir the working directory, mainly for the keystores
 	 */
-	public LocalEngineControl(AdvanceDataStore datastore, Iterable<String> schemas, 
+	public LocalEngineControl(
+			AdvanceDataStore datastore, 
+			Iterable<String> schemas, 
 			AdvanceFlowCompiler compiler,
-			AdvanceFlowExecutor executor) {
+			AdvanceFlowExecutor executor,
+			String workDir) {
 		this.datastore = datastore;
+		this.workDir = workDir;
 		this.schemas = Lists.newArrayList(schemas);
 		this.compiler = compiler;
 		this.executor = executor;
@@ -128,6 +135,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 		AdvanceKeyStore e = datastore.queryKeyStore(keyStore);
 		try {
+			e.locationPrefix = workDir + "/";
 			return e.queryKeys();
 		} catch (KeystoreFault ex) {
 			throw new AdvanceControlException(ex);
@@ -143,6 +151,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				e.deleteKey(keyAlias);
 			} catch (KeyStoreException ex) {
 				throw new AdvanceControlException(ex);
@@ -160,6 +169,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(key.keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				e.generateKey(key);
 			} catch (KeyStoreException ex) {
 				LOG.error(ex.toString(), ex);
@@ -180,6 +190,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				return e.exportCertificate(request.keyAlias);
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
@@ -196,6 +207,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				return e.exportPrivateKey(request.keyAlias, request.password());
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
@@ -212,6 +224,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				e.importCertificate(request.keyAlias, data);
 			} catch (KeyStoreException ex) {
 				throw new AdvanceControlException(ex);
@@ -230,6 +243,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				e.importPrivateKey(request.keyAlias, request.password(), keyData, certData);
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
@@ -246,6 +260,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				return e.exportSigningRequest(request.keyAlias, request.password());
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);
@@ -262,6 +277,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		AdvanceKeyStore e = datastore.queryKeyStore(request.keyStore);
 		if (e != null) {
 			try {
+				e.locationPrefix = workDir + "/";
 				e.importSigningResponse(request.keyAlias, request.password(), data);
 			} catch (KeystoreFault ex) {
 				throw new AdvanceControlException(ex);

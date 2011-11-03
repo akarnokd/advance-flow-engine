@@ -54,6 +54,8 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceKeyStore.class);
 	/** The key store name. */
 	public String name;
+	/** The location prefix to emulate a working directory. */
+	public String locationPrefix = "";
 	/** The key store location on disk. */
 	public String location;
 	/** 
@@ -91,6 +93,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 		AdvanceKeyStore result = new AdvanceKeyStore();
 		
 		result.name = name;
+		result.locationPrefix = locationPrefix; 
 		result.location = location;
 		result.password = password != null ? password.clone() : null;
 		
@@ -118,7 +121,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public String exportCertificate(String alias) throws IOException {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		mgr.exportCertificate(alias, out, false);
 		return out.toString("UTF-8");
@@ -131,7 +134,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public String exportPrivateKey(String alias, char[] password) {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			mgr.exportPrivateKey(alias, password, out, false);
@@ -148,11 +151,11 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public void deleteKey(Iterable<String> aliases) throws KeyStoreException {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		for (String a : aliases) {
 			mgr.getKeyStore().deleteEntry(a);
 		}
-		mgr.save(location, password());
+		mgr.save(locationPrefix + location, password());
 	}
 	/**
 	 * Delete the specified keys from the keystore.
@@ -169,7 +172,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public void generateKey(AdvanceGenerateKey key) throws KeyStoreException {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		
 		KeyPair kp = mgr.generateKeyPair(key.algorithm, key.keySize);
 		Certificate cert = mgr.createX509Certificate(kp, 12, 
@@ -180,7 +183,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 		mgr.getKeyStore().setKeyEntry(key.keyAlias, kp.getPrivate(), key.password(), 
 				new Certificate[] { cert });
 		
-		mgr.save(location, password());
+		mgr.save(locationPrefix + location, password());
 			
 	}
 	/**
@@ -191,7 +194,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	public List<AdvanceKeyEntry> queryKeys() throws KeyStoreException {
 		KeystoreManager mgr = new KeystoreManager();
 		List<AdvanceKeyEntry> result = Lists.newArrayList();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		KeyStore ks = mgr.getKeyStore();
 		Enumeration<String> aliases = ks.aliases();
 		while (aliases.hasMoreElements()) {
@@ -219,10 +222,10 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public void importCertificate(String alias, String data) throws KeyStoreException {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		try {
 			mgr.importCertificate(alias, new ByteArrayInputStream(data.getBytes("UTF-8")));
-			mgr.save(location, password());
+			mgr.save(locationPrefix + location, password());
 		} catch (UnsupportedEncodingException ex) {
 			LOG.warn(ex.toString(), ex);
 		}
@@ -237,12 +240,12 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public void importPrivateKey(String alias, char[] password, String keyData, String certData) throws IOException {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		mgr.importPrivateKey(alias, password, 
 				new ByteArrayInputStream(keyData.getBytes("UTF-8")),
 				new ByteArrayInputStream(certData.getBytes("UTF-8"))
 		);
-		mgr.save(location, password());
+		mgr.save(locationPrefix + location, password());
 	}
 	/**
 	 * Export an RSA signing request for the given key.
@@ -252,7 +255,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public String exportSigningRequest(String alias, char[] password) {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		return mgr.createRSASigningRequest(alias, password);
 	}
 	/**
@@ -263,7 +266,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public void importSigningResponse(String alias, char[] password, String data) {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		try {
 			mgr.installReply(alias, password, 
 					new ByteArrayInputStream(data.getBytes("UTF-8")), 
@@ -271,7 +274,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 		} catch (UnsupportedEncodingException ex) {
 			LOG.error(ex.toString(), ex);
 		}
-		mgr.save(location, password());
+		mgr.save(locationPrefix + location, password());
 	}
 	/**
 	 * Open the given keystore.
@@ -279,7 +282,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 	 */
 	public KeyStore open() {
 		KeystoreManager mgr = new KeystoreManager();
-		mgr.load(location, password());
+		mgr.load(locationPrefix + location, password());
 		return mgr.getKeyStore();
 	}
 }

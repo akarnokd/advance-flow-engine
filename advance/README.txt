@@ -3,6 +3,31 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.07.146 Notes
+----------------------
+
+Updated many ECC and flow engine components to work under a "working directory" instead of
+the local directory.
+
+By default, the working directory of the ECC is now ${user.home}/.advance-flow-editor-ws .
+
+Added certificate file-based remote login into ECC, similarly to the FE.
+
+The schemas and block registry are now default to the root classpath of the engine (root directory in the Jar).
+Specifying external block registry and schemas is now optional.
+
+The ECC configuration files are now stored in the working directory with name advance-ecc-*.xml
+
+The ECC now parses the Flow editor's own login-info.xml in order to allow connecting to the
+same engine when the ECC is run from inside the Flow Editor.
+
+Version 0.06.139 Notes
+----------------------
+
+Removed Java 7 specific classes and methods. The engine is targeted at Java 6.
+
+Fixed a few minor bugs.
+
 Version 0.05.138 Notes
 ----------------------
 

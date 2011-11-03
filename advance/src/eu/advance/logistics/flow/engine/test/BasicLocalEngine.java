@@ -77,7 +77,7 @@ public final class BasicLocalEngine {
 		} catch (AdvanceControlException ex) {
 			// ignored
 		}
-		AdvanceEngineControl engine = new LocalEngineControl(datastore, config.schemas, compiler, compiler) {
+		AdvanceEngineControl engine = new LocalEngineControl(datastore, config.schemas, compiler, compiler, workDir) {
 			@Override
 			public void shutdown() throws IOException,
 					AdvanceControlException {
@@ -93,27 +93,33 @@ public final class BasicLocalEngine {
 	 * @return the configuration
 	 */
 	public static AdvanceEngineConfig defaultConfig(String workDir) {
-		String defaultConfigText =
-		"<?xml version='1.0' encoding='UTF-8'?>"
-		+ "<flow-engine-config>"
-		+ " <listener cert-auth-port='8443' server-keyalias='advance-server' basic-auth-port='8444' server-password='YWR2YW5jZQ==' server-keystore='DEFAULT' client-keystore='DEFAULT'/>"
-		+ " <block-registry file='" + workDir + "/block-registry.xml'/>"
-		+ " <datastore driver='LOCAL' url='" + workDir + "/datastore.xml'/>"
-		+ " <keystore name='DEFAULT' file='" + workDir + "/keystore' password='YWR2YW5jZQ=='/>"
-		+ " <schemas location='" + workDir + "'/>"
-		+ " <scheduler type='CPU' concurrency='ALL_CORES' priority='NORMAL'/>"
-		+ " <scheduler type='SEQUENTIAL' concurrency='1' priority='NORMAL'/>"
-		+ " <scheduler type='IO' concurrency='1024' priority='NORMAL'/>"
-		+ "</flow-engine-config>"
-		;
+		String defaultConfigText = defaultConfigFile();
 		
 		AdvanceEngineConfig config = new AdvanceEngineConfig();
 		try {
-			config.initialize(XElement.parseXML(new StringReader(defaultConfigText)));
+			config.initialize(XElement.parseXML(new StringReader(defaultConfigText)), workDir);
 		} catch (XMLStreamException ex) {
 			LOG.error(ex.toString(), ex);
 		}
 		return config;
+	}
+	/**
+	 * Composes the default configuration file XML.
+	 * @return the file contents as string
+	 */
+	public static String defaultConfigFile() {
+		return "<?xml version='1.0' encoding='UTF-8'?>"
+		+ "<flow-engine-config>"
+		+ " <listener cert-auth-port='8443' server-keyalias='advance-server' basic-auth-port='8444' server-password='YWR2YW5jZQ==' server-keystore='DEFAULT' client-keystore='DEFAULT'/>"
+		+ " <block-registry file='block-registry.xml'/>"
+		+ " <datastore driver='LOCAL' url='datastore.xml'/>"
+		+ " <keystore name='DEFAULT' file='keystore' password='YWR2YW5jZQ=='/>"
+		+ " <schemas location='.'/>"
+		+ " <scheduler type='CPU' concurrency='ALL_CORES' priority='NORMAL'/>"
+		+ " <scheduler type='SEQUENTIAL' concurrency='1' priority='NORMAL'/>"
+		+ " <scheduler type='IO' concurrency='32' priority='NORMAL'/>"
+		+ "</flow-engine-config>"
+		;
 	}
 	/**
 	 * Add first elements to the datastore.
