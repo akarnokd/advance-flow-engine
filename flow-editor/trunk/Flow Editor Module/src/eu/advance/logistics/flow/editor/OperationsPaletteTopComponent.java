@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.editor;
 
 import eu.advance.logistics.flow.editor.palette.PaletteRootChildren;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -98,7 +99,19 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
 
         file = InstalledFileLocator.getDefault().locate("LocalEngine/schemas/block-registry.xml", "eu.advance.logistics.core", false);  // NOI18N
         try {
-            BlockRegistryDataObject.read(new FileInputStream(file));
+            if (file == null) {
+                InputStream in = AdvanceBlockRegistryEntry.class.getResourceAsStream("/block-registry.xml");
+                if (in == null) {
+                    in = AdvanceBlockRegistryEntry.class.getResourceAsStream("/schemas/block-registry.xml");
+                }
+                if (in != null) {
+                    BlockRegistryDataObject.read(in);
+                } else {
+                    Exceptions.printStackTrace(new FileNotFoundException("block-registry.xml"));
+                }
+            } else {
+                BlockRegistryDataObject.read(new FileInputStream(file));
+            }
         } catch (FileNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }

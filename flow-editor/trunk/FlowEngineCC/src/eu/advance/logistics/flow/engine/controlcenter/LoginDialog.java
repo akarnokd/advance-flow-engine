@@ -567,6 +567,7 @@ public class LoginDialog extends javax.swing.JDialog implements ExplorerManager.
                     if (saveCredentials) {
                         info.username = username;
                         info.password = new String(password);
+                        info.serverCert = serverCert;
                     }
                     info.lastLogin = new Date();
                     ec.setLoginInfo(model.getData());
