@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.controlcenter;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -42,6 +43,8 @@ public final class ControlCenterAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        eu.advance.logistics.flow.engine.cc.CCMain.main(new String[0]);
+        final String userHome = System.getProperty("user.home");
+        final File workspace = new File(userHome, ".advance-flow-editor-ws");
+        eu.advance.logistics.flow.engine.cc.CCMain.main(new String[] { workspace.getAbsolutePath() });
     }
 }
