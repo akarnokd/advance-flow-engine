@@ -108,6 +108,7 @@ class FlowSceneController implements FlowDescriptionListener {
                 break;
             case COMPILATION_RESULT:
                 compilationResultChanged((AdvanceCompilationResult) params[0]);
+                break;
             case CLOSED:
                 break;
             case SAVING:

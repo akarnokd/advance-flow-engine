@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.editor.diagram;
 
 import eu.advance.logistics.flow.editor.BlockRegistry;
+import eu.advance.logistics.flow.editor.actions.ConstEditAction;
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
@@ -31,6 +32,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescriptio
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,8 +44,6 @@ import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 
 /**
@@ -66,30 +66,9 @@ class WidgetBuilder {
             final BlockCategory cat = BlockRegistry.getInstance().findByType(((SimpleBlock) block).description);
             final Image catImg = cat.getImageObject();
             widget.setNodeImage(catImg);
-
-//            widget.addGlyph(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/config.png"),
-//                    new Runnable() {
-//
-//                        @Override
-//                        public void run() {
-//                            NotifyDescriptor nd = new NotifyDescriptor.Message(widget.getNodeName());
-//                            DialogDisplayer.getDefault().notify(nd);
-//                        }
-//                    });
         } else if (block instanceof CompositeBlock) {
             final CompositeBlock compositeBlock = (CompositeBlock) block;
             widget.setNodeImage(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/palette/images/block.png"));
-
-//            widget.addGlyph(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/database.png"),
-//                    new Runnable() {
-//
-//                        @Override
-//                        public void run() {
-//                            // TODO
-//                            NotifyDescriptor nd = new NotifyDescriptor.Message(widget.getNodeName());
-//                            DialogDisplayer.getDefault().notify(nd);
-//                        }
-//                    });
             widget.getActions().addAction(new WidgetAction.Adapter() {
 
                 @Override
@@ -102,27 +81,8 @@ class WidgetBuilder {
                 }
             });
         } else if (block instanceof ConstantBlock) {
-            widget.getActions().addAction(new WidgetAction.Adapter() {
-
-                @Override
-                public State mouseClicked(Widget widget, WidgetMouseEvent event) {
-                    if (event.getClickCount() == 2) {
-                        // TODO edit const value
-                        return State.CONSUMED;
-                    }
-                    return super.mouseClicked(widget, event);
-                }
-            });
+            throw new IllegalArgumentException();
         }
-
-//        if (Math.random() > 0.5) {
-//            widget.addGlyph(
-//                    ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/alert_16.png"),
-//                    null);
-//        }
-//        widget.addGlyph(
-//                ImageUtilities.loadImage("eu/advance/logistics/flow/editor/images/deployment_in_test.png"),
-//                null);
 
         for (BlockParameter param : sort(block.getInputs())) {
             scene.addPin(block, param);
@@ -133,13 +93,14 @@ class WidgetBuilder {
         }
     }
 
-    void configure(final ConstantBlockWidget widget, ConstantBlock block) {
+    void configure(final ConstantBlockWidget widget, final ConstantBlock block) {
         widget.getActions().addAction(new WidgetAction.Adapter() {
 
             @Override
             public State mouseClicked(Widget widget, WidgetMouseEvent event) {
                 if (event.getClickCount() == 2) {
-                    // TODO edit const value
+                    ConstEditAction edit = new ConstEditAction(scene.getUndoRedoSupport(), block);
+                    edit.actionPerformed(null);
                     return State.CONSUMED;
                 }
                 return super.mouseClicked(widget, event);
