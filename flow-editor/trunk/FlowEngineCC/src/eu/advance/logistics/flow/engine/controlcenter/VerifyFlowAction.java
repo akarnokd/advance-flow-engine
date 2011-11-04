@@ -81,8 +81,7 @@ public final class VerifyFlowAction extends AbstractAction {
         if (engine == null) {
             return;
         }
-        AdvanceCompositeBlock flow = fd.build();
-        new VerifyWorker(engine, flow, fd).execute();
+        new VerifyWorker(engine, fd).execute();
     }
 
     private static class VerifyWorker extends SwingWorker {
@@ -90,13 +89,11 @@ public final class VerifyFlowAction extends AbstractAction {
         private AdvanceEngineControl engine;
         private FlowDescription flowDescription;
         private ProgressHandle ph;
-        private FlowDescription fd;
 
-        public VerifyWorker(AdvanceEngineControl engine, AdvanceCompositeBlock flow, FlowDescription fd) {
+        public VerifyWorker(AdvanceEngineControl engine,FlowDescription fd) {
             this.engine = engine;
             this.flowDescription = fd;
             this.ph = ProgressHandleFactory.createHandle("Verifying flow...");
-            this.fd = fd;
             ph.setInitialDelay(0);
             ph.start();
         }
@@ -122,8 +119,6 @@ public final class VerifyFlowAction extends AbstractAction {
                     if (!result.success()) {
                         showResultDialog(result);
                     }
-                    
-                    fd.setCompilationResult(result);
                 }
             } catch (ExecutionException ex) {
                 Exceptions.printStackTrace(ex.getCause());
