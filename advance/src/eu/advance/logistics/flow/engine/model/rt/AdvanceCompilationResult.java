@@ -59,7 +59,7 @@ public class AdvanceCompilationResult implements XSerializable {
 	@Override
 	public void load(XElement source) {
 		for (XElement e : source.childElement("errors").childrenWithName("error")) {
-			Func0<? extends AdvanceCompilationError> errFun = ErrorLookup.get(source.get("type"));
+			Func0<? extends AdvanceCompilationError> errFun = ErrorLookup.get(e.get("type"));
 			if (errFun == null) {
 				errors.add(new GeneralCompilationError(e));
 			} else {

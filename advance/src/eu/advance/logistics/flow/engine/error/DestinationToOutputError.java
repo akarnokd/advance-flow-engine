@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The wire's destination is bound to an output port of a block.
  * @author akarnokd, 2011.07.07.
  */
-public class DestinationToOutputError implements AdvanceCompilationError {
+public class DestinationToOutputError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/**
@@ -76,5 +76,9 @@ public class DestinationToOutputError implements AdvanceCompilationError {
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(DestinationToOutputError.class.getSimpleName(), CREATOR);
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

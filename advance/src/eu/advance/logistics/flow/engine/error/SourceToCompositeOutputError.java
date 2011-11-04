@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The source of the binding points to the output port of the enclosing composite's output port.
  * @author akarnokd, 2011.07.07.
  */
-public class SourceToCompositeOutputError implements AdvanceCompilationError {
+public class SourceToCompositeOutputError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/**
@@ -76,5 +76,9 @@ public class SourceToCompositeOutputError implements AdvanceCompilationError {
 	@Override
 	public String toString() {
 		return "Wire " + binding.id + " input is bound to the composite block output of (" + binding.sourceBlock + ", " + binding.sourceParameter + ")";
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

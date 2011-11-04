@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The wire binds two concrete types where the left type does not extend or equals to the right type.
  * @author akarnokd, 2011.07.27.
  */
-public class IncompatibleTypesError implements AdvanceCompilationError {
+public class IncompatibleTypesError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
@@ -91,5 +91,9 @@ public class IncompatibleTypesError implements AdvanceCompilationError {
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(IncompatibleTypesError.class.getSimpleName(), CREATOR);
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

@@ -3,6 +3,19 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.08.157 Notes
+----------------------
+
+Fixed type inference for complex generic types.
+
+Fixed wire type identification.
+
+Improved interoperability with the Flow Editor.
+
+Improved error reporting over the Engine control API.
+
+Few other bugfixes.
+
 Version 0.07.146 Notes
 ----------------------
 

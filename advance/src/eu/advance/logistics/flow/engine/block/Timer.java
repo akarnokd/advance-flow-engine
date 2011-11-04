@@ -66,7 +66,7 @@ public class Timer extends AdvanceBlock {
 		}
 	}
 	/**
-	 * @param delay
+	 * Start the timer.
 	 */
 	public void startTimer() {
 		Closeables.closeQuietly(timer);

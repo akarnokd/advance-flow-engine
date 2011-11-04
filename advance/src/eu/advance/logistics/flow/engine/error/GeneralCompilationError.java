@@ -45,6 +45,6 @@ public class GeneralCompilationError implements AdvanceCompilationError {
 	@Override
 	public void save(XElement destination) {
 		destination.set("type", getClass().getSimpleName());
-		content = destination.children().get(0).copy();
+		destination.add(content.copy());
 	}
 }

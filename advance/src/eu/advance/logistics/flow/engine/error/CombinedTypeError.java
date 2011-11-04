@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The combination (e.g., union) of two types could not be created.
  * @author akarnokd, 2011.07.27.
  */
-public class CombinedTypeError implements AdvanceCompilationError {
+public class CombinedTypeError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
@@ -91,5 +91,9 @@ public class CombinedTypeError implements AdvanceCompilationError {
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(CombinedTypeError.class.getSimpleName(), CREATOR);
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

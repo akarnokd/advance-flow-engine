@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The wire binds two parametric types which have incompatible base types or number of arguments.
  * @author akarnokd, 2011.07.27.
  */
-public class IncompatibleBaseTypesError implements AdvanceCompilationError {
+public class IncompatibleBaseTypesError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
@@ -91,5 +91,9 @@ public class IncompatibleBaseTypesError implements AdvanceCompilationError {
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(IncompatibleBaseTypesError.class.getSimpleName(), CREATOR);
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }
