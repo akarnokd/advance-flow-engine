@@ -73,13 +73,25 @@ public class ConstAddAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         AdvanceBlockParameterDescription d = target.getDescription();
         if (d.type.getKind() != AdvanceTypeKind.CONCRETE_TYPE) {
-            JPopupMenu popup = new JPopupMenu();
+            final JPopupMenu popup = new JPopupMenu();
                
             addConstantItem(popup, "Boolean", "advance:boolean");
             addConstantItem(popup, "Integer", "advance:integer");
             addConstantItem(popup, "Real", "advance:real");
             addConstantItem(popup, "String", "advance:string");
             addConstantItem(popup, "Timestamp", "advance:timestamp");
+            
+            popup.addSeparator();
+            JMenuItem cancel = new JMenuItem("Cancel");
+            popup.add(cancel);
+            cancel.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    popup.setVisible(false);
+                }
+                
+            });
             
             Point pm = MouseInfo.getPointerInfo().getLocation();
             
@@ -106,7 +118,10 @@ public class ConstAddAction extends AbstractAction {
             @Override
             public void actionPerformed(ActionEvent e) {
                 popup.setVisible(false);
-                placeConstantBlock(getAdvanceConstantBlock(typeURI));
+                AdvanceConstantBlock c = getAdvanceConstantBlock(typeURI);
+                if (c != null) {
+                    placeConstantBlock(c);
+                }
             }
             
         });
