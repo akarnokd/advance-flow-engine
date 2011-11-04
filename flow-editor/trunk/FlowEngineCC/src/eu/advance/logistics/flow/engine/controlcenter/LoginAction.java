@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import eu.advance.logistics.flow.engine.cc.CCMain;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.openide.awt.ActionRegistration;
