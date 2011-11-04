@@ -259,6 +259,65 @@ public abstract class AdvanceBlock {
 		}
 	}
 	/**
+	 * Dispatch a set of outputs given by subsequent String and XElement types.
+	 * @param nameValuePairs the name-value pairs as {@code String}, {@code XElement} or {@code Iterable<XElement>}
+	 */
+	protected void dispatch(Object... nameValuePairs) {
+		Map<String, Iterable<XElement>> values = Maps.newHashMap();
+		for (int i = 0; i < nameValuePairs.length; i += 2) {
+			String name = (String)nameValuePairs[i];
+			Object value = nameValuePairs[i + 1];
+			if (value instanceof XElement) {
+				values.put(name, Collections.singleton((XElement)value));
+			} else {
+				@SuppressWarnings("unchecked")
+				Iterable<XElement> v = (Iterable<XElement>)value;
+				values.put(name, v);
+			}
+		}
+		dispatch(values);
+	}
+	/**
+	 * Dispatch a value to the named output.
+	 * @param outputName the output name
+	 * @param value the output value
+	 */
+	protected void dispatch(String outputName, XElement value) {
+		dispatchOutput(Collections.singletonMap(outputName, value));
+	}
+	/**
+	 * Dispatch a value to the named output.
+	 * @param outputName the output name
+	 * @param values the sequence of values
+	 */
+	protected void dispatch(String outputName, Iterable<XElement> values) {
+		dispatch(Collections.singletonMap(outputName, values));
+	}
+	/**
+	 * Dispatches the given map of output values to various ports.
+	 * @param funcOut the function output
+	 */
+	protected void dispatch(Map<String, ? extends Iterable<XElement>> funcOut) {
+		boolean valid = true;
+		for (int i = 0; i < outputs.size(); i++) {
+			if (!funcOut.containsKey(outputs.get(i).name)) {
+				diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
+				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
+				valid = false;
+			}
+		}
+		if (valid) {
+			for (int i = 0; i < outputs.size(); i++) {
+				AdvanceBlockPort p = outputs.get(i);
+				for (XElement xe : funcOut.get(p.name)) {
+					p.next(xe);
+				}
+			}						
+			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.some(AdvanceBlockState.FINISH)));
+		}
+
+	}
+	/**
 	 * Dispatches the given map of output values to various ports.
 	 * @param funcOut the function output
 	 */

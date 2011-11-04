@@ -21,13 +21,7 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import java.io.Closeable;
-import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import com.google.common.io.Closeables;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
@@ -36,53 +30,24 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Represents a Timer which periodically relays the last value of its {@code in} parameter.
- * @author akarnokd, 2011.10.27.
+ * @author akarnokd, 2011.11.04.
+ *
  */
-public class Timer extends AdvanceBlock {
-	/** The scheduled repeating timer. */
-	protected Closeable timer;
-	/** The current interval. */
-	protected int interval = -1;
-	/** The last value to submit. */
-	protected final AtomicReference<XElement> last = new AtomicReference<XElement>();
+public class Singleton extends AdvanceBlock {
 	/**
 	 * Constructor.
 	 * @param id the block global id
 	 * @param parent the parent composite block
 	 * @param schedulerPreference the scheduler preference
 	 */
-	public Timer(String id, AdvanceCompositeBlock parent, 
+	public Singleton(String id, AdvanceCompositeBlock parent, 
 			AdvanceSchedulerPreference schedulerPreference) {
 		super(id, parent, schedulerPreference);
 	}
+
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		final int delay = XData.getInt(params.get("delay"));
-		last.set(params.get("in"));
-		if (delay != interval) {
-			interval = delay;
-			startTimer();
-		}
+		dispatch("out", XData.createSingleton(params.get("in")));
 	}
-	/**
-	 * @param delay
-	 */
-	public void startTimer() {
-		Closeables.closeQuietly(timer);
-		timer = scheduler().schedule(new Runnable() {
-			@Override
-			public void run() {
-				XElement e = last.get();
-				if (e != null) {
-					dispatchOutput(Collections.singletonMap("out", e));
-				}
-			}
-		}, interval, interval, TimeUnit.MILLISECONDS);
-	}
-	@Override
-	public void done() {
-		Closeables.closeQuietly(timer);
-		super.done();
-	}
+
 }

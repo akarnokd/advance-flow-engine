@@ -126,42 +126,58 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			AdvanceCompositeBlock root, 
 			List<AdvanceBlock> flow
 			) {
-		for (AdvanceCompositeBlock cb : root.composites.values()) {
-			compile(cb, flow);
-		}
-		// current level constants
-		for (AdvanceBlockReference br : root.blocks.values()) {
-			Map<String, AdvanceConstantBlock> consts = Maps.newHashMap();
-			AdvanceBlockDescription bd = blockResolver.lookup(br.type);
-			for (AdvanceBlockParameterDescription bdp : bd.inputs.values()) {
-				ConstantOrBlock cb = walkBinding(root, br.id, bdp.id);
-				if (cb != null && cb.constant != null) {
-					consts.put(bdp.id, cb.constant);
-				}
+		List<AdvanceBlock> currentLevelBlocks = Lists.newArrayList();
+		try {
+			for (AdvanceCompositeBlock cb : root.composites.values()) {
+				compile(cb, flow);
 			}
-			AdvanceBlock ab = blockResolver.create(br.id, root, br.type);
-			ab.init(bd, consts);
-			flow.add(ab);
-		}
-		// bind
-		if (root.parent == null) {
-			for (AdvanceBlock ab : flow) {
-				for (AdvancePort p : ab.inputs) {
-					if (p instanceof AdvanceBlockPort) {
-						ConstantOrBlock cb = walkBinding(ab.parent, ab.id, p.name());
-						if (cb != null) {
-							for  (AdvanceBlock ab2 : flow) {
-								if (ab2.parent == cb.composite && ab2.id.equals(cb.block)) {
-									((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
-									break;
+			// current level blocks
+			for (AdvanceBlockReference br : root.blocks.values()) {
+				Map<String, AdvanceConstantBlock> consts = Maps.newHashMap();
+				AdvanceBlockDescription bd = blockResolver.lookup(br.type);
+				for (AdvanceBlockParameterDescription bdp : bd.inputs.values()) {
+					ConstantOrBlock cb = walkBinding(root, br.id, bdp.id);
+					if (cb != null && cb.constant != null) {
+						consts.put(bdp.id, cb.constant);
+					}
+				}
+				AdvanceBlock ab = blockResolver.create(br.id, root, br.type);
+				
+				ab.init(bd, consts);
+				
+				flow.add(ab);
+				currentLevelBlocks.add(ab);
+			}
+			// bind
+			if (root.parent == null) {
+				for (AdvanceBlock ab : flow) {
+					for (AdvancePort p : ab.inputs) {
+						if (p instanceof AdvanceBlockPort) {
+							ConstantOrBlock cb = walkBinding(ab.parent, ab.id, p.name());
+							if (cb != null) {
+								for  (AdvanceBlock ab2 : flow) {
+									if (ab2.parent == cb.composite && ab2.id.equals(cb.block)) {
+										((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
+										break;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
+		} catch (RuntimeException ex) {
+			LOG.error(ex.toString(), ex);
+			// terminate blocks
+			for (AdvanceBlock b : currentLevelBlocks) {
+				try {
+					b.done();
+				} catch (Throwable t) {
+					LOG.error(t.toString(), t);
+				}
+			}
+			throw ex;
 		}
-		
 	}
 	/**
 	 * Run the flow graph.
@@ -170,13 +186,25 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	@Override
 	public void run(Iterable<? extends AdvanceBlock> flow) {
 		// arm
-		List<Observer<Void>> notifycations = Lists.newLinkedList();
-		for (AdvanceBlock ab : flow) {
-			notifycations.add(ab.run(schedulers.get(ab.schedulerPreference)));
-		}
-		// notify
-		for (Observer<Void> n : notifycations) {
-			n.next(null);
+		try {
+			List<Observer<Void>> notifycations = Lists.newLinkedList();
+			for (AdvanceBlock ab : flow) {
+				notifycations.add(ab.run(schedulers.get(ab.schedulerPreference)));
+			}
+			// notify
+			for (Observer<Void> n : notifycations) {
+				n.next(null);
+			}
+		} catch (RuntimeException ex) {
+			LOG.error(ex.toString(), ex);
+			for (AdvanceBlock b : flow) {
+				try {
+					b.done();
+				} catch (Throwable t) {
+					LOG.error(t.toString(), t);
+				}
+			}
+			throw ex;
 		}
 	}
 	/**
@@ -481,7 +509,8 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					AdvanceType t = types.removeFirst();
 					if (t.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
 						types.addAll(t.typeArguments);
-					} else {
+					} else 
+					if (t.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
 						for (Pair<XType, URI> xt : baseTypes) {
 							if (SchemaParser.compare(xt.first, t.type) == XRelation.EQUAL) {
 								t.typeURI = xt.second;
