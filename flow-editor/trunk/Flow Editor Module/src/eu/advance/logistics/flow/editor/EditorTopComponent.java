@@ -28,12 +28,18 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import org.netbeans.api.visual.model.ObjectSceneEvent;
 import org.netbeans.api.visual.model.ObjectSceneEventType;
@@ -64,7 +70,7 @@ public final class EditorTopComponent extends TopComponent {
     private FlowDescriptionDataObject dataObject;
     private BreadcrumbView breadcrumbView = new BreadcrumbView();
     private UndoRedo undoRedo;
-    private JLabel info;
+    private JPanel info;
 
     public EditorTopComponent(FlowDescriptionDataObject dataObject) {
         this.dataObject = dataObject;
@@ -179,9 +185,46 @@ public final class EditorTopComponent extends TopComponent {
         return false;
     }
 
-    private void addInfo(String text) {
+    private void addInfo(final String wire, final AdvanceType type) {
         removeInfo();
-        info = new JLabel(text);
+        info = new JPanel();
+        final JLabel label = new JLabel();
+        if (type == null) {
+            label.setText(wire + ": N/A");
+        } else {
+            label.setText(wire + ": " + type);
+        }
+        
+        final ImageIcon plus = new ImageIcon(getClass().getResource("plus.png"));
+        final ImageIcon minus = new ImageIcon(getClass().getResource("minus.png"));
+        
+        final JTextArea details = new JTextArea();
+        details.setRows(3);
+        final JScrollPane sp = new JScrollPane(details);
+        sp.setVisible(false);
+        if (type.type != null) {
+            label.setIcon(plus);
+            details.setText(type.type.toString());
+            label.addMouseListener(new MouseAdapter() {
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    sp.setVisible(!sp.isVisible());
+                    if (sp.isVisible()) {
+                        label.setIcon(minus);
+                    } else {
+                        label.setIcon(plus);
+                    }
+                }
+                
+            });
+        }
+        
+        
+        info.setLayout(new BorderLayout());
+        info.add(label, BorderLayout.NORTH);
+        info.add(sp, BorderLayout.CENTER);
+        
         info.setOpaque(true);
         info.setBackground(new Color(0xACEB95));
         info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -226,7 +269,7 @@ public final class EditorTopComponent extends TopComponent {
             }
             if (bind != null && cr != null) {
                 AdvanceType at = cr.wireTypes.get(bind.id);
-                addInfo(bind.id + ": " + (at != null ? at.toString() : "N/A"));
+                addInfo(bind.id, at);
             } else {
                 removeInfo();
             }

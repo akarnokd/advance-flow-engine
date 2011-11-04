@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
@@ -31,13 +32,17 @@ import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockAdded;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.swing.AbstractAction;
 import org.netbeans.api.visual.widget.Widget;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -100,9 +105,17 @@ public class ConstAddAction extends AbstractAction {
         AdvanceConstantBlock c = new AdvanceConstantBlock();
         c.id = parent.generateConstantId();
         AdvanceBlockParameterDescription d = target.getDescription();
-        c.typeURI = d.type.typeURI;
-        c.type = d.type.type;
-        //c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
+        if (d.type.getKind() != AdvanceTypeKind.CONCRETE_TYPE) {
+            c.typeURI = d.type.typeURI;
+            c.type = d.type.type;
+        } else {
+            try {
+                c.typeURI = new URI("advance:string");
+            } catch (URISyntaxException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
+        }
         c.value = new XElement(c.typeURI.getSchemeSpecificPart());
         c.value.content = "";
         c.value.content = EditSupport.edit(c.value.content, c.typeURI);
