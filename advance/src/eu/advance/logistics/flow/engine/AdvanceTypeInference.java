@@ -30,6 +30,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -208,6 +209,24 @@ public final class AdvanceTypeInference {
 		}
 		// FIXME not sure this is correct
 		
+		// traverse the wire relations and set wire types for concrete types
+		
+		for (Map.Entry<AdvanceType, Collection<String>> e : wireRelations.asMap().entrySet()) {
+			AdvanceType t = e.getKey();
+			if (t.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
+				for (String wire : e.getValue()) {
+					AdvanceType ct = result.wireTypes.get(wire);
+					if (ct == null) {
+						result.wireTypes.put(wire, t);
+					} else {
+						if (SchemaParser.compare(t.type, ct.type) == XRelation.EXTENDS) {
+							result.wireTypes.put(wire, t);
+						}
+					}
+				}
+			}
+		}
+		
 		// if we get here, all wires should have some type
 		for (AdvanceType type : Sets.union(upperBound.keySet(), lowerBound.keySet())) {
 			AdvanceType computedType = null;
@@ -233,7 +252,14 @@ public final class AdvanceTypeInference {
 			}
 			// locate wire with mentioning the type
 			for (String wire : wireRelations.get(type)) {
-				result.wireTypes.put(wire, computedType);
+				AdvanceType ct = result.wireTypes.get(wire);
+				if (ct == null) {
+					result.wireTypes.put(wire, computedType);
+				} else {
+					if (SchemaParser.compare(computedType.type, ct.type) == XRelation.EXTENDS) {
+						result.wireTypes.put(wire, computedType);
+					}
+				}
 			}
 		}
 	}
