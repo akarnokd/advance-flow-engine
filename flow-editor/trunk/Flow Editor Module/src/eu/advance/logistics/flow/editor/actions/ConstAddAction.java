@@ -35,12 +35,16 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescriptio
 import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.swing.AbstractAction;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -67,12 +71,48 @@ public class ConstAddAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        AdvanceBlockParameterDescription d = target.getDescription();
+        if (d.type.getKind() != AdvanceTypeKind.CONCRETE_TYPE) {
+            JPopupMenu popup = new JPopupMenu();
+               
+            addConstantItem(popup, "Boolean", "advance:boolean");
+            addConstantItem(popup, "Integer", "advance:integer");
+            addConstantItem(popup, "Real", "advance:real");
+            addConstantItem(popup, "String", "advance:string");
+            addConstantItem(popup, "Timestamp", "advance:timestamp");
+            
+            Point pm = MouseInfo.getPointerInfo().getLocation();
+            
+            popup.show(null, pm.x, pm.y);
+            return;
+        }
         AdvanceConstantBlock c = getAdvanceConstantBlock();
         if (c == null) {
             return;
         }
+        placeConstantBlock(c);
+    }
+    /**
+     * Add an item to the popup menu with the appropriate action.
+     * @param popup the popup menu
+     * @param title the entry title
+     * @param typeURI the type URI of the constant
+     */
+    void addConstantItem(final JPopupMenu popup, String title, final String typeURI) {
+        JMenuItem mi = new JMenuItem(title);
+        popup.add(mi);
+        mi.addActionListener(new ActionListener() {
 
-        undoRedoSupport.start();
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                popup.setVisible(false);
+                placeConstantBlock(getAdvanceConstantBlock(typeURI));
+            }
+            
+        });
+    }
+    void placeConstantBlock(AdvanceConstantBlock c) {
+                undoRedoSupport.start();
         String name = NbBundle.getBundle(ConstAddAction.class).getString("ADD_CONSTANT");
         CompositeEdit edit = new CompositeEdit(name);
 
@@ -100,12 +140,30 @@ public class ConstAddAction extends AbstractAction {
 
         undoRedoSupport.commit(edit);
     }
-
+    /**
+     * Create a constant block with the given base type (e.g., advance:string).
+     * @param baseTypeURI the base type name
+     * @return the constant block or null if the user cancelled the editor box
+     */
+    private AdvanceConstantBlock getAdvanceConstantBlock(String baseTypeURI) {
+        AdvanceConstantBlock c = new AdvanceConstantBlock();
+        c.id = parent.generateConstantId();
+        try {
+            c.typeURI = new URI(baseTypeURI);
+        } catch (URISyntaxException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
+        c.value = new XElement(c.typeURI.getSchemeSpecificPart());
+        c.value.content = "";
+        c.value.content = EditSupport.edit(c.value.content, c.typeURI);
+        return c.value.content != null ? c : null;
+    }
     private AdvanceConstantBlock getAdvanceConstantBlock() {
         AdvanceConstantBlock c = new AdvanceConstantBlock();
         c.id = parent.generateConstantId();
         AdvanceBlockParameterDescription d = target.getDescription();
-        if (d.type.getKind() != AdvanceTypeKind.CONCRETE_TYPE) {
+        if (d.type.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
             c.typeURI = d.type.typeURI;
             c.type = d.type.type;
         } else {
