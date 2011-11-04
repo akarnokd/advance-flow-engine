@@ -30,6 +30,9 @@ import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import java.awt.EventQueue;
 import org.netbeans.api.visual.widget.Widget;
 
 /**
@@ -38,8 +41,8 @@ import org.netbeans.api.visual.widget.Widget;
  */
 class FlowSceneController implements FlowDescriptionListener {
 
-    private FlowScene scene;
-    private WidgetBuilder widgetBuilder;
+    private final FlowScene scene;
+    private final WidgetBuilder widgetBuilder;
 
     FlowSceneController(FlowScene scene) {
         this.scene = scene;
@@ -103,12 +106,22 @@ class FlowSceneController implements FlowDescriptionListener {
             case PARAMETER_CHANGED:
                 parameterRenamedOrChanged((BlockParameter) params[0]);
                 break;
+            case COMPILATION_RESULT:
+                compilationResultChanged((AdvanceCompilationResult) params[0]);
             case CLOSED:
-                scene = null;
                 break;
             case SAVING:
                 saveLocations(((FlowDescription) params[0]).getActiveBlock());
                 break;
+        }
+        if (event != FlowDescriptionChange.CLOSED) {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    scene.validate();
+                }
+            });
         }
     }
 
@@ -233,5 +246,25 @@ class FlowSceneController implements FlowDescriptionListener {
                 child.setLocation(w.getLocation());
             }
         }
+    }
+
+    private void compilationResultChanged(AdvanceCompilationResult compilationResult) {
+        if (compilationResult != null) {
+            for (BlockBind bind : scene.getEdges()) {
+                Widget w = scene.findWidget(bind);
+                if (w instanceof BlockConnectionWidget) {
+                    AdvanceType at = compilationResult.wireTypes.get(bind.id);
+                    ((BlockConnectionWidget) w).setError(at == null);
+                }
+            }
+        } else {
+            for (BlockBind bind : scene.getEdges()) {
+                Widget w = scene.findWidget(bind);
+                if (w instanceof BlockConnectionWidget) {
+                    ((BlockConnectionWidget) w).setError(false);
+                }
+            }
+        }
+        scene.validate();
     }
 }

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="View">
+            <file name="eu-advance-logistics-flow-editor-actions-ZoomAction.instance">
+                <attr name="displayName" bundlevalue="eu.advance.logistics.flow.editor.actions.Bundle#CTL_ZoomAction"/>
+                <attr name="iconBase" stringvalue="eu/advance/logistics/flow/editor/actions/zoom.png"/>
+            </file>
+        </folder>
+    </folder>
     <folder name="Menu">
         <folder name="File">
             <file name="separator1.instance">
@@ -157,6 +165,15 @@
             </file>
         </folder>
     </folder>
+    <folder name="Toolbars">
+        <folder name="Zoom">
+            <attr name="position" intvalue="500"/>
+            <file name="eu-advance-logistics-flow-editor-actions-ZoomAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/View/eu-advance-logistics-flow-editor-actions-ZoomAction.instance"/>
+                <attr name="position" intvalue="700"/>
+            </file>
+        </folder>
+    </folder>
     <folder name="Templates">
         <folder name="Other">
             <file name="BlockRegistryTemplate.xml" url="BlockRegistryTemplate.xml">
@@ -167,6 +184,13 @@
                 <attr name="displayName" bundlevalue="eu.advance.logistics.flow.editor.Bundle#Templates/Other/FlowDescriptionTemplate.xml"/>
                 <attr name="template" boolvalue="true"/>
             </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Modes">
+            <file name="topright.wsmode" url="topright.wsmode.xml"/>
+            <folder name="topright">
+            </folder>
         </folder>
     </folder>
 </filesystem>

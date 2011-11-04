@@ -144,6 +144,7 @@ public class FlowDescriptionDataObject extends MultiDataObject {
                         @Override
                         public void flowDescriptionChanged(FlowDescriptionChange event, Object... params) {
                             if (!(event == FlowDescriptionChange.ACTIVE_COMPOSITE_BLOCK_CHANGED
+                                    || event == FlowDescriptionChange.COMPILATION_RESULT
                                     || event == FlowDescriptionChange.CLOSED)) {
                                 setModified(true);
                             }

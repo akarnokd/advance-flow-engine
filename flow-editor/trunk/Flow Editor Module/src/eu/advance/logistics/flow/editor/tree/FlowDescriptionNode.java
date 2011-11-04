@@ -20,43 +20,16 @@
  */
 package eu.advance.logistics.flow.editor.tree;
 
-import java.util.Collections;
-import java.util.List;
-import org.openide.nodes.Node;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
 
 /**
  *
  * @author TTS
  */
-public interface NodeFactory {
+public class FlowDescriptionNode extends CompositeBlockNode {
 
-    public Node createNode();
-    
-    public void updateChildren();
-
-    public static class Children extends org.openide.nodes.Children.Keys<NodeFactory> {
-
-        private List<NodeFactory> factories;
-
-        public Children(List<NodeFactory> factories) {
-            this.factories = factories;
-        }
-        
-        @Override
-        protected void addNotify() {
-            super.addNotify();
-            setKeys(factories);
-        }
-
-        @Override
-        protected void removeNotify() {
-            super.removeNotify();
-            setKeys(Collections.EMPTY_SET);
-        }
-
-        @Override
-        protected Node[] createNodes(NodeFactory key) {
-            return new Node[]{key.createNode()};
-        }
+    public FlowDescriptionNode(FlowDescription fd) {
+        super(fd);
+        setIconBaseWithExtension("eu/advance/logistics/flow/editor/palette/images/fd_icon.png");
     }
 }

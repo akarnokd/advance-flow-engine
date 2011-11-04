@@ -26,7 +26,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import javax.swing.Icon;
 import javax.swing.JTable;

@@ -74,19 +74,19 @@ public final class VerifyFlowAction extends AbstractAction {
         if (engine == null) {
             return;
         }
-        AdvanceCompositeBlock flow = fd.build();
-        new VerifyWorker(engine, flow).execute();
+        
+        new VerifyWorker(engine, fd).execute();
     }
 
     private static class VerifyWorker extends SwingWorker {
 
         private AdvanceEngineControl engine;
-        private AdvanceCompositeBlock flow;
+        private FlowDescription flowDescription;
         private ProgressHandle ph;
 
-        public VerifyWorker(AdvanceEngineControl engine, AdvanceCompositeBlock flow) {
+        public VerifyWorker(AdvanceEngineControl engine,  FlowDescription fd) {
             this.engine = engine;
-            this.flow = flow;
+            this.flowDescription = fd;
             this.ph = ProgressHandleFactory.createHandle("Verifying flow...");
             ph.setInitialDelay(0);
             ph.start();
@@ -94,6 +94,7 @@ public final class VerifyFlowAction extends AbstractAction {
 
         @Override
         protected Object doInBackground() throws Exception {
+            AdvanceCompositeBlock flow = flowDescription.build();
             return engine.verifyFlow(flow);
         }
 
@@ -101,6 +102,7 @@ public final class VerifyFlowAction extends AbstractAction {
         protected void done() {
             try {
                 AdvanceCompilationResult result = (AdvanceCompilationResult) get();
+                flowDescription.setCompilationResult(result);
                 if (result != null) {
                     boolean ok = result.success();
                     String text = "Verification result: " + (ok ? "OK" : "FAILED");

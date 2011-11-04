@@ -48,7 +48,7 @@ public class ColorScheme {
     static final Color COLOR_HIGHLIGHTED_ERROR = new Color(0xFF7373);
     static final Color COLOR_BORDER = new Color(0x56B230);
     static final Color COLOR1 = new Color(0xFFFFFF);
-    static final Color COLOR2 = new Color(0xEDFFE6);
+    static final Color COLOR2 = new Color(0xACEB95);
     static final Border BORDER_PARAM = new ParamBorder(Color.WHITE, 4, new Color(0xC0C0C0));
     static final Border BORDER_BLOCK = new BlockBorder(COLOR_BORDER, 1,
             COLOR1, COLOR2);

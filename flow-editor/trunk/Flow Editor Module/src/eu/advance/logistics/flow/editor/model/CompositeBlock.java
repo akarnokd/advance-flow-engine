@@ -72,6 +72,7 @@ public class CompositeBlock extends AbstractBlock {
     public void addBind(BlockBind c) {
         binds.put(c.id, c);
         getFlowDiagram().fire(FlowDescriptionChange.BIND_CREATED, this, c);
+        getFlowDiagram().setCompilationResult(null);
     }
 
     public void removeBind(BlockBind bind) {
@@ -80,6 +81,7 @@ public class CompositeBlock extends AbstractBlock {
         } else {
             // something wrong
         }
+        getFlowDiagram().setCompilationResult(null);
     }
 
     public BlockParameter findBlockParameter(String blockId, String paramId) {
