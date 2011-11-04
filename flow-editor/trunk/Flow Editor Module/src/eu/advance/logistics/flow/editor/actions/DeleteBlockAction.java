@@ -67,20 +67,23 @@ public class DeleteBlockAction extends AbstractAction {
         undoRedoSupport.start();
         CompositeEdit edit = new CompositeEdit((String) getValue(NAME));
         for (AbstractBlock block : blocks) {
-            UndoableEdit blockEdit = createDeleteEdit(block);
-            if (block != null) {
-                List<BlockBind> binds = block.getActiveBinds();
-                // TODO if !binds.isEmpty() ask user...
-                for (BlockBind bind : binds) {
-                    CompositeBlock parent = bind.getParent();
-                    bind.destroy();
-                    edit.add(new BindRemoved(parent, bind));
-                }
-                block.destroy();
-                edit.add(blockEdit);
-            }
+            delete(block, edit);
         }
         undoRedoSupport.commit(edit);
+    }
+
+    public static void delete(AbstractBlock block, CompositeEdit edit) {
+        UndoableEdit blockEdit = createDeleteEdit(block);
+        if (block != null) {
+            List<BlockBind> binds = block.getActiveBinds();
+            for (BlockBind bind : binds) {
+                CompositeBlock parent = bind.getParent();
+                bind.destroy();
+                edit.add(new BindRemoved(parent, bind));
+            }
+            block.destroy();
+            edit.add(blockEdit);
+        }
     }
 
     public static DeleteBlockAction build(FlowScene scene) {
