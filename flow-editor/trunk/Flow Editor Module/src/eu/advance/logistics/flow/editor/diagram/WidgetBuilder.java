@@ -22,23 +22,27 @@ package eu.advance.logistics.flow.editor.diagram;
 
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.actions.ConstEditAction;
+import eu.advance.logistics.flow.editor.actions.DeleteBlockAction;
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
+import eu.advance.logistics.flow.editor.undo.CompositeEdit;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.action.WidgetAction.State;
+import org.netbeans.api.visual.action.WidgetAction.WidgetKeyEvent;
 import org.netbeans.api.visual.action.WidgetAction.WidgetMouseEvent;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
@@ -63,13 +67,34 @@ class WidgetBuilder {
         widget.setNodeName(block.getId());
 
         if (block instanceof SimpleBlock) {
+            final SimpleBlock simpleBlock = (SimpleBlock) block;
             final BlockCategory cat = BlockRegistry.getInstance().findByType(((SimpleBlock) block).description);
             final Image catImg = cat.getImageObject();
             widget.setNodeImage(catImg);
+            widget.getActions().addAction(new WidgetAction.Adapter() {
+
+                @Override
+                public State keyPressed(Widget widget, WidgetKeyEvent event) {
+                    if (event.getKeyCode() == KeyEvent.VK_DELETE) {
+                        deleteBlock(simpleBlock, "Delete simple block");
+                        return State.CONSUMED;
+                    }
+                    return super.keyPressed(widget, event);
+                }
+            });
         } else if (block instanceof CompositeBlock) {
             final CompositeBlock compositeBlock = (CompositeBlock) block;
             widget.setNodeImage(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/palette/images/block.png"));
             widget.getActions().addAction(new WidgetAction.Adapter() {
+
+                @Override
+                public State keyPressed(Widget widget, WidgetKeyEvent event) {
+                    if (event.getKeyCode() == KeyEvent.VK_DELETE) {
+                        deleteBlock(compositeBlock, "Delete composite block");
+                        return State.CONSUMED;
+                    }
+                    return super.keyPressed(widget, event);
+                }
 
                 @Override
                 public State mouseClicked(Widget widget, WidgetMouseEvent event) {
@@ -95,6 +120,15 @@ class WidgetBuilder {
 
     void configure(final ConstantBlockWidget widget, final ConstantBlock block) {
         widget.getActions().addAction(new WidgetAction.Adapter() {
+
+            @Override
+            public State keyPressed(Widget widget, WidgetKeyEvent event) {
+                if (event.getKeyCode() == KeyEvent.VK_DELETE) {
+                    deleteBlock(block, "Delete constant block");
+                    return State.CONSUMED;
+                }
+                return super.keyPressed(widget, event);
+            }
 
             @Override
             public State mouseClicked(Widget widget, WidgetMouseEvent event) {
@@ -143,5 +177,12 @@ class WidgetBuilder {
             sb.append("</html>");
             w.setToolTipText(sb.toString());
         }
+    }
+
+    private void deleteBlock(AbstractBlock block, String name) {
+        scene.getUndoRedoSupport().start();
+        CompositeEdit edit = new CompositeEdit(name);
+        DeleteBlockAction.delete(block, edit);
+        scene.getUndoRedoSupport().commit(edit);
     }
 }
