@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The wire binds a concrete type and a parametric type which cannot be in subtype relation.
  * @author akarnokd, 2011.07.21.
  */
-public class ConcreteVsParametricTypeError implements AdvanceCompilationError {
+public class ConcreteVsParametricTypeError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
@@ -91,5 +91,9 @@ public class ConcreteVsParametricTypeError implements AdvanceCompilationError {
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(ConcreteVsParametricTypeError.class.getSimpleName(), CREATOR);
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

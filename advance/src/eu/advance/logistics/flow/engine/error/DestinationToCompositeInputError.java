@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The wire's destination is bound to an input port of the parent composite block's.
  * @author akarnokd, 2011.07.07.
  */
-public class DestinationToCompositeInputError implements AdvanceCompilationError {
+public class DestinationToCompositeInputError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/**
@@ -76,5 +76,9 @@ public class DestinationToCompositeInputError implements AdvanceCompilationError
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(DestinationToCompositeInputError.class.getSimpleName(), CREATOR);
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

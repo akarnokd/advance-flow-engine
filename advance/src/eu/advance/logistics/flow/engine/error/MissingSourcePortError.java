@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The source port of the source object cannot be found.
  * @author akarnokd, 2011.07.07.
  */
-public class MissingSourcePortError implements AdvanceCompilationError {
+public class MissingSourcePortError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/**
@@ -76,5 +76,9 @@ public class MissingSourcePortError implements AdvanceCompilationError {
 	@Override
 	public String toString() {
 		return "Wire " + binding.id + " has missing source (" + binding.sourceBlock + ", " + binding.sourceParameter + ")";
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

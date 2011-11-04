@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The destination port of the destination object cannot be found.
  * @author akarnokd, 2011.07.07.
  */
-public class MissingDestinationPortError implements AdvanceCompilationError {
+public class MissingDestinationPortError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/**
@@ -75,5 +75,9 @@ public class MissingDestinationPortError implements AdvanceCompilationError {
 	@Override
 	public String toString() {
 		return "Wire " + binding.id + " has missing destination (" + binding.destinationBlock + ", " + binding.destinationParameter + ")";
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

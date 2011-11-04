@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Type inference error on the given wire.
  * @author akarnokd, 2011.07.21.
  */
-public class TypeMismatchError implements AdvanceCompilationError {
+public class TypeMismatchError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
@@ -91,5 +91,9 @@ public class TypeMismatchError implements AdvanceCompilationError {
 	 */
 	public static void register(Map<String, Func0<? extends AdvanceCompilationError>> map) {
 		map.put(TypeMismatchError.class.getSimpleName(), CREATOR);
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

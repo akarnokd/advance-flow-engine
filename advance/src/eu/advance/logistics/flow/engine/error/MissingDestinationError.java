@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The destination object of the binding cannot be found.
  * @author akarnokd, 2011.07.07.
  */
-public class MissingDestinationError implements AdvanceCompilationError {
+public class MissingDestinationError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/**
@@ -75,5 +75,9 @@ public class MissingDestinationError implements AdvanceCompilationError {
 	@Override
 	public String toString() {
 		return "Wire " + binding.id + " has missing destination block " + binding.destinationBlock;
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }

@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The source object of the binding cannot be found.
  * @author akarnokd, 2011.07.07.
  */
-public class MissingSourceError implements AdvanceCompilationError {
+public class MissingSourceError implements AdvanceCompilationError, HasBinding {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/**
@@ -76,5 +76,9 @@ public class MissingSourceError implements AdvanceCompilationError {
 	@Override
 	public String toString() {
 		return "Wire " + binding.id + " has missing source block " + binding.sourceBlock;
+	}
+	@Override
+	public AdvanceBlockBind binding() {
+		return binding;
 	}
 }
