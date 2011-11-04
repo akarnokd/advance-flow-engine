@@ -23,9 +23,16 @@ package eu.advance.logistics.flow.engine.controlcenter;
 import com.google.common.eventbus.Subscribe;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.cc.CCDebugRow;
+import eu.advance.logistics.flow.engine.cc.CCValueDialog;
+import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
+import eu.advance.logistics.flow.engine.cc.LabelManager;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import hu.akarnokd.reactive4java.base.Option;
 import java.awt.event.ActionEvent;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractAction;
 import javax.swing.SwingWorker;
@@ -74,8 +81,8 @@ public final class VerifyFlowAction extends AbstractAction {
         if (engine == null) {
             return;
         }
-        
-        new VerifyWorker(engine, fd).execute();
+        AdvanceCompositeBlock flow = fd.build();
+        new VerifyWorker(engine, flow, fd).execute();
     }
 
     private static class VerifyWorker extends SwingWorker {
@@ -83,11 +90,13 @@ public final class VerifyFlowAction extends AbstractAction {
         private AdvanceEngineControl engine;
         private FlowDescription flowDescription;
         private ProgressHandle ph;
+        private FlowDescription fd;
 
-        public VerifyWorker(AdvanceEngineControl engine,  FlowDescription fd) {
+        public VerifyWorker(AdvanceEngineControl engine, AdvanceCompositeBlock flow, FlowDescription fd) {
             this.engine = engine;
             this.flowDescription = fd;
             this.ph = ProgressHandleFactory.createHandle("Verifying flow...");
+            this.fd = fd;
             ph.setInitialDelay(0);
             ph.start();
         }
@@ -109,6 +118,12 @@ public final class VerifyFlowAction extends AbstractAction {
                     NotificationDisplayer.getDefault().notify("Verify flow",
                             Commons.getNotificationIcon(ok), text, null);
                     StatusDisplayer.getDefault().setStatusText(text);
+                    
+                    if (!result.success()) {
+                        showResultDialog(result);
+                    }
+                    
+                    fd.setCompilationResult(result);
                 }
             } catch (ExecutionException ex) {
                 Exceptions.printStackTrace(ex.getCause());
@@ -117,6 +132,37 @@ public final class VerifyFlowAction extends AbstractAction {
             } finally {
                 ph.finish();
             }
+        }
+        /**
+         * Show the results in the debug value dialog.
+         * @param result the result
+         */
+        protected void showResultDialog(AdvanceCompilationResult result) {
+            CCDebugRow dr = new CCDebugRow();
+            dr.watch = new CCWatchSettings();
+            dr.timestamp = new Date();
+            XElement e = new XElement("advance-compilation-result");
+            result.save(e);
+            dr.value = Option.some(e);
+            dr.watch.block = "";
+            dr.watch.blockType = "";
+            dr.watch.port = "";
+            dr.watch.realm = "";
+
+            CCValueDialog dlg = new CCValueDialog(new LabelManager() {
+                @Override
+                public String get(String key) {
+                    return key;
+                }
+
+                @Override
+                public String format(String key, Object... values) {
+                    return String.format(key, values);
+                }
+            }, dr);
+            dlg.pack();
+            dlg.setLocationRelativeTo(null);
+            dlg.setVisible(true);
         }
     }
 }
