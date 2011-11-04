@@ -1152,4 +1152,33 @@ public class XElement implements Iterable<XElement> {
 			parent = null;
 		}
 	}
+	/**
+	 * Creates a new XElement and sets its content according to the supplied value.
+	 * @param name the element name
+	 * @param value the content value
+	 */
+	public XElement(String name, Object value) {
+		this(name);
+		if (value instanceof Date) {
+			content = formatDateTime((Date)value);
+		} else
+		if (value != null) {
+			content = value.toString();
+		}
+	}
+	/**
+	 * Creates a new XElement and sets its content according to the supplied value.
+	 * @param name the element name
+	 * @param namespace the namespace
+	 * @param value the content value
+	 */
+	public XElement(String name, String namespace, Object value) {
+		this(name, namespace);
+		if (value instanceof Date) {
+			content = formatDateTime((Date)value);
+		} else
+		if (value != null) {
+			content = value.toString();
+		}
+	}
 }
