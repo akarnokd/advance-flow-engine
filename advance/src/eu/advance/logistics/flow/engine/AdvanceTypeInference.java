@@ -145,44 +145,58 @@ public final class AdvanceTypeInference {
 			} else
 			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE && rel.right.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
 				if (!upperBound.get(rel.left).contains(rel.right)) {
-					// for each left >= ab.right
-					boolean found = false;
-					for (TypeRelation ab : reflexives) {
-						if (ab.right == rel.left) {
-							found = true;
-							// append the right to the upper bounds
-							if (!addBound(upperBound, ab.left, rel.right, unionFunc)) {
-								return;
+					if (rel.right.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+						addBound(upperBound, rel.left, rel.right, unionFunc);
+						if (!subc(rel.left, rel.right, rel.wire, relations, result.errors)) {
+							return;
+						}
+					} else {
+						// for each left >= ab.right
+						boolean found = false;
+						for (TypeRelation ab : reflexives) {
+							if (ab.right == rel.left) {
+								found = true;
+								// append the right to the upper bounds
+								if (!addBound(upperBound, ab.left, rel.right, unionFunc)) {
+									return;
+								}
 							}
 						}
-					}
-					if (!found) {
-						addBound(upperBound, rel.left, rel.right, unionFunc);
-					}
-					for (AdvanceType lb : lowerBound.get(rel.left)) {
-						if (!subc(lb, rel.right, rel.wire, relations, result.errors)) {
-							return;
+						if (!found) {
+							addBound(upperBound, rel.left, rel.right, unionFunc);
+						}
+						for (AdvanceType lb : lowerBound.get(rel.left)) {
+							if (!subc(lb, rel.right, rel.wire, relations, result.errors)) {
+								return;
+							}
 						}
 					}
 				}
 			} else
 			if (rel.left.getKind() != AdvanceTypeKind.VARIABLE_TYPE && rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
 				if (!lowerBound.get(rel.right).contains(rel.left)) {
-					// for each ab.left >= right
-					boolean found = false;
-					for (TypeRelation ab : reflexives) {
-						if (ab.left == rel.right) {
-							found = true;
-							addBound(lowerBound, ab.right, rel.left, intersectFunc);
-						}
-					}
-					if (!found) {
+					if (rel.left.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
 						addBound(lowerBound, rel.right, rel.left, intersectFunc);
-					}
-					// call subc with rel.left >= upper(rel.right)
-					for (AdvanceType lb : upperBound.get(rel.right)) {
-						if (!subc(rel.left, lb, rel.wire, relations, result.errors)) {
+						if (!subc(rel.left, rel.right, rel.wire, relations, result.errors)) {
 							return;
+						}
+					} else {
+						// for each ab.left >= right
+						boolean found = false;
+						for (TypeRelation ab : reflexives) {
+							if (ab.left == rel.right) {
+								found = true;
+								addBound(lowerBound, ab.right, rel.left, intersectFunc);
+							}
+						}
+						if (!found) {
+							addBound(lowerBound, rel.right, rel.left, intersectFunc);
+						}
+						// call subc with rel.left >= upper(rel.right)
+						for (AdvanceType lb : upperBound.get(rel.right)) {
+							if (!subc(rel.left, lb, rel.wire, relations, result.errors)) {
+								return;
+							}
 						}
 					}
 				}
@@ -210,10 +224,14 @@ public final class AdvanceTypeInference {
 		// FIXME not sure this is correct
 		
 		// traverse the wire relations and set wire types for concrete types
-		
+
+		Deque<AdvanceType> parametrics = Lists.newLinkedList();
 		for (Map.Entry<AdvanceType, Collection<String>> e : wireRelations.asMap().entrySet()) {
 			AdvanceType t = e.getKey();
 			if (t.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
+				if (t.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+					parametrics.add(t);
+				}
 				for (String wire : e.getValue()) {
 					AdvanceType ct = result.wireTypes.get(wire);
 					if (ct == null) {
@@ -227,29 +245,24 @@ public final class AdvanceTypeInference {
 			}
 		}
 		
+		while (!parametrics.isEmpty()) {
+			AdvanceType pt = parametrics.removeFirst();
+			for (int i = 0; i < pt.typeArguments.size(); i++) {
+				AdvanceType ta = pt.typeArguments.get(i);
+				if (ta.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+					AdvanceType ta2 = findConcreteType(upperBound, lowerBound, ta);
+					if (ta2.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+						parametrics.add(ta2);
+					}
+					pt.typeArguments.set(i, ta2);
+				}
+			}
+		}
+		
 		// if we get here, all wires should have some type
 		for (AdvanceType type : Sets.union(upperBound.keySet(), lowerBound.keySet())) {
-			AdvanceType computedType = null;
-			// find minimum of upper bound
-			for (AdvanceType ub : upperBound.get(type)) {
-				if (ub.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
-					computedType = ub;
-					break;
-				}
-			}
-			if (computedType == null) {
-				// find maximum of lower bound
-				for (AdvanceType lb : lowerBound.get(type)) {
-					if (lb.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
-						computedType = lb;
-						break;
-					}
-				}
-			}
-			// if still no concrete type, have it abstract
-			if (computedType == null) {
-				computedType = type;
-			}
+			AdvanceType computedType = findConcreteType(upperBound, lowerBound,
+					type);
 			// locate wire with mentioning the type
 			for (String wire : wireRelations.get(type)) {
 				AdvanceType ct = result.wireTypes.get(wire);
@@ -262,6 +275,39 @@ public final class AdvanceTypeInference {
 				}
 			}
 		}
+	}
+	/**
+	 * Find the appropriate type for the supplied type variable.
+	 * @param upperBound the upper bounds multimap
+	 * @param lowerBound the lower bounds multimap
+	 * @param type the type
+	 * @return the more concrete type or the type variable itself
+	 */
+	public static AdvanceType findConcreteType(
+			Multimap<AdvanceType, AdvanceType> upperBound,
+			Multimap<AdvanceType, AdvanceType> lowerBound, AdvanceType type) {
+		AdvanceType computedType = null;
+		// find minimum of upper bound
+		for (AdvanceType ub : upperBound.get(type)) {
+			if (ub.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
+				computedType = ub;
+				break;
+			}
+		}
+		if (computedType == null) {
+			// find maximum of lower bound
+			for (AdvanceType lb : lowerBound.get(type)) {
+				if (lb.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
+					computedType = lb;
+					break;
+				}
+			}
+		}
+		// if still no concrete type, have it abstract
+		if (computedType == null) {
+			computedType = type;
+		}
+		return computedType;
 	}
 	/**
 	 * Based on the structure of left >= right, creates new type relations and places it back to relations.
@@ -353,12 +399,19 @@ public final class AdvanceTypeInference {
 	 */
 	static AdvanceType intersection(AdvanceType t1, AdvanceType t2) {
 		AdvanceType t = new AdvanceType();
-		try {
-			t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
-		} catch (URISyntaxException ex) {
-			LOG.debug(ex.toString(), ex);
-		}
 		t.type = SchemaParser.intersection(t1.type, t2.type);
+		if (t.type == t1.type) {
+			t.typeURI = t1.typeURI;
+		} else
+		if (t.type == t2.type) {
+			t.typeURI = t2.typeURI;
+		} else {
+			try {
+				t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
+			} catch (URISyntaxException ex) {
+				LOG.debug(ex.toString(), ex);
+			}
+		}
 		return t;
 	}
 	/**
@@ -369,13 +422,20 @@ public final class AdvanceTypeInference {
 	 */
 	static AdvanceType union(AdvanceType t1, AdvanceType t2) {
 		AdvanceType t = new AdvanceType();
-		try {
-			t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
-		} catch (URISyntaxException ex) {
-			LOG.debug(ex.toString(), ex);
-		}
 		t.type = SchemaParser.union(t1.type, t2.type);
 		if (t.type != null) {
+			if (t.type == t1.type) {
+				t.typeURI = t1.typeURI;
+			} else
+			if (t.type == t2.type) {
+				t.typeURI = t2.typeURI;
+			} else {
+				try {
+					t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
+				} catch (URISyntaxException ex) {
+					LOG.debug(ex.toString(), ex);
+				}
+			}
 			return t;
 		}
 		return null;
@@ -400,14 +460,14 @@ public final class AdvanceTypeInference {
 		Deque<AdvanceType> concreteTypes = Lists.newLinkedList();
 		List<AdvanceType> newBounds = Lists.newArrayList();
 		for (AdvanceType lbTarget : bounds.get(target)) {
-			if (lbTarget.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
+			if (lbTarget.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
 				concreteTypes.add(lbTarget);
 			} else {
 				newBounds.add(lbTarget);
 			}
 		}
 		for (AdvanceType lbAdd : bounds.get(addBoundsOf)) {
-			if (lbAdd.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
+			if (lbAdd.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
 				concreteTypes.add(lbAdd);
 			} else {
 				newBounds.add(lbAdd);
@@ -448,14 +508,14 @@ public final class AdvanceTypeInference {
 		Deque<AdvanceType> concreteTypes = Lists.newLinkedList();
 		List<AdvanceType> newBounds = Lists.newArrayList();
 		for (AdvanceType lbTarget : bounds.get(target)) {
-			if (lbTarget.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
+			if (lbTarget.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
 				concreteTypes.add(lbTarget);
 			} else {
 				newBounds.add(lbTarget);
 			}
 		}
 		AdvanceType concrete = null;
-		if (newBound.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
+		if (newBound.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
 			concrete = newBound;
 			while (!concreteTypes.isEmpty()) {
 				concrete = func.invoke(concrete, concreteTypes.pop());

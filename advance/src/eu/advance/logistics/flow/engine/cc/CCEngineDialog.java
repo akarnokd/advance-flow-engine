@@ -842,6 +842,14 @@ public class CCEngineDialog extends JFrame {
 			ks.locationPrefix = workDir.getAbsolutePath() + "/";
 			ks.location = d.location.getText();
 			ks.password(d.password.getPassword());
+			
+			File f = new File(ks.locationPrefix + ks.location);
+			if (!f.exists()) {
+				KeystoreManager mgr = new KeystoreManager();
+				mgr.create();
+				mgr.save(f.getAbsolutePath(), ks.password());
+			}
+			
 			keystores.add(ks);
 			keystoreModel.fireTableDataChanged();
 			updateKeyStoreLists();
@@ -913,9 +921,13 @@ public class CCEngineDialog extends JFrame {
 						next.password(prev.password());
 					}
 					File prevLoc = new File(workDir, prev.location);
-					mgr.load(prevLoc.getAbsolutePath(), prev.password());
-					if (!prev.location.equals(next.location)) {
-						prevLoc.delete();
+					if (prevLoc.canRead()) {
+						mgr.load(prevLoc.getAbsolutePath(), prev.password());
+						if (!prev.location.equals(next.location)) {
+							prevLoc.delete();
+						}
+					} else {
+						mgr.create();
 					}
 					for (int i = 0; i < keystores.size(); i++) {
 						AdvanceKeyStore ks = keystores.get(i);
