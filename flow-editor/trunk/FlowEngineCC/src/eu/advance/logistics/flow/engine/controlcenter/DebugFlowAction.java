@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.engine.controlcenter;
 
 import com.google.common.eventbus.Subscribe;
+import eu.advance.logistics.flow.engine.cc.CCDebugDialog;
+import eu.advance.logistics.flow.engine.cc.LabelManager;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -49,8 +51,32 @@ public final class DebugFlowAction  extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         final Frame mainWindow = WindowManager.getDefault().getMainWindow();
-        final DebugFlowDialog debugDialog = new DebugFlowDialog(mainWindow, true);
-        debugDialog.setLocationRelativeTo(mainWindow);
-        debugDialog.setVisible(true);
+//        final DebugFlowDialog debugDialog = new DebugFlowDialog(mainWindow, true);
+//        debugDialog.setLocationRelativeTo(mainWindow);
+//        debugDialog.setVisible(true);
+        
+        LabelManager labels = new LabelManager()  {
+            @Override
+            public String get(String key) {
+                return key;
+            }
+
+            @Override
+            public String format(String key, Object... values) {
+                return String.format(key, values);
+            }
+        };
+
+        EngineController ec = EngineController.getInstance();
+
+        CCDebugDialog dialog = new CCDebugDialog(labels, ec.getEngine());
+
+        dialog.engineInfo.setEngineURL(ec.getEngineAddress());
+        dialog.engineInfo.setEngineVersion(ec.getEngineVersion());
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(mainWindow);
+        dialog.setVisible(true);
+
     }
 }
