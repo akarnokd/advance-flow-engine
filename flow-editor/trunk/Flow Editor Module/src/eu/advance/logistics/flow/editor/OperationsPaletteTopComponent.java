@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import com.google.common.io.Closeables;
 import eu.advance.logistics.flow.editor.palette.PaletteRootChildren;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import java.io.File;
@@ -48,13 +49,12 @@ autostore = false)
 @TopComponent.Description(preferredID = "OperationsPaletteTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "explorer", openAtStartup = true)
+@TopComponent.Registration(mode = "topright", openAtStartup = true)
 @ActionID(category = "Window", id = "eu.advance.logistics.flow.editor.OperationsPaletteTopComponent")
 @ActionReference(path = "Menu/Window", position = 100)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_OperationsPaletteAction", preferredID = "OperationsPaletteTopComponent")
 public final class OperationsPaletteTopComponent extends TopComponent implements ExplorerManager.Provider {
 
-    private static OperationsPaletteTopComponent instance;
     private ExplorerManager explorerManager = new ExplorerManager();
     private BeanTreeView treeView = new BeanTreeView();
 

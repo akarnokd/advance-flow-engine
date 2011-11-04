@@ -21,12 +21,24 @@
 package eu.advance.logistics.flow.editor;
 
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.Set;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.border.Border;
+import org.netbeans.api.visual.model.ObjectSceneEvent;
+import org.netbeans.api.visual.model.ObjectSceneEventType;
+import org.netbeans.api.visual.model.ObjectSceneListener;
+import org.netbeans.api.visual.model.ObjectState;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.UndoRedo;
@@ -52,6 +64,7 @@ public final class EditorTopComponent extends TopComponent {
     private FlowDescriptionDataObject dataObject;
     private BreadcrumbView breadcrumbView = new BreadcrumbView();
     private UndoRedo undoRedo;
+    private JLabel info;
 
     public EditorTopComponent(FlowDescriptionDataObject dataObject) {
         this.dataObject = dataObject;
@@ -63,6 +76,10 @@ public final class EditorTopComponent extends TopComponent {
         setIcon(ImageUtilities.loadImage(ICON_PATH, false));
 
         FlowScene scene = dataObject.getLookup().lookup(FlowScene.class);
+        scene.addObjectSceneListener(objectSceneListener,
+                ObjectSceneEventType.OBJECT_SELECTION_CHANGED,
+                ObjectSceneEventType.OBJECT_ADDED,
+                ObjectSceneEventType.OBJECT_REMOVED);
         viewportView = scene.createView();
 
         scrollpane.setViewportView(viewportView);
@@ -161,4 +178,70 @@ public final class EditorTopComponent extends TopComponent {
         }
         return false;
     }
+
+    private void addInfo(String text) {
+        removeInfo();
+        info = new JLabel(text);
+        info.setOpaque(true);
+        info.setBackground(new Color(0xACEB95));
+        info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        add(info, BorderLayout.SOUTH);
+        revalidate();
+        repaint();
+    }
+
+    private void removeInfo() {
+        if (info != null) {
+            remove(info);
+            revalidate();
+            repaint();
+            info = null;
+        }
+    }
+    private ObjectSceneListener objectSceneListener = new ObjectSceneListener() {
+
+        @Override
+        public void objectAdded(ObjectSceneEvent event, Object addedObject) {
+            removeInfo();
+        }
+
+        @Override
+        public void objectRemoved(ObjectSceneEvent event, Object removedObject) {
+            removeInfo();
+        }
+
+        @Override
+        public void objectStateChanged(ObjectSceneEvent event, Object changedObject, ObjectState previousState, ObjectState newState) {
+        }
+
+        @Override
+        public void selectionChanged(ObjectSceneEvent event, Set<Object> previousSelection, Set<Object> newSelection) {
+            AdvanceCompilationResult cr = dataObject.getLookup().lookup(FlowDescription.class).getCompilationResult();
+            BlockBind bind = null;
+            if (newSelection.size() == 1) {
+                Object sel = newSelection.iterator().next();
+                if (sel instanceof BlockBind) {
+                    bind = (BlockBind) sel;
+                }
+            }
+            if (bind != null && cr != null) {
+                AdvanceType at = cr.wireTypes.get(bind.id);
+                addInfo(bind.id + ": " + (at != null ? at.toString() : "N/A"));
+            } else {
+                removeInfo();
+            }
+        }
+
+        @Override
+        public void highlightingChanged(ObjectSceneEvent event, Set<Object> previousHighlighting, Set<Object> newHighlighting) {
+        }
+
+        @Override
+        public void hoverChanged(ObjectSceneEvent event, Object previousHoveredObject, Object newHoveredObject) {
+        }
+
+        @Override
+        public void focusChanged(ObjectSceneEvent event, Object previousFocusedObject, Object newFocusedObject) {
+        }
+    };
 }

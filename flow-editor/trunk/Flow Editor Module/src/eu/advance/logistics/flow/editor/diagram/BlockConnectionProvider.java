@@ -20,8 +20,12 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
+import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.undo.BindCreated;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import java.awt.Point;
 import java.util.List;
 import org.netbeans.api.visual.action.ConnectProvider;
@@ -50,7 +54,7 @@ class BlockConnectionProvider implements ConnectProvider {
             final Object obj = scene.findObject((PinWidget) widget);
             if (obj instanceof BlockParameter) {
                 final BlockParameter param = (BlockParameter) obj;
-                return getParamType((PinWidget)widget, param) == BlockParameter.Type.OUTPUT;
+                return getParamType((PinWidget) widget, param) == BlockParameter.Type.OUTPUT;
             }
         }
 
@@ -112,6 +116,11 @@ class BlockConnectionProvider implements ConnectProvider {
     public void createConnection(Widget src, Widget dest) {
         final BlockParameter input = (BlockParameter) scene.findObject(src);
         final BlockParameter output = (BlockParameter) scene.findObject(dest);
-        flowDescription.getActiveBlock().createBind(input, output);
+        UndoRedoSupport urs = scene.getUndoRedoSupport();
+        urs.start();
+        CompositeBlock target = flowDescription.getActiveBlock();
+        BlockBind bind = target.createBind(input, output);
+        urs.commit(new BindCreated(target, bind));
+
     }
 }

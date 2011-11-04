@@ -81,6 +81,9 @@
         <file name="D-U.shadow">
             <attr name="originalFile" stringvalue="Menu/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-UploadFlowAction.instance"/>
         </file>
+        <file name="D-Y.shadow">
+            <attr name="originalFile" stringvalue="Actions/RemoteFlowEngine/eu-advance-logistics-flow-engine-controlcenter-VerifyFlowAction.instance"/>
+        </file>
     </folder>
     <folder name="Toolbars">
         <folder name="File">

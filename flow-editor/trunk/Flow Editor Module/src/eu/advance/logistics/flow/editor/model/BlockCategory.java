@@ -41,7 +41,6 @@ public class BlockCategory implements Comparable<BlockCategory> {
     private String id;
     private String name;
     private String image_url;
-    private Image image;
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     private List<AdvanceBlockDescription> types;
     private BlockRegistry registry;
@@ -52,32 +51,26 @@ public class BlockCategory implements Comparable<BlockCategory> {
         this.types = new ArrayList<AdvanceBlockDescription>();
         this.name = name;
         this.image_url = imageUrl;
-        this.image = ImageUtilities.loadImage("eu/advance/logistics/flow/editor/palette/images/" + imageUrl);
     }
 
     public String getId() {
         return id;
     }
-    
+
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setImage(String image) {
-        this.image_url = image;
-        this.image = ImageUtilities.loadImage(image);
     }
 
     public String getImage() {
         return image_url;
     }
 
+    public String getImagePath() {
+        return "eu/advance/logistics/flow/editor/palette/images/" + image_url;
+    }
+
     public Image getImageObject() {
-        return image;
+        return ImageUtilities.loadImage(getImagePath());
     }
 
     public void addType(AdvanceBlockDescription type) {

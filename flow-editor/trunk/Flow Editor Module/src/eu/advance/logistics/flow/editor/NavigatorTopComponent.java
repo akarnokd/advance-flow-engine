@@ -18,21 +18,15 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
 package eu.advance.logistics.flow.editor;
 
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import java.awt.BorderLayout;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.lang.ref.WeakReference;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.windows.Mode;
-import org.openide.windows.WindowManager;
 
 /**
  * Navigator panel.
@@ -49,10 +43,19 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_NavigatorAction",
 preferredID = "NavigatorTopComponent")
-public final class NavigatorTopComponent extends TopComponent
-        implements PropertyChangeListener {
+public final class NavigatorTopComponent extends TopComponent {
 
-    private WeakReference<TopComponent> tcReference;
+    private ContextSupport<FlowScene> contextSupport = new ContextSupport<FlowScene>(FlowScene.class) {
+
+        @Override
+        protected void contextChanged(FlowScene scene) {
+            removeAll();
+            if (scene != null) {
+                add(scene.getSatelliteView(), BorderLayout.CENTER);
+            }
+            validate();
+        }
+    };
 
     public NavigatorTopComponent() {
         initComponents();
@@ -85,12 +88,12 @@ public final class NavigatorTopComponent extends TopComponent
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {
-        WindowManager.getDefault().getRegistry().addPropertyChangeListener(this);
+        contextSupport.activate();
     }
 
     @Override
     public void componentClosed() {
-        WindowManager.getDefault().getRegistry().removePropertyChangeListener(this);
+        contextSupport.deactivate();
     }
 
     void writeProperties(java.util.Properties p) {
@@ -103,32 +106,5 @@ public final class NavigatorTopComponent extends TopComponent
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        String pname = evt.getPropertyName();
-        if (Registry.PROP_ACTIVATED.equals(pname)) {
-            TopComponent tc = (TopComponent) evt.getNewValue();
-            Mode mode = WindowManager.getDefault().findMode(tc);
-            if (mode != null && mode.getName().equals("editor")) {
-                FlowScene doc = tc.getLookup().lookup(FlowScene.class);
-                removeAll();
-                if (doc != null) {
-                    tcReference = new WeakReference<TopComponent>(tc);
-                    add(doc.getSatelliteView(), BorderLayout.CENTER);
-                } else {
-                    tcReference = null;
-                }
-                validate();
-            }
-        } else if (Registry.PROP_TC_CLOSED.equals(pname)) {
-            TopComponent tc = (TopComponent) evt.getNewValue();
-            if (tcReference != null && tc == tcReference.get()) {
-                removeAll();
-                validate();
-                tcReference = null;
-            }
-        }
     }
 }
