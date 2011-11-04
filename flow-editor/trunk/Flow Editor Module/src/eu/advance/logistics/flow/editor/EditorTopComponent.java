@@ -202,7 +202,7 @@ public final class EditorTopComponent extends TopComponent {
         details.setRows(3);
         final JScrollPane sp = new JScrollPane(details);
         sp.setVisible(false);
-        if (type.type != null) {
+        if (type != null && type.type != null) {
             label.setIcon(plus);
             details.setText(type.type.toString());
             label.addMouseListener(new MouseAdapter() {
