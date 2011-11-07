@@ -3,6 +3,15 @@ Advance Flow Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Version 0.09.165 Notes
+----------------------
+
+Fixed issues with the type inference.
+
+Fixed issues with persisting the datastore and ECC settings.
+
+Modified blocks to have access to all scheduler types.
+
 Version 0.08.157 Notes
 ----------------------
 

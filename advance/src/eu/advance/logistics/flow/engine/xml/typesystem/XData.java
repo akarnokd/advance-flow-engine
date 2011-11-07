@@ -23,8 +23,13 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,7 +37,8 @@ import java.util.Date;
  * @author akarnokd, 2011.11.04.
  */
 public final class XData {
-
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(XData.class);
 	/**
 	 * Utility class.
 	 */
@@ -200,5 +206,32 @@ public final class XData {
 		item.content = item2.content;
 		
 		return result;
+	}
+	/** An object. */
+	public static final URI OBJECT = uri("advance:object");
+	/** A boolean. */
+	public static final URI BOOLEAN = uri("advance:boolean");
+	/** An integer. */
+	public static final URI INTEGER = uri("advance:integer");
+	/** A real. */
+	public static final URI REAL = uri("advance:real");
+	/** A string. */
+	public static final URI STRING = uri("advance:string");
+	/** A timestamp. */
+	public static final URI TIMESTAMP = uri("advance:timestamp");
+	/** A collection. */
+	public static final URI COLLECTION = uri("advance:collection");
+	/**
+	 * Creates an URI object. Throws a runtime exception instead of the checked URISyntaxException.
+	 * @param uri the URI string
+	 * @return the URI object
+	 */
+	private static URI uri(String uri) {
+		try {
+			return new URI(uri);
+		} catch (URISyntaxException ex) {
+			LOG.error(ex.toString(), ex);
+			throw new IllegalArgumentException(ex);
+		}
 	}
 }
