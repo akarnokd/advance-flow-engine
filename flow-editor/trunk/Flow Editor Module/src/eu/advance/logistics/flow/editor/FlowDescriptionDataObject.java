@@ -46,7 +46,6 @@ import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
@@ -127,7 +126,7 @@ public class FlowDescriptionDataObject extends MultiDataObject {
         @Override
         public void open() {
             EditorTopComponent tc = getLookup().lookup(EditorTopComponent.class);
-            if (tc != null) {
+            if (tc != null && tc.getDataObject() != null) {
                 tc.open();
                 tc.requestActive();
                 return;
@@ -163,8 +162,13 @@ public class FlowDescriptionDataObject extends MultiDataObject {
                         @Override
                         public void run() {
                             getInstanceContent().add(FlowScene.create(urs, flowDesc));
-                            EditorTopComponent tc = new EditorTopComponent(FlowDescriptionDataObject.this);
-                            getInstanceContent().add(tc);
+                            EditorTopComponent tc;
+                            tc = getLookup().lookup(EditorTopComponent.class);
+                            if (tc == null) {
+                                tc = new EditorTopComponent();
+                                getInstanceContent().add(tc);
+                            }
+                            tc.setDataObject(FlowDescriptionDataObject.this);
                             tc.setActivatedNodes(new Node[]{getNodeDelegate()});
                             tc.open();
                             tc.requestActive();

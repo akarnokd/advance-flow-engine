@@ -20,68 +20,56 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
+import com.google.common.collect.Maps;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
+import eu.advance.logistics.flow.engine.AdvanceCompiler;
+import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
+import eu.advance.logistics.flow.engine.AdvanceSchemaResolver;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.cc.CCDebugRow;
 import eu.advance.logistics.flow.engine.cc.CCValueDialog;
 import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
 import eu.advance.logistics.flow.engine.cc.LabelManager;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.reactive4java.base.Scheduler;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.swing.AbstractAction;
 import javax.swing.SwingWorker;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.awt.NotificationDisplayer;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
-//@ActionID(category = "Tools",
-//id = "eu.advance.logistics.flow.engine.controlcenter.TestAction")
-//@ActionRegistration(iconBase = "eu/advance/logistics/flow/engine/controlcenter/buildProject.png",
-//displayName = "#CTL_VerifyFlowAction")
-//@ActionReferences({
-//    @ActionReference(path = "Menu/Tools", position = 0, separatorAfter = 50),
-//    @ActionReference(path = "Toolbars/File", position = 500),
-//    @ActionReference(path = "Shortcuts", name = "D-T")
-//})
-public final class VerifyFlowAction extends AbstractAction {
+@ActionID(category = "RemoteFlowEngine",
+id = "eu.advance.logistics.flow.engine.controlcenter.VerifyFlowAction")
+@ActionRegistration(iconBase = "eu/advance/logistics/flow/engine/controlcenter/buildProject.png",
+displayName = "#CTL_VerifyFlowAction",
+surviveFocusChange = true)
+public final class VerifyFlowAction implements ActionListener {
 
-    private final static String iconName = "eu/advance/logistics/flow/engine/controlcenter/buildProject.png";
+    private FlowDescription context;
 
-    public VerifyFlowAction() {
-        putValue(NAME, NbBundle.getMessage(DebugFlowAction.class, "CTL_VerifyFlowAction"));
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(iconName, false));
-        putValue("iconBase", iconName);
-        setEnabled(false);
-        EngineController.getInstance().getEventBus().register(this);
-    }
-
-    @Subscribe
-    public void onEngine(EngineController ec) {
-        setEnabled(ec.getEngine() != null);
+    public VerifyFlowAction(FlowDescription ctx) {
+        this.context = ctx;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        FlowDescription fd = Utilities.actionsGlobalContext().lookup(FlowDescription.class);
-        if (fd == null) {
-            return;
-        }
         AdvanceEngineControl engine = EngineController.getInstance().getEngine();
-        if (engine == null) {
-            return;
-        }
-        new VerifyWorker(engine, fd).execute();
+        new VerifyWorker(engine, context).execute();
     }
 
     private static class VerifyWorker extends SwingWorker {
@@ -90,7 +78,7 @@ public final class VerifyFlowAction extends AbstractAction {
         private FlowDescription flowDescription;
         private ProgressHandle ph;
 
-        public VerifyWorker(AdvanceEngineControl engine,FlowDescription fd) {
+        public VerifyWorker(AdvanceEngineControl engine, FlowDescription fd) {
             this.engine = engine;
             this.flowDescription = fd;
             this.ph = ProgressHandleFactory.createHandle("Verifying flow...");
@@ -101,7 +89,20 @@ public final class VerifyFlowAction extends AbstractAction {
         @Override
         protected Object doInBackground() throws Exception {
             AdvanceCompositeBlock flow = flowDescription.build();
-            return engine.verifyFlow(flow);
+            if (engine != null) {
+                return engine.verifyFlow(flow);
+            }
+
+            // Perform local verification if not connected to an engine: 
+            AdvanceSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
+            Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
+            for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
+                bm.put(e.id, e);
+            }
+            AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
+            AdvanceCompiler compiler = new AdvanceCompiler(sr, br,
+                    Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
+            return compiler.verify(flow);
         }
 
         @Override
@@ -115,7 +116,7 @@ public final class VerifyFlowAction extends AbstractAction {
                     NotificationDisplayer.getDefault().notify("Verify flow",
                             Commons.getNotificationIcon(ok), text, null);
                     StatusDisplayer.getDefault().setStatusText(text);
-                    
+
 //                    if (!result.success()) {
 //                        showResultDialog(result);
 //                    }
@@ -128,6 +129,7 @@ public final class VerifyFlowAction extends AbstractAction {
                 ph.finish();
             }
         }
+
         /**
          * Show the results in the debug value dialog.
          * @param result the result
@@ -145,6 +147,7 @@ public final class VerifyFlowAction extends AbstractAction {
             dr.watch.realm = "";
 
             CCValueDialog dlg = new CCValueDialog(new LabelManager() {
+
                 @Override
                 public String get(String key) {
                     return key;
