@@ -317,7 +317,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		@Override
 		public String toString() {
 //			return String.format("%s(%s):%s >= %s(%s):%s (%s)", wire.sourceBlock, wire.sourceParameter, left, wire.destinationBlock, wire.destinationParameter, right, wire.id);
-			return String.format("%s[%08X] >= %s[%08X] (%s)", left, System.identityHashCode(left), right, System.identityHashCode(right), wire.id);
+			return String.format("%s >= %s (%s)", left, right, wire.id);
 		}
 		@Override
 		public boolean equals(Object obj) {
@@ -340,6 +340,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	@Override
 	public AdvanceCompilationResult verify(
 			AdvanceCompositeBlock enclosingBlock) {
+		
 		AdvanceCompilationResult result = new AdvanceCompilationResult();
 		
 		LinkedList<TypeRelation> relations = Lists.newLinkedList();

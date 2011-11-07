@@ -104,13 +104,13 @@ public final class AdvanceTypeInference {
 				if (!containsRelation(reflexives, rel.left, rel.right)) {
 					// add new reflexive relations for x >= left and right >= y 
 					int size = reflexives.size();
-					boolean found1 = false;
-					boolean found2 = false;
+//					boolean found1 = false;
+//					boolean found2 = false;
 					for (int i = 0; i < size; i++) {
 						TypeRelation ab = reflexives.get(i);
 						// if ab.left >= left and left >= right then ab.left >= right
 						if (ab.right == rel.left) {
-							found1 = true;
+//							found1 = true;
 							reflexives.add(new TypeRelation(ab.left, rel.right, rel.wire));
 							if (!combineBounds(upperBound, ab.left, rel.right, unionFunc, result.errors, rel.wire)) {
 								return;
@@ -118,19 +118,19 @@ public final class AdvanceTypeInference {
 						}
 						// if right >= ab.right and left >= right then left >= ab.right
 						if (ab.left == rel.right) {
-							found2 = true;
+//							found2 = true;
 							reflexives.add(new TypeRelation(rel.left, ab.right, rel.wire));
 							combineBounds(lowerBound, ab.right, rel.left, intersectFunc, result.errors, rel.wire);
 						}
 					}
-					if (!found1) {
+//					if (!found1) {
 						if (!combineBounds(upperBound, rel.left, rel.right, unionFunc, result.errors, rel.wire)) {
 							return;
 						}
-					}
-					if (!found2) {
+//					}
+//					if (!found2) {
 						combineBounds(lowerBound, rel.right, rel.left, intersectFunc, result.errors, rel.wire);
-					}
+//					}
 					
 					reflexives.add(new TypeRelation(rel));
 					// call subc with lower(rel.left) >= upper(rel.right) ?! 
@@ -152,19 +152,16 @@ public final class AdvanceTypeInference {
 						}
 					} else {
 						// for each left >= ab.right
-						boolean found = false;
 						for (TypeRelation ab : reflexives) {
 							if (ab.right == rel.left) {
-								found = true;
 								// append the right to the upper bounds
 								if (!addBound(upperBound, ab.left, rel.right, unionFunc)) {
 									return;
 								}
 							}
 						}
-						if (!found) {
-							addBound(upperBound, rel.left, rel.right, unionFunc);
-						}
+						addBound(upperBound, rel.left, rel.right, unionFunc);
+						
 						for (AdvanceType lb : lowerBound.get(rel.left)) {
 							if (!subc(lb, rel.right, rel.wire, relations, result.errors)) {
 								return;
@@ -182,16 +179,12 @@ public final class AdvanceTypeInference {
 						}
 					} else {
 						// for each ab.left >= right
-						boolean found = false;
 						for (TypeRelation ab : reflexives) {
 							if (ab.left == rel.right) {
-								found = true;
 								addBound(lowerBound, ab.right, rel.left, intersectFunc);
 							}
 						}
-						if (!found) {
-							addBound(lowerBound, rel.right, rel.left, intersectFunc);
-						}
+						addBound(lowerBound, rel.right, rel.left, intersectFunc);
 						// call subc with rel.left >= upper(rel.right)
 						for (AdvanceType lb : upperBound.get(rel.right)) {
 							if (!subc(rel.left, lb, rel.wire, relations, result.errors)) {

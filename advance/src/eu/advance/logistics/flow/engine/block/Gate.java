@@ -30,11 +30,12 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
-import javax.swing.GroupLayout.Alignment;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
@@ -49,7 +50,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class Gate extends AdvanceBlock {
 	/** The peer frame. */
-	protected JFrame frame;
+	protected JInternalFrame frame;
 	/** The peer button. */
 	protected JButton button;
 	/** The queue length. */
@@ -86,7 +87,7 @@ public class Gate extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JFrame("Gate");
+		frame = new JInternalFrame("Gate", false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		button = new JButton(buttonTitleDefer);
 		queueLength = new JLabel("Queue length: 0");
@@ -108,7 +109,6 @@ public class Gate extends AdvanceBlock {
 			.addComponent(button)
 		);
 		frame.pack();
-		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
 		button.addActionListener(new ActionListener() {
@@ -132,6 +132,7 @@ public class Gate extends AdvanceBlock {
 				});
 			}
 		});
+		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
@@ -154,6 +155,7 @@ public class Gate extends AdvanceBlock {
 			public void run() {
 				if (frame != null) {
 					frame.dispose();
+					BlockVisualizer.getInstance().remove(frame);
 				}
 			}
 		});

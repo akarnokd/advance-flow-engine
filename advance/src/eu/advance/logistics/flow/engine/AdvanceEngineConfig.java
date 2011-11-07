@@ -221,9 +221,9 @@ public class AdvanceEngineConfig {
 		}
 		if (localDataStore != null) {
 			if (jdbcDataSource.password() != null) {
-				localDataStore.saveEncrypted(jdbcDataSource.url, jdbcDataSource.password());
+				localDataStore.saveEncrypted(workDir + "/" + jdbcDataSource.url, jdbcDataSource.password());
 			} else {
-				localDataStore.save(jdbcDataSource.url);
+				localDataStore.save(workDir + "/" + jdbcDataSource.url);
 			}
 		} else
 		if (jdbcPool != null) {

@@ -34,12 +34,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
@@ -64,7 +65,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class Log extends AdvanceBlock {
 	/** The peer frame. */
-	protected JFrame frame;
+	protected JInternalFrame frame;
 	/** The log entries. */
 	protected final List<Pair<Date, XElement>> rows = Lists.newArrayList();
 	/** The model. */
@@ -98,7 +99,7 @@ public class Log extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JFrame("Log");
+		frame = new JInternalFrame("Log", true);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		rowcount = new JLabel("Rows: 0");
 		model = new AbstractTableModel() {
@@ -214,8 +215,8 @@ public class Log extends AdvanceBlock {
 			.addComponent(rowcount)
 		);
 		frame.pack();
-		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
@@ -236,6 +237,7 @@ public class Log extends AdvanceBlock {
 			public void run() {
 				if (frame != null) {
 					frame.dispose();
+					BlockVisualizer.getInstance().remove(frame);
 				}
 			}
 		});

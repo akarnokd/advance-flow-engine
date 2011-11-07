@@ -1008,16 +1008,13 @@ public final class XSchema {
 			is.capabilities.add(c);
 		} else {
 			if (c0.valueType == c1.valueType) {
-				c.valueType = c0.valueType;
-				is.capabilities.add(c);
+				return t1;
 			} else
 			if (c0.valueType == XValueType.REAL && c1.valueType == XValueType.INTEGER) {
-				c.valueType = c0.valueType;
-				is.capabilities.add(c);
+				return t1;
 			} else
 			if (c1.valueType == XValueType.REAL && c0.valueType == XValueType.INTEGER) {
-				c.valueType = c1.valueType;
-				is.capabilities.add(c);
+				return t2;
 			}
 			// otherwise, is will just remain empty
 		}
@@ -1056,17 +1053,14 @@ public final class XSchema {
 			is.capabilities.add(c);
 		} else {
 			if (c0.valueType == c1.valueType) {
-				c.valueType = c0.valueType;
-				is.capabilities.add(c);
+				return t1;
 			} else {
 				// automatically cast an integer into a real
 				if (c0.valueType == XValueType.REAL && c1.valueType == XValueType.INTEGER) {
-					c.valueType = c0.valueType;
-					is.capabilities.add(c);
+					return t1;
 				} else
 				if (c1.valueType == XValueType.REAL && c0.valueType == XValueType.INTEGER) {
-					c.valueType = c1.valueType;
-					is.capabilities.add(c);
+					return t2;
 				} else {
 					return null; // conflicting primitive types
 				}
