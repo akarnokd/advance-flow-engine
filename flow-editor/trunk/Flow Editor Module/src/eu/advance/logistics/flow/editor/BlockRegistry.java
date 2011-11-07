@@ -23,10 +23,17 @@ package eu.advance.logistics.flow.editor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
+import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
+import eu.advance.logistics.flow.engine.AdvanceCompiler;
 import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import hu.akarnokd.reactive4java.base.Scheduler;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -36,6 +43,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
@@ -63,7 +71,8 @@ public class BlockRegistry {
     private Map<String, AdvanceBlockDescription> types = Maps.newHashMap();
     private Map<String, XType> xtypes = Maps.newHashMap();
     private AdvanceLocalSchemaResolver schemaResolver;
-
+    /** The local verification compiler. */
+    private AdvanceCompiler localVerify;
     private BlockRegistry() {
     }
 
@@ -246,5 +255,26 @@ public class BlockRegistry {
             schemaResolver = new AdvanceLocalSchemaResolver(schemaLocations);
         }
         return schemaResolver.resolve(uri);
+    }
+    /**
+     * Verify the flow with a local compiler.
+     * @param flow the flow to verify
+     * @return the compilation result
+     */
+    public AdvanceCompilationResult verify(AdvanceCompositeBlock flow) {
+        if (localVerify == null) {
+            AdvanceLocalSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
+
+            Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
+
+            for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
+                   bm.put(e.id, e);
+            }
+
+            AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
+
+            localVerify = new AdvanceCompiler(sr, br, Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
+        }
+        return localVerify.verify(flow);
     }
 }

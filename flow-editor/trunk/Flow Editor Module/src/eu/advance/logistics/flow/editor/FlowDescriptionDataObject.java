@@ -46,6 +46,7 @@ import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
@@ -134,7 +135,7 @@ public class FlowDescriptionDataObject extends MultiDataObject {
             ProgressHandle ph = ProgressHandleFactory.createHandle(NbBundle.getBundle(FlowDescriptionDataObject.class).getString("LOADING"));
             ph.start();
             try {
-                AdvanceCompositeBlock compositeBlock = FlowDescription.load(getPrimaryFile().getInputStream());
+                final AdvanceCompositeBlock compositeBlock = FlowDescription.load(getPrimaryFile().getInputStream());
                 if (compositeBlock != null) {
                     compositeBlock.id = getPrimaryFile().getName();
                     final FlowDescription flowDesc = FlowDescription.create(compositeBlock);
@@ -167,6 +168,9 @@ public class FlowDescriptionDataObject extends MultiDataObject {
                             tc.setActivatedNodes(new Node[]{getNodeDelegate()});
                             tc.open();
                             tc.requestActive();
+                            
+                            flowDesc.setCompilationResult(BlockRegistry.getInstance()
+                                    .verify(compositeBlock));
                         }
                     });
                 } else {

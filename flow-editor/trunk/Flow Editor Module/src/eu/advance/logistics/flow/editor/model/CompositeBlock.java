@@ -22,11 +22,13 @@ package eu.advance.logistics.flow.editor.model;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 /**
  * <b>CompositeBlock</b>
@@ -72,7 +74,12 @@ public class CompositeBlock extends AbstractBlock {
     public void addBind(BlockBind c) {
         binds.put(c.id, c);
         getFlowDiagram().fire(FlowDescriptionChange.BIND_CREATED, this, c);
-        getFlowDiagram().setCompilationResult(null);
+        
+        FlowDescription fd = Utilities.actionsGlobalContext().lookup(FlowDescription.class);
+        if (fd != null) {
+            getFlowDiagram().setCompilationResult(BlockRegistry.getInstance()
+                    .verify(fd.build()));
+        }
     }
 
     public void removeBind(BlockBind bind) {
@@ -81,7 +88,8 @@ public class CompositeBlock extends AbstractBlock {
         } else {
             // something wrong
         }
-        getFlowDiagram().setCompilationResult(null);
+        getFlowDiagram().setCompilationResult(BlockRegistry.getInstance()
+                .verify(Utilities.actionsGlobalContext().lookup(FlowDescription.class).build()));
     }
 
     public BlockParameter findBlockParameter(String blockId, String paramId) {
