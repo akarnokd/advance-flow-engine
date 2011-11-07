@@ -72,8 +72,8 @@ public abstract class AdvanceBlock {
 	protected final List<Closeable> functionClose;
 	/** The preferred scheduler type. Filled in by the AdvanceBlockLookup.create(). */
 	public final AdvanceSchedulerPreference schedulerPreference;
-	/** The scheduler instance to use. Filled in by the AdvanceCompiler.run(). */
-	private Scheduler scheduler;
+	/** The available schedulers. */
+	private Map<AdvanceSchedulerPreference, Scheduler> schedulers;
 	/**
 	 * Constructor.  
 	 * @param id The global identifier of this block. 
@@ -142,33 +142,30 @@ public abstract class AdvanceBlock {
 	}
 	/** 
 	 * Schedule the execution of the body function.
-	 * @param scheduler the scheduler based on the block's preference 
 	 * @return the observer to trigger in the run phase
 	 */
-	public Observer<Void> run(final Scheduler scheduler) {
-		this.scheduler = scheduler;
+	public Observer<Void> run() {
 		List<AdvancePort> reactivePorts = getReactivePorts(); 
 		
 		if (inputs.size() == 0 || reactivePorts.size() == 0) {
-			return runConstantBlock(scheduler);
+			return runConstantBlock();
 		}
-		return runReactiveBlock(scheduler, reactivePorts);
+		return runReactiveBlock(reactivePorts);
 	}
 	/**
 	 * <p>By default bind the reactive ports of the block with a combiner function which will
 	 * execute the body function if all of the inputs are available.</p>
 	 * <p>Override this method if you want different input-parameter reaction.</p>
-	 * @param scheduler the scheduler to be used by the body function
 	 * @param reactivePorts the list of the reactive ports to use.
 	 * @return the observer to trigger the execution in the run phase but it is empty
 	 */
-	protected Observer<Void> runReactiveBlock(final Scheduler scheduler,
+	protected Observer<Void> runReactiveBlock(
 			List<AdvancePort> reactivePorts) {
 		functionClose.add(Reactive.observeOn(
-				Reactive.combine(reactivePorts), scheduler).register(new InvokeObserver<List<XElement>>() {
+				Reactive.combine(reactivePorts), scheduler()).register(new InvokeObserver<List<XElement>>() {
 			@Override
 			public void next(List<XElement> value) {
-				invokeBody(value, scheduler);
+				invokeBody(value, scheduler());
 			}
 		}));
 		return new RunObserver();
@@ -214,18 +211,17 @@ public abstract class AdvanceBlock {
 	/**
 	 * Wraps the body function into a callback-style invocation scheme for constant or no-input blocks
 	 * to execute them immediately when the flow begins to execute.
-	 * @param scheduler the scheduler to use for the invocation
 	 * @return the observer to trigger the execution
 	 */
-	protected Observer<Void> runConstantBlock(final Scheduler scheduler) {
+	protected Observer<Void> runConstantBlock() {
 		return new RunObserver() {
 			@Override
 			public void next(Void value) {
-				functionClose.add(scheduler.schedule(new Runnable() {
+				functionClose.add(scheduler().schedule(new Runnable() {
 					@Override
 					public void run() {
 						// no reactive parameters
-						invokeBody(Lists.<XElement>newArrayList(), scheduler);
+						invokeBody(Lists.<XElement>newArrayList(), scheduler());
 					}
 				}));
 			}
@@ -402,10 +398,28 @@ public abstract class AdvanceBlock {
 		
 	}
 	/**
-	 * The scheduler for this block.
-	 * @return the scheduler, null until the run() method is invoked
+	 * The default scheduler for this block.
+	 * @return the scheduler
 	 */
 	public Scheduler scheduler() {
-		return scheduler;
+		return schedulers.get(schedulerPreference);
+	}
+	/**
+	 * Get a specific scheduler.
+	 * @param preference the requested scheduler
+	 * @return the scheduler
+	 */
+	public Scheduler scheduler(@NonNull AdvanceSchedulerPreference preference) {
+		return schedulers.get(preference);
+	}
+	/**
+	 * Set the scheduler map.
+	 * @param newSchedulers the scheduler map
+	 */
+	public void setSchedulers(@NonNull Map<AdvanceSchedulerPreference, Scheduler> newSchedulers) {
+		if (newSchedulers == null) {
+			throw new IllegalArgumentException("newSchedulers is null");
+		}
+		this.schedulers = newSchedulers;
 	}
 }

@@ -21,18 +21,27 @@
 
 package eu.advance.logistics.flow.engine.test;
 
+import hu.akarnokd.reactive4java.base.Scheduler;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
+import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
 import eu.advance.logistics.flow.engine.AdvanceCompiler;
 import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
+import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
+import eu.advance.logistics.flow.engine.AdvanceSchemaResolver;
 import eu.advance.logistics.flow.engine.api.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
@@ -42,6 +51,10 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -163,5 +176,27 @@ public final class BasicLocalEngine {
 		} catch (AdvanceControlException ex) {
 			LOG.error(ex.toString(), ex);
 		}
+	}
+	/**
+	 * Verify the flow locally.
+	 * @param flow the composite flow
+	 * @return the compilation result
+	 */
+	public static AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow) {
+		
+		AdvanceSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
+
+		Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
+		
+		for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
+			bm.put(e.id, e);
+		}
+		
+		AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
+		
+		AdvanceCompiler compiler = new AdvanceCompiler(sr, br, 
+				Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
+		
+		return compiler.verify(flow);
 	}
 }

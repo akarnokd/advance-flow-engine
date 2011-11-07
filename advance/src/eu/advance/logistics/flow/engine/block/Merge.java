@@ -61,20 +61,20 @@ public class Merge extends AdvanceBlock {
 		// The default zip-behavior is ignored
 	}
 	@Override
-	protected Observer<Void> runReactiveBlock(Scheduler scheduler,
+	protected Observer<Void> runReactiveBlock(
 			List<AdvancePort> reactivePorts) {
 		functionClose.add(Reactive.observeOn(
-				Reactive.merge(reactivePorts), scheduler).register(new InvokeObserver<XElement>() {
+				Reactive.merge(reactivePorts), scheduler()).register(new InvokeObserver<XElement>() {
 			@Override
 			public void next(XElement value) {
 				dispatchOutput(Collections.singletonMap("out", value));
 			}
 		}));
-		return dispatchConstants(scheduler);
+		return dispatchConstants(scheduler());
 	}
 	@Override
-	protected Observer<Void> runConstantBlock(Scheduler scheduler) {
-		return dispatchConstants(scheduler);
+	protected Observer<Void> runConstantBlock() {
+		return dispatchConstants(scheduler());
 	}
 	/**
 	 * Dispatch the constant parameter values immediately.

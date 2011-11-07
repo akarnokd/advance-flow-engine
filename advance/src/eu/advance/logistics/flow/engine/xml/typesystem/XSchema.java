@@ -62,11 +62,11 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
  * A XML type description.
  *  @author akarnokd
  */
-public final class SchemaParser {
+public final class XSchema {
 	/** The logger. */
-	protected static final Logger LOG = LoggerFactory.getLogger(SchemaParser.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(XSchema.class);
 	/** Utility class. */
-	private SchemaParser() {
+	private XSchema() {
 		// utility class
 	}
 	/**
@@ -446,6 +446,15 @@ public final class SchemaParser {
 			List<XElement> types, XElement restrict) {
 		String base = restrict.get("base");
 		XValueType primitiveType = getSimpleType(restrict.prefix, base);
+		if (primitiveType == XValueType.REAL) {
+			// if restiction present check for zero fraction
+			XElement frac = restrict.childElement("fractionDigits", XElement.XSD);
+			if (frac != null) {
+				if ("0".equals(frac.get("value"))) {
+					primitiveType = XValueType.INTEGER;
+				}
+			}
+		}
 		if (primitiveType != null) {
 			c.valueType = primitiveType;
 		} else {
@@ -580,7 +589,6 @@ public final class SchemaParser {
 		} else
 		if (xsdType.equals(prefix + ":int")
 			|| xsdType.equals(prefix + ":integer")
-			|| xsdType.equals(prefix + ":decimal")
 			|| xsdType.equals(prefix + ":nonNegativeInteger")
 			|| xsdType.equals(prefix + ":long")
 			|| xsdType.equals(prefix + ":short")
@@ -596,6 +604,7 @@ public final class SchemaParser {
 			return XValueType.INTEGER;
 		} else
 		if (xsdType.equals(prefix + ":float")
+			|| xsdType.equals(prefix + ":decimal")
 			|| xsdType.equals(prefix + ":double")
 		) {
 			return XValueType.REAL;
@@ -1001,6 +1010,14 @@ public final class SchemaParser {
 			if (c0.valueType == c1.valueType) {
 				c.valueType = c0.valueType;
 				is.capabilities.add(c);
+			} else
+			if (c0.valueType == XValueType.REAL && c1.valueType == XValueType.INTEGER) {
+				c.valueType = c0.valueType;
+				is.capabilities.add(c);
+			} else
+			if (c1.valueType == XValueType.REAL && c0.valueType == XValueType.INTEGER) {
+				c.valueType = c1.valueType;
+				is.capabilities.add(c);
 			}
 			// otherwise, is will just remain empty
 		}
@@ -1042,7 +1059,17 @@ public final class SchemaParser {
 				c.valueType = c0.valueType;
 				is.capabilities.add(c);
 			} else {
-				return null; // conflicting primitive types
+				// automatically cast an integer into a real
+				if (c0.valueType == XValueType.REAL && c1.valueType == XValueType.INTEGER) {
+					c.valueType = c0.valueType;
+					is.capabilities.add(c);
+				} else
+				if (c1.valueType == XValueType.REAL && c0.valueType == XValueType.INTEGER) {
+					c.valueType = c1.valueType;
+					is.capabilities.add(c);
+				} else {
+					return null; // conflicting primitive types
+				}
 			}
 		}
 		return is;
