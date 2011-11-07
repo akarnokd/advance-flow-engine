@@ -26,13 +26,20 @@ import org.openide.windows.WindowManager;
  *
  * @author TTS
  */
-public class LoginProgressDialog extends javax.swing.JDialog {
+final public class LoginProgressDialog extends javax.swing.JDialog {
 
     public LoginProgressDialog() {
         super(WindowManager.getDefault().getMainWindow(), ModalityType.APPLICATION_MODAL);
         initComponents();
         setLocationRelativeTo(getOwner());
+        
+        setRetry(false);
     }
+    
+     void setRetry(boolean value) {
+         statusLabel.setVisible(value);
+         tryAgainButton.setVisible(value);
+     }
 
     /** This method is called from within the constructor to
      * initialize the form.

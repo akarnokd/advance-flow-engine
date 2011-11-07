@@ -30,8 +30,12 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.beans.PropertyVetoException;
+import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -44,7 +48,11 @@ import org.netbeans.api.visual.model.ObjectState;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.UndoRedo;
+import org.openide.cookies.OpenCookie;
 import org.openide.cookies.SaveCookie;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -57,7 +65,7 @@ import org.openide.util.ImageUtilities;
  */
 @TopComponent.Description(preferredID = "EditorTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE",
-persistenceType = TopComponent.PERSISTENCE_NEVER)
+persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED)
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
 public final class EditorTopComponent extends TopComponent {
 
@@ -68,14 +76,20 @@ public final class EditorTopComponent extends TopComponent {
     private UndoRedo undoRedo;
     private JPanel info;
 
-    public EditorTopComponent(FlowDescriptionDataObject dataObject) {
-        this.dataObject = dataObject;
-
+    public EditorTopComponent() {
         initComponents();
-        //setName(NbBundle.getMessage(EditorTopComponent.class, "CTL_EditorTopComponent"));
-        setName(dataObject.getName());
+        setName(NbBundle.getMessage(EditorTopComponent.class, "CTL_EditorTopComponent"));
         setToolTipText(NbBundle.getMessage(EditorTopComponent.class, "HINT_EditorTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, false));
+    }
+
+    public void setDataObject(FlowDescriptionDataObject dataObject) {
+        if (this.dataObject != null || dataObject == null) {
+            throw new IllegalArgumentException();
+        }
+        this.dataObject = dataObject;
+
+        setName(dataObject.getName());
 
         FlowScene scene = dataObject.getLookup().lookup(FlowScene.class);
         scene.addObjectSceneListener(objectSceneListener,
@@ -94,6 +108,10 @@ public final class EditorTopComponent extends TopComponent {
         undoRedo = dataObject.getLookup().lookup(UndoRedoSupport.class).getUndoRedo();
 
         //associateLookup(Lookups.fixed(new Object[]{flowDiagramController}));
+    }
+
+    public FlowDescriptionDataObject getDataObject() {
+        return dataObject;
     }
 
     /** This method is called from within the constructor to
@@ -118,8 +136,13 @@ public final class EditorTopComponent extends TopComponent {
         return undoRedo;
     }
 
-    private FlowScene getScene() {
-        return dataObject.getLookup().lookup(FlowScene.class);
+    private void sceneRequestFocus() {
+        if (dataObject != null) {
+            FlowScene scene = dataObject.getLookup().lookup(FlowScene.class);
+            if (scene != null) {
+                scene.getView().requestFocus();
+            }
+        }
     }
 
     @Override
@@ -133,12 +156,12 @@ public final class EditorTopComponent extends TopComponent {
 
     @Override
     protected void componentActivated() {
-        getScene().getView().requestFocus();
+        sceneRequestFocus();
     }
 
     @Override
     protected void componentShowing() {
-        getScene().getView().requestFocus();
+        sceneRequestFocus();
     }
 
     private boolean checkSave() {
@@ -170,6 +193,9 @@ public final class EditorTopComponent extends TopComponent {
 
     @Override
     public boolean canClose() {
+        if (dataObject == null) {
+            return true;
+        }
         if (checkSave()) {
             try {
                 dataObject.setValid(false);
@@ -196,7 +222,7 @@ public final class EditorTopComponent extends TopComponent {
         boolean error = type == null;
         for (AdvanceCompilationError e : cr.errors) {
             if (e instanceof HasBinding) {
-                HasBinding hb = (HasBinding)e;
+                HasBinding hb = (HasBinding) e;
                 if (hb.binding().id.equals(wire)) {
                     b.append("   ").append(e.toString());
                     error = true;
@@ -204,10 +230,10 @@ public final class EditorTopComponent extends TopComponent {
                 }
             }
         }
-        
+
         label.setText(b.toString());
         label.setFont(label.getFont().deriveFont(18.0f));
-        
+
         info.setLayout(new BorderLayout());
         info.add(label, BorderLayout.NORTH);
 
@@ -217,7 +243,7 @@ public final class EditorTopComponent extends TopComponent {
         } else {
             info.setBackground(new Color(0xACEB95));
         }
-        info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        info.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         add(info, BorderLayout.SOUTH);
         revalidate();
         repaint();
@@ -276,4 +302,65 @@ public final class EditorTopComponent extends TopComponent {
         public void focusChanged(ObjectSceneEvent event, Object previousFocusedObject, Object newFocusedObject) {
         }
     };
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        super.writeExternal(out);
+        String path = null;
+        if (dataObject != null) {
+            File file = FileUtil.toFile(dataObject.getPrimaryFile());
+            if (file != null) {
+                try {
+                    path = file.getCanonicalPath();
+                } catch (IOException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        if (path != null) {
+            out.writeInt(1);
+            out.writeObject(path);
+        } else {
+            out.writeInt(0);
+        }
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        super.readExternal(in);
+        DataObject dobj = null;
+        int version = in.readInt();
+        if (version == 1) {
+            String path = in.readObject().toString();
+            File file = new File(path);
+            if (file.exists()) {
+                try {
+                    dobj = DataObject.find(FileUtil.toFileObject(file));
+                } catch (DataObjectNotFoundException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        EventQueue.invokeLater(new Restore(dobj));
+    }
+
+    private class Restore implements Runnable {
+
+        private final DataObject dobj;
+
+        private Restore(DataObject dobj) {
+            this.dobj = dobj;
+        }
+
+        @Override
+        public void run() {
+            if (dobj instanceof FlowDescriptionDataObject) {
+                ((FlowDescriptionDataObject) dobj).getInstanceContent().add(EditorTopComponent.this);
+                dobj.getLookup().lookup(OpenCookie.class).open();
+            } else {
+                close(); // close the TopComponent
+            }
+
+        }
+    }
 }

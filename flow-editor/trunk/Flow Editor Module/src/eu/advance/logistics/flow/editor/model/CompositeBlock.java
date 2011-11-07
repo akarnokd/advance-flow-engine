@@ -75,7 +75,7 @@ public class CompositeBlock extends AbstractBlock {
         binds.put(c.id, c);
         getFlowDiagram().fire(FlowDescriptionChange.BIND_CREATED, this, c);
         
-        FlowDescription fd = Utilities.actionsGlobalContext().lookup(FlowDescription.class);
+        FlowDescription fd = getFlowDiagram();
         if (fd != null) {
             getFlowDiagram().setCompilationResult(BlockRegistry.getInstance()
                     .verify(fd.build()));
@@ -89,7 +89,7 @@ public class CompositeBlock extends AbstractBlock {
             // something wrong
         }
         getFlowDiagram().setCompilationResult(BlockRegistry.getInstance()
-                .verify(Utilities.actionsGlobalContext().lookup(FlowDescription.class).build()));
+                .verify(getFlowDiagram().build()));
     }
 
     public BlockParameter findBlockParameter(String blockId, String paramId) {
