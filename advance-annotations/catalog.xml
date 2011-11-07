@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="file:/home/szmarcell/Data/SZTAKI/Advance/code/advance-annotations/../advance/schemas/block-registry.xsd" uri="xml-resources/jaxb/registry/block-registry.xsd"/>
+    <system systemId="file:/home/szmarcell/Data/SZTAKI/Advance/code/advance/schemas/block-description.xsd" uri="xml-resources/jaxb/registry/block-description.xsd"/>
+</catalog>
