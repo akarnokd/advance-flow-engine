@@ -28,12 +28,13 @@ import java.util.Collections;
 import java.util.Map;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.GroupLayout.Alignment;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
@@ -48,7 +49,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class InputBox extends AdvanceBlock {
 	/** The peer frame. */
-	protected JFrame frame;
+	protected JInternalFrame frame;
 	/** The text field. */
 	protected JTextField text;
 	/** The peer button. */
@@ -85,7 +86,7 @@ public class InputBox extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JFrame("Input box");
+		frame = new JInternalFrame("Input box", false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		button = new JButton("Send");
 		message = new JLabel(titleDefer);
@@ -114,7 +115,6 @@ public class InputBox extends AdvanceBlock {
 			.addComponent(button)
 		);
 		frame.pack();
-		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
 		ActionListener sendAction = new ActionListener() {
@@ -126,6 +126,7 @@ public class InputBox extends AdvanceBlock {
 		};
 		button.addActionListener(sendAction);
 		text.addActionListener(sendAction);
+		BlockVisualizer.getInstance().add(frame);
 	}
 	/**
 	 * Send the contents of the text field.
@@ -159,6 +160,7 @@ public class InputBox extends AdvanceBlock {
 			public void run() {
 				if (frame != null) {
 					frame.dispose();
+					BlockVisualizer.getInstance().remove(frame);
 				}
 			}
 		});

@@ -153,7 +153,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	/** The last directory. */
 	protected File lastDirectory = new File(".");
 	/** The local key manager. */
-	protected LocalKeyManager localKeyManager = new LocalKeyManager();
+	protected LocalKeyManager localKeyManager;
 	/**
 	 * Returns a label for the given key.
 	 * @param key the key
@@ -349,6 +349,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	public CCMain(String workDir) {
 		super();
 		workingDirectory = new File(workDir);
+		localKeyManager = new LocalKeyManager();
 		if (!workingDirectory.exists()) {
 			if (!workingDirectory.mkdirs()) {
 				System.err.println("Working directory could not be created.");
@@ -3105,7 +3106,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		/** The keystores. */
 		protected Map<String, AdvanceKeyStore> keyStores = Maps.newHashMap();
 		/** The local keystores file. */
-		protected File keyStoreFile = new File(workingDirectory, "local-keystores.xml");
+		protected File keyStoreFile = new File(workingDirectory, "advance-ecc-keystores.xml");
 		@Override
 		public void setParent(Component c) {
 			this.parent = c;

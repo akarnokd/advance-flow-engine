@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.SwingUtilities;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
@@ -45,7 +46,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 public class Button extends AdvanceBlock {
 	/** The peer frame. */
-	protected JFrame frame;
+	protected JInternalFrame frame;
 	/** The peer button. */
 	protected JButton button;
 	/**
@@ -73,7 +74,7 @@ public class Button extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JFrame("Button");
+		frame = new JInternalFrame("Button", false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		button = new JButton("Click me");
 		
@@ -92,7 +93,6 @@ public class Button extends AdvanceBlock {
 			.addComponent(button)
 		);
 		frame.pack();
-		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
 		button.addActionListener(new ActionListener() {
@@ -106,6 +106,7 @@ public class Button extends AdvanceBlock {
 				});
 			}
 		});
+		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
@@ -125,6 +126,7 @@ public class Button extends AdvanceBlock {
 			public void run() {
 				if (frame != null) {
 					frame.dispose();
+					BlockVisualizer.getInstance().remove(frame);
 				}
 			}
 		});

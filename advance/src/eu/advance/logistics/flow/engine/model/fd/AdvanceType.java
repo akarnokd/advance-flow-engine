@@ -24,6 +24,7 @@ package eu.advance.logistics.flow.engine.model.fd;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.collect.Lists;
 
@@ -36,6 +37,10 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
  * @author akarnokd, 2011.07.01.
  */
 public class AdvanceType implements XSerializable {
+	/** The simple counter. */
+	private static final AtomicInteger GIDS = new AtomicInteger();
+	/** The type global id, for debugging purposes. */
+	private final int id = GIDS.incrementAndGet();
 	/** Reference to another type parameter within the same set of declarations. */
 	public String typeVariableName;
 	/** The actual type variable object. */
@@ -65,7 +70,7 @@ public class AdvanceType implements XSerializable {
 			b.append(">");
 			return b.toString();
 		}
-		return typeVariableName;
+		return String.format("%s[%d]", typeVariableName, id);
 		
 	}
 	/** @return create a new instance of this type declaration. */
