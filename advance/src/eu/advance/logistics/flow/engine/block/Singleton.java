@@ -36,10 +36,12 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author akarnokd, 2011.11.04.
  *
  */
-@Block(parameters={"T"})
+@Block(scheduler = "NOW", parameters = { "T" })
 public class Singleton extends AdvanceBlock {
+	/** In. */
     @Input("?T")
     private static final String IN = "in";
+    /** Out. */
     @Output("advance:collection<?T>")
     private static final String OUT = "out";
 	/**

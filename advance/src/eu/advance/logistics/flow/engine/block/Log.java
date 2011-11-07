@@ -66,10 +66,12 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Displays a timestamped list of values it receives.
  * @author akarnokd, 2011.10.27.
  */
-@Block(scheduler="IO", parameters={"T"})
+@Block(parameters = { "T" })
 public class Log extends AdvanceBlock {
+	/** In. */
     @Input("?T")
     private static final String IN = "in";
+    /** Out. */
     @Output("?T")
     private static final String OUT = "out";
     

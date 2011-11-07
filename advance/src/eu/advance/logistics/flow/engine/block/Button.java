@@ -47,10 +47,12 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A block which displays a single frame with a single titled button.
  * @author akarnokd, 2011.10.27.
  */
-@Block(scheduler="IO")
+@Block
 public class Button extends AdvanceBlock {
+	/** The title attribute. */
     @Input("advance:string")
     private static final String TITLE = "title";
+    /** The object attribute. */
     @Output("advance:object")
     private static final String OUT = "out";
     

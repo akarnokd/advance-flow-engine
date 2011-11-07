@@ -51,12 +51,15 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A block which sends one single message it has accumulated..
  * @author akarnokd, 2011.10.27.
  */
-@Block(scheduler="IO", parameters={"T"})
+@Block(parameters = { "T" })
 public class Gate extends AdvanceBlock {
+	/** In. */
     @Input("?T")
     private static final String IN = "in";
+    /** Title. */
     @Input("advance:string")
     private static final String TITLE = "title";
+    /** Out. */
     @Output("?T")
     private static final String OUT = "out";
     

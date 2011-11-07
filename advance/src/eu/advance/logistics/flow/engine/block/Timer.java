@@ -42,12 +42,15 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Represents a Timer which periodically relays the last value of its {@code in} parameter.
  * @author akarnokd, 2011.10.27.
  */
-@Block(scheduler="IO", parameters={"T"})
+@Block(parameters = { "T" }, description = "Periodically emits the last value received on its 'in' parameter.")
 public class Timer extends AdvanceBlock {
+	/** Delay. */
     @Input("advance:integer")
     private static final String DELAY = "delay";
+    /** In. */
     @Input("?T")
     private static final String IN = "in";
+    /** Out. */
     @Output("?T")
     private static final String OUT = "out";
     

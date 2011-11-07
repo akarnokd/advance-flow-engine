@@ -108,6 +108,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.api.Identifiable;
 import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
+import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.cc.CCFiltering.FilterItem;
 import eu.advance.logistics.flow.engine.cc.CCFiltering.FilterOp;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
@@ -522,9 +523,9 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		locateMenu("Flow").addSeparator();
 		menusToEnable.put(addItem(fromMethod(this, "doVerifyFlow"), "Flow", "Verify..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doDebugFlow"), "Flow", "Debug..."), AdvanceUserRights.LIST_REALMS);
-		menusToEnable.put(addItem(fromMethod(this, "doLastCompilationResult"), "Flow", "Last compilation result..."), AdvanceUserRights.LIST_REALMS);
+		menusToEnable.put(addItem(fromMethod(this, "displayLastCompilationResult"), "Flow", "Last compilation result..."), AdvanceUserRights.LIST_REALMS);
 
-		menusToEnable.put(addItem(fromMethod(this, "doManageRealms"), "Administration", "Manage realms..."), AdvanceUserRights.LIST_REALMS);
+		menusToEnable.put(addItem(fromMethod(this, "displayManageRealms"), "Administration", "Manage realms..."), AdvanceUserRights.LIST_REALMS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageUsers"), "Administration", "Manage users..."), AdvanceUserRights.LIST_USERS);
 		menusToEnable.put(addItem(fromMethod(this, "doManageNotificationGroups"), "Administration", "Manage notification groups..."), AdvanceUserRights.LIST_NOTIFICATION_GROUPS);
 		menusToEnable.put(addItem(fromMethod(this, "doListBlocks"), "Administration", "List blocks..."), AdvanceUserRights.LIST_BLOCKS);
@@ -824,7 +825,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	/**
 	 * Do manage realms.
 	 */
-	void doManageRealms() {
+	public void displayManageRealms() {
 		final CCListingFrame<AdvanceRealm> f = new CCListingFrame<AdvanceRealm>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Created", String.class, "Modified", String.class, "Status", String.class));
 		f.setCellValueFunction(new Func2<AdvanceRealm, Integer, Object>() {
@@ -3436,7 +3437,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		doDisplayEngineDialog(false);
 	}
 	/** Show the results of the last compilation. */
-	void doLastCompilationResult() {
+	public void displayLastCompilationResult() {
 		final CCListingFrame<AdvanceRealm> f = new CCListingFrame<AdvanceRealm>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Created", String.class, "Modified", String.class, "Status", String.class));
 		f.setCellValueFunction(new Func2<AdvanceRealm, Integer, Object>() {
@@ -3696,5 +3697,41 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			}
 		}).execute();
+	}
+	/**
+	 * Create the the control center GUI frame but don't show it.
+	 * @param workdir the working directory
+	 * @return the GUI frame ready to be displayed
+	 */
+	public static CCMain create(String workdir) {
+		return new CCMain(workdir);
+		
+	}
+	/**
+	 * Create the control center and use the supplied engine controls.
+	 * @param workdir the working directory
+	 * @param e the engine control to use
+	 * @param url the engine URL
+	 * @return the GUI frame ready to be displayed
+	 */
+	public static CCMain create(String workdir, AdvanceEngineControl e, URL url) {
+		CCMain m = create(workdir);
+		m.engine = e;
+		m.engineURL = url;
+		m.localEngine = e instanceof LocalEngineControl;
+		try {
+			m.version = m.engine.queryVersion();
+			m.user = m.engine.getUser();
+			m.localEngine = false;
+			m.enableDisableMenus();
+		} catch (Exception ex) {
+			LOG.error(ex.toString(), ex);
+			GUIUtils.errorMessage(m, ex);
+		}
+
+		m.urlLabel.setText(m.engineURL.toString());
+		m.verLabel.setText(m.version.toString());
+		m.userLabel.setText(m.user.name + " <" + m.user.email + ">");
+		return m;
 	}
 }

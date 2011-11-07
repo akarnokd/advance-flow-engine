@@ -42,10 +42,14 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A simple generic block that reserves the children of the supplied advance:collection type object.
  * @author akarnokd, 2011.07.01.
  */
-@Block(description="Block to reverse the elements of the input collection.", parameters={"T"})
+@Block(scheduler = "NOW", 
+description = "Block to reverse the elements of the input collection.", 
+parameters = { "T" })
 public class Reverse extends AdvanceBlock {
+	/** In. */
     @Input("advance:collection<?T>")
     private static final String IN = "in";
+    /** Out. */
     @Output("advance:collection<?T>")
     private static final String OUT = "out";
 	
