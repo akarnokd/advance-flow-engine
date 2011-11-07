@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.block;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,7 +50,13 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Displays an input box which sends out strings as the user presses ENTER or the SEND button.
  * @author akarnokd, 2011.10.27.
  */
+@Block(scheduler="IO")
 public class InputBox extends AdvanceBlock {
+    @Input("advance:string")
+    private static final String TITLE = "title";
+    @Output("advance:string")
+    private static final String OUT = "out";
+
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	/** The text field. */
@@ -72,8 +81,8 @@ public class InputBox extends AdvanceBlock {
 	public void init(AdvanceBlockDescription desc,
 			Map<String, AdvanceConstantBlock> constantParams) {
 		super.init(desc, constantParams);
-		if (constantParams.containsKey("title")) {
-			titleDefer = constantParams.get("title").value.content;
+		if (constantParams.containsKey(TITLE)) {
+			titleDefer = constantParams.get(TITLE).value.content;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -138,13 +147,13 @@ public class InputBox extends AdvanceBlock {
 			public void run() {
 				XElement e = new XElement("string");
 				e.content = txt;
-				dispatchOutput(Collections.singletonMap("out", e));
+				dispatchOutput(Collections.singletonMap(OUT, e));
 			}
 		});
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		final String title = params.get("title").content;
+		final String title = params.get(TITLE).content;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

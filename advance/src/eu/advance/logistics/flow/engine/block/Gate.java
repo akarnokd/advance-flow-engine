@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.block;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,7 +51,15 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A block which sends one single message it has accumulated..
  * @author akarnokd, 2011.10.27.
  */
+@Block(scheduler="IO", parameters={"T"})
 public class Gate extends AdvanceBlock {
+    @Input("?T")
+    private static final String IN = "in";
+    @Input("advance:string")
+    private static final String TITLE = "title";
+    @Output("?T")
+    private static final String OUT = "out";
+    
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	/** The peer button. */
@@ -73,8 +84,8 @@ public class Gate extends AdvanceBlock {
 	public void init(AdvanceBlockDescription desc,
 			Map<String, AdvanceConstantBlock> constantParams) {
 		super.init(desc, constantParams);
-		if (constantParams.containsKey("title")) {
-			buttonTitleDefer = constantParams.get("title").value.content;
+		if (constantParams.containsKey(TITLE)) {
+			buttonTitleDefer = constantParams.get(TITLE).value.content;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -126,7 +137,7 @@ public class Gate extends AdvanceBlock {
 							}
 						});
 						if (e != null) {
-							dispatchOutput(Collections.singletonMap("out", e));
+							dispatchOutput(Collections.singletonMap(OUT, e));
 						}
 					}
 				});
@@ -136,8 +147,8 @@ public class Gate extends AdvanceBlock {
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		final String title = params.get("title").content;
-		messages.add(params.get("in"));
+		final String title = params.get(TITLE).content;
+		messages.add(params.get(IN));
 		final int size = messages.size();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
