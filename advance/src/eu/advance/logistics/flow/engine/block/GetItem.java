@@ -21,10 +21,7 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import java.util.Collections;
 import java.util.Map;
-
-import com.google.common.collect.Iterables;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
@@ -32,18 +29,24 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A simple generic block that extracts an item from an advance:collection type construct.
  * @author akarnokd, 2011.07.01.
  */
-@Block(description="Block to retrieve a specific item from the input collection.", parameters={"T"})
+@Block(scheduler = "NOW", 
+description = "Block to retrieve a specific item from the input collection.", 
+parameters = { "T" })
 public class GetItem extends AdvanceBlock {
+	/** In. */
     @Input("advance:collection<?T>")
     private static final String IN = "in";
+    /** Index. */
     @Input("advance:integer")
     private static final String INDEX = "index";
+    /** Out. */
     @Output("?T")
     private static final String OUT = "out";
 	
@@ -61,9 +64,11 @@ public class GetItem extends AdvanceBlock {
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
+		int index = XData.getInt(params.get(INDEX));
 		XElement in = params.get(IN);
-		int index = Integer.parseInt(params.get(INDEX).content);
-		dispatchOutput(Collections.singletonMap(OUT, Iterables.get(in.childrenWithName("item"), index)));
+		if (in.children().size() > index) {
+			dispatch(OUT, in.children().get(index));
+		}
 	}
 
 }

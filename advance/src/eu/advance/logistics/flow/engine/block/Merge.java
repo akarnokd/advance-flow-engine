@@ -45,12 +45,15 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A block that merges the incoming values of its parameters but without waiting for both of them.
  * @author akarnokd, 2011.07.01.
  */
-@Block(description="Block to merge two streams of the same type. This block does not wait for all of its inputs to be ready.", parameters={"T"})
+@Block(scheduler = "NOW", description = "Block to merge two streams of the same type. This block does not wait for all of its inputs to be ready.", parameters = { "T" })
 public class Merge extends AdvanceBlock {
+	/** 1. */
+    @Input(value = "?T", variable = true, required = false)
+    protected static final String IN1 = "1";
+    /** 2. */
     @Input("?T")
-    private static final String IN1 = "1";
-    @Input("?T")
-    private static final String IN2 = "2";
+    protected static final String IN2 = "2";
+    /** Out. */
     @Output("?T")
     private static final String OUT = "out";
 	

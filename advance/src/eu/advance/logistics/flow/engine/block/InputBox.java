@@ -50,10 +50,12 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Displays an input box which sends out strings as the user presses ENTER or the SEND button.
  * @author akarnokd, 2011.10.27.
  */
-@Block(scheduler="IO")
+@Block
 public class InputBox extends AdvanceBlock {
+	/** Title. */
     @Input("advance:string")
     private static final String TITLE = "title";
+    /** Out. */
     @Output("advance:string")
     private static final String OUT = "out";
 

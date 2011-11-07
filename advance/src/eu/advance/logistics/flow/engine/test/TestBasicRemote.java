@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine.test;
 
 import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.reactive4java.swing.DefaultEdtScheduler;
 
 import java.io.Closeable;
 import java.net.URL;
@@ -79,7 +81,7 @@ public final class TestBasicRemote {
 		System.out.println(result.success());
 
 		// start debugging a block
-		Closeable c = engine.debugBlock("realm", "blockId").register(new Observer<AdvanceBlockDiagnostic>() {
+		Closeable c = Reactive.observeOn(engine.debugBlock("realm", "blockId"), new DefaultEdtScheduler()).register(new Observer<AdvanceBlockDiagnostic>() {
 		   @Override public void next(AdvanceBlockDiagnostic value) {
 		       System.out.println(value.state);
 		    }
@@ -92,6 +94,7 @@ public final class TestBasicRemote {
 		Thread.sleep(1000);
 		// stop debugging a block
 		c.close();
+		
 	}
 
 }
