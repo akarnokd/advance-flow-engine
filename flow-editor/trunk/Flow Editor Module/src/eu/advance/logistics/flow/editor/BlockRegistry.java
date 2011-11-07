@@ -261,19 +261,24 @@ public class BlockRegistry {
      * @return the compilation result
      */
     public AdvanceCompilationResult verify(AdvanceCompositeBlock flow) {
-        if (localVerify == null) {
-            AdvanceLocalSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
+        try {
+            if (localVerify == null) {
+                AdvanceLocalSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
 
-            Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
+                Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
 
-            for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
-                   bm.put(e.id, e);
+                for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
+                       bm.put(e.id, e);
+                }
+
+                AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
+
+                localVerify = new AdvanceCompiler(sr, br, Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
             }
-
-            AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
-
-            localVerify = new AdvanceCompiler(sr, br, Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
+            return localVerify.verify(flow);
+        } catch (Throwable t) {
+            Exceptions.printStackTrace(t);
+            return new AdvanceCompilationResult();
         }
-        return localVerify.verify(flow);
     }
 }
