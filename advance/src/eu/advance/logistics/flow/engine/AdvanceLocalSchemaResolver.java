@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.model.fd.UnresolvableSchemaURIException;
-import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
@@ -72,7 +72,7 @@ public class AdvanceLocalSchemaResolver implements AdvanceSchemaResolver {
 		try {
 			BufferedInputStream bin = new BufferedInputStream(url.openStream());
 			try {
-				return SchemaParser.parse(XElement.parseXML(bin), new Func1<String, XElement>() {
+				return XSchema.parse(XElement.parseXML(bin), new Func1<String, XElement>() {
 					@Override
 					public XElement invoke(String param1) {
 						for (String base : schemas) {

@@ -74,7 +74,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
@@ -142,7 +142,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					}
 				}
 				AdvanceBlock ab = blockResolver.create(br.id, root, br.type);
-				
+				ab.setSchedulers(schedulers);
 				ab.init(bd, consts);
 				
 				flow.add(ab);
@@ -189,7 +189,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		try {
 			List<Observer<Void>> notifycations = Lists.newLinkedList();
 			for (AdvanceBlock ab : flow) {
-				notifycations.add(ab.run(schedulers.get(ab.schedulerPreference)));
+				notifycations.add(ab.run());
 			}
 			// notify
 			for (Observer<Void> n : notifycations) {
@@ -512,7 +512,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					} else 
 					if (t.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
 						for (Pair<XType, URI> xt : baseTypes) {
-							if (SchemaParser.compare(xt.first, t.type) == XRelation.EQUAL) {
+							if (XSchema.compare(xt.first, t.type) == XRelation.EQUAL) {
 								t.typeURI = xt.second;
 								break;
 							}

@@ -52,7 +52,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.xml.typesystem.SchemaParser;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 
 /**
@@ -207,7 +207,7 @@ public final class AdvanceTypeInference {
 					return;
 				} else
 				if (rel.left.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
-					XRelation xr = SchemaParser.compare(rel.left.type, rel.right.type);
+					XRelation xr = XSchema.compare(rel.left.type, rel.right.type);
 					if (xr != XRelation.EQUAL && xr != XRelation.EXTENDS) {
 						result.errors.add(new IncompatibleTypesError(rel.wire, rel.left, rel.right));
 						return;
@@ -237,7 +237,7 @@ public final class AdvanceTypeInference {
 					if (ct == null) {
 						result.wireTypes.put(wire, t);
 					} else {
-						if (SchemaParser.compare(t.type, ct.type) == XRelation.EXTENDS) {
+						if (XSchema.compare(t.type, ct.type) == XRelation.EXTENDS) {
 							result.wireTypes.put(wire, t);
 						}
 					}
@@ -269,7 +269,7 @@ public final class AdvanceTypeInference {
 				if (ct == null) {
 					result.wireTypes.put(wire, computedType);
 				} else {
-					if (SchemaParser.compare(computedType.type, ct.type) == XRelation.EXTENDS) {
+					if (XSchema.compare(computedType.type, ct.type) == XRelation.EXTENDS) {
 						result.wireTypes.put(wire, computedType);
 					}
 				}
@@ -324,7 +324,7 @@ public final class AdvanceTypeInference {
 		if (left.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE && right.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE) {
 			if (left.getKind() == AdvanceTypeKind.CONCRETE_TYPE && right.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
 				// the two concrete types are not related
-				XRelation xr = SchemaParser.compare(left.type, right.type);
+				XRelation xr = XSchema.compare(left.type, right.type);
 				if (xr != XRelation.EQUAL && xr != XRelation.EXTENDS) {
 					error.add(new IncompatibleTypesError(wire, left, right));
 					return false;
@@ -361,7 +361,7 @@ public final class AdvanceTypeInference {
 				return false;
 			}
 			// the two concrete types are not related
-			XRelation xr = SchemaParser.compare(left.type, right.type);
+			XRelation xr = XSchema.compare(left.type, right.type);
 			if (xr != XRelation.EQUAL && xr != XRelation.EXTENDS) {
 				error.add(new IncompatibleBaseTypesError(wire, left, right));
 				return false;
@@ -399,7 +399,7 @@ public final class AdvanceTypeInference {
 	 */
 	static AdvanceType intersection(AdvanceType t1, AdvanceType t2) {
 		AdvanceType t = new AdvanceType();
-		t.type = SchemaParser.intersection(t1.type, t2.type);
+		t.type = XSchema.intersection(t1.type, t2.type);
 		if (t.type == t1.type) {
 			t.typeURI = t1.typeURI;
 		} else
@@ -422,7 +422,7 @@ public final class AdvanceTypeInference {
 	 */
 	static AdvanceType union(AdvanceType t1, AdvanceType t2) {
 		AdvanceType t = new AdvanceType();
-		t.type = SchemaParser.union(t1.type, t2.type);
+		t.type = XSchema.union(t1.type, t2.type);
 		if (t.type != null) {
 			if (t.type == t1.type) {
 				t.typeURI = t1.typeURI;
