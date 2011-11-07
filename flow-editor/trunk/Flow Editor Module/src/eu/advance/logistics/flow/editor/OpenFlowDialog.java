@@ -20,8 +20,10 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileFilter;
+import java.util.List;
 import javax.swing.AbstractListModel;
 
 /**
@@ -110,10 +112,12 @@ public class OpenFlowDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
-        final File selected = getSelectedFile();
-        if (selected != null) {
+        List<File> selected = getSelectedFiles();
+        if (!selected.isEmpty()) {
             setVisible(false);
-            OpenFlowAction.open(selected);
+            for (File f : selected) {
+                OpenFlowAction.open(f);
+            }
         }
     }//GEN-LAST:event_openButtonActionPerformed
 
@@ -171,6 +175,17 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         } else {
             return ((FileModel) jList1.getModel()).getFileAt(index);
         }
+    }
+    /**
+     * Returns a list of the selected files.
+     * @return the list of files
+     */
+    private List<File> getSelectedFiles() {
+        List<File> result = Lists.newArrayList();
+        for (int idx : jList1.getSelectedIndices()) {
+            result.add(((FileModel) jList1.getModel()).getFileAt(idx));
+        }
+        return result;
     }
 
     private static File getWorkspaceDir() {
