@@ -24,6 +24,7 @@ import com.google.common.eventbus.Subscribe;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import java.awt.event.ActionEvent;
@@ -118,8 +119,20 @@ public final class UploadFlowAction extends AbstractAction {
                 AdvanceRealm realm = tableModel.getRealm(index);
                 boolean ok = false;
                 try {
+                    final String userName = engine.getUser().name;
                     Commons.fixRights(engine, realm, AdvanceUserRealmRights.WRITE);
-                    engine.updateFlow(realm.name, item.flow, engine.getUser().name);
+                    engine.updateFlow(realm.name, item.flow, userName);
+                    AdvanceRealm rm = engine.datastore().queryRealm(realm.name);
+                    if (rm.status == AdvanceRealmStatus.STOPPED || rm.status == AdvanceRealmStatus.RESUME) {
+                        String msg = MessageFormat.format("<html>{0}<br><br>Realm is not running. Do you want to start it?.</html>", realm.name);
+                        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.YES_NO_OPTION);
+                        nd.setTitle("Start realm");
+                        if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.YES_OPTION) {
+                            Commons.fixRights(engine, realm, AdvanceUserRealmRights.START);
+                            Commons.fixRights(engine, realm, AdvanceUserRealmRights.STOP);
+                            engine.startRealm(realm.name, userName);
+                        }
+                    }
                     ok = true;
                     dlg.dispose();
                 } catch (Exception ex) {

@@ -20,13 +20,18 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.cc.CCMain;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionID;
+import org.openide.util.Exceptions;
 
 /**
  * Opens the ECC program.
@@ -45,6 +50,26 @@ public final class ControlCenterAction implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         final String userHome = System.getProperty("user.home");
         final File workspace = new File(userHome, ".advance-flow-editor-ws");
-        eu.advance.logistics.flow.engine.cc.CCMain.main(new String[] { workspace.getAbsolutePath() });
+        
+        EngineController ec = EngineController.getInstance();
+        AdvanceEngineControl engine = ec.getEngine();
+        try {
+            CCMain cc = null;
+            if (engine != null) {
+                String u = ec.getEngineAddress();
+                URL url = null;
+                if (u.toLowerCase().startsWith("http://") || u.toLowerCase().startsWith("https://")) {
+                    url = new URL(u);
+                } else {
+                    url = new File (u).toURI().toURL();
+                }
+                cc = CCMain.create(workspace.getAbsolutePath(), engine, url);
+            } else {
+                cc = CCMain.create(workspace.getAbsolutePath());
+            }
+            cc.setVisible(true);
+        } catch (MalformedURLException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 }
