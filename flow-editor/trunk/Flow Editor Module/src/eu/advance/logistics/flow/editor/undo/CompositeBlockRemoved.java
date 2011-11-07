@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.editor.undo;
 
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
+import java.awt.Point;
 
 /**
  *
@@ -41,7 +43,10 @@ public class CompositeBlockRemoved extends UndoableEdit {
         if (redo) {
             parent.removeComposite(block);
         } else {
+            Point p = block.getLocation();
             parent.addComposite(block);
+            block.setLocation(p);
+            parent.getFlowDiagram().fire(FlowDescriptionChange.BLOCK_MOVED, block);
         }
     }
 

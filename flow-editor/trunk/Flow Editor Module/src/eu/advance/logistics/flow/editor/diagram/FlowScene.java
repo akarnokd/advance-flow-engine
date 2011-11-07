@@ -35,9 +35,12 @@ import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.editor.undo.BindRemoved;
 import eu.advance.logistics.flow.editor.undo.BlockRenamed;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Point;
@@ -47,6 +50,7 @@ import java.awt.event.KeyEvent;
 import java.util.EnumSet;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.AlignWithMoveDecorator;
@@ -271,6 +275,8 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                             new DeleteBlockAction(undoRedoSupport, flowDescription, node));
                 }
             }));
+            
+            
             return widget;
         }
         BlockWidget widget = new BlockWidget(this, scheme);
@@ -283,7 +289,14 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
 
             @Override
             public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
-                return createPopup(new DeleteBlockAction(undoRedoSupport, flowDescription, node));
+                JPopupMenu popup = createPopup(new DeleteBlockAction(undoRedoSupport, flowDescription, node));
+                if (node instanceof SimpleBlock) {
+                    popup.addSeparator();
+                    JMenuItem type = new JMenuItem("Type: " + ((SimpleBlock)node).description.id);
+                    type.setEnabled(false);
+                    popup.add(type);
+                }
+                return popup;
             }
         }));
 
@@ -393,7 +406,36 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                 @Override
                 public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
                     JPopupMenu menu = new JPopupMenu();
-                    menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin));
+                    
+                    AdvanceType at = pin.getDescription().type;
+
+                    String s = null;
+                    
+                    if (XData.BOOLEAN.equals(at.typeURI)) {
+                        s = "Boolean";
+                    } else
+                    if (XData.INTEGER.equals(at.typeURI)) {
+                        s = "Integer";
+                    } else
+                    if (XData.REAL.equals(at.typeURI)) {
+                        s = "Real";
+                    } else
+                    if (XData.STRING.equals(at.typeURI)) {
+                        s = "String";
+                    } else
+                    if (XData.TIMESTAMP.equals(at.typeURI)) {
+                        s = "Timestamp";
+                    }
+                    if (s != null) {
+                        menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, s, null));
+                    } else {
+                        menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Boolean", "advance:boolean"));
+                        menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Integer", "advance:integer"));
+                        menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Real", "advance:real"));
+                        menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "String", "advance:string"));
+                        menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Timestamp", "advance:timestamp"));
+                    }
+                    
                     return menu;
                 }
             }));
@@ -435,16 +477,20 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                     Object obj = findObject(widget);
                     if (obj instanceof BlockBind) {
                         BlockBind blockBind = (BlockBind) obj;
+                        /*
                         String msg = String.format(NbBundle.getBundle(FlowScene.class).getString("DELETE_BIND"),
                                 blockBind.source.getPath(), blockBind.destination.getPath());
                         NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
                                 msg, NotifyDescriptor.YES_NO_OPTION);
                         if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.YES_OPTION) {
+                         * 
+                         */
                             undoRedoSupport.start();
                             CompositeBlock parent = blockBind.getParent();
                             blockBind.destroy();
                             undoRedoSupport.commit(new BindRemoved(parent, blockBind));
-                        }
+                            /*
+                        }*/
                         return State.CONSUMED;
                     }
                 }

@@ -22,6 +22,8 @@ package eu.advance.logistics.flow.editor.undo;
 
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
+import java.awt.Point;
 
 /**
  *
@@ -42,7 +44,10 @@ public class ConstantBlockRemoved extends UndoableEdit {
         if (redo) {
             parent.removeConstant(block);
         } else {
+            Point p = block.getLocation();
             parent.addConstant(block);
+            block.setLocation(p);
+            parent.getFlowDiagram().fire(FlowDescriptionChange.BLOCK_MOVED, block);
         }
     }
 
