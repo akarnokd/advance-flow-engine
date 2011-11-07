@@ -193,7 +193,7 @@ public final class EditorTopComponent extends TopComponent {
         } else {
             b.append(": ").append(type);
         }
-        boolean error = false;
+        boolean error = type == null;
         for (AdvanceCompilationError e : cr.errors) {
             if (e instanceof HasBinding) {
                 HasBinding hb = (HasBinding)e;

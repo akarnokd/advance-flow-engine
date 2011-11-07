@@ -34,6 +34,8 @@ import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -60,71 +62,27 @@ public class ConstAddAction extends AbstractAction {
     private CompositeBlock parent;
     private BlockParameter target;
     private Point location;
+    /** To override the target's URI if non-null. */
+    private String constantURI;
 
-    public ConstAddAction(UndoRedoSupport urs, FlowScene scene, CompositeBlock parent, BlockParameter target) {
+    public ConstAddAction(UndoRedoSupport urs, FlowScene scene, CompositeBlock parent, BlockParameter target, 
+            String constantName, String constantURI) {
         this.undoRedoSupport = urs;
         this.scene = scene;
         this.parent = parent;
         this.target = target;
-        putValue(NAME, NbBundle.getBundle(ConstAddAction.class).getString("ADD_CONSTANT"));
+        this.constantURI = constantURI;
+        
+        putValue(NAME, String.format(NbBundle.getBundle(ConstAddAction.class).getString("ADD_CONSTANT"), constantName));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        AdvanceBlockParameterDescription d = target.getDescription();
-        if (d.type.getKind() != AdvanceTypeKind.CONCRETE_TYPE) {
-            final JPopupMenu popup = new JPopupMenu();
-               
-            addConstantItem(popup, "Boolean", "advance:boolean");
-            addConstantItem(popup, "Integer", "advance:integer");
-            addConstantItem(popup, "Real", "advance:real");
-            addConstantItem(popup, "String", "advance:string");
-            addConstantItem(popup, "Timestamp", "advance:timestamp");
-            
-            popup.addSeparator();
-            JMenuItem cancel = new JMenuItem("Cancel");
-            popup.add(cancel);
-            cancel.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    popup.setVisible(false);
-                }
-                
-            });
-            
-            Point pm = MouseInfo.getPointerInfo().getLocation();
-            
-            popup.show(null, pm.x, pm.y);
-            return;
-        }
         AdvanceConstantBlock c = getAdvanceConstantBlock();
         if (c == null) {
             return;
         }
         placeConstantBlock(c);
-    }
-    /**
-     * Add an item to the popup menu with the appropriate action.
-     * @param popup the popup menu
-     * @param title the entry title
-     * @param typeURI the type URI of the constant
-     */
-    void addConstantItem(final JPopupMenu popup, String title, final String typeURI) {
-        JMenuItem mi = new JMenuItem(title);
-        popup.add(mi);
-        mi.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                popup.setVisible(false);
-                AdvanceConstantBlock c = getAdvanceConstantBlock(typeURI);
-                if (c != null) {
-                    placeConstantBlock(c);
-                }
-            }
-            
-        });
     }
     void placeConstantBlock(AdvanceConstantBlock c) {
                 undoRedoSupport.start();
@@ -155,25 +113,6 @@ public class ConstAddAction extends AbstractAction {
 
         undoRedoSupport.commit(edit);
     }
-    /**
-     * Create a constant block with the given base type (e.g., advance:string).
-     * @param baseTypeURI the base type name
-     * @return the constant block or null if the user cancelled the editor box
-     */
-    private AdvanceConstantBlock getAdvanceConstantBlock(String baseTypeURI) {
-        AdvanceConstantBlock c = new AdvanceConstantBlock();
-        c.id = parent.generateConstantId();
-        try {
-            c.typeURI = new URI(baseTypeURI);
-        } catch (URISyntaxException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
-        c.value = new XElement(c.typeURI.getSchemeSpecificPart());
-        c.value.content = "";
-        c.value.content = EditSupport.edit(c.value.content, c.typeURI);
-        return c.value.content != null ? c : null;
-    }
     private AdvanceConstantBlock getAdvanceConstantBlock() {
         AdvanceConstantBlock c = new AdvanceConstantBlock();
         c.id = parent.generateConstantId();
@@ -183,7 +122,7 @@ public class ConstAddAction extends AbstractAction {
             c.type = d.type.type;
         } else {
             try {
-                c.typeURI = new URI("advance:string");
+                c.typeURI = new URI(constantURI);
             } catch (URISyntaxException ex) {
                 Exceptions.printStackTrace(ex);
             }
