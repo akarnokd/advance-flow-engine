@@ -29,6 +29,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.io.Closeables;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
@@ -39,7 +42,15 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Represents a Timer which periodically relays the last value of its {@code in} parameter.
  * @author akarnokd, 2011.10.27.
  */
+@Block(scheduler="IO", parameters={"T"})
 public class Timer extends AdvanceBlock {
+    @Input("advance:integer")
+    private static final String DELAY = "delay";
+    @Input("?T")
+    private static final String IN = "in";
+    @Output("?T")
+    private static final String OUT = "out";
+    
 	/** The scheduled repeating timer. */
 	protected Closeable timer;
 	/** The current interval. */
@@ -58,8 +69,8 @@ public class Timer extends AdvanceBlock {
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		final int delay = XData.getInt(params.get("delay"));
-		last.set(params.get("in"));
+		final int delay = XData.getInt(params.get(DELAY));
+		last.set(params.get(IN));
 		if (delay != interval) {
 			interval = delay;
 			startTimer();
@@ -75,7 +86,7 @@ public class Timer extends AdvanceBlock {
 			public void run() {
 				XElement e = last.get();
 				if (e != null) {
-					dispatchOutput(Collections.singletonMap("out", e));
+					dispatchOutput(Collections.singletonMap(OUT, e));
 				}
 			}
 		}, interval, interval, TimeUnit.MILLISECONDS);

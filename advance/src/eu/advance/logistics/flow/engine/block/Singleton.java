@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.block;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
@@ -33,7 +36,12 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author akarnokd, 2011.11.04.
  *
  */
+@Block(parameters={"T"})
 public class Singleton extends AdvanceBlock {
+    @Input("?T")
+    private static final String IN = "in";
+    @Output("advance:collection<?T>")
+    private static final String OUT = "out";
 	/**
 	 * Constructor.
 	 * @param id the block global id
@@ -47,7 +55,7 @@ public class Singleton extends AdvanceBlock {
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		dispatch("out", XData.createSingleton(params.get("in")));
+		dispatch(OUT, XData.createSingleton(params.get(IN)));
 	}
 
 }

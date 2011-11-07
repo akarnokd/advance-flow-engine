@@ -48,6 +48,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import com.google.common.collect.Lists;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.cc.CCDebugRow;
 import eu.advance.logistics.flow.engine.cc.CCValueDialog;
 import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
@@ -63,7 +66,13 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Displays a timestamped list of values it receives.
  * @author akarnokd, 2011.10.27.
  */
+@Block(scheduler="IO", parameters={"T"})
 public class Log extends AdvanceBlock {
+    @Input("?T")
+    private static final String IN = "in";
+    @Output("?T")
+    private static final String OUT = "out";
+    
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	/** The log entries. */
@@ -220,7 +229,7 @@ public class Log extends AdvanceBlock {
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		final XElement in = params.get("in");
+		final XElement in = params.get(IN);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -228,7 +237,7 @@ public class Log extends AdvanceBlock {
 				model.fireTableRowsInserted(rows.size() - 1, rows.size() - 1);
 			}
 		});
-		dispatchOutput(Collections.singletonMap("out", in));
+		dispatchOutput(Collections.singletonMap(OUT, in));
 	}
 	@Override
 	public void done() {

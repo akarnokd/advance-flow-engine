@@ -26,6 +26,9 @@ import java.util.Map;
 
 import com.google.common.collect.Iterables;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
@@ -35,7 +38,14 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A simple generic block that extracts an item from an advance:collection type construct.
  * @author akarnokd, 2011.07.01.
  */
+@Block(description="Block to retrieve a specific item from the input collection.", parameters={"T"})
 public class GetItem extends AdvanceBlock {
+    @Input("advance:collection<?T>")
+    private static final String IN = "in";
+    @Input("advance:integer")
+    private static final String INDEX = "index";
+    @Output("?T")
+    private static final String OUT = "out";
 	
 	/**
 	 * Constructor.
@@ -51,9 +61,9 @@ public class GetItem extends AdvanceBlock {
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		XElement in = params.get("in");
-		int index = Integer.parseInt(params.get("index").content);
-		dispatchOutput(Collections.singletonMap("out", Iterables.get(in.childrenWithName("item"), index)));
+		XElement in = params.get(IN);
+		int index = Integer.parseInt(params.get(INDEX).content);
+		dispatchOutput(Collections.singletonMap(OUT, Iterables.get(in.childrenWithName("item"), index)));
 	}
 
 }

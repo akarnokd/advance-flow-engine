@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.block;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.interactive.Interactive;
@@ -42,7 +45,14 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A block that merges the incoming values of its parameters but without waiting for both of them.
  * @author akarnokd, 2011.07.01.
  */
+@Block(description="Block to merge two streams of the same type. This block does not wait for all of its inputs to be ready.", parameters={"T"})
 public class Merge extends AdvanceBlock {
+    @Input("?T")
+    private static final String IN1 = "1";
+    @Input("?T")
+    private static final String IN2 = "2";
+    @Output("?T")
+    private static final String OUT = "out";
 	
 	/**
 	 * Constructor.
@@ -67,7 +77,7 @@ public class Merge extends AdvanceBlock {
 				Reactive.merge(reactivePorts), scheduler()).register(new InvokeObserver<XElement>() {
 			@Override
 			public void next(XElement value) {
-				dispatchOutput(Collections.singletonMap("out", value));
+				dispatchOutput(Collections.singletonMap(OUT, value));
 			}
 		}));
 		return dispatchConstants(scheduler());
@@ -94,7 +104,7 @@ public class Merge extends AdvanceBlock {
 								return ((AdvanceConstantPort)param1).value;
 							}
 						})) {
-							dispatchOutput(Collections.singletonMap("out", e));
+							dispatchOutput(Collections.singletonMap(OUT, e));
 						}
 					}
 				}));

@@ -30,6 +30,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
@@ -39,7 +42,12 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * A simple generic block that reserves the children of the supplied advance:collection type object.
  * @author akarnokd, 2011.07.01.
  */
+@Block(description="Block to reverse the elements of the input collection.", parameters={"T"})
 public class Reverse extends AdvanceBlock {
+    @Input("advance:collection<?T>")
+    private static final String IN = "in";
+    @Output("advance:collection<?T>")
+    private static final String OUT = "out";
 	
 	/**
 	 * Constructor.
@@ -54,7 +62,7 @@ public class Reverse extends AdvanceBlock {
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		XElement in = params.get("in");
+		XElement in = params.get(IN);
 		XElement out = in.copy();
 		// locate the place where the item begins
 		int idx = Iterables.indexOf(out, new Predicate<XElement>() {
@@ -74,7 +82,7 @@ public class Reverse extends AdvanceBlock {
 			// place them back starting from the original first
 			out.children().addAll(idx, list);
 		}
-		dispatchOutput(Collections.singletonMap("out", out));
+		dispatchOutput(Collections.singletonMap(OUT, out));
 	}
 
 }
