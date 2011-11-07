@@ -116,9 +116,9 @@ public final class VerifyFlowAction extends AbstractAction {
                             Commons.getNotificationIcon(ok), text, null);
                     StatusDisplayer.getDefault().setStatusText(text);
                     
-                    if (!result.success()) {
-                        showResultDialog(result);
-                    }
+//                    if (!result.success()) {
+//                        showResultDialog(result);
+//                    }
                 }
             } catch (ExecutionException ex) {
                 Exceptions.printStackTrace(ex.getCause());
