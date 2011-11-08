@@ -82,40 +82,42 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
         		// load existing declarations
         		StringBuilder b = new StringBuilder();
         		brx = filer.getResource(StandardLocation.SOURCE_OUTPUT, "", "block-registry.xml");
-        		Reader r = brx.openReader(true);
-        		try {
-	        		char[] buffer = new char[8192];
-	        		while (true) {
-	        			int read = r.read(buffer);
-	        			if (read > 0) {
-	        				b.append(buffer, 0, read);
-	        			} else
-	        			if (read < 0) {
-	        				break;
-	        			}
-	        		}
-        		} finally {
-        			r.close();
-        		}
-        		// parse out the declarations
-        		String bs = b.toString();
-        		int idx = 0;
-        		while (true) {
-        			int blockEntryStart = bs.indexOf("<block-description ", idx);
-        			if (blockEntryStart < 0) {
-        				break;
-        			}
-        			int blockEntryEnd = bs.indexOf("</block-description>", blockEntryStart);
-        			int blockCommentStart = bs.lastIndexOf("<!--", blockEntryStart);
-        			
-        			int blockClassStart = bs.indexOf("class=\"", blockEntryStart);
-        			int blockClassEnd = bs.indexOf("\"", blockClassStart + 8);
-        			
-        			String className = bs.substring(blockClassStart + 7, blockClassEnd);
-        			String body = bs.substring(blockCommentStart, blockEntryEnd + 20);
-        			declarations.put(className, body);
-        			idx = blockEntryEnd + 20;
-        		}
+                        if (brx.getLastModified() > 0) {
+                            Reader r = brx.openReader(true);
+                            try {
+                                    char[] buffer = new char[8192];
+                                    while (true) {
+                                            int read = r.read(buffer);
+                                            if (read > 0) {
+                                                    b.append(buffer, 0, read);
+                                            } else
+                                            if (read < 0) {
+                                                    break;
+                                            }
+                                    }
+                            } finally {
+                                    r.close();
+                            }
+                            // parse out the declarations
+                            String bs = b.toString();
+                            int idx = 0;
+                            while (true) {
+                                    int blockEntryStart = bs.indexOf("<block-description ", idx);
+                                    if (blockEntryStart < 0) {
+                                            break;
+                                    }
+                                    int blockEntryEnd = bs.indexOf("</block-description>", blockEntryStart);
+                                    int blockCommentStart = bs.lastIndexOf("<!--", blockEntryStart);
+
+                                    int blockClassStart = bs.indexOf("class=\"", blockEntryStart);
+                                    int blockClassEnd = bs.indexOf("\"", blockClassStart + 8);
+
+                                    String className = bs.substring(blockClassStart + 7, blockClassEnd);
+                                    String body = bs.substring(blockCommentStart, blockEntryEnd + 20);
+                                    declarations.put(className, body);
+                                    idx = blockEntryEnd + 20;
+                            }
+                        }
         		
         		
         	} catch (IOException ex) {
