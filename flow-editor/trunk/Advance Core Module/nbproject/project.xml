@@ -88,6 +88,16 @@
                 <package>eu.advance.logistics.flow.engine.api.ds</package>
                 <package>eu.advance.logistics.flow.engine.api.impl</package>
                 <package>eu.advance.logistics.flow.engine.block</package>
+                <package>eu.advance.logistics.flow.engine.block.aggregating</package>
+                <package>eu.advance.logistics.flow.engine.block.comm</package>
+                <package>eu.advance.logistics.flow.engine.block.db</package>
+                <package>eu.advance.logistics.flow.engine.block.file</package>
+                <package>eu.advance.logistics.flow.engine.block.filtering</package>
+                <package>eu.advance.logistics.flow.engine.block.projecting</package>
+                <package>eu.advance.logistics.flow.engine.block.streaming</package>
+                <package>eu.advance.logistics.flow.engine.block.structuring</package>
+                <package>eu.advance.logistics.flow.engine.block.util</package>
+                <package>eu.advance.logistics.flow.engine.block.web</package>
                 <package>eu.advance.logistics.flow.engine.cc</package>
                 <package>eu.advance.logistics.flow.engine.comm</package>
                 <package>eu.advance.logistics.flow.engine.error</package>

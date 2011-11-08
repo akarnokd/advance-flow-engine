@@ -30,6 +30,8 @@ import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.engine.error.HasBinding;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import java.awt.EventQueue;
@@ -255,7 +257,26 @@ class FlowSceneController implements FlowDescriptionListener {
                 Widget w = scene.findWidget(bind);
                 if (w instanceof BlockConnectionWidget) {
                     AdvanceType at = compilationResult.wireTypes.get(bind.id);
-                    ((BlockConnectionWidget) w).setError(at == null);
+                    
+                    // TODO move this into the compilation result class
+                    boolean error = false;
+                    for (AdvanceCompilationError e : compilationResult.errors) {
+                        if (e instanceof HasBinding) {
+                            HasBinding hb = (HasBinding) e;
+                            if (hb.binding().id.equals(bind.id)) {
+                                error = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (error) {
+                        ((BlockConnectionWidget) w).setError(true);
+                    } else
+                    if (at == null) {
+                        ((BlockConnectionWidget) w).setWarning(true);
+                    } else {
+                        ((BlockConnectionWidget) w).setError(false);
+                    }
                 }
             }
         } else {

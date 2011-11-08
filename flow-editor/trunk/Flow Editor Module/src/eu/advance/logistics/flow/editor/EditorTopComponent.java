@@ -219,7 +219,8 @@ public final class EditorTopComponent extends TopComponent {
         } else {
             b.append(": ").append(type);
         }
-        boolean error = type == null;
+        // TODO move this into the compilation result class
+        boolean error = false;
         for (AdvanceCompilationError e : cr.errors) {
             if (e instanceof HasBinding) {
                 HasBinding hb = (HasBinding) e;
@@ -240,6 +241,9 @@ public final class EditorTopComponent extends TopComponent {
         info.setOpaque(true);
         if (error) {
             info.setBackground(new Color(0xFFCCCC));
+        } else 
+        if (type == null) {
+            info.setBackground(new Color(0xE6C040));
         } else {
             info.setBackground(new Color(0xACEB95));
         }

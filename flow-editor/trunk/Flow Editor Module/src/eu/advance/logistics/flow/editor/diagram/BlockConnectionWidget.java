@@ -32,7 +32,10 @@ import org.netbeans.api.visual.widget.Scene;
 class BlockConnectionWidget extends ConnectionWidget {
 
     private ColorScheme scheme;
+    /** Indicates an error state. */
     private boolean error;
+    /** Indicates a warning state. */
+    private boolean warning;
 
     /**
      * Creates a connection widget with a specific color scheme.
@@ -56,13 +59,20 @@ class BlockConnectionWidget extends ConnectionWidget {
     public void notifyStateChanged(ObjectState previousState, ObjectState state) {
         scheme.updateUI(this, previousState, state);
     }
-
+    public boolean isWarning() {
+        return warning;
+    }
     public boolean isError() {
         return error;
     }
-
+    public void setWarning(boolean warning) {
+        this.warning = warning;
+        this.error = false;
+        notifyStateChanged(getState(), getState());
+    }
     public void setError(boolean error) {
         this.error = error;
+        this.warning = false;
         notifyStateChanged(getState(), getState());
     }
     
