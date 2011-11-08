@@ -22,6 +22,7 @@ package eu.advance.logistics.annotations;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,6 +30,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -41,8 +45,6 @@ import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
-import com.google.common.collect.Sets;
-
 /**
  *
  * @author szmarcell
@@ -51,20 +53,26 @@ import com.google.common.collect.Sets;
 //@SupportedAnnotationTypes(value= {"*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class BlockDescriptionGenerator extends AbstractProcessor {
+	/** The filer to create sources. */
+	private Filer filer;
+	/** The messager to report errors. */
+	private Messager messager;
 	/** Default constructor. */
     public BlockDescriptionGenerator() {
     }
-    
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+    	super.init(processingEnv);
+    	filer = processingEnv.getFiler();
+    	messager = processingEnv.getMessager();
+    }
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.getElementsAnnotatedWith(Block.class).isEmpty()) {
             return true;
         }
         try {
-            FileObject f = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "", "block-registry.xml", (Element) null);
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
-                    "Opening " + f.toUri());
-            Writer w = f.openWriter();
+            StringWriter w = new StringWriter();
             try {
                 PrintWriter pw = new PrintWriter(w);
                 pw.println("<?xml version='1.0' encoding='UTF-8'?>");
@@ -72,7 +80,7 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
                 pw.println();
                 for (Element e : roundEnv.getElementsAnnotatedWith(Block.class)) {
                     if (e.getKind() != ElementKind.CLASS) {
-                        processingEnv.getMessager().printMessage(
+                        messager.printMessage(
                                 Diagnostic.Kind.WARNING,
                                 "Not a class", e);
                         continue;
@@ -85,7 +93,7 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
                         id = clazz.getSimpleName().toString();
                     }
                     pw.println(indent("<block-description class=\"" + clazz.getQualifiedName() + "\" id=\"" + id + "\" scheduler=\"" + block.scheduler() + "\">"));
-                    HashSet<String> parameters = Sets.newHashSet();
+                    HashSet<String> parameters = new HashSet<String>();
                     for (String parameter : block.parameters()) {
                         if (hasBounds(parameter)) {
                             String name = getParameterName(parameter);
@@ -134,8 +142,28 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
             } finally {
                 w.close();
             }
+            
+            FileObject f = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "block-registry.xml", new Element[0]);
+            messager.printMessage(Diagnostic.Kind.NOTE,
+                    "Opening " + f.toUri());
+            Writer fw = f.openWriter();
+            try {
+            	fw.write(w.toString());
+            } finally {
+            	fw.close();
+            }
+            f = filer.createResource(StandardLocation.CLASS_OUTPUT, "", "block-registry.xml", new Element[0]);
+            messager.printMessage(Diagnostic.Kind.NOTE,
+                    "Opening " + f.toUri());
+            fw = f.openWriter();
+            try {
+            	fw.write(w.toString());
+            } finally {
+            	fw.close();
+            }    
+            
         } catch (IOException x) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+            messager.printMessage(Diagnostic.Kind.ERROR,
                     x.toString());
         }
 
@@ -157,7 +185,7 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
      * @param name the name
      * @return the representation
      */
-    private String getNamedTypeRepresentation(String type, String tagName, @javax.annotation.Nullable String name) {
+    private String getNamedTypeRepresentation(String type, String tagName, String name) {
         String result = "<" + tagName + " " + (name == null ? "" : "id=\"" + name + "\" ");
         if (hasTypeParameters(type)) {
             result += "type=\"" + getRootType(type) + "\">\n";
