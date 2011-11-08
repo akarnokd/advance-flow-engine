@@ -21,9 +21,6 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.interactive.Interactive;
@@ -34,11 +31,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -59,15 +58,11 @@ public class Merge extends AdvanceBlock {
 	
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public Merge(String id, AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public Merge(AdvanceBlockSettings settings) {
+		super(settings);
 	}
-
 	
 	@Override
 	protected void invoke(Map<String, XElement> params) {

@@ -21,9 +21,6 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,18 +33,19 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.SwingUtilities;
 
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A block which displays a single frame with a single titled button.
  * @author akarnokd, 2011.10.27.
  */
-@Block
+@Block(category = "user-interface", description = "Displays a button which sends out an empty object.")
 public class Button extends AdvanceBlock {
 	/** The title attribute. */
     @Input("advance:string")
@@ -62,18 +60,14 @@ public class Button extends AdvanceBlock {
 	protected JButton button;
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public Button(String id, AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public Button(AdvanceBlockSettings settings) {
+		super(settings);
 	}
 	@Override
-	public void init(AdvanceBlockDescription desc,
-			Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(desc, constantParams);
+	public void init(Map<String, AdvanceConstantBlock> constantParams) {
+		super.init(constantParams);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

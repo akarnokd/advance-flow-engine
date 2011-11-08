@@ -21,9 +21,6 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,18 +37,19 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A block which sends one single message it has accumulated..
  * @author akarnokd, 2011.10.27.
  */
-@Block(parameters = { "T" })
+@Block(parameters = { "T" }, category = "user-interface", description = "Queues the incoming messages and relays them one-by-one if the user clicks on the button.")
 public class Gate extends AdvanceBlock {
 	/** In. */
     @Input("?T")
@@ -75,18 +73,14 @@ public class Gate extends AdvanceBlock {
 	protected final Queue<XElement> messages = new LinkedBlockingQueue<XElement>();
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public Gate(String id, AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public Gate(AdvanceBlockSettings settings) {
+		super(settings);
 	}
 	@Override
-	public void init(AdvanceBlockDescription desc,
-			Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(desc, constantParams);
+	public void init(Map<String, AdvanceConstantBlock> constantParams) {
+		super.init(constantParams);
 		if (constantParams.containsKey(TITLE)) {
 			buttonTitleDefer = constantParams.get(TITLE).value.content;
 		}

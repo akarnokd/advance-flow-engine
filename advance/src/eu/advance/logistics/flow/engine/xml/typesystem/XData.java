@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -189,24 +190,6 @@ public final class XData {
 	public static XElement create() {
 		return new XElement("object");
 	}
-	/**
-	 * Create a collection with only a single element as its item.
-	 * @param value the value
-	 * @return the collection
-	 */
-	public static XElement createSingleton(XElement value) {
-		XElement result = new XElement("collection");
-		XElement item = result.add("item");
-		XElement item2 = value.copy();
-		
-		item.attributes.putAll(item2.attributes);
-		for (XElement ce : item2) {
-			item.add(ce);
-		}
-		item.content = item2.content;
-		
-		return result;
-	}
 	/** An object. */
 	public static final URI OBJECT = uri("advance:object");
 	/** A boolean. */
@@ -233,5 +216,44 @@ public final class XData {
 			LOG.error(ex.toString(), ex);
 			throw new IllegalArgumentException(ex);
 		}
+	}
+	/**
+	 * Returns the indexth element from the advance:collection.
+	 * @param collection the collection
+	 * @param index the item index
+	 * @return the element
+	 */
+	public static XElement getItem(XElement collection, int index) {
+		return collection.children().get(index);
+	}
+	/**
+	 * Returns an iterable sequence of the items in an advance:collection.
+	 * @param collection the collection
+	 * @return the iterable sequence
+	 */
+	public static Iterable<XElement> getItems(XElement collection) {
+		return collection.children();
+	}
+	/**
+	 * Create an advance:collection from the supplied items.
+	 * @param items the sequence of items
+	 * @return the XElement
+	 */
+	public static XElement create(Iterable<XElement> items) {
+		XElement result = new XElement("collection");
+		
+		for (XElement e : items) {
+			result.add(e.copy());
+		}
+
+		return result;
+	}
+	/**
+	 * Create an advance:collection from the supplied XElement items.
+	 * @param items the array of items
+	 * @return the collection XElement
+	 */
+	public static XElement create(XElement... items) {
+		return create(Arrays.asList(items));
 	}
 }

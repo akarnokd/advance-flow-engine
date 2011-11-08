@@ -33,9 +33,8 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -44,7 +43,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  */
 @Block(scheduler = "NOW", 
 description = "Block to reverse the elements of the input collection.", 
-parameters = { "T" })
+parameters = { "T" }, category = "data-transformations")
 public class Reverse extends AdvanceBlock {
 	/** In. */
     @Input("advance:collection<?T>")
@@ -55,13 +54,10 @@ public class Reverse extends AdvanceBlock {
 	
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public Reverse(String id, AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public Reverse(AdvanceBlockSettings settings) {
+		super(settings);
 	}
 
 	@Override

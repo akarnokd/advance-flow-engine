@@ -26,9 +26,8 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -36,7 +35,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  *
  * @author szmarcell
  */
-@Block(description = "Block to calculate the running mean of incoming values.")
+@Block(description = "Block to calculate the running mean of incoming values.", category = "aggregation")
 public class Mean extends AdvanceBlock {
 	/** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Mean.class.getName());
@@ -46,16 +45,13 @@ public class Mean extends AdvanceBlock {
     /** Out. */
     @Output("advance:real")
     private static final String OUT = "out";
-    /**
-     * Initializes the block.
-     * @param id the block unique id
-     * @param parent the parent composite block
-     * @param schedulerPreference the preferred scheduler
-     */
-    public Mean(String id, AdvanceCompositeBlock parent, 
-    		AdvanceSchedulerPreference schedulerPreference) {
-        super(id, parent, schedulerPreference);
-    }
+	/**
+	 * Constructor.
+	 * @param settings the block settings
+	 */
+	public Mean(AdvanceBlockSettings settings) {
+		super(settings);
+	}
     /** The running count. */
     private int count;
     /** The running sum. */

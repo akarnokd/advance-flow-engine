@@ -28,34 +28,37 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Creates a collection with a single element.
+ * The block dispatches its single input into two outputs.
  * @author akarnokd, 2011.11.04.
  */
 @Block(scheduler = "NOW", parameters = { "T" }, 
-description = "Creates a collection with the supplied single element.",
-category = "data-transformations")
-public class Singleton extends AdvanceBlock {
+description = "Dispatches its single input into two separate outputs.",
+category = "data-transformations"
+)
+public class Dispatch extends AdvanceBlock {
 	/** In. */
     @Input("?T")
     private static final String IN = "in";
-    /** Out. */
-    @Output("advance:collection<?T>")
-    private static final String OUT = "out";
+    /** Out1. */
+    @Output("?T")
+    private static final String OUT1 = "out1";
+    /** Out1. */
+    @Output("?T")
+    private static final String OUT2 = "out2";
 	/**
 	 * Constructor.
 	 * @param settings the block settings
 	 */
-	public Singleton(AdvanceBlockSettings settings) {
+	public Dispatch(AdvanceBlockSettings settings) {
 		super(settings);
 	}
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		dispatch(OUT, XData.create(params.get(IN)));
+		dispatch(OUT1, params.get(IN), OUT2, params.get(IN));
 	}
 
 }

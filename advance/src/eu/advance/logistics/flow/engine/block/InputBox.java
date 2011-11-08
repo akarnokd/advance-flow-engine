@@ -21,9 +21,6 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,18 +36,19 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Displays an input box which sends out strings as the user presses ENTER or the SEND button.
  * @author akarnokd, 2011.10.27.
  */
-@Block
+@Block(category = "user-interface", description = "Displays a input box where the user can send strings.")
 public class InputBox extends AdvanceBlock {
 	/** Title. */
     @Input("advance:string")
@@ -71,18 +69,14 @@ public class InputBox extends AdvanceBlock {
 	protected String titleDefer = "Message:";
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public InputBox(String id, AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public InputBox(AdvanceBlockSettings settings) {
+		super(settings);
 	}
 	@Override
-	public void init(AdvanceBlockDescription desc,
-			Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(desc, constantParams);
+	public void init(Map<String, AdvanceConstantBlock> constantParams) {
+		super.init(constantParams);
 		if (constantParams.containsKey(TITLE)) {
 			titleDefer = constantParams.get(TITLE).value.content;
 		}

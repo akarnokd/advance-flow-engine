@@ -26,9 +26,8 @@ import java.util.Map;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -52,14 +51,10 @@ public class GetItem extends AdvanceBlock {
 	
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param name the block's type name
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public GetItem(String id, AdvanceCompositeBlock parent, String name,
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public GetItem(AdvanceBlockSettings settings) {
+		super(settings);
 	}
 
 	@Override
@@ -67,7 +62,7 @@ public class GetItem extends AdvanceBlock {
 		int index = XData.getInt(params.get(INDEX));
 		XElement in = params.get(IN);
 		if (in.children().size() > index) {
-			dispatch(OUT, in.children().get(index));
+			dispatch(OUT, XData.getItem(in, index));
 		}
 	}
 

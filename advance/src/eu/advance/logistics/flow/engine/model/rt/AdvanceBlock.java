@@ -56,50 +56,32 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 public abstract class AdvanceBlock {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlock.class);
-	/** The global identifier of this block. */ 
-	public final String id;
 	/** The input ports. */
 	public final List<AdvancePort> inputs;
 	/** The output ports. */
 	public final List<AdvanceBlockPort> outputs;
-	/** The parent composite block. */
-	public final AdvanceCompositeBlock parent;
-	/** The original description of this block. */
-	protected AdvanceBlockDescription description;
 	/** The block diagnostic observable. */
 	protected DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
 	/** List of functions to close when the block is terminated via done(). */
 	protected final List<Closeable> functionClose;
-	/** The preferred scheduler type. Filled in by the AdvanceBlockLookup.create(). */
-	public final AdvanceSchedulerPreference schedulerPreference;
-	/** The available schedulers. */
-	private Map<AdvanceSchedulerPreference, Scheduler> schedulers;
+	/** The block execution context. */
+	protected final AdvanceBlockSettings settings;
 	/**
-	 * Constructor.  
-	 * @param id The global identifier of this block. 
-	 * @param parent the parent composite block.
-	 * @param schedulerPreference the scheduler preference
+	 * Constructor.
+	 * @param settings the block initialization settings
 	 */
-	public AdvanceBlock(String id, 
-			AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		this.id = id;
-		this.parent = parent;
-		this.schedulerPreference = schedulerPreference;
+	public AdvanceBlock(AdvanceBlockSettings settings) {
+		this.settings = settings;
 		this.inputs = Lists.newArrayList();
 		this.outputs = Lists.newArrayList();
 		this.functionClose = Collections.synchronizedList(Lists.<Closeable>newArrayList());
 	}
 	/** 
-	 * Initialize the block with the given definition and body function.
-	 * @param desc the description of the block
+	 * Initialize the block input and output ports, prepare the diagnostic ports.
 	 * @param constantParams the map of those parameters who have a constant input instead of other output ports
 	 */
-	public void init(
-			AdvanceBlockDescription desc, 
-			final Map<String, AdvanceConstantBlock> constantParams) {
-		this.description = desc;
-		for (AdvanceBlockParameterDescription in : desc.inputs.values()) {
+	public void init(final Map<String, AdvanceConstantBlock> constantParams) {
+		for (AdvanceBlockParameterDescription in : description().inputs.values()) {
 			AdvanceConstantBlock cb = constantParams.get(in.id); 
 			if (cb == null) {
 				AdvanceBlockPort p = new AdvanceBlockPort(this, in.id);
@@ -111,7 +93,7 @@ public abstract class AdvanceBlock {
 				inputs.add(p);
 			}
 		}
-		for (AdvanceBlockParameterDescription out : desc.outputs.values()) {
+		for (AdvanceBlockParameterDescription out : description().outputs.values()) {
 			AdvanceBlockPort p = new AdvanceBlockPort(this, out.id);
 			p.init();
 			outputs.add(p);
@@ -180,12 +162,12 @@ public abstract class AdvanceBlock {
 		
 		@Override
 		public void error(Throwable ex) {
-			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(ex)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(ex)));
 		}
 
 		@Override
 		public void finish() {
-			LOG.info("Finish? " + description.id);
+			LOG.info("Finish? " + description().id);
 		}
 	}
 	/** 
@@ -200,12 +182,12 @@ public abstract class AdvanceBlock {
 
 		@Override
 		public void error(Throwable ex) {
-			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(ex)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(ex)));
 		}
 
 		@Override
 		public void finish() {
-			LOG.info("Finish? " + description.id);
+			LOG.info("Finish? " + description().id);
 		}
 	}
 	/**
@@ -234,7 +216,7 @@ public abstract class AdvanceBlock {
 	 * @param scheduler the scheduler
 	 */
 	void invokeBody(List<XElement> value, Scheduler scheduler) {
-		diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.some(AdvanceBlockState.START)));
+		diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.START)));
 		try {
 			// prepare input parameters
 			Map<String, XElement> funcIn = Maps.newHashMap();
@@ -251,7 +233,7 @@ public abstract class AdvanceBlock {
 			invoke(funcIn);
 			
 		} catch (Throwable t) {
-			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(t)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(t)));
 		}
 	}
 	/**
@@ -297,8 +279,8 @@ public abstract class AdvanceBlock {
 		boolean valid = true;
 		for (int i = 0; i < outputs.size(); i++) {
 			if (!funcOut.containsKey(outputs.get(i).name)) {
-				diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
-				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
+				diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
+				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description().id);
 				valid = false;
 			}
 		}
@@ -309,7 +291,7 @@ public abstract class AdvanceBlock {
 					p.next(xe);
 				}
 			}						
-			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.some(AdvanceBlockState.FINISH)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.FINISH)));
 		}
 
 	}
@@ -321,8 +303,8 @@ public abstract class AdvanceBlock {
 		boolean valid = true;
 		for (int i = 0; i < outputs.size(); i++) {
 			if (!funcOut.containsKey(outputs.get(i).name)) {
-				diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
-				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description.id);
+				diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
+				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description().id);
 				valid = false;
 			}
 		}
@@ -331,7 +313,7 @@ public abstract class AdvanceBlock {
 				AdvanceBlockPort p = outputs.get(i);
 				p.next(funcOut.get(p.name));
 			}						
-			diagnostic.next(new AdvanceBlockDiagnostic("", description.id, Option.some(AdvanceBlockState.FINISH)));
+			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.FINISH)));
 		}
 
 	}
@@ -358,8 +340,8 @@ public abstract class AdvanceBlock {
 		diagnostic.finish();
 	}
 	/** @return the block's description. */
-	public AdvanceBlockDescription getDescription() {
-		return description;
+	public AdvanceBlockDescription description() {
+		return settings.description;
 	}
 	/**
 	 * @return the diagnostic port for watch the invocation of the body function
@@ -402,7 +384,7 @@ public abstract class AdvanceBlock {
 	 * @return the scheduler
 	 */
 	public Scheduler scheduler() {
-		return schedulers.get(schedulerPreference);
+		return scheduler(settings.preferredScheduler());
 	}
 	/**
 	 * Get a specific scheduler.
@@ -410,16 +392,20 @@ public abstract class AdvanceBlock {
 	 * @return the scheduler
 	 */
 	public Scheduler scheduler(@NonNull AdvanceSchedulerPreference preference) {
-		return schedulers.get(preference);
+		return settings.schedulers.get(preference);
 	}
 	/**
-	 * Set the scheduler map.
-	 * @param newSchedulers the scheduler map
+	 * The block unique identifier.
+	 * @return the unique identifier
 	 */
-	public void setSchedulers(@NonNull Map<AdvanceSchedulerPreference, Scheduler> newSchedulers) {
-		if (newSchedulers == null) {
-			throw new IllegalArgumentException("newSchedulers is null");
-		}
-		this.schedulers = newSchedulers;
+	public String id() {
+		return settings.id;
+	}
+	/**
+	 * The parent composite block.
+	 * @return the parent composite block
+	 */
+	public AdvanceCompositeBlock parent() {
+		return settings.parent;
 	}
 }

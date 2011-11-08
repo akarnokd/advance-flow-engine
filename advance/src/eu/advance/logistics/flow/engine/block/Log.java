@@ -55,18 +55,18 @@ import eu.advance.logistics.flow.engine.cc.CCDebugRow;
 import eu.advance.logistics.flow.engine.cc.CCValueDialog;
 import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
 import eu.advance.logistics.flow.engine.cc.LabelManager;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Displays a timestamped list of values it receives.
  * @author akarnokd, 2011.10.27.
  */
-@Block(parameters = { "T" })
+@Block(parameters = { "T" }, 
+description = "Displays a table with timestamps and the received data.",
+category = "user-interface")
 public class Log extends AdvanceBlock {
 	/** In. */
     @Input("?T")
@@ -87,18 +87,14 @@ public class Log extends AdvanceBlock {
 	protected JLabel rowcount;
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public Log(String id, AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public Log(AdvanceBlockSettings settings) {
+		super(settings);
 	}
 	@Override
-	public void init(AdvanceBlockDescription desc,
-			Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(desc, constantParams);
+	public void init(Map<String, AdvanceConstantBlock> constantParams) {
+		super.init(constantParams);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
