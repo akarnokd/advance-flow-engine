@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2013 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -193,7 +193,7 @@ public final class BuildJarRelease {
 				String path = dir.getAbsolutePath().replace("\\", "/");
 				return path.contains("eu/advance/logistics/flow/engine") 
 						&& !name.contains("BuildJarRelease")
-						&& !path.contains("eu/advance/logistics/flow/engine/test")
+//						&& !path.contains("eu/advance/logistics/flow/engine/test")
 						;
 			}
 		});
@@ -204,7 +204,7 @@ public final class BuildJarRelease {
 				return name.endsWith(".java") 
 						&& path.contains("eu/advance/logistics/flow/engine") 
 						&& !name.contains("BuildJarRelease")
-						&& !path.contains("eu/advance/logistics/flow/engine/test")
+//						&& !path.contains("eu/advance/logistics/flow/engine/test")
 						;
 			}
 		});

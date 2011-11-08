@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2013 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -42,6 +42,7 @@ import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
 import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
 import eu.advance.logistics.flow.engine.AdvanceSchemaResolver;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
@@ -50,9 +51,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -180,11 +179,10 @@ public final class BasicLocalEngine {
 		}
 	}
 	/**
-	 * Verify the flow locally.
-	 * @param flow the composite flow
-	 * @return the compilation result
+	 * Creates a compiler with the locally available block registry and schemas.
+	 * @return the compiler
 	 */
-	public static AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow) {
+	public static AdvanceFlowCompiler createCompiler() {
 		
 		AdvanceSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
 
@@ -202,6 +200,6 @@ public final class BasicLocalEngine {
 		compilerSettings.schedulers = Maps.newHashMap();
 		AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
 
-		return compiler.verify(flow);
+		return compiler;
 	}
 }
