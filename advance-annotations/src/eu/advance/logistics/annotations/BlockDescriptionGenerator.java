@@ -22,10 +22,13 @@ package eu.advance.logistics.annotations;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -72,83 +75,150 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
             return true;
         }
         try {
-            StringWriter w = new StringWriter();
-            try {
-                PrintWriter pw = new PrintWriter(w);
-                pw.println("<?xml version='1.0' encoding='UTF-8'?>");
-                pw.println("<block-registry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"block-registry.xsd\">");
-                pw.println();
-                for (Element e : roundEnv.getElementsAnnotatedWith(Block.class)) {
-                    if (e.getKind() != ElementKind.CLASS) {
-                        messager.printMessage(
-                                Diagnostic.Kind.WARNING,
-                                "Not a class", e);
-                        continue;
-                    }
-                    TypeElement clazz = (TypeElement) e;
-                    Block block = e.getAnnotation(Block.class);
-                    pw.println(indent("<!-- " + block.description() + " -->"));
-                    String id = block.id();
-                    if (id.isEmpty()) {
-                        id = clazz.getSimpleName().toString();
-                    }
-                    pw.println(indent("<block-description class=\"" + clazz.getQualifiedName() + "\" id=\"" + id + "\" scheduler=\"" + block.scheduler() + "\">"));
-                    HashSet<String> parameters = new HashSet<String>();
-                    for (String parameter : block.parameters()) {
-                        if (hasBounds(parameter)) {
-                            String name = getParameterName(parameter);
-                            parameters.add(name);
-                            pw.println(indent("<type-variable name=\"" + name + "\">", 2));
-                            for (String bound : getBounds(parameter)) {
-                                String type;
-                                if (bound.startsWith("-")) {
-                                    type = getTypeRepresentation(bound.substring(1), "lower-bound");
-                                } else if (bound.startsWith("+")) {
-                                    type = getTypeRepresentation(bound.substring(1), "upper-bound");
-                                } else {
-                                    type = getTypeRepresentation(bound, "upper-bound");
-                                }
-                                pw.println(indent(type, 3));
-                            }
-                            pw.println(indent("</type-variable>", 2));
-                        } else {
-                            String name = parameter;
-                            parameters.add(name);
-                            pw.println(indent("<type-variable name=\"" + name + "\"/>", 2));
-                        }
-                    }
-                    for (Element enclosed : e.getEnclosedElements()) {
-                        if (enclosed.getKind() == ElementKind.FIELD) {
-                            VariableElement field = (VariableElement) enclosed;
-                            Input input = field.getAnnotation(Input.class);
-                            if (input != null) {
-                                String name = (String) field.getConstantValue();
-                                String inputType = getNamedTypeRepresentation(input.value(), "input", name);
-                                pw.println(indent(inputType, 2));
-                            }
-                            Output output = field.getAnnotation(Output.class);
-                            if (output != null) {
-                                String name = (String) field.getConstantValue();
-                                String outputType = getNamedTypeRepresentation(output.value(), "output", name);
-                                pw.println(indent(outputType, 2));
-                            }
-                        }
-                    }
-                    pw.println(indent("</block-description>"));
-                    pw.println();
+        	Map<String, String> declarations = new LinkedHashMap<String, String>();
+        	// parse existing.
+        	FileObject brx = null;
+        	try {
+        		// load existing declarations
+        		StringBuilder b = new StringBuilder();
+        		brx = filer.getResource(StandardLocation.SOURCE_OUTPUT, "", "block-registry.xml");
+        		Reader r = brx.openReader(true);
+        		try {
+	        		char[] buffer = new char[8192];
+	        		while (true) {
+	        			int read = r.read(buffer);
+	        			if (read > 0) {
+	        				b.append(buffer, 0, read);
+	        			} else
+	        			if (read < 0) {
+	        				break;
+	        			}
+	        		}
+        		} finally {
+        			r.close();
+        		}
+        		// parse out the declarations
+        		String bs = b.toString();
+        		int idx = 0;
+        		while (true) {
+        			int blockEntryStart = bs.indexOf("<block-description ", idx);
+        			if (blockEntryStart < 0) {
+        				break;
+        			}
+        			int blockEntryEnd = bs.indexOf("</block-description>", blockEntryStart);
+        			int blockCommentStart = bs.lastIndexOf("<!--", blockEntryStart);
+        			
+        			int blockClassStart = bs.indexOf("class=\"", blockEntryStart);
+        			int blockClassEnd = bs.indexOf("\"", blockClassStart + 8);
+        			
+        			String className = bs.substring(blockClassStart + 7, blockClassEnd);
+        			String body = bs.substring(blockCommentStart, blockEntryEnd + 20);
+        			declarations.put(className, body);
+        			idx = blockEntryEnd + 20;
+        		}
+        		
+        		
+        	} catch (IOException ex) {
+        		
+        	}
+            for (Element e : roundEnv.getElementsAnnotatedWith(Block.class)) {
+                if (e.getKind() != ElementKind.CLASS) {
+                    messager.printMessage(
+                            Diagnostic.Kind.WARNING,
+                            "Not a class", e);
+                    continue;
                 }
-                pw.println("</block-registry>");
+                
+                StringWriter w = new StringWriter();
+                PrintWriter pw = new PrintWriter(w);
+                
+                TypeElement clazz = (TypeElement) e;
+                Block block = e.getAnnotation(Block.class);
+                pw.println("<!-- " + block.description() + " -->");
+                String id = block.id();
+                if (id.isEmpty()) {
+                    id = clazz.getSimpleName().toString();
+                }
+                pw.print(indent("<block-description class=\"" + clazz.getQualifiedName() + "\" id=\"" + 
+                id + "\" scheduler=\"" + block.scheduler() + "\""));
+                if (!block.documentation().isEmpty()) {
+                	pw.print(" documentation=\"" + block.documentation() + "\"");
+                }
+                if (!block.category().isEmpty()) {
+                	pw.print(" category=\"" + block.category() + "\"");
+                }
+                if (!block.keywords().isEmpty()) {
+                	pw.print(" keywords=\"" + block.keywords() + "\"");
+                }
+                pw.println(">");
+                HashSet<String> parameters = new HashSet<String>();
+                for (String parameter : block.parameters()) {
+                    if (hasBounds(parameter)) {
+                        String name = getParameterName(parameter);
+                        parameters.add(name);
+                        pw.println(indent("<type-variable name=\"" + name + "\">", 2));
+                        for (String bound : getBounds(parameter)) {
+                            String type;
+                            if (bound.startsWith("-")) {
+                                type = getTypeRepresentation(bound.substring(1), "lower-bound");
+                            } else if (bound.startsWith("+")) {
+                                type = getTypeRepresentation(bound.substring(1), "upper-bound");
+                            } else {
+                                type = getTypeRepresentation(bound, "upper-bound");
+                            }
+                            pw.println(indent(type, 3));
+                        }
+                        pw.println(indent("</type-variable>", 2));
+                    } else {
+                        String name = parameter;
+                        parameters.add(name);
+                        pw.println(indent("<type-variable name=\"" + name + "\"/>", 2));
+                    }
+                }
+                for (Element enclosed : e.getEnclosedElements()) {
+                    if (enclosed.getKind() == ElementKind.FIELD) {
+                        VariableElement field = (VariableElement) enclosed;
+                        Input input = field.getAnnotation(Input.class);
+                        if (input != null) {
+                            String name = (String) field.getConstantValue();
+                            String inputType = getNamedTypeRepresentation(input.value(), "input", name);
+                            pw.println(indent(inputType, 2));
+                        }
+                        Output output = field.getAnnotation(Output.class);
+                        if (output != null) {
+                            String name = (String) field.getConstantValue();
+                            String outputType = getNamedTypeRepresentation(output.value(), "output", name);
+                            pw.println(indent(outputType, 2));
+                        }
+                    }
+                }
+                pw.print(indent("</block-description>"));
                 pw.flush();
-            } finally {
-                w.close();
+                
+                declarations.put(clazz.getQualifiedName().toString(), w.toString());
             }
             
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            
+            pw.println("<?xml version='1.0' encoding='UTF-8'?>");
+            pw.println("<block-registry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"block-registry.xsd\">");
+            pw.println();
+            for (String e : declarations.values()) {
+            	pw.print(indent(""));
+            	pw.println(e);
+                pw.println();
+            }
+            pw.println("</block-registry>");
+            pw.flush();
+
+        
             FileObject f = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "block-registry.xml", new Element[0]);
             messager.printMessage(Diagnostic.Kind.NOTE,
                     "Opening " + f.toUri());
             Writer fw = f.openWriter();
             try {
-            	fw.write(w.toString());
+            	fw.write(sw.toString());
             } finally {
             	fw.close();
             }
@@ -157,7 +227,7 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
                     "Opening " + f.toUri());
             fw = f.openWriter();
             try {
-            	fw.write(w.toString());
+            	fw.write(sw.toString());
             } finally {
             	fw.close();
             }    

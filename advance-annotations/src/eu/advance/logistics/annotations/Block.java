@@ -35,6 +35,12 @@ public @interface Block {
     String scheduler() default "IO";
     /** The short textual description of the block. */
     String description() default "";
+    /** The block target category. */
+    String category() default "";
+    /** The block keywords. */
+    String keywords() default "";
+    /** The documentation URI. */
+    String documentation() default "";
     /**
      * Syntax:
      *      name ([+]upper_bound | -lower_bound)? (, ([+]upper_bound | -lower_bound))*
