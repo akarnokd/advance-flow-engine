@@ -25,6 +25,8 @@ import java.security.KeyStore;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.api.core.HasPassword;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 
 /**
  * The record holding authentication information for basic or certificate based HTTP(s) connection.

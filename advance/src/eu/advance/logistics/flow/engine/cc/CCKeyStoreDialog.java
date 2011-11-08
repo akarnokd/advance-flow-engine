@@ -63,10 +63,10 @@ import javax.swing.table.DefaultTableCellRenderer;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyEntry;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceGenerateKey;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyEntry;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
 
 /**
  * The keystore details dialog.

@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine;
 
-import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 

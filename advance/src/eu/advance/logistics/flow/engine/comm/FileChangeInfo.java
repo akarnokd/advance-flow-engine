@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
-import eu.advance.logistics.flow.engine.api.Copyable;
+import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 

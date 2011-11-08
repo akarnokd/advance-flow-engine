@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import eu.advance.logistics.flow.engine.api.Identifiable;
+import eu.advance.logistics.flow.engine.api.core.Identifiable;
 
 /**
  * Displays a combobox with items where the user can navigate via buttons.

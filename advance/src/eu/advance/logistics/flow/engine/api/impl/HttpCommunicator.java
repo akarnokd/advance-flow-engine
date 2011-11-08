@@ -54,8 +54,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;

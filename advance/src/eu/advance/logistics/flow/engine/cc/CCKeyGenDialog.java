@@ -42,7 +42,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceGenerateKey;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.util.DistinguishedName;
 
 /**

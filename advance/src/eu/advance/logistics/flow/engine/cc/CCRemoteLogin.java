@@ -75,11 +75,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteEngineControl;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;

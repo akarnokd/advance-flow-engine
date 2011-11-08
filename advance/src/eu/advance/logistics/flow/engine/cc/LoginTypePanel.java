@@ -38,7 +38,7 @@ import javax.swing.GroupLayout.Alignment;
 import com.google.common.collect.Iterables;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 
 /**
  * A composite panel with options to login via username/password or certificate.

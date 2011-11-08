@@ -32,10 +32,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceEmailBox;
-import eu.advance.logistics.flow.engine.api.AdvanceEmailReceiveProtocols;
-import eu.advance.logistics.flow.engine.api.AdvanceEmailSendProtocols;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailBox;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailReceiveProtocols;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailSendProtocols;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 
 /**
  * The email box details.

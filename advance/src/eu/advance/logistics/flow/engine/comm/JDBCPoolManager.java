@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 
 /**
  * @author akarnokd, 2011.10.05.
