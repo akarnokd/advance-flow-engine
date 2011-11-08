@@ -32,7 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JSeparator;
 
-import eu.advance.logistics.flow.engine.api.Identifiable;
+import eu.advance.logistics.flow.engine.api.core.Identifiable;
 
 /**
  * Edit/create a web data source.

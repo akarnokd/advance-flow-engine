@@ -23,6 +23,8 @@ package eu.advance.logistics.flow.engine.api;
 
 import java.net.URI;
 
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+
 /**
  * An interface representing the connection information to a remote ADVANCE Flow Engine.
  * @author akarnokd, 2011.09.19.

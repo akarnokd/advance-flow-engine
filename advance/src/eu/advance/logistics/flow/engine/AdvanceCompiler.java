@@ -88,25 +88,14 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The cache for schema uri to types. */
 	protected Map<String, XType> schemaTypeCache = Maps.newConcurrentMap();
-	/** The schema resolver. */
-	protected final AdvanceSchemaResolver schemaResolver;
-	/** The block resolver. */
-	protected final AdvanceBlockResolver blockResolver;
-	/** The map of various schedulers. */
-	protected final Map<AdvanceSchedulerPreference, Scheduler> schedulers;
+	/** Thec compiler settings. */
+	protected final AdvanceCompilerSettings settings;
 	/**
 	 * Constructor.
-	 * @param schemaResolver the schema resolver
-	 * @param blockResolver the block resolver
-	 * @param schedulers the schedulers for the blocks
+	 * @param settings the compiler settings
 	 */
-	public AdvanceCompiler(
-			AdvanceSchemaResolver schemaResolver, 
-			AdvanceBlockResolver blockResolver,
-			Map<AdvanceSchedulerPreference, Scheduler> schedulers) {
-		this.schemaResolver = schemaResolver;
-		this.blockResolver = blockResolver;
-		this.schedulers = schedulers;
+	public AdvanceCompiler(AdvanceCompilerSettings settings) {
+		this.settings = settings;
 	}
 	@Override
 	public List<AdvanceBlock> compile(AdvanceCompositeBlock flow) {
@@ -116,7 +105,28 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	}
 	@Override
 	public List<AdvanceBlockRegistryEntry> blocks() {
-		return Lists.newArrayList(blockResolver.blocks.values());
+		return Lists.newArrayList(blockResolver().blocks.values());
+	}
+	/**
+	 * Returns the block resolver.
+	 * @return the block resolver
+	 */
+	public AdvanceBlockResolver blockResolver() {
+		return settings.blockResolver;
+	}
+	/**
+	 * Returns the schema resolver.
+	 * @return the schema resolver
+	 */
+	public AdvanceSchemaResolver schemaResolver() {
+		return settings.schemaResolver;
+	}
+	/**
+	 * Returns the schedulers.
+	 * @return the schedulers
+	 */
+	public Map<AdvanceSchedulerPreference, Scheduler> schedulers() {
+		return settings.schedulers;
 	}
 	/**
 	 * Compile the composite block.
@@ -135,19 +145,20 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			// current level blocks
 			for (AdvanceBlockReference br : root.blocks.values()) {
 				Map<String, AdvanceConstantBlock> consts = Maps.newHashMap();
-				AdvanceBlockDescription bd = blockResolver.lookup(br.type);
+				AdvanceBlockDescription bd = blockResolver().lookup(br.type);
 				for (AdvanceBlockParameterDescription bdp : bd.inputs.values()) {
 					ConstantOrBlock cb = walkBinding(root, br.id, bdp.id);
 					if (cb != null && cb.constant != null) {
 						consts.put(bdp.id, cb.constant);
 					}
 				}
-				AdvanceBlockSettings settings = new AdvanceBlockSettings();
-				settings.id = br.id;
-				settings.parent = root;
-				settings.schedulers = schedulers;
+				AdvanceBlockSettings blockSettings = new AdvanceBlockSettings();
+				blockSettings.id = br.id;
+				blockSettings.parent = root;
+				blockSettings.schedulers = schedulers();
+				blockSettings.datastore = this.settings.datastore;
 				
-				AdvanceBlock ab = blockResolver.create(settings, br.type);
+				AdvanceBlock ab = blockResolver().create(blockSettings, br.type);
 				ab.init(consts);
 				
 				flow.add(ab);
@@ -384,7 +395,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 						AdvanceType at2 = new AdvanceType();
 						AdvanceConstantBlock constblock = cb.constants.get(bb.sourceBlock);
 						at2.typeURI = constblock.typeURI;
-						at2.type = schemaResolver.resolve(constblock.typeURI);
+						at2.type = schemaResolver().resolve(constblock.typeURI);
 						typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
 						tr.left = at2;
 					} else {
@@ -394,7 +405,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				if (cb.blocks.containsKey(bb.sourceBlock)) {
 					Map<String, AdvanceType> at = typeMemory.get(bb.sourceBlock);
 					if (at == null) {
-						AdvanceBlockDescription block = blockResolver.lookup(cb.blocks.get(bb.sourceBlock).type).copy();
+						AdvanceBlockDescription block = blockResolver().lookup(cb.blocks.get(bb.sourceBlock).type).copy();
 						at = Maps.newHashMap();
 						for (AdvanceBlockParameterDescription bpd : block.inputs.values()) {
 							resolve(bpd.type);
@@ -443,7 +454,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				if (cb.blocks.containsKey(bb.destinationBlock)) {
 					Map<String, AdvanceType> at = typeMemory.get(bb.destinationBlock);
 					if (at == null) {
-						AdvanceBlockDescription block = blockResolver.lookup(cb.blocks.get(bb.destinationBlock).type).copy();
+						AdvanceBlockDescription block = blockResolver().lookup(cb.blocks.get(bb.destinationBlock).type).copy();
 						at = Maps.newHashMap();
 						for (AdvanceBlockParameterDescription bpd : block.inputs.values()) {
 							resolve(bpd.type);
@@ -500,12 +511,12 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		if (result.wireTypes.size() > 0) {
 			List<Pair<XType, URI>> baseTypes = Lists.newArrayList();
 			try {
-				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:object")), new URI("advance:object")));
-				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:integer")), new URI("advance:integer")));
-				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:real")), new URI("advance:real")));
-				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:string")), new URI("advance:string")));
-				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:boolean")), new URI("advance:boolean")));
-				baseTypes.add(Pair.of(schemaResolver.resolve(new URI("advance:timestamp")), new URI("advance:timestamp")));
+				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:object")), new URI("advance:object")));
+				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:integer")), new URI("advance:integer")));
+				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:real")), new URI("advance:real")));
+				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:string")), new URI("advance:string")));
+				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:boolean")), new URI("advance:boolean")));
+				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:timestamp")), new URI("advance:timestamp")));
 				
 				Deque<AdvanceType> types = Lists.newLinkedList();
 				for (AdvanceType at : result.wireTypes.values()) {
@@ -542,7 +553,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			final AdvanceCompositeBlock cb) {
 		boolean r = true;
 		for (AdvanceBlockReference br : cb.blocks.values()) {
-			if (blockResolver.lookup(br.type) == null) {
+			if (blockResolver().lookup(br.type) == null) {
 				result.add(new MissingBlockError(br.id, br.type));
 				r = false;
 			}
@@ -586,7 +597,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			if (cb.blocks.containsKey(bb.sourceBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.sourceBlock);
 				input = b;
-				AdvanceBlockRegistryEntry block = blockResolver.lookup(b.type);
+				AdvanceBlockRegistryEntry block = blockResolver().lookup(b.type);
 				if (block.inputs.containsKey(bb.sourceParameter)) {
 					result.add(new SourceToInputBindingError(bb));
 					continue;
@@ -632,7 +643,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			if (cb.blocks.containsKey(bb.destinationBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.destinationBlock);
 				output = b;
-				AdvanceBlockRegistryEntry block = blockResolver.lookup(b.type);
+				AdvanceBlockRegistryEntry block = blockResolver().lookup(b.type);
 				if (block.outputs.containsKey(bb.destinationParameter)) {
 					result.add(new DestinationToOutputError(bb));
 					continue;
@@ -684,7 +695,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				String key = t.typeURI.toString();
 				XType xt = schemaTypeCache.get(key);
 				if (xt == null) {
-					xt = schemaResolver.resolve(t.typeURI);
+					xt = schemaResolver().resolve(t.typeURI);
 					schemaTypeCache.put(key, xt);
 				}
 				t.type = xt;

@@ -35,9 +35,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
-import eu.advance.logistics.flow.engine.api.AdvanceWebDataSource;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
 
 /**
  * The panel consisting of the body of the web details dialog.

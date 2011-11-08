@@ -28,8 +28,8 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
-import eu.advance.logistics.flow.engine.api.Identifiable;
+import eu.advance.logistics.flow.engine.api.core.Identifiable;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 
 /**
  * The dialog creator function.

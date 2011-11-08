@@ -50,8 +50,8 @@ import javax.swing.JTextField;
 import com.google.common.collect.Iterables;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
 
 /**
  * The SOAP channel details.

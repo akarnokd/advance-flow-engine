@@ -27,7 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceCreateModifyInfo;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 
 /**
  * Displays labels for the creation and modification dates.

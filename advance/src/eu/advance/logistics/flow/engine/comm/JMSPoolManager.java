@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceJMSEndpoint;
 
 
 /**

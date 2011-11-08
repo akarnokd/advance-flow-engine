@@ -41,8 +41,8 @@ import javax.swing.JTextField;
 import com.google.common.base.Objects;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceJDBCDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceJDBCDrivers;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDrivers;
 
 /**
  * The JDBC details panel.

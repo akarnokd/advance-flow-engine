@@ -24,7 +24,7 @@ package eu.advance.logistics.flow.engine.comm;
 import java.io.Closeable;
 import java.io.IOException;
 
-import eu.advance.logistics.flow.engine.api.AdvanceFTPProtocols;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPProtocols;
 
 /**
  * Represents an FTP(s) or an SFTP connection with standard file and directory functions.

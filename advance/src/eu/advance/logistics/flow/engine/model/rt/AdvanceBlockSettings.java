@@ -25,6 +25,7 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 
 import java.util.Map;
 
+import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 
 /**
@@ -40,6 +41,8 @@ public class AdvanceBlockSettings {
 	public AdvanceCompositeBlock parent;
 	/** The block description from the block registry. */
 	public AdvanceBlockRegistryEntry description;
+	/** The link to the datastore. */
+	public AdvanceDataStore datastore;
 	/** Default constructor. */
 	public AdvanceBlockSettings() {
 		

@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+
 /**
  * Exception to indicate the user has no right to perform the operation.
  * @author akarnokd, 2011.09.21.

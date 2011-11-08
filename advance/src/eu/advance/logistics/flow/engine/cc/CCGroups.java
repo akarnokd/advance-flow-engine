@@ -56,8 +56,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.AdvanceNotificationGroupType;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
 
 /**
  * The Notification groups editor.

@@ -69,12 +69,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.AdvanceCompiler;
+import eu.advance.logistics.flow.engine.AdvanceCompilerSettings;
 import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
-import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
@@ -551,8 +552,13 @@ public class CCLocalLogin extends JDialog {
 		try {
 			engineConfig.initialize(XElement.parseXML(file), workDir);
 			
-			AdvanceCompiler compiler = new AdvanceCompiler(engineConfig.schemaResolver, 
-					engineConfig.blockResolver, engineConfig.schedulerMap);
+			AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
+			compilerSettings.schemaResolver = engineConfig.schemaResolver; 
+			compilerSettings.blockResolver = engineConfig.blockResolver; 
+			compilerSettings.schedulers = engineConfig.schedulerMap;
+			compilerSettings.datastore = engineConfig.datastore();
+			AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
+			
 			AdvanceDataStore datastore = engineConfig.datastore();
 			if (datastore.queryUsers().isEmpty()) {
 				addFirst(datastore);

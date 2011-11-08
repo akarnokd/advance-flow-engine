@@ -243,7 +243,12 @@ public final class XData {
 		XElement result = new XElement("collection");
 		
 		for (XElement e : items) {
-			result.add(e.copy());
+			XElement item = e.add("item");
+			item.attributes.putAll(e.attributes);
+			item.content = e.content;
+			for (XElement c : e) {
+				item.add(c.copy());
+			}
 		}
 
 		return result;

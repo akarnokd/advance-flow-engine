@@ -21,8 +21,6 @@
 
 package eu.advance.logistics.flow.engine.test;
 
-import hu.akarnokd.reactive4java.base.Scheduler;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -39,22 +37,22 @@ import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
 import eu.advance.logistics.flow.engine.AdvanceCompiler;
+import eu.advance.logistics.flow.engine.AdvanceCompilerSettings;
 import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
 import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
 import eu.advance.logistics.flow.engine.AdvanceSchemaResolver;
-import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.api.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
-import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -78,8 +76,12 @@ public final class BasicLocalEngine {
 	 */
 	public static AdvanceEngineControl create(String userName, String workDir) {
 		final AdvanceEngineConfig config = defaultConfig(workDir);
-		AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, 
-				config.blockResolver, config.schedulerMap);
+		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
+		compilerSettings.schemaResolver = config.schemaResolver; 
+		compilerSettings.blockResolver = config.blockResolver; 
+		compilerSettings.schedulers = config.schedulerMap;
+		compilerSettings.datastore = config.datastore();
+		AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
 		AdvanceDataStore datastore = config.datastore();
 		try {
 			if (datastore.queryUsers().isEmpty()) {
@@ -193,10 +195,13 @@ public final class BasicLocalEngine {
 		}
 		
 		AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
-		
-		AdvanceCompiler compiler = new AdvanceCompiler(sr, br, 
-				Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
-		
+
+		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
+		compilerSettings.schemaResolver = sr; 
+		compilerSettings.blockResolver = br; 
+		compilerSettings.schedulers = Maps.newHashMap();
+		AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
+
 		return compiler.verify(flow);
 	}
 }

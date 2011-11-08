@@ -44,11 +44,11 @@ import javax.swing.table.AbstractTableModel;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
-import eu.advance.logistics.flow.engine.api.AdvanceUserRights;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 
 /**
  * The user details panel.

@@ -29,7 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 
 /**
  * The Local file data source details.

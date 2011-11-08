@@ -41,8 +41,8 @@ import javax.swing.GroupLayout.Group;
 import com.google.common.base.Objects;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceJMSDrivers;
-import eu.advance.logistics.flow.engine.api.AdvanceJMSEndpoint;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceJMSDrivers;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceJMSEndpoint;
 
 /**
  * The JMS details.

@@ -31,9 +31,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.HasPassword;
+import eu.advance.logistics.flow.engine.api.core.HasPassword;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.impl.HttpDataStoreListener;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteDataStore;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -146,7 +146,7 @@ public class TestHttpDataStore {
 	}
 
 	/**
-	 * Test method for {@link eu.advance.logistics.flow.engine.api.impl.HttpRemoteDataStore#updateRealm(eu.advance.logistics.flow.engine.api.AdvanceRealm)}.
+	 * Test method for {@link eu.advance.logistics.flow.engine.api.impl.HttpRemoteDataStore#updateRealm(eu.advance.logistics.flow.engine.api.ds.AdvanceRealm)}.
 	 */
 	@Test
 	public void testUpdateRealm() {

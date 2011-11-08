@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
-import eu.advance.logistics.flow.engine.api.AdvanceLocalFileDataSource;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 
 /**
  * A local "connection" manager to allow working with a connection pooling mechanisms.

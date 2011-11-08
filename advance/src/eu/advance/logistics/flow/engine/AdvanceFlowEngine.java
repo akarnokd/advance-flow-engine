@@ -61,11 +61,11 @@ import com.sun.net.httpserver.HttpsServer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
-import eu.advance.logistics.flow.engine.api.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.impl.HttpEngineControlListener;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
@@ -122,7 +122,12 @@ public class AdvanceFlowEngine implements Runnable {
 		try {
 			XElement xconfig = XElement.parseXML(configFile);
 			config.initialize(xconfig, workDir);
-			AdvanceCompiler compiler = new AdvanceCompiler(config.schemaResolver, config.blockResolver, config.schedulerMap);
+			AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
+			compilerSettings.schemaResolver = config.schemaResolver; 
+			compilerSettings.blockResolver = config.blockResolver; 
+			compilerSettings.schedulers = config.schedulerMap;
+			compilerSettings.datastore = config.datastore();
+			AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
 			control = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler, workDir) {
 				@Override
 				public void shutdown() throws IOException,

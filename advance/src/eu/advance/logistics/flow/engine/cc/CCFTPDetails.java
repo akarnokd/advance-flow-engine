@@ -39,10 +39,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceFTPDataSource;
-import eu.advance.logistics.flow.engine.api.AdvanceFTPProtocols;
-import eu.advance.logistics.flow.engine.api.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPDataSource;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPProtocols;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 
 /**
  * The FTP connection details.
