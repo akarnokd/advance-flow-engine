@@ -23,7 +23,6 @@ package eu.advance.logistics.annotations;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
-
 /**
  * Defines an Advance Block which should be transformed into block-registry.xml entries.
  * @author szmarcell, 2011.11.07
