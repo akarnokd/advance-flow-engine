@@ -26,7 +26,6 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.reactive.Observer;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
@@ -75,8 +74,9 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
+import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
@@ -90,12 +90,22 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	protected Map<String, XType> schemaTypeCache = Maps.newConcurrentMap();
 	/** Thec compiler settings. */
 	protected final AdvanceCompilerSettings settings;
+	/** The predefined list of base types. */
+	protected final List<Pair<XType, URI>> baseTypes = Lists.newArrayList();
 	/**
 	 * Constructor.
 	 * @param settings the compiler settings
 	 */
 	public AdvanceCompiler(AdvanceCompilerSettings settings) {
 		this.settings = settings;
+
+		baseTypes.add(Pair.of(schemaResolver().resolve(XData.OBJECT), XData.OBJECT));
+		baseTypes.add(Pair.of(schemaResolver().resolve(XData.INTEGER), XData.INTEGER));
+		baseTypes.add(Pair.of(schemaResolver().resolve(XData.REAL), XData.REAL));
+		baseTypes.add(Pair.of(schemaResolver().resolve(XData.STRING), XData.STRING));
+		baseTypes.add(Pair.of(schemaResolver().resolve(XData.BOOLEAN), XData.BOOLEAN));
+		baseTypes.add(Pair.of(schemaResolver().resolve(XData.TIMESTAMP), XData.TIMESTAMP));
+		baseTypes.add(Pair.of(schemaResolver().resolve(XData.COLLECTION), XData.COLLECTION));
 	}
 	@Override
 	public List<AdvanceBlock> compile(AdvanceCompositeBlock flow) {
@@ -509,35 +519,24 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		AdvanceTypeInference.infer(relations, result);
 		
 		if (result.wireTypes.size() > 0) {
-			List<Pair<XType, URI>> baseTypes = Lists.newArrayList();
-			try {
-				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:object")), new URI("advance:object")));
-				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:integer")), new URI("advance:integer")));
-				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:real")), new URI("advance:real")));
-				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:string")), new URI("advance:string")));
-				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:boolean")), new URI("advance:boolean")));
-				baseTypes.add(Pair.of(schemaResolver().resolve(new URI("advance:timestamp")), new URI("advance:timestamp")));
 				
-				Deque<AdvanceType> types = Lists.newLinkedList();
-				for (AdvanceType at : result.wireTypes.values()) {
-					types.add(at);
-				}
-				while (!types.isEmpty()) {
-					AdvanceType t = types.removeFirst();
-					if (t.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
-						types.addAll(t.typeArguments);
-					} else 
-					if (t.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
-						for (Pair<XType, URI> xt : baseTypes) {
-							if (XSchema.compare(xt.first, t.type) == XRelation.EQUAL) {
-								t.typeURI = xt.second;
-								break;
-							}
+			Deque<AdvanceType> types = Lists.newLinkedList();
+			for (AdvanceType at : result.wireTypes.values()) {
+				types.add(at);
+			}
+			while (!types.isEmpty()) {
+				AdvanceType t = types.removeFirst();
+				if (t.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+					types.addAll(t.typeArguments);
+				} else 
+				if (t.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
+					for (Pair<XType, URI> xt : baseTypes) {
+						if (XSchema.compare(xt.first, t.type) == XRelation.EQUAL) {
+							t.typeURI = xt.second;
+							break;
 						}
 					}
 				}
-			} catch (URISyntaxException ex) {
-				LOG.error(ex.toString(), ex);
 			}
 		}
 		

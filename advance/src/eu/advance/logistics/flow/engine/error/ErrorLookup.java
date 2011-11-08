@@ -62,6 +62,7 @@ public final class ErrorLookup {
 		SourceToInputBindingError.register(ERROR_LOOKUP);
 		TypeMismatchError.register(ERROR_LOOKUP);
 		MissingBlockError.register(ERROR_LOOKUP);
+		TypeArgumentCountError.register(ERROR_LOOKUP);
 	}
 	/**
 	 * Locate the error via its simple class name.

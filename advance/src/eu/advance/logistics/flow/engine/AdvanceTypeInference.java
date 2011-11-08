@@ -30,7 +30,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -47,13 +46,16 @@ import eu.advance.logistics.flow.engine.error.CombinedTypeError;
 import eu.advance.logistics.flow.engine.error.ConcreteVsParametricTypeError;
 import eu.advance.logistics.flow.engine.error.IncompatibleBaseTypesError;
 import eu.advance.logistics.flow.engine.error.IncompatibleTypesError;
+import eu.advance.logistics.flow.engine.error.TypeArgumentCountError;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
+import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * Utility class for the type inference.
@@ -88,15 +90,17 @@ public final class AdvanceTypeInference {
 	 * @param relations the available type relations as extracted from the program.
 	 * @param result the compilation result
 	 */
-	public static void infer(Deque<TypeRelation> relations, AdvanceCompilationResult result) {
+	public static void infer(Deque<TypeRelation> relations, 
+			AdvanceCompilationResult result) {
 		Multimap<AdvanceType, AdvanceType> upperBound = setMultimap();
 		Multimap<AdvanceType, AdvanceType> lowerBound = setMultimap();
 		List<TypeRelation> reflexives = Lists.newArrayList();
-		Multimap<AdvanceType, String> wireRelations = setMultimap();
+		
+		List<TypeRelation> wireRelations = Lists.newArrayList();
 		for (TypeRelation tr : relations) {
-			wireRelations.put(tr.left, tr.wire.id);
-			wireRelations.put(tr.right, tr.wire.id);
+			wireRelations.add(new TypeRelation(tr));
 		}
+		
 		
 		while (!relations.isEmpty()) {
 			TypeRelation rel = relations.pop();
@@ -104,13 +108,10 @@ public final class AdvanceTypeInference {
 				if (!containsRelation(reflexives, rel.left, rel.right)) {
 					// add new reflexive relations for x >= left and right >= y 
 					int size = reflexives.size();
-//					boolean found1 = false;
-//					boolean found2 = false;
 					for (int i = 0; i < size; i++) {
 						TypeRelation ab = reflexives.get(i);
 						// if ab.left >= left and left >= right then ab.left >= right
 						if (ab.right == rel.left) {
-//							found1 = true;
 							reflexives.add(new TypeRelation(ab.left, rel.right, rel.wire));
 							if (!combineBounds(upperBound, ab.left, rel.right, unionFunc, result.errors, rel.wire)) {
 								return;
@@ -118,19 +119,14 @@ public final class AdvanceTypeInference {
 						}
 						// if right >= ab.right and left >= right then left >= ab.right
 						if (ab.left == rel.right) {
-//							found2 = true;
 							reflexives.add(new TypeRelation(rel.left, ab.right, rel.wire));
 							combineBounds(lowerBound, ab.right, rel.left, intersectFunc, result.errors, rel.wire);
 						}
 					}
-//					if (!found1) {
-						if (!combineBounds(upperBound, rel.left, rel.right, unionFunc, result.errors, rel.wire)) {
-							return;
-						}
-//					}
-//					if (!found2) {
-						combineBounds(lowerBound, rel.right, rel.left, intersectFunc, result.errors, rel.wire);
-//					}
+					if (!combineBounds(upperBound, rel.left, rel.right, unionFunc, result.errors, rel.wire)) {
+						return;
+					}
+					combineBounds(lowerBound, rel.right, rel.left, intersectFunc, result.errors, rel.wire);
 					
 					reflexives.add(new TypeRelation(rel));
 					// call subc with lower(rel.left) >= upper(rel.right) ?! 
@@ -146,8 +142,19 @@ public final class AdvanceTypeInference {
 			if (rel.left.getKind() == AdvanceTypeKind.VARIABLE_TYPE && rel.right.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
 				if (!upperBound.get(rel.left).contains(rel.right)) {
 					if (rel.right.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
-						addBound(upperBound, rel.left, rel.right, unionFunc);
-						if (!subc(rel.left, rel.right, rel.wire, relations, result.errors)) {
+						AdvanceType eb = findParametricBound(upperBound.get(rel.left));
+						if (eb == null) {
+							eb = new AdvanceType();
+							eb.type = rel.right.type;
+							eb.typeURI = rel.right.typeURI;
+							for (AdvanceType ta1 : rel.right.typeArguments) {
+								AdvanceType ta2 = AdvanceType.fresh();
+								eb.typeArguments.add(ta2);
+								relations.add(new TypeRelation(ta2, ta1, rel.wire));
+							}
+							addBound(upperBound, rel.left, eb, unionFunc);
+						}
+						if (!subc(eb, rel.right, rel.wire, relations, result.errors)) {
 							return;
 						}
 					} else {
@@ -173,8 +180,19 @@ public final class AdvanceTypeInference {
 			if (rel.left.getKind() != AdvanceTypeKind.VARIABLE_TYPE && rel.right.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
 				if (!lowerBound.get(rel.right).contains(rel.left)) {
 					if (rel.left.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
-						addBound(lowerBound, rel.right, rel.left, intersectFunc);
-						if (!subc(rel.left, rel.right, rel.wire, relations, result.errors)) {
+						AdvanceType eb = findParametricBound(lowerBound.get(rel.right));
+						if (eb == null) {
+							eb = new AdvanceType();
+							eb.type = rel.left.type;
+							eb.typeURI = rel.left.typeURI;
+							for (AdvanceType ta1 : rel.left.typeArguments) {
+								AdvanceType ta2 = AdvanceType.fresh();
+								eb.typeArguments.add(ta2);
+								relations.add(new TypeRelation(ta1, ta2, rel.wire));
+							}
+							addBound(lowerBound, rel.right, eb, intersectFunc);
+						}
+						if (!subc(rel.left, eb, rel.wire, relations, result.errors)) {
 							return;
 						}
 					} else {
@@ -205,7 +223,7 @@ public final class AdvanceTypeInference {
 						result.errors.add(new IncompatibleTypesError(rel.wire, rel.left, rel.right));
 						return;
 					} else {
-						result.wireTypes.put(rel.wire.id, rel.right);
+						result.wireTypes.put(rel.wire.id, rel.left);
 					}
 				} else {
 					if (!subc(rel.left, rel.right, rel.wire, relations, result.errors)) {
@@ -215,59 +233,39 @@ public final class AdvanceTypeInference {
 			}
 		}
 		// FIXME not sure this is correct
-		
-		// traverse the wire relations and set wire types for concrete types
 
-		Deque<AdvanceType> parametrics = Lists.newLinkedList();
-		for (Map.Entry<AdvanceType, Collection<String>> e : wireRelations.asMap().entrySet()) {
-			AdvanceType t = e.getKey();
-			if (t.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
-				if (t.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
-					parametrics.add(t);
-				}
-				for (String wire : e.getValue()) {
-					AdvanceType ct = result.wireTypes.get(wire);
-					if (ct == null) {
-						result.wireTypes.put(wire, t);
-					} else {
-						if (XSchema.compare(t.type, ct.type) == XRelation.EXTENDS) {
-							result.wireTypes.put(wire, t);
-						}
+		for (TypeRelation rel : wireRelations) {
+			String wireId = rel.wire.id;
+			AdvanceType et = result.wireTypes.get(wireId);
+			AdvanceType t = findConcreteType(upperBound, lowerBound, rel.left);
+			if (et == null) {
+				result.wireTypes.put(wireId, t);
+			} else {
+				if (et.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+					result.wireTypes.put(wireId, t);
+				} else
+				if (et.getKind() != AdvanceTypeKind.VARIABLE_TYPE && t.getKind() != AdvanceTypeKind.VARIABLE_TYPE) {
+					XRelation xr = XSchema.compare(et.type, t.type);
+					if (xr == XRelation.SUPER) {
+						result.wireTypes.put(wireId, t);
 					}
 				}
 			}
 		}
-		
-		while (!parametrics.isEmpty()) {
-			AdvanceType pt = parametrics.removeFirst();
-			for (int i = 0; i < pt.typeArguments.size(); i++) {
-				AdvanceType ta = pt.typeArguments.get(i);
-				if (ta.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
-					AdvanceType ta2 = findConcreteType(upperBound, lowerBound, ta);
-					if (ta2.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
-						parametrics.add(ta2);
-					}
-					pt.typeArguments.set(i, ta2);
-				}
+
+	}
+	/**
+	 * Find the parametric type in the supplied bound collection.
+	 * @param bounds the collection of bounds
+	 * @return the parametric bound or null if not present
+	 */
+	public static AdvanceType findParametricBound(Collection<AdvanceType> bounds) {
+		for (AdvanceType bt : bounds) {
+			if (bt.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+				return bt;
 			}
 		}
-		
-		// if we get here, all wires should have some type
-		for (AdvanceType type : Sets.union(upperBound.keySet(), lowerBound.keySet())) {
-			AdvanceType computedType = findConcreteType(upperBound, lowerBound,
-					type);
-			// locate wire with mentioning the type
-			for (String wire : wireRelations.get(type)) {
-				AdvanceType ct = result.wireTypes.get(wire);
-				if (ct == null) {
-					result.wireTypes.put(wire, computedType);
-				} else {
-					if (XSchema.compare(computedType.type, ct.type) == XRelation.EXTENDS) {
-						result.wireTypes.put(wire, computedType);
-					}
-				}
-			}
-		}
+		return null;
 	}
 	/**
 	 * Find the appropriate type for the supplied type variable.
@@ -299,6 +297,17 @@ public final class AdvanceTypeInference {
 		// if still no concrete type, have it abstract
 		if (computedType == null) {
 			computedType = type;
+		}
+		if (computedType.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+			AdvanceType ct2 = new AdvanceType();
+			ct2.type = computedType.type;
+			ct2.typeURI = computedType.typeURI;
+			ct2.typeArguments.addAll(computedType.typeArguments);
+			for (int i = 0; i < computedType.typeArguments.size(); i++) {
+				AdvanceType ta = computedType.typeArguments.get(i);
+				ct2.typeArguments.set(i, findConcreteType(upperBound, lowerBound, ta));
+			}
+			computedType = ct2;
 		}
 		return computedType;
 	}
@@ -351,6 +360,7 @@ public final class AdvanceTypeInference {
 		} else {
 			// if D(t1,...,tn) >= C(u1,...,un)
 			if (left.typeArguments.size() != right.typeArguments.size()) {
+				error.add(new TypeArgumentCountError(wire, left, right));
 				return false;
 			}
 			// the two concrete types are not related
@@ -392,17 +402,23 @@ public final class AdvanceTypeInference {
 	 */
 	static AdvanceType intersection(AdvanceType t1, AdvanceType t2) {
 		AdvanceType t = new AdvanceType();
-		t.type = XSchema.intersection(t1.type, t2.type);
-		if (t.type == t1.type) {
-			t.typeURI = t1.typeURI;
-		} else
-		if (t.type == t2.type) {
-			t.typeURI = t2.typeURI;
+		// if parametric vs concrete, the common supertype is advance:object
+		if (t1.getKind() != t2.getKind()) {
+			t.type = new XType();
+			t.typeURI = XData.OBJECT;
 		} else {
-			try {
-				t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
-			} catch (URISyntaxException ex) {
-				LOG.debug(ex.toString(), ex);
+			t.type = XSchema.intersection(t1.type, t2.type);
+			if (t.type == t1.type) {
+				t.typeURI = t1.typeURI;
+			} else
+			if (t.type == t2.type) {
+				t.typeURI = t2.typeURI;
+			} else {
+				try {
+					t.typeURI =  new URI("advance:intersect_" + System.identityHashCode(t));
+				} catch (URISyntaxException ex) {
+					LOG.debug(ex.toString(), ex);
+				}
 			}
 		}
 		return t;
@@ -415,6 +431,9 @@ public final class AdvanceTypeInference {
 	 */
 	static AdvanceType union(AdvanceType t1, AdvanceType t2) {
 		AdvanceType t = new AdvanceType();
+		if (t1.getKind() != t2.getKind()) {
+			return null;
+		}
 		t.type = XSchema.union(t1.type, t2.type);
 		if (t.type != null) {
 			if (t.type == t1.type) {
@@ -424,7 +443,7 @@ public final class AdvanceTypeInference {
 				t.typeURI = t2.typeURI;
 			} else {
 				try {
-					t.typeURI =  new URI("advance:custom_" + System.identityHashCode(t));
+					t.typeURI =  new URI("advance:union_" + System.identityHashCode(t));
 				} catch (URISyntaxException ex) {
 					LOG.debug(ex.toString(), ex);
 				}
