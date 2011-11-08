@@ -21,7 +21,7 @@
 package eu.advance.logistics.flow.engine.controlcenter;
 
 import com.google.common.collect.Lists;
-import eu.advance.logistics.flow.engine.api.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import java.util.List;
 import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;

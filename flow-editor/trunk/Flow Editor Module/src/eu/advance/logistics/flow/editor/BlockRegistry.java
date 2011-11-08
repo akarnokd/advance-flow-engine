@@ -26,12 +26,14 @@ import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
 import eu.advance.logistics.flow.engine.AdvanceCompiler;
 import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
+import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import java.beans.PropertyChangeEvent;
@@ -71,7 +73,7 @@ public class BlockRegistry {
     private Map<String, XType> xtypes = Maps.newHashMap();
     private AdvanceLocalSchemaResolver schemaResolver;
     /** The local verification compiler. */
-    private AdvanceCompiler localVerify;
+    private AdvanceFlowCompiler localVerify;
     private BlockRegistry() {
     }
 
@@ -157,7 +159,7 @@ public class BlockRegistry {
     }
     private static BlockRegistry INSTANCE;
 
-    public static BlockRegistry getInstance() {
+    public static synchronized BlockRegistry getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new BlockRegistry();
         }
@@ -262,18 +264,10 @@ public class BlockRegistry {
      */
     public AdvanceCompilationResult verify(AdvanceCompositeBlock flow) {
         try {
-            if (localVerify == null) {
-                AdvanceLocalSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
-
-                Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
-
-                for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
-                       bm.put(e.id, e);
+            synchronized (this) {
+                if (localVerify == null) {
+                    localVerify = BasicLocalEngine.createCompiler();
                 }
-
-                AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
-
-                localVerify = new AdvanceCompiler(sr, br, Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
             }
             return localVerify.verify(flow);
         } catch (Throwable t) {

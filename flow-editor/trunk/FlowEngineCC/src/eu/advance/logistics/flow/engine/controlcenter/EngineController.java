@@ -25,7 +25,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
-import eu.advance.logistics.flow.engine.api.AdvanceLoginType;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteEngineControl;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
