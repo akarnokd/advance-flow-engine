@@ -20,30 +20,20 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.collect.Maps;
-import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
-import eu.advance.logistics.flow.engine.AdvanceCompiler;
-import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
-import eu.advance.logistics.flow.engine.AdvanceSchemaResolver;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.cc.CCDebugRow;
 import eu.advance.logistics.flow.engine.cc.CCValueDialog;
 import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
 import eu.advance.logistics.flow.engine.cc.LabelManager;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.base.Scheduler;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
 import org.netbeans.api.progress.ProgressHandle;
@@ -94,7 +84,7 @@ public final class VerifyFlowAction implements ActionListener {
                 return engine.verifyFlow(flow);
             }
 
-            return BlockRegistry.getInstance().verify(flow);
+            return BasicLocalEngine.createCompiler().verify(flow);
         }
 
         @Override

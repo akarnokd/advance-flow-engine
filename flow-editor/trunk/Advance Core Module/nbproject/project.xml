@@ -84,6 +84,8 @@
                 <package>edu.umd.cs.findbugs.annotations</package>
                 <package>eu.advance.logistics.flow.engine</package>
                 <package>eu.advance.logistics.flow.engine.api</package>
+                <package>eu.advance.logistics.flow.engine.api.core</package>
+                <package>eu.advance.logistics.flow.engine.api.ds</package>
                 <package>eu.advance.logistics.flow.engine.api.impl</package>
                 <package>eu.advance.logistics.flow.engine.block</package>
                 <package>eu.advance.logistics.flow.engine.cc</package>
