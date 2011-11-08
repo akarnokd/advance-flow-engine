@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2013 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -20,7 +20,7 @@
  */
 
 /**
- * The Flow Engine base API interfaces and default record classes.
+ * The Flow Engine base API interfaces and interaction classes.
  */
 package eu.advance.logistics.flow.engine.api;
 

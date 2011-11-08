@@ -174,7 +174,7 @@
     <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
   </module>
   <module name="RegexpHeader">
-    <property name="header" value="^/\*$\n^ \* Copyright 2010-2012 The Advance EU 7th Framework project consortium.*$\n^ \*.*$\n^ \* This file is part of Advance.*$"/>
+    <property name="header" value="^/\*$\n^ \* Copyright 2010-2013 The Advance EU 7th Framework project consortium.*$\n^ \*.*$\n^ \* This file is part of Advance.*$"/>
     <property name="fileExtensions" value="java"/>
     <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="Advance header"/>
   </module>
