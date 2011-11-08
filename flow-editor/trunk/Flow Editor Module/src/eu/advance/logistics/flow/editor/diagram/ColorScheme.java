@@ -41,11 +41,14 @@ public class ColorScheme {
 
     static final Color COLOR_NORMAL = new Color(0x56B230); // connections
     static final Color COLOR_NORMAL_ERROR = new Color(0xE61717); // connections
+    static final Color COLOR_NORMAL_WARNING = new Color(0xE6C000); // connections
     private static final Color COLOR_HOVERED = Color.BLACK;
     private static final Color COLOR_SELECTED = new Color(0xA0EC80);
     private static final Color COLOR_SELECTED_ERROR = new Color(0xF66262);
+    private static final Color COLOR_SELECTED_WARNING = new Color(0xF66200);
     static final Color COLOR_HIGHLIGHTED = new Color(0xC4ECB4);
     static final Color COLOR_HIGHLIGHTED_ERROR = new Color(0xFF7373);
+    static final Color COLOR_HIGHLIGHTED_WARNING = new Color(0xFF7300);
     static final Color COLOR_BORDER = new Color(0x56B230);
     static final Color COLOR1 = new Color(0xFFFFFF);
     static final Color COLOR2 = new Color(0xACEB95);
@@ -150,13 +153,13 @@ public class ColorScheme {
         if (state.isHovered()) {
             widget.setForeground(COLOR_HOVERED);
         } else if (state.isSelected()) {
-            widget.setForeground(widget.isError() ? COLOR_SELECTED_ERROR : COLOR_SELECTED);
+            widget.setForeground(widget.isError() ? COLOR_SELECTED_ERROR : (widget.isWarning() ? COLOR_SELECTED_WARNING : COLOR_SELECTED));
         } else if (state.isHighlighted()) {
-            widget.setForeground(widget.isError() ? COLOR_HIGHLIGHTED_ERROR : COLOR_HIGHLIGHTED);
+            widget.setForeground(widget.isError() ? COLOR_HIGHLIGHTED_ERROR : (widget.isWarning() ? COLOR_HIGHLIGHTED_WARNING : COLOR_HIGHLIGHTED));
         } else if (state.isFocused()) {
             widget.setForeground(COLOR_HOVERED);
         } else {
-            widget.setForeground(widget.isError() ? COLOR_NORMAL_ERROR : COLOR_NORMAL);
+            widget.setForeground(widget.isError() ? COLOR_NORMAL_ERROR : (widget.isWarning() ? COLOR_NORMAL_WARNING : COLOR_NORMAL));
         }
 
         if (state.isSelected()) {
