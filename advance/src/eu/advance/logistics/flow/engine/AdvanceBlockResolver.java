@@ -31,10 +31,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 
 /**
  * Class that locates and creates blocks based on their name.
@@ -62,24 +61,22 @@ public class AdvanceBlockResolver {
 	}
 	/**
 	 * Create a concrete block by using the given settings.
-	 * @param id the global block id
-	 * @param parent the parent composite block
+	 * @param settings the block contextuals settings
 	 * @param type the block type
 	 * @return the new block instance 
 	 */
-	public AdvanceBlock create(String id, AdvanceCompositeBlock parent, String type) {
+	public AdvanceBlock create(AdvanceBlockSettings settings, String type) {
 		AdvanceBlockRegistryEntry e = blocks.get(type);
+		settings.description = e;
 		try {
 			Class<?> clazz = Class.forName(e.clazz);
 			if (AdvanceBlock.class.isAssignableFrom(clazz)) {
 				try {
 					Constructor<?> c = clazz.getConstructor(
-							String.class, 
-							AdvanceCompositeBlock.class, 
-							AdvanceSchedulerPreference.class);
-					return AdvanceBlock.class.cast(c.newInstance(id, parent, e.scheduler));
+							AdvanceBlockSettings.class);
+					return AdvanceBlock.class.cast(c.newInstance(settings));
 				} catch (NoSuchMethodException ex) {
-					LOG.error("Missing constructor of {int, AdvanceCompositeBlock, String, SchedulerPreference}", ex);
+					LOG.error("Missing constructor of {AdvanceBlockSettings}", ex);
 				} catch (SecurityException ex) {
 					LOG.error(ex.toString(), ex);
 				} catch (InstantiationException ex) {

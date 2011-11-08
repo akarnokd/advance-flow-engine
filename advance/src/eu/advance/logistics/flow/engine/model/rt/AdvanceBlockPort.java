@@ -69,7 +69,7 @@ public class AdvanceBlockPort extends DefaultObservable<XElement> implements Adv
 				Reactive.materialize(this), new Func1<Option<XElement>, AdvanceParameterDiagnostic>() {
 			@Override
 			public AdvanceParameterDiagnostic invoke(Option<XElement> param1) {
-				return new AdvanceParameterDiagnostic("", parent.description.id, name, param1);
+				return new AdvanceParameterDiagnostic("", parent.description().id, name, param1);
 			}
 		});
 	}

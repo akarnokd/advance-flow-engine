@@ -70,6 +70,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
@@ -141,9 +142,13 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 						consts.put(bdp.id, cb.constant);
 					}
 				}
-				AdvanceBlock ab = blockResolver.create(br.id, root, br.type);
-				ab.setSchedulers(schedulers);
-				ab.init(bd, consts);
+				AdvanceBlockSettings settings = new AdvanceBlockSettings();
+				settings.id = br.id;
+				settings.parent = root;
+				settings.schedulers = schedulers;
+				
+				AdvanceBlock ab = blockResolver.create(settings, br.type);
+				ab.init(consts);
 				
 				flow.add(ab);
 				currentLevelBlocks.add(ab);
@@ -153,10 +158,10 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				for (AdvanceBlock ab : flow) {
 					for (AdvancePort p : ab.inputs) {
 						if (p instanceof AdvanceBlockPort) {
-							ConstantOrBlock cb = walkBinding(ab.parent, ab.id, p.name());
+							ConstantOrBlock cb = walkBinding(ab.parent(), ab.id(), p.name());
 							if (cb != null) {
 								for  (AdvanceBlock ab2 : flow) {
-									if (ab2.parent == cb.composite && ab2.id.equals(cb.block)) {
+									if (ab2.parent() == cb.composite && ab2.id().equals(cb.block)) {
 										((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
 										break;
 									}

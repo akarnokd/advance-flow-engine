@@ -32,9 +32,8 @@ import com.google.common.io.Closeables;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -42,7 +41,9 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Represents a Timer which periodically relays the last value of its {@code in} parameter.
  * @author akarnokd, 2011.10.27.
  */
-@Block(parameters = { "T" }, description = "Periodically emits the last value received on its 'in' parameter.")
+@Block(parameters = { "T" }, 
+description = "Periodically emits the last value received on its 'in' parameter.",
+category = "user-interface")
 public class Timer extends AdvanceBlock {
 	/** Delay. */
     @Input("advance:integer")
@@ -62,13 +63,10 @@ public class Timer extends AdvanceBlock {
 	protected final AtomicReference<XElement> last = new AtomicReference<XElement>();
 	/**
 	 * Constructor.
-	 * @param id the block global id
-	 * @param parent the parent composite block
-	 * @param schedulerPreference the scheduler preference
+	 * @param settings the block settings
 	 */
-	public Timer(String id, AdvanceCompositeBlock parent, 
-			AdvanceSchedulerPreference schedulerPreference) {
-		super(id, parent, schedulerPreference);
+	public Timer(AdvanceBlockSettings settings) {
+		super(settings);
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {

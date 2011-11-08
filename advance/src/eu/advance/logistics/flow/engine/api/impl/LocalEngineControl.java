@@ -56,7 +56,6 @@ import eu.advance.logistics.flow.engine.api.AdvanceUser;
 import eu.advance.logistics.flow.engine.comm.FTPPoolManager;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.comm.JMSPoolManager;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
@@ -368,7 +367,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		List<AdvanceBlock> blocks = realmRuntime.get(realm);
 		if (blocks != null) {
 			for (AdvanceBlock b : blocks) {
-				if (b.getDescription().id.equals(blockId)) {
+				if (b.id().equals(blockId)) {
 					return b.getDiagnosticPort();
 				}
 			}
@@ -384,7 +383,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		List<AdvanceBlock> blocks = realmRuntime.get(realm);
 		if (blocks != null) {
 			for (AdvanceBlock b : blocks) {
-				if (b.id.equals(blockId)) {
+				if (b.id().equals(blockId)) {
 					for (AdvancePort p : b.inputs) {
 						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
 							return ((AdvanceBlockPort)p).getDiagnosticPort();
@@ -454,8 +453,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			throw new AdvanceControlException("Realm " + realm + " is not compiled");
 		}
 		for (AdvanceBlock b : blocks) {
-			AdvanceBlockDescription desc = b.getDescription();
-			if (desc.id.equals(blockId)) {
+			if (b.id().equals(blockId)) {
 				for (AdvancePort p : b.inputs) {
 					if (p.name().equals(port)) {
 						if (p instanceof AdvanceBlockPort) {
@@ -584,7 +582,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 				realmRuntime.put(r.name, blocks);
 				LOG.debug("Restoring block state");
 				for (AdvanceBlock b : blocks) {
-					XElement state = datastore.queryBlockState(r.name, b.getDescription().id);
+					XElement state = datastore.queryBlockState(r.name, b.id());
 					if (state != null) {
 						b.restoreState(state);
 					}
@@ -637,7 +635,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 				executor.done(blocks);
 				for (AdvanceBlock b : blocks) {
 					XElement state = b.saveState();
-					datastore.updateBlockState(r.name, b.getDescription().id, state);
+					datastore.updateBlockState(r.name, b.id(), state);
 				}
 			}
 		} finally {
