@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.engine.controlcenter;
 
 import com.google.common.collect.Maps;
+import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
 import eu.advance.logistics.flow.engine.AdvanceCompiler;
@@ -93,16 +94,7 @@ public final class VerifyFlowAction implements ActionListener {
                 return engine.verifyFlow(flow);
             }
 
-            // Perform local verification if not connected to an engine: 
-            AdvanceSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
-            Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
-            for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
-                bm.put(e.id, e);
-            }
-            AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
-            AdvanceCompiler compiler = new AdvanceCompiler(sr, br,
-                    Maps.<AdvanceSchedulerPreference, Scheduler>newHashMap());
-            return compiler.verify(flow);
+            return BlockRegistry.getInstance().verify(flow);
         }
 
         @Override

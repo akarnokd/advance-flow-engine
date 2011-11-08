@@ -43,7 +43,8 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 public class BlockRegistryDataObject extends MultiDataObject {
-        private final static String ICON_PATH = "eu/advance/logistics/flow/editor/palette/images/block.png";
+
+    private final static String ICON_PATH = "eu/advance/logistics/flow/editor/palette/images/block.png";
 
     public BlockRegistryDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
@@ -96,13 +97,15 @@ public class BlockRegistryDataObject extends MultiDataObject {
                 if (bd.displayName == null) {
                     bd.displayName = bd.id;
                 }
-                r.findOrCreate(bd.category).addType(bd);
+                r.findOrCreate(null).addType(bd);
+                if (bd.category != null) {
+                    r.findOrCreate(bd.category).addType(bd);
+                }
             }
-                        StatusDisplayer.getDefault().setStatusText(
+            StatusDisplayer.getDefault().setStatusText(
                     NbBundle.getMessage(BlockRegistryDataObject.class, "REGISTRY_STATUS",
                     r.getBlockDescriptionCount(), r.getCategoryCount()));
 
         }
     }
-
 }

@@ -20,12 +20,12 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import eu.advance.logistics.flow.engine.api.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.api.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.AdvanceRealmStatus;
-import eu.advance.logistics.flow.engine.api.AdvanceUser;
-import eu.advance.logistics.flow.engine.api.AdvanceUserRealmRights;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
