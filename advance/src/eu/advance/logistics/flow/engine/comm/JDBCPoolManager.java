@@ -30,13 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.core.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 
 /**
  * @author akarnokd, 2011.10.05.
  *
  */
-public class JDBCPoolManager implements PoolManager<Connection> {
+public class JDBCPoolManager implements PoolManager<JDBCConnection> {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(JDBCPoolManager.class);
 	/** The data source for the connection configuration. */
@@ -49,22 +50,22 @@ public class JDBCPoolManager implements PoolManager<Connection> {
 		this.ds = ds.copy();
 	}
 	@Override
-	public Connection create() throws Exception {
+	public JDBCConnection create() throws Exception {
 		Class.forName(ds.driver);
 		char[] pw = ds.password();
 		Connection conn = DriverManager.getConnection(ds.url, ds.user, new String(pw != null ? pw : new char[0]));
 		conn.setAutoCommit(false);
-		return conn;
+		return new JDBCConnection(conn);
 	}
 	@Override
-	public boolean verify(Connection obj) throws Exception {
+	public boolean verify(JDBCConnection obj) throws Exception {
 		try {
 			try {
-				return obj.isValid(0);
+				return obj.conn.isValid(0);
 			} catch (NoSuchMethodError err) {
 				LOG.warn("Driver " + ds.driver + " does not support JDBC 4.0");
-				if (!obj.isClosed()) {
-					ResultSet rs = obj.getMetaData().getTables(null, null, null, null);
+				if (!obj.conn.isClosed()) {
+					ResultSet rs = obj.conn.getMetaData().getTables(null, null, null, null);
 					try {
 						if (rs.next()) {
 							rs.getString(1);
@@ -81,8 +82,8 @@ public class JDBCPoolManager implements PoolManager<Connection> {
 		return false;
 	}
 	@Override
-	public void close(Connection obj) throws Exception {
-		obj.close();
+	public void close(JDBCConnection obj) throws Exception {
+		obj.conn.close();
 	}
 	/**
 	 * Test if the supplied data source can be accessed.
@@ -92,7 +93,7 @@ public class JDBCPoolManager implements PoolManager<Connection> {
 	public static String test(@NonNull AdvanceJDBCDataSource ds) {
 		JDBCPoolManager mgr = new JDBCPoolManager(ds);
 		try {
-			Connection conn = mgr.create();
+			JDBCConnection conn = mgr.create();
 			try {
 				if (mgr.verify(conn)) {
 					return "";

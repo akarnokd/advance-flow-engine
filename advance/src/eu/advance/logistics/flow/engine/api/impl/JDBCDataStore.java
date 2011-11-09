@@ -22,14 +22,14 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStoreUpdate;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailBox;
@@ -45,7 +45,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.comm.Pool;
+import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -56,14 +56,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	/** The update methods. */
 	protected final AdvanceDataStoreUpdate update;
 	/** The connection pool. */
-	protected final Pool<Connection> pool;
+	protected final Pool<JDBCConnection> pool;
 	/**
 	 * Constructs a JDBC datastore with the given update implementation and the given
 	 * connection pool.
 	 * @param updateImpl the update implementation
 	 * @param pool the connection pool
 	 */
-	public JDBCDataStore(@NonNull AdvanceDataStoreUpdate updateImpl, @NonNull Pool<Connection> pool) {
+	public JDBCDataStore(@NonNull AdvanceDataStoreUpdate updateImpl, @NonNull Pool<JDBCConnection> pool) {
 		this.update = updateImpl;
 		this.pool = pool;
 	}

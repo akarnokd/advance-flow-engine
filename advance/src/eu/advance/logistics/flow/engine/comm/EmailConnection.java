@@ -19,29 +19,12 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
-
-import hu.akarnokd.reactive4java.base.Scheduler;
-
-import java.util.Map;
-
-import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+package eu.advance.logistics.flow.engine.comm;
 
 /**
- * @author akarnokd, 2011.11.08.
- *
+ * Represents the available functions of an email connection.
+ * @author akarnokd, 2011.11.09.
  */
-public class AdvanceCompilerSettings {
-	/** The schema resolver. */
-	public AdvanceSchemaResolver schemaResolver;
-	/** The block resolver. */
-	public AdvanceBlockResolver blockResolver;
-	/** The map of various schedulers. */
-	public Map<AdvanceSchedulerPreference, Scheduler> schedulers;
-	/** The unchecked datastore. */
-	public AdvanceDataStore datastore;
-	/** The connection pools manager. */
-	public AdvancePools pools;
+public class EmailConnection {
+	// TODO add functions
 }

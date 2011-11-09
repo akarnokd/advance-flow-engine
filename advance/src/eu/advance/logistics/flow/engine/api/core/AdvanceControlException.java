@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.ds;
+package eu.advance.logistics.flow.engine.api.core;
 
 
 /**

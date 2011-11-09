@@ -23,42 +23,42 @@ package eu.advance.logistics.flow.engine.comm;
 
 import eu.advance.logistics.flow.engine.api.core.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailBox;
 
 /**
- * A SOAP connection object manager for pool.
- * @author akarnokd, 2011.10.06.
+ * The email box connection manager.
+ * @author akarnokd, 2011.11.09.
  */
-public class SOAPPoolManager implements PoolManager<SOAPConnection> {
-	/** The channel configuration. */
-	protected final AdvanceSOAPChannel channel;
+public class EmailPoolManager implements PoolManager<EmailConnection> {
+	/** The email configuration. */
+	protected final AdvanceEmailBox box;
 	/** The datastore for accessing the keystores. */
 	protected final AdvanceDataStore datastore;
 	/**
 	 * Constructs the pool manager with the given configuration.
-	 * @param channel the endpoint settings
+	 * @param box the email box
 	 * @param datastore the datastore for accessing the keystores
 	 */
-	public SOAPPoolManager(AdvanceSOAPChannel channel, AdvanceDataStore datastore) {
-		this.channel = channel;
+	public EmailPoolManager(AdvanceEmailBox box, AdvanceDataStore datastore) {
+		this.box = box;
 		this.datastore = datastore;
 	}
 	@Override
-	public SOAPConnection create() throws Exception {
+	public EmailConnection create() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean verify(SOAPConnection obj) throws Exception {
+	public boolean verify(EmailConnection obj) throws Exception {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void close(SOAPConnection obj) throws Exception {
+	public void close(EmailConnection obj) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

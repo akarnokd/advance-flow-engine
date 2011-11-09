@@ -166,6 +166,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				blockSettings.parent = root;
 				blockSettings.schedulers = schedulers();
 				blockSettings.datastore = this.settings.datastore;
+				blockSettings.pools = this.settings.pools;
 				
 				AdvanceBlock ab = blockResolver().create(blockSettings, br.type);
 				ab.init(consts);

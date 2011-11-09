@@ -41,7 +41,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailBox;

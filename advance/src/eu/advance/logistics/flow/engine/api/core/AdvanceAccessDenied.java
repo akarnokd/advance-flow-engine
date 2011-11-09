@@ -19,29 +19,45 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.api.core;
 
-import hu.akarnokd.reactive4java.base.Scheduler;
-
-import java.util.Map;
-
-import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 
 /**
- * @author akarnokd, 2011.11.08.
- *
+ * Exception to indicate the user has no right to perform the operation.
+ * @author akarnokd, 2011.09.21.
  */
-public class AdvanceCompilerSettings {
-	/** The schema resolver. */
-	public AdvanceSchemaResolver schemaResolver;
-	/** The block resolver. */
-	public AdvanceBlockResolver blockResolver;
-	/** The map of various schedulers. */
-	public Map<AdvanceSchedulerPreference, Scheduler> schedulers;
-	/** The unchecked datastore. */
-	public AdvanceDataStore datastore;
-	/** The connection pools manager. */
-	public AdvancePools pools;
+public class AdvanceAccessDenied extends AdvanceControlException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3913685096778293578L;
+
+	/**
+	 * 
+	 */
+	public AdvanceAccessDenied() {
+	}
+
+	/**
+	 * @param message the message
+	 */
+	public AdvanceAccessDenied(String message) {
+		super(message);
+	}
+
+	/**
+	 * @param cause the cause
+	 */
+	public AdvanceAccessDenied(Throwable cause) {
+		super(cause);
+	}
+
+	/**
+	 * @param message the message
+	 * @param cause the cause
+	 */
+	public AdvanceAccessDenied(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

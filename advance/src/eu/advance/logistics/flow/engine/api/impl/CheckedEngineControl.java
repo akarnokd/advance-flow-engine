@@ -26,10 +26,10 @@ import hu.akarnokd.reactive4java.reactive.Observable;
 import java.io.IOException;
 import java.util.List;
 
-import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.AdvanceAccessDenied;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyEntry;

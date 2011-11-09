@@ -60,9 +60,9 @@ import com.sun.net.httpserver.HttpsServer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.AdvanceAccessDenied;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
@@ -88,7 +88,7 @@ public class AdvanceFlowEngine implements Runnable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
 	/** The version of the flow engine. */
-	public static final String VERSION = "0.09.165";
+	public static final String VERSION = "0.10.190";
 	/** The configuration. */
 	private AdvanceEngineConfig config;
 	/** The basic server. */
@@ -122,11 +122,7 @@ public class AdvanceFlowEngine implements Runnable {
 		try {
 			XElement xconfig = XElement.parseXML(configFile);
 			config.initialize(xconfig, workDir);
-			AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
-			compilerSettings.schemaResolver = config.schemaResolver; 
-			compilerSettings.blockResolver = config.blockResolver; 
-			compilerSettings.schedulers = config.schedulerMap;
-			compilerSettings.datastore = config.datastore();
+			AdvanceCompilerSettings compilerSettings = config.createCompilerSettings();
 			AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
 			control = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler, workDir) {
 				@Override
