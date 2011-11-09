@@ -57,7 +57,6 @@ import eu.advance.logistics.flow.engine.error.MultiInputBindingError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
-import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
@@ -308,56 +307,6 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		}
 		return null;
 	}
-	/** Definition of a type relation. */
-	static class TypeRelation {
-		/** The left type. */
-		public AdvanceType left;
-		/** The right type. */
-		public AdvanceType right;
-		/** The binding wire. */
-		public AdvanceBlockBind wire;
-		/** Construct an empty type relation. */
-		public TypeRelation() {
-			
-		}
-		/**
-		 * Construct a type relation with the initial values.
-		 * @param left the left type
-		 * @param right the right type
-		 * @param wire the original wire
-		 */
-		public TypeRelation(AdvanceType left, AdvanceType right, AdvanceBlockBind wire) {
-			this.left = left;
-			this.right = right;
-			this.wire = wire;
-		}
-		/**
-		 * Copy-construct a type relation with the initial values.
-		 * @param other the other type relation
-		 */
-		public TypeRelation(TypeRelation other) {
-			this.left = other.left;
-			this.right = other.right;
-			this.wire = other.wire;
-		}
-		@Override
-		public String toString() {
-//			return String.format("%s(%s):%s >= %s(%s):%s (%s)", wire.sourceBlock, wire.sourceParameter, left, wire.destinationBlock, wire.destinationParameter, right, wire.id);
-			return String.format("%s >= %s (%s)", left, right, wire.id);
-		}
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof TypeRelation) {
-				TypeRelation tr = (TypeRelation) obj;
-				return left == tr.left && right == tr.right;
-			}
-			return false;
-		}
-		@Override
-		public int hashCode() {
-			return left.hashCode() * 31 + right.hashCode();
-		}
-	}
 	/**
 	 * Verify the types along the bindings of this composite block.
 	 * @param enclosingBlock the most outer block
@@ -383,13 +332,13 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			AdvanceCompositeBlock cb = blockRecursion.removeFirst();
 			blockRecursion.addAll(cb.composites.values());
 
-			if (!verifyBlocks(result.errors, cb)) {
+			if (!verifyBlocks(result, cb)) {
 				continue;
 			}
 
 			// verify bindings
 			List<AdvanceBlockBind> validBindings = Lists.newArrayList();
-			verifyBindings(result.errors, cb, validBindings);
+			verifyBindings(result, cb, validBindings);
 			
 			// for each individual block, have an individual type variable mapping per ports
 			Map<String, Map<String, AdvanceType>> typeMemory = Maps.newHashMap();
@@ -516,12 +465,12 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		
 		// ---------------------------------------------------------------------------------
 		
-		AdvanceTypeInference.infer(relations, result);
-		
-		if (result.wireTypes.size() > 0) {
+		AdvanceTypeInference typeInference = new AdvanceTypeInference(relations);
+		result.add(typeInference.infer());
+		if (result.wireTypes().size() > 0) {
 				
 			Deque<AdvanceType> types = Lists.newLinkedList();
-			for (AdvanceType at : result.wireTypes.values()) {
+			for (AdvanceType at : result.wireTypes()) {
 				types.add(at);
 			}
 			while (!types.isEmpty()) {
@@ -548,12 +497,12 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 * @param cb the composite block to verify
 	 * @return false if one or more blocks are missing.
 	 */
-	boolean verifyBlocks(final List<? super AdvanceCompilationError> result,
+	boolean verifyBlocks(final AdvanceCompilationResult result,
 			final AdvanceCompositeBlock cb) {
 		boolean r = true;
 		for (AdvanceBlockReference br : cb.blocks.values()) {
 			if (blockResolver().lookup(br.type) == null) {
-				result.add(new MissingBlockError(br.id, br.type));
+				result.addError(new MissingBlockError(br.id, br.type));
 				r = false;
 			}
 		}
@@ -571,7 +520,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 * @param cb the current composite block
 	 * @param validBindings the valid bindings
 	 */
-	void verifyBindings(final List<? super AdvanceCompilationError> result,
+	void verifyBindings(final AdvanceCompilationResult result,
 			final AdvanceCompositeBlock cb, 
 			final List<AdvanceBlockBind> validBindings) {
 		Set<List<Object>> bindingMemory = Sets.newHashSet();
@@ -582,7 +531,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			Object inputPort = null;
 			
 			if (!bb.hasSourceBlock() && cb.outputs.containsKey(bb.sourceParameter)) {
-				result.add(new SourceToCompositeOutputError(bb));
+				result.addError(new SourceToCompositeOutputError(bb));
 				continue;
 			}
 			if (!bb.hasSourceBlock() && cb.inputs.containsKey(bb.sourceParameter)) {
@@ -598,7 +547,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				input = b;
 				AdvanceBlockRegistryEntry block = blockResolver().lookup(b.type);
 				if (block.inputs.containsKey(bb.sourceParameter)) {
-					result.add(new SourceToInputBindingError(bb));
+					result.addError(new SourceToInputBindingError(bb));
 					continue;
 				}
 				inputPort = block.outputs.get(bb.sourceParameter);
@@ -607,7 +556,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				AdvanceCompositeBlock cb1 = cb.composites.get(bb.sourceBlock);
 				input = cb1;
 				if (cb1.inputs.containsKey(bb.sourceParameter)) {
-					result.add(new SourceToCompositeInputError(bb));
+					result.addError(new SourceToCompositeInputError(bb));
 					continue;
 				}
 				inputPort = cb1.outputs.get(bb.sourceParameter);
@@ -615,11 +564,11 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			
 			
 			if (input == null) {
-				result.add(new MissingSourceError(bb));
+				result.addError(new MissingSourceError(bb));
 				continue;
 			}
 			if (inputPort == null) {
-				result.add(new MissingSourcePortError(bb));
+				result.addError(new MissingSourcePortError(bb));
 				continue;
 			}
 			
@@ -628,11 +577,11 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			
 			// check if destination is a constant
 			if (cb.constants.containsKey(bb.destinationBlock)) {
-				result.add(new ConstantOutputError(bb));
+				result.addError(new ConstantOutputError(bb));
 				continue;
 			}
 			if (!bb.hasDestinationBlock() && cb.inputs.containsKey(bb.destinationParameter)) {
-				result.add(new DestinationToCompositeInputError(bb));
+				result.addError(new DestinationToCompositeInputError(bb));
 				continue;
 			}
 			if (!bb.hasDestinationBlock() && cb.outputs.containsKey(bb.destinationParameter)) {
@@ -644,7 +593,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				output = b;
 				AdvanceBlockRegistryEntry block = blockResolver().lookup(b.type);
 				if (block.outputs.containsKey(bb.destinationParameter)) {
-					result.add(new DestinationToOutputError(bb));
+					result.addError(new DestinationToOutputError(bb));
 					continue;
 				}
 				outputPort = block.inputs.get(bb.destinationParameter);
@@ -653,23 +602,23 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				AdvanceCompositeBlock cb1 = cb.composites.get(bb.destinationBlock);
 				output = cb1;
 				if (cb1.outputs.containsKey(bb.destinationParameter)) {
-					result.add(new DestinationToCompositeOutputError(bb));
+					result.addError(new DestinationToCompositeOutputError(bb));
 					continue;
 				}
 				outputPort = cb1.inputs.get(bb.destinationParameter);
 			}
 			
 			if (output == null) {
-				result.add(new MissingDestinationError(bb));
+				result.addError(new MissingDestinationError(bb));
 				continue;
 			}
 			if (outputPort == null) {
-				result.add(new MissingDestinationPortError(bb));
+				result.addError(new MissingDestinationPortError(bb));
 				continue;
 			}
 
 			if (!sameOutputMemory.add(Arrays.asList(output, outputPort))) {
-				result.add(new MultiInputBindingError(bb));
+				result.addError(new MultiInputBindingError(bb));
 				continue;
 			}
 
