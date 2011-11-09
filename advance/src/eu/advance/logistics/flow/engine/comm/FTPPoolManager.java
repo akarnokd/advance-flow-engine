@@ -55,7 +55,8 @@ import com.sshtools.j2ssh.transport.TransportProtocolException;
 import com.sshtools.j2ssh.transport.publickey.SshPublicKey;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPProtocols;

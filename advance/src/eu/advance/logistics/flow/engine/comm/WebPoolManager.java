@@ -23,15 +23,15 @@ package eu.advance.logistics.flow.engine.comm;
 
 import eu.advance.logistics.flow.engine.api.core.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
 
 /**
- * A SOAP connection object manager for pool.
+ * A Web connection manager for pooling.
  * @author akarnokd, 2011.10.06.
  */
-public class SOAPPoolManager implements PoolManager<SOAPConnection> {
+public class WebPoolManager implements PoolManager<WebConnection> {
 	/** The channel configuration. */
-	protected final AdvanceSOAPChannel channel;
+	protected final AdvanceWebDataSource channel;
 	/** The datastore for accessing the keystores. */
 	protected final AdvanceDataStore datastore;
 	/**
@@ -39,24 +39,24 @@ public class SOAPPoolManager implements PoolManager<SOAPConnection> {
 	 * @param channel the endpoint settings
 	 * @param datastore the datastore for accessing the keystores
 	 */
-	public SOAPPoolManager(AdvanceSOAPChannel channel, AdvanceDataStore datastore) {
+	public WebPoolManager(AdvanceWebDataSource channel, AdvanceDataStore datastore) {
 		this.channel = channel;
 		this.datastore = datastore;
 	}
 	@Override
-	public SOAPConnection create() throws Exception {
+	public WebConnection create() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean verify(SOAPConnection obj) throws Exception {
+	public boolean verify(WebConnection obj) throws Exception {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void close(SOAPConnection obj) throws Exception {
+	public void close(WebConnection obj) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

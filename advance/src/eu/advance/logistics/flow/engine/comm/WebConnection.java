@@ -21,27 +21,10 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
-import java.io.Closeable;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-
-
 /**
- * Represents a generic pooling object which supplies and takes back objects.
- * @author akarnokd, 2011.10.05.
- * @param <T> the pooled object type
+ * Represents the functions of a HTTP(s) connection.
+ * @author akarnokd, 2011.11.09.
  */
-public interface Pool<T> extends Closeable {
-	/**
-	 * Retrieve an object from the pool.
-	 * @return the object retrieved
-	 * @throws Exception if the object could not be supplied
-	 */
-	@NonNull
-	T get() throws Exception;
-	/**
-	 * Return an object to the pool.
-	 * @param obj the object to return
-	 */
-	void put(@NonNull T obj);
+public class WebConnection {
+	// TODO implement functions
 }

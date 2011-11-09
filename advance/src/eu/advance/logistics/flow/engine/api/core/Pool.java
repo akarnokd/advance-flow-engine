@@ -19,34 +19,29 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.comm;
+package eu.advance.logistics.flow.engine.api.core;
+
+import java.io.Closeable;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
+
 /**
- * The pool manager interface for creating, verifying and closing objects.
- * @author akarnokd, 2011-10-05
- * @param <T> the object type
+ * Represents a generic pooling object which supplies and takes back objects.
+ * @author akarnokd, 2011.10.05.
+ * @param <T> the pooled object type
  */
-public interface PoolManager<T> {
+public interface Pool<T> extends Closeable {
 	/**
-	 * Creates a new object of type T.
-	 * @return the object
-	 * @throws Exception if the object could not be created
+	 * Retrieve an object from the pool.
+	 * @return the object retrieved
+	 * @throws Exception if the object could not be supplied
 	 */
 	@NonNull
-	T create() throws Exception;
+	T get() throws Exception;
 	/**
-	 * Verify the validity of the given object.
-	 * @param obj the object to verify
-	 * @return true if the object is valid
-	 * @throws Exception if the verification failure indicates a permanent error
+	 * Return an object to the pool.
+	 * @param obj the object to return
 	 */
-	boolean verify(T obj) throws Exception;
-	/**
-	 * Close the specified object.
-	 * @param obj the object to close
-	 * @throws Exception to aggregate exceptions
-	 */
-	void close(T obj) throws Exception;
+	void put(@NonNull T obj);
 }

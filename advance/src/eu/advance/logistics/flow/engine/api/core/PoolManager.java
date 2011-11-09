@@ -19,46 +19,34 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api;
+package eu.advance.logistics.flow.engine.api.core;
 
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * Exception to indicate the user has no right to perform the operation.
- * @author akarnokd, 2011.09.21.
+ * The pool manager interface for creating, verifying and closing objects.
+ * @author akarnokd, 2011-10-05
+ * @param <T> the object type
  */
-public class AdvanceAccessDenied extends AdvanceControlException {
+public interface PoolManager<T> {
 	/**
-	 * 
+	 * Creates a new object of type T.
+	 * @return the object
+	 * @throws Exception if the object could not be created
 	 */
-	private static final long serialVersionUID = -3913685096778293578L;
-
+	@NonNull
+	T create() throws Exception;
 	/**
-	 * 
+	 * Verify the validity of the given object.
+	 * @param obj the object to verify
+	 * @return true if the object is valid
+	 * @throws Exception if the verification failure indicates a permanent error
 	 */
-	public AdvanceAccessDenied() {
-	}
-
+	boolean verify(T obj) throws Exception;
 	/**
-	 * @param message the message
+	 * Close the specified object.
+	 * @param obj the object to close
+	 * @throws Exception to aggregate exceptions
 	 */
-	public AdvanceAccessDenied(String message) {
-		super(message);
-	}
-
-	/**
-	 * @param cause the cause
-	 */
-	public AdvanceAccessDenied(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 * @param message the message
-	 * @param cause the cause
-	 */
-	public AdvanceAccessDenied(String message, Throwable cause) {
-		super(message, cause);
-	}
-
+	void close(T obj) throws Exception;
 }

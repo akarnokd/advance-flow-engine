@@ -26,6 +26,7 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 
 /**
@@ -43,6 +44,8 @@ public class AdvanceBlockSettings {
 	public AdvanceBlockRegistryEntry description;
 	/** The link to the datastore. */
 	public AdvanceDataStore datastore;
+	/** The connection pools to various objects. */
+	public AdvancePools pools;
 	/** Default constructor. */
 	public AdvanceBlockSettings() {
 		
@@ -56,6 +59,7 @@ public class AdvanceBlockSettings {
 		this.schedulers = other.schedulers;
 		this.parent = other.parent;
 		this.description = other.description;
+		this.pools = other.pools;
 	}
 	/** @return The preferred scheduler. */
 	public AdvanceSchedulerPreference preferredScheduler() {

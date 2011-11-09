@@ -19,29 +19,29 @@
  *
  */
 
-package eu.advance.logistics.flow.engine;
+package eu.advance.logistics.flow.engine.comm;
 
-import hu.akarnokd.reactive4java.base.Scheduler;
-
-import java.util.Map;
-
-import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import java.sql.Connection;
 
 /**
- * @author akarnokd, 2011.11.08.
- *
+ * Wraps a java.sql.Connection and provides some useful methods.
+ * @author akarnokd, 2011.11.09.
  */
-public class AdvanceCompilerSettings {
-	/** The schema resolver. */
-	public AdvanceSchemaResolver schemaResolver;
-	/** The block resolver. */
-	public AdvanceBlockResolver blockResolver;
-	/** The map of various schedulers. */
-	public Map<AdvanceSchedulerPreference, Scheduler> schedulers;
-	/** The unchecked datastore. */
-	public AdvanceDataStore datastore;
-	/** The connection pools manager. */
-	public AdvancePools pools;
+public class JDBCConnection {
+	/** The underlying connection. */
+	protected final Connection conn;
+	/**
+	 * Constructor. Initializes the connection.
+	 * @param conn the connection
+	 */
+	public JDBCConnection(Connection conn) {
+		this.conn = conn;
+	}
+	/**
+	 * Returns the underlying connection.
+	 * @return the connection
+	 */
+	public Connection getConnection() {
+		return conn;
+	}
 }

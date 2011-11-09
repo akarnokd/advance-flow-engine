@@ -58,11 +58,11 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.AdvanceAccessDenied;
+import eu.advance.logistics.flow.engine.api.core.AdvanceAccessDenied;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailBox;

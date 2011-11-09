@@ -35,7 +35,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyEntry;

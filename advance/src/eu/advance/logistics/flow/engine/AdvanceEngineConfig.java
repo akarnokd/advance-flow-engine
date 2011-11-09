@@ -29,7 +29,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -49,13 +48,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.core.BoundedPool;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
+import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
+import eu.advance.logistics.flow.engine.api.impl.AdvancePoolCreator;
 import eu.advance.logistics.flow.engine.api.impl.JDBCDataStore;
 import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
-import eu.advance.logistics.flow.engine.comm.BoundedPool;
+import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
@@ -87,7 +89,7 @@ public class AdvanceEngineConfig {
 	/** The JDBC data store. */
 	private JDBCDataStore jdbcDataStore;
 	/** The JDBC pool. */
-	protected BoundedPool<Connection> jdbcPool;
+	protected BoundedPool<JDBCConnection> jdbcPool;
 	/** The local keystores. */
 	public final Map<String, AdvanceKeyStore> keystores = Maps.newHashMap();
 	/** The scheduler mappings. */
@@ -96,6 +98,8 @@ public class AdvanceEngineConfig {
 	public final EnumMap<AdvanceSchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<AdvanceSchedulerPreference, ExecutorService>(AdvanceSchedulerPreference.class);
 	/** The working directory. */
 	protected String workDir;
+	/** The connection pool managers. */
+	protected AdvancePools pools;
 	/**
 	 * Create the lookup.
 	 * @param blockRegistries The block registries
@@ -200,10 +204,11 @@ public class AdvanceEngineConfig {
 			jdbcDataSource.schema = ds.get("schema");
 			jdbcDataSource.poolSize = ds.getInt("poolsize");
 			
-			jdbcPool = new BoundedPool<Connection>(jdbcDataSource.poolSize, 
+			jdbcPool = new BoundedPool<JDBCConnection>(jdbcDataSource.poolSize, 
 					new JDBCPoolManager(jdbcDataSource));
 			jdbcDataStore = new JDBCDataStore(null, jdbcPool); // TODO JDBC update
 		}
+		pools = new AdvancePools(new AdvancePoolCreator(datastore()));
 	}
 	/**
 	 * Terminate and close everything.
@@ -338,5 +343,25 @@ public class AdvanceEngineConfig {
 	/** @return the datastore object. */
 	public AdvanceDataStore datastore() {
 		return localDataStore != null ? localDataStore : jdbcDataStore;
+	}
+	/**
+	 * Returns the global connection pool manager.
+	 * @return the connection pool manager.
+	 */
+	public AdvancePools pools() {
+		return pools;
+	}
+	/**
+	 * Creates a compiler settings based on this configuration.
+	 * @return a compiler settings based on this configuration.
+	 */
+	public AdvanceCompilerSettings createCompilerSettings() {
+		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
+		compilerSettings.schemaResolver = schemaResolver; 
+		compilerSettings.blockResolver = blockResolver; 
+		compilerSettings.schedulers = schedulerMap;
+		compilerSettings.datastore = datastore();
+		compilerSettings.pools = pools();
+		return compilerSettings;
 	}
 }
