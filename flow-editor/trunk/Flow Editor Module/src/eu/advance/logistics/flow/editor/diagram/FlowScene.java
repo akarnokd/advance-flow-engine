@@ -435,6 +435,29 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                         menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "String", "advance:string"));
                         menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Timestamp", "advance:timestamp"));
                     }
+                    menu.addSeparator();;
+                    
+                    JMenuItem typeInfo = new JMenuItem("Type: " + at.toString());
+                    typeInfo.setEnabled(false);
+                    menu.add(typeInfo);
+                    
+                    return menu;
+                }
+            }));
+        }
+        if (BlockConnectionProvider.getParamType(widget, pin) == BlockParameter.Type.OUTPUT) {
+            final CompositeBlock parent = node.getParent();
+            widget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
+
+                @Override
+                public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
+                    JPopupMenu menu = new JPopupMenu();
+                    
+                    AdvanceType at = pin.getDescription().type;
+                   
+                    JMenuItem typeInfo = new JMenuItem("Type: " + at.toString());
+                    typeInfo.setEnabled(false);
+                    menu.add(typeInfo);
                     
                     return menu;
                 }
