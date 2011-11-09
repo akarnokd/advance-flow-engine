@@ -35,6 +35,7 @@ import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import java.awt.EventQueue;
+import java.util.List;
 import org.netbeans.api.visual.widget.Widget;
 
 /**
@@ -83,8 +84,12 @@ class FlowSceneController implements FlowDescriptionListener {
                 break;
             case ACTIVE_COMPOSITE_BLOCK_CHANGED:
                 saveLocations((CompositeBlock) params[0]);
+                // save compilation result
+                AdvanceCompilationResult r = scene.getFlowDescription().getCompilationResult();
                 scene.clean();
                 init((CompositeBlock) params[1]);
+                // restore compilation result
+                scene.getFlowDescription().setCompilationResult(r);
                 scene.validate();
                 break;
             case BIND_CREATED:
@@ -256,20 +261,9 @@ class FlowSceneController implements FlowDescriptionListener {
             for (BlockBind bind : scene.getEdges()) {
                 Widget w = scene.findWidget(bind);
                 if (w instanceof BlockConnectionWidget) {
-                    AdvanceType at = compilationResult.wireTypes.get(bind.id);
-                    
-                    // TODO move this into the compilation result class
-                    boolean error = false;
-                    for (AdvanceCompilationError e : compilationResult.errors) {
-                        if (e instanceof HasBinding) {
-                            HasBinding hb = (HasBinding) e;
-                            if (hb.binding().id.equals(bind.id)) {
-                                error = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (error) {
+                    AdvanceType at = compilationResult.getType(bind.id);
+                    List<AdvanceCompilationError> errors = compilationResult.getErrors(bind.id);
+                    if (!errors.isEmpty()) {
                         ((BlockConnectionWidget) w).setError(true);
                     } else
                     if (at == null) {

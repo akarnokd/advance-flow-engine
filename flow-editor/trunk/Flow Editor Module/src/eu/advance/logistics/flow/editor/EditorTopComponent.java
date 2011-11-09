@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -211,7 +212,9 @@ public final class EditorTopComponent extends TopComponent {
         removeInfo();
         info = new JPanel();
         final JLabel label = new JLabel();
-        AdvanceType type = cr.wireTypes.get(wire);
+        AdvanceType type = cr.getType(wire);
+        List<AdvanceCompilationError> errors = cr.getErrors(wire);
+
         StringBuilder b = new StringBuilder();
         b.append(wire);
         if (type == null) {
@@ -220,16 +223,8 @@ public final class EditorTopComponent extends TopComponent {
             b.append(": ").append(type);
         }
         // TODO move this into the compilation result class
-        boolean error = false;
-        for (AdvanceCompilationError e : cr.errors) {
-            if (e instanceof HasBinding) {
-                HasBinding hb = (HasBinding) e;
-                if (hb.binding().id.equals(wire)) {
-                    b.append("   ").append(e.toString());
-                    error = true;
-                    break;
-                }
-            }
+        for (AdvanceCompilationError e : errors) {
+            b.append("   ").append(e.toString());
         }
 
         label.setText(b.toString());
@@ -239,7 +234,7 @@ public final class EditorTopComponent extends TopComponent {
         info.add(label, BorderLayout.NORTH);
 
         info.setOpaque(true);
-        if (error) {
+        if (!errors.isEmpty()) {
             info.setBackground(new Color(0xFFCCCC));
         } else 
         if (type == null) {
