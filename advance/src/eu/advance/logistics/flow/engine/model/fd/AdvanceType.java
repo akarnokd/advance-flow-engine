@@ -67,7 +67,10 @@ public class AdvanceType implements XSerializable {
 			b.append(">");
 			return b.toString();
 		}
-		return String.format("%s[%d]", typeVariableName, id);
+		if (id > 0) {
+			return String.format("%s[%d]", typeVariableName, id);
+		}
+		return typeVariableName;
 		
 	}
 	/** @return create a new instance of this type declaration. */

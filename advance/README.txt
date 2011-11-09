@@ -1,7 +1,29 @@
-Advance Flow Engine README
+Advance Flow Editor + Engine README
 ==========================
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
+
+Editor Version 0.10.193 Notes
+-----------------------------
+
+Uses Engine Version 0.10.192
+
+Real-time type inference issues fixed.
+
+Added filter box to "Open from workspace..." dialog.
+
+Displaying the block parameter type in its popup menu.
+
+Import fixed due engine refactorings.
+
+Engine Version 0.10.192 Notes
+-----------------------------
+
+Improved type inference in face of parametric types.
+
+Communication pool management added to AdvanceBlock settings.
+
+Refactored a few classes.
 
 Version 0.09.165 Notes
 ----------------------
