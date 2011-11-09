@@ -2670,7 +2670,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 					} else {
 						if (r != null && !r.success()) {
 							StringBuilder b = new StringBuilder();
-							for (AdvanceCompilationError e : r.errors) {
+							for (AdvanceCompilationError e : r.errors()) {
 								b.append(e);
 								b.append("\r\n");
 							}
@@ -2711,7 +2711,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 					} else {
 						if (!r.success()) {
 							StringBuilder b = new StringBuilder("<html><pre>");
-							for (AdvanceCompilationError e : r.errors) {
+							for (AdvanceCompilationError e : r.errors()) {
 								b.append(e);
 								b.append("\r\n");
 							}

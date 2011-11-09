@@ -24,7 +24,6 @@ package eu.advance.logistics.flow.engine.model.fd;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.collect.Lists;
 
@@ -37,10 +36,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
  * @author akarnokd, 2011.07.01.
  */
 public class AdvanceType implements XSerializable {
-	/** The simple counter. */
-	private static final AtomicInteger GIDS = new AtomicInteger();
-	/** The type global id, for debugging purposes. */
-	private final int id = GIDS.incrementAndGet();
+	/** The counter used for type variables. */
+	public int id;
 	/** Reference to another type parameter within the same set of declarations. */
 	public String typeVariableName;
 	/** The actual type variable object. */
@@ -76,6 +73,7 @@ public class AdvanceType implements XSerializable {
 	/** @return create a new instance of this type declaration. */
 	public AdvanceType copy() {
 		AdvanceType result = new AdvanceType();
+		result.id = id;
 		result.typeVariableName = typeVariableName;
 		result.typeURI = typeURI;
 		result.type = type;
@@ -115,6 +113,7 @@ public class AdvanceType implements XSerializable {
 				throw new RuntimeException(ex);
 			}
 		}
+		id = root.getInt("type-id", 0);
 		for (XElement ta : root.childrenWithName("type-argument")) {
 			AdvanceType at = new AdvanceType();
 			at.load(ta);
@@ -123,6 +122,9 @@ public class AdvanceType implements XSerializable {
 	}
 	@Override
 	public void save(XElement destination) {
+		if (id > 0) {
+			destination.set("type-id", id);
+		}
 		destination.set("type-variable", typeVariableName);
 		destination.set("type", typeURI);
 		for (AdvanceType at : typeArguments) {

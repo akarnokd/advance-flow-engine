@@ -23,14 +23,17 @@ package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Func0;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.error.ErrorLookup;
 import eu.advance.logistics.flow.engine.error.GeneralCompilationError;
+import eu.advance.logistics.flow.engine.error.HasBinding;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -44,11 +47,11 @@ public class AdvanceCompilationResult implements XSerializable {
 	/**
 	 * The list of compilation errors.
 	 */
-	public final List<AdvanceCompilationError> errors = Lists.newArrayList();
+	private final List<AdvanceCompilationError> errors = Lists.newArrayList();
 	/**
 	 * The inferred wire types.
 	 */
-	public final Map<String, AdvanceType> wireTypes = Maps.newHashMap();
+	private final Map<String, AdvanceType> wireTypes = Maps.newHashMap();
 	/** Creates a new instance of this class. */
 	public static final Func0<AdvanceCompilationResult> CREATOR = new Func0<AdvanceCompilationResult>() {
 		@Override
@@ -91,5 +94,68 @@ public class AdvanceCompilationResult implements XSerializable {
 	/** @return true if the compilation finished without error. */
 	public boolean success() {
 		return errors.isEmpty();
+	}
+	/**
+	 * Add the contents of the another compilation result object to this.
+	 * @param other the other compulation result
+	 */
+	public void add(AdvanceCompilationResult other) {
+		wireTypes.putAll(other.wireTypes);
+		errors.addAll(other.errors);
+	}
+	/**
+	 * Returns the type of the given wire.
+	 * @param bindId the wire bind id
+	 * @return the type or null if not available
+	 */
+	public AdvanceType getType(String bindId) {
+		return wireTypes.get(bindId);
+	}
+	/**
+	 * Returns a list of the compilation errors associated with the given wire binding.
+	 * @param bindId the wire bind id
+	 * @return the list of compilation errors
+	 */
+	@NonNull
+	public List<AdvanceCompilationError> getErrors(@NonNull String bindId) {
+		List<AdvanceCompilationError> result = Lists.newArrayList();
+        for (AdvanceCompilationError e : errors) {
+            if (e instanceof HasBinding) {
+            	HasBinding hb = (HasBinding)e;
+                if (hb.binding().id.equals(bindId)) {
+                	result.add(e);
+                }
+            }
+        }
+        return result;
+	}
+	/**
+	 * Add a compilation error.
+	 * @param error the compilation error
+	 */
+	public void addError(@NonNull AdvanceCompilationError error) {
+		errors.add(error);
+	}
+	/**
+	 * Sets the wire type.
+	 * @param wireId the wire id
+	 * @param type the wire type
+	 */
+	public void setType(@NonNull String wireId, AdvanceType type) {
+		wireTypes.put(wireId, type);
+	}
+	/**
+	 * Returns the wire type values.
+	 * @return the collection of types
+	 */
+	public Collection<AdvanceType> wireTypes() {
+		return wireTypes.values();
+	}
+	/**
+	 * Returns the list of compilation errors.
+	 * @return the list of compilation errors
+	 */
+	public List<AdvanceCompilationError> errors() {
+		return Lists.newArrayList(errors);
 	}
 }
