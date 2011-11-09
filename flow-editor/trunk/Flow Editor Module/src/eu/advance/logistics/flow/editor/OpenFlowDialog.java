@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
 import javax.swing.AbstractListModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  *
@@ -37,6 +39,7 @@ public class OpenFlowDialog extends javax.swing.JDialog {
     public OpenFlowDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        setTitle("Open from workspace");
         
         if (jList1.getModel().getSize() > 0) {
             jList1.setSelectedIndex(0);
@@ -44,6 +47,24 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         setName("NAME");
         openButton.setName(OPEN_NAME);                
         getRootPane().setDefaultButton(openButton);
+        
+        filterBox.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateFilter();
+            }
+        });
     }
 
     /** This method is called from within the constructor to
@@ -59,6 +80,8 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         cancelButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
+        jLabel1 = new javax.swing.JLabel();
+        filterBox = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -70,6 +93,11 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         });
 
         cancelButton.setText(org.openide.util.NbBundle.getMessage(OpenFlowDialog.class, "OpenFlowDialog.cancelButton.text")); // NOI18N
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
 
         jList1.setModel(new FileModel());
         jList1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -79,18 +107,24 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         });
         jScrollPane1.setViewportView(jList1);
 
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(OpenFlowDialog.class, "OpenFlowDialog.jLabel1.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(cancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(openButton))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(filterBox, javax.swing.GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -99,9 +133,13 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(11, 11, 11)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(filterBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(openButton)
                     .addComponent(cancelButton))
@@ -131,11 +169,20 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_jList1MouseClicked
 
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        dispose();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+
     private class FileModel extends AbstractListModel {
 
         private final File[] files;
         private final String[] fileNames;
-
+        /** The filtered files.*/
+        private final List<File> filteredFiles = Lists.newArrayList();
+        /** The filtered names. */
+        private final List<String> filteredNames = Lists.newArrayList();;
+        /** The filter text. */
+        private String filter;
         public FileModel() {
             final File workspace = getWorkspaceDir();
             files = workspace.listFiles(new FileFilter() {
@@ -150,20 +197,46 @@ public class OpenFlowDialog extends javax.swing.JDialog {
             for (int i = 0, n = files.length; i < n; i++) {
                 fileNames[i] = files[i].getName();
             }
+            applyFilter();
         }
 
         @Override
         public int getSize() {
-            return fileNames.length;
+            return filteredFiles.size();
         }
 
         @Override
         public Object getElementAt(int index) {
-            return fileNames[index];
+            return filteredNames.get(index);
         }
 
         public File getFileAt(int index) {
-            return files[index];
+            return filteredFiles.get(index);
+        }
+        /**
+         * Apply the current filter on the contents.
+         */
+        private void applyFilter() {
+            int oldSize = filteredNames.size();
+            filteredNames.clear();
+            filteredFiles.clear();
+            fireIntervalRemoved(this, 0, oldSize);
+            for (File f : files) {
+                String name = f.getName();
+                if (filter == null || name.toLowerCase().contains(filter)) {
+                    filteredNames.add(name);
+                    filteredFiles.add(f);
+                }
+            }
+            fireIntervalAdded(this, 0, filteredNames.size());
+        }
+        /**
+         * Set the new filter string.
+         * @param filter the filter string
+         */
+        public void setFilter(String filter) {
+            this.filter = filter;
+            applyFilter();
         }
     }
 
@@ -197,6 +270,15 @@ public class OpenFlowDialog extends javax.swing.JDialog {
         return workspace;
 
     }
+    /** Update the filtering of the list. */
+    void updateFilter() {
+        String text = filterBox.getText();
+        if (text.isEmpty()) {
+            ((FileModel) jList1.getModel()).setFilter(null);
+        } else {
+            ((FileModel) jList1.getModel()).setFilter(text);
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -217,6 +299,8 @@ public class OpenFlowDialog extends javax.swing.JDialog {
     }*/
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
+    private javax.swing.JTextField filterBox;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton openButton;
