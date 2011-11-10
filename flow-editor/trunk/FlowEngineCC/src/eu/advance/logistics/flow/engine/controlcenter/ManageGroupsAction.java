@@ -20,10 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.ManageGroupsAction")
@@ -33,7 +36,10 @@ import org.openide.util.NbBundle;
 //})
 public final class ManageGroupsAction  extends AbstractAction {
 
-    public ManageGroupsAction() {
+    /** */
+	private static final long serialVersionUID = -2546575561798158354L;
+
+	public ManageGroupsAction() {
         putValue(NAME, NbBundle.getMessage(ManageGroupsAction.class, "CTL_ManageGroupsAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

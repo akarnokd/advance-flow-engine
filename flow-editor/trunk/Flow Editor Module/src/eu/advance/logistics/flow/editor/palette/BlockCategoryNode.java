@@ -20,8 +20,6 @@
  */
 package eu.advance.logistics.flow.editor.palette;
 
-import eu.advance.logistics.flow.editor.model.BlockCategory;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -29,11 +27,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.WeakListeners;
 import org.openide.util.lookup.Lookups;
+
+import eu.advance.logistics.flow.editor.model.BlockCategory;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 
 /**
  *
@@ -94,7 +96,7 @@ public class BlockCategoryNode extends AbstractNode implements PropertyChangeLis
         @Override
         protected void removeNotify() {
             super.removeNotify();
-            setKeys(Collections.EMPTY_SET);
+            setKeys(Collections.<AdvanceBlockDescription>emptySet());
         }
 
         void update() {

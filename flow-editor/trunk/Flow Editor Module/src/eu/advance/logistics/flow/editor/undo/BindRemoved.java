@@ -28,8 +28,9 @@ import eu.advance.logistics.flow.editor.model.CompositeBlock;
  * @author TTS
  */
 public class BindRemoved extends UndoableEdit {
-
-    private CompositeBlock parent;
+    /** */
+	private static final long serialVersionUID = -8056460721341812650L;
+	private CompositeBlock parent;
     private BlockBind bind;
 
     public BindRemoved(CompositeBlock parent, BlockBind bind) {

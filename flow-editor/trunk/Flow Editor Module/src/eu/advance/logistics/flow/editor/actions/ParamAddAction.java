@@ -20,23 +20,27 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
+import org.openide.util.NbBundle;
+
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.undo.ParameterCreated;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author TTS
  */
 public class ParamAddAction extends AbstractAction {
-
-    private UndoRedoSupport undoRedoSupport;
+    /** */
+	private static final long serialVersionUID = 8159161494886177256L;
+	private UndoRedoSupport undoRedoSupport;
     private CompositeBlock block;
     private BlockParameter.Type type;
     private Point location;

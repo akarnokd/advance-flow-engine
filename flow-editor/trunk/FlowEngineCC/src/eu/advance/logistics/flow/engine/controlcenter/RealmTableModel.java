@@ -20,14 +20,18 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.collect.Lists;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import java.util.List;
+
 import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
+
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Exceptions;
+
+import com.google.common.collect.Lists;
+
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 
 /**
  *
@@ -35,7 +39,9 @@ import org.openide.util.Exceptions;
  */
 class RealmTableModel extends AbstractTableModel {
 
-    private List<AdvanceRealm> data = Lists.newArrayList();
+    /** */
+	private static final long serialVersionUID = -9080959383388958483L;
+	private List<AdvanceRealm> data = Lists.newArrayList();
     private int columns;
 
     RealmTableModel(boolean extended) {

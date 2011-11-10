@@ -20,22 +20,26 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.net.URI;
+
+import javax.swing.JRadioButton;
+
+import org.openide.util.Exceptions;
+import org.openide.windows.WindowManager;
+
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import java.net.URI;
-import javax.swing.JRadioButton;
-import org.openide.util.Exceptions;
-import org.openide.windows.WindowManager;
 
 /**
  *
  * @author TTS
  */
 public class ParameterDescriptionDialog extends javax.swing.JDialog {
-
-    private String tag;
+    /** */
+	private static final long serialVersionUID = 5543014109025699695L;
+	private String tag;
     private AdvanceBlockParameterDescription paramDesc;
 
     public ParameterDescriptionDialog(String tag) {
@@ -122,7 +126,7 @@ public class ParameterDescriptionDialog extends javax.swing.JDialog {
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         buttonGroup1.add(optionInteger);
-        optionInteger.setLabel("Integer [advance:integer]"); // NOI18N
+        optionInteger.setText(org.openide.util.NbBundle.getMessage(ParameterDescriptionDialog.class, "ParameterDescriptionDialog.optionInteger.text")); // NOI18N
         optionInteger.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 optionIntegerItemStateChanged(evt);
@@ -137,7 +141,7 @@ public class ParameterDescriptionDialog extends javax.swing.JDialog {
         getContentPane().add(optionInteger, gridBagConstraints);
 
         buttonGroup1.add(optionReal);
-        optionReal.setLabel("Real [advance:real]"); // NOI18N
+        optionReal.setText(org.openide.util.NbBundle.getMessage(ParameterDescriptionDialog.class, "ParameterDescriptionDialog.optionReal.text")); // NOI18N
         optionReal.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 optionRealItemStateChanged(evt);
@@ -152,7 +156,7 @@ public class ParameterDescriptionDialog extends javax.swing.JDialog {
         getContentPane().add(optionReal, gridBagConstraints);
 
         buttonGroup1.add(optionString);
-        optionString.setLabel("String [advance:string]"); // NOI18N
+        optionString.setText(org.openide.util.NbBundle.getMessage(ParameterDescriptionDialog.class, "ParameterDescriptionDialog.optionString.text")); // NOI18N
         optionString.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 optionStringItemStateChanged(evt);
@@ -167,7 +171,7 @@ public class ParameterDescriptionDialog extends javax.swing.JDialog {
         getContentPane().add(optionString, gridBagConstraints);
 
         buttonGroup1.add(optionCustom);
-        optionCustom.setLabel(org.openide.util.NbBundle.getMessage(ParameterDescriptionDialog.class, "ParameterDescriptionDialog.optionCustom.label")); // NOI18N
+        optionCustom.setText(org.openide.util.NbBundle.getMessage(ParameterDescriptionDialog.class, "ParameterDescriptionDialog.optionCustom.text")); // NOI18N
         optionCustom.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 optionCustomItemStateChanged(evt);
@@ -208,7 +212,7 @@ public class ParameterDescriptionDialog extends javax.swing.JDialog {
         getContentPane().add(jPanel1, gridBagConstraints);
 
         buttonGroup1.add(optionBoolean);
-        optionBoolean.setLabel("Boolean [advance:boolean]"); // NOI18N
+        optionBoolean.setText(org.openide.util.NbBundle.getMessage(ParameterDescriptionDialog.class, "ParameterDescriptionDialog.optionBoolean.text")); // NOI18N
         optionBoolean.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 optionBooleanItemStateChanged(evt);
@@ -223,7 +227,7 @@ public class ParameterDescriptionDialog extends javax.swing.JDialog {
         getContentPane().add(optionBoolean, gridBagConstraints);
 
         buttonGroup1.add(optionTimestamp);
-        optionTimestamp.setLabel("Timestamp [advance:timestamp]"); // NOI18N
+        optionTimestamp.setText(org.openide.util.NbBundle.getMessage(ParameterDescriptionDialog.class, "ParameterDescriptionDialog.optionTimestamp.text")); // NOI18N
         optionTimestamp.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 optionTimestampItemStateChanged(evt);

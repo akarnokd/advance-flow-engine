@@ -20,14 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
-import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -35,12 +27,14 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
+
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
@@ -51,6 +45,16 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
+import com.google.common.eventbus.Subscribe;
+
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.DownloadFlowAction")
 //@ActionRegistration(displayName = "#CTL_DownloadFlowAction")
@@ -59,7 +63,10 @@ import org.openide.windows.WindowManager;
 //})
 public final class DownloadFlowAction extends AbstractAction {
 
-    public DownloadFlowAction() {
+    /** */
+	private static final long serialVersionUID = 5297515763220164288L;
+
+	public DownloadFlowAction() {
         putValue(NAME, NbBundle.getMessage(DownloadFlowAction.class, "CTL_DownloadFlowAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

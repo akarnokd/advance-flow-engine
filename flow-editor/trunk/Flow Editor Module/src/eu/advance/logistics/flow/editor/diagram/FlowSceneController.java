@@ -20,23 +20,25 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import java.awt.EventQueue;
+import java.util.List;
+
+import org.netbeans.api.visual.widget.Widget;
+
 import com.google.common.base.Objects;
-import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
-import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
+
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
-import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.engine.error.HasBinding;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
+import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import java.awt.EventQueue;
-import java.util.List;
-import org.netbeans.api.visual.widget.Widget;
 
 /**
  *

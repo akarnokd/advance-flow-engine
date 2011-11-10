@@ -5,9 +5,11 @@ import java.awt.Dialog;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.Date;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -21,10 +23,10 @@ import org.openide.nodes.PropertySupport;
  */
 public class EditSupport {
 
-    private Class clz;
+    private Class<?> clz;
     private Object value;
 
-    public EditSupport(Class clz) {
+    public EditSupport(Class<?> clz) {
         this.clz = clz;
     }
 
@@ -60,7 +62,7 @@ public class EditSupport {
         return value != null ? value.toString() : null;
     }
 
-    Node.Property createProperty() {
+    Node.Property<?> createProperty() {
         if (Integer.class.equals(clz)) {
             return new PropertySupport.ReadWrite<Integer>("value", Integer.class, "Integer", "advance:integer") {
 
@@ -137,7 +139,7 @@ public class EditSupport {
         TypeSupport ts = types[TypeSupport.find(types, typeURI)];
         if (ts.clazz != null) {
             EditSupport editSupport = new EditSupport(ts.clazz);
-            Node.Property property = editSupport.createProperty();
+            Node.Property<?> property = editSupport.createProperty();
             if (property != null) {
                 editSupport.setAsText(content);
                 JPanel panel = new JPanel(new BorderLayout());

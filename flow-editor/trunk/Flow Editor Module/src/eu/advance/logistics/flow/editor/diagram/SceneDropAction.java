@@ -20,9 +20,10 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
-import eu.advance.logistics.flow.editor.model.FlowDescription;
 import java.awt.Image;
 import java.awt.Point;
+
+import eu.advance.logistics.flow.editor.model.FlowDescription;
 
 /**
  *

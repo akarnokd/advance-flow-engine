@@ -20,21 +20,23 @@
  */
 package eu.advance.logistics.flow.editor.palette;
 
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.datatransfer.Transferable;
+import java.io.IOException;
+
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.NodeTransfer;
+import org.openide.util.ImageUtilities;
+import org.openide.util.lookup.Lookups;
+
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.SceneDropAction;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.datatransfer.Transferable;
-import java.io.IOException;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.NodeTransfer;
-import org.openide.util.ImageUtilities;
-import org.openide.util.lookup.Lookups;
 
 /**
  *

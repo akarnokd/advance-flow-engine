@@ -20,25 +20,29 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
+
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.editor.undo.ParameterChanged;
 import eu.advance.logistics.flow.editor.undo.ParameterRenamed;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author TTS
  */
 public class ParamEditAction extends AbstractAction {
-
-    private UndoRedoSupport undoRedoSupport;
+    /** */
+	private static final long serialVersionUID = -4681084550784153831L;
+	private UndoRedoSupport undoRedoSupport;
     private BlockParameter parameter;
 
     public ParamEditAction(UndoRedoSupport urs, BlockParameter param) {

@@ -20,13 +20,11 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
-import eu.advance.logistics.flow.editor.model.AbstractBlock;
-import eu.advance.logistics.flow.editor.undo.BlockMoved;
-import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.netbeans.api.visual.action.AlignWithMoveDecorator;
 import org.netbeans.api.visual.action.AlignWithWidgetCollector;
 import org.netbeans.api.visual.action.MoveProvider;
@@ -34,6 +32,10 @@ import org.netbeans.api.visual.action.MoveStrategy;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.visual.action.AlignWithSupport;
+
+import eu.advance.logistics.flow.editor.model.AbstractBlock;
+import eu.advance.logistics.flow.editor.undo.BlockMoved;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 
 /**
  *

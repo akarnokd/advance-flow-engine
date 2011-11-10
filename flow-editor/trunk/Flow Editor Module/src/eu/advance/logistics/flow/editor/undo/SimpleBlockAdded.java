@@ -29,7 +29,9 @@ import eu.advance.logistics.flow.editor.model.SimpleBlock;
  */
 public class SimpleBlockAdded extends UndoableEdit {
 
-    private CompositeBlock parent;
+    /** */
+	private static final long serialVersionUID = -7176867025188222383L;
+	private CompositeBlock parent;
     private SimpleBlock block;
 
     public SimpleBlockAdded(CompositeBlock parent, SimpleBlock block) {

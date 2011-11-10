@@ -20,10 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.JDBCDataSourceAction")
@@ -33,7 +36,10 @@ import org.openide.util.NbBundle;
 //})
 public final class JDBCDataSourceAction  extends AbstractAction {
 
-    public JDBCDataSourceAction() {
+    /** */
+	private static final long serialVersionUID = -8268460136243741028L;
+
+	public JDBCDataSourceAction() {
         putValue(NAME, NbBundle.getMessage(JDBCDataSourceAction.class, "CTL_JDBCDataSourceAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

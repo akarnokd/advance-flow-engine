@@ -20,14 +20,16 @@
  */
 package eu.advance.logistics.flow.editor.tree;
 
+import java.io.IOException;
+
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
-import java.io.IOException;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 
 /**
  *
@@ -41,7 +43,7 @@ class SimpleBlockNode extends AbstractNode implements FlowDescriptionListener {
         super(Children.LEAF);
         this.block = block;
 
-        BlockCategory cat = BlockRegistry.getInstance().findByType(((SimpleBlock) block).description);
+        BlockCategory cat = BlockRegistry.getInstance().findByType(block.description);
         if (cat != null) {
             setIconBaseWithExtension(cat.getImagePath());
         }

@@ -20,14 +20,13 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -36,13 +35,16 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
+import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
+
 /**
  * 
  * @author TTS
  */
 @ActionID(id = "eu.advance.logistics.flow.editor.NewFlowAction", category = "File")
 @ActionRegistration(iconInMenu = true, displayName = "#CTL_NewFlowAction",
-        iconBase="eu/advance/logistics/flow/editor/images/newProject.png")
+        iconBase = "eu/advance/logistics/flow/editor/images/newProject.png")
 @ActionReferences(value = {
     @ActionReference(path = "Shortcuts", name = "D-N"),
     @ActionReference(path = "Menu/File", position = 100),

@@ -26,6 +26,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
+
 import org.openide.awt.UndoRedo;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
@@ -38,7 +39,9 @@ import org.openide.util.MutexException;
  */
 public class UndoRedoManager extends UndoManager implements UndoRedo {
 
-    private final ChangeSupport cs = new ChangeSupport(this);
+    /** */
+	private static final long serialVersionUID = -1171347438283793711L;
+	private final ChangeSupport cs = new ChangeSupport(this);
     private Mutex.ExceptionAction<Void> runUndo = new Mutex.ExceptionAction<Void>() {
 
         @Override

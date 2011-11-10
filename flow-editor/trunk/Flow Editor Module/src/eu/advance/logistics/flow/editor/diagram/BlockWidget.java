@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
-import com.google.common.collect.Lists;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -31,9 +30,8 @@ import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.WeakHashMap;
+
 import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.action.WidgetAction.State;
-import org.netbeans.api.visual.action.WidgetAction.WidgetMouseEvent;
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.border.BorderFactory;
@@ -46,6 +44,8 @@ import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.SeparatorWidget;
 import org.netbeans.api.visual.widget.Widget;
+
+import com.google.common.collect.Lists;
 
 /**
  *

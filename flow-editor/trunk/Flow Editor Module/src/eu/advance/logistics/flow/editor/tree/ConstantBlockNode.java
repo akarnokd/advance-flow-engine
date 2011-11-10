@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.editor.tree;
 
+import java.io.IOException;
+
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
-import java.io.IOException;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.util.NbBundle;
 
 /**
  *

@@ -20,18 +20,21 @@
  */
 package eu.advance.logistics.flow.editor.tree;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Node;
+
 import com.google.common.collect.Lists;
+
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Node;
 
 /**
  *
@@ -68,7 +71,7 @@ class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener
         return htmlDisplayName;
     }
 
-    private void updateChildren() {
+    private void updateMyChildren() {
         ((Ch) getChildren()).update();
     }
 
@@ -90,7 +93,7 @@ class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener
             case CONSTANT_BLOCK_ADDED:
             case CONSTANT_BLOCK_REMOVED:
                 if (params[0] == block) {
-                    updateChildren();
+                    updateMyChildren();
                 }
                 break;
             case ACTIVE_COMPOSITE_BLOCK_CHANGED:
@@ -149,7 +152,7 @@ class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener
         @Override
         protected void removeNotify() {
             super.removeNotify();
-            setKeys(Collections.EMPTY_LIST);
+            setKeys(Collections.<AbstractBlock>emptySet());
         }
 
         @Override

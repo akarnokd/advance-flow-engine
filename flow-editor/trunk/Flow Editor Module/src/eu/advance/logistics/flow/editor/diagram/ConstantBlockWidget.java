@@ -20,16 +20,18 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
-import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
+
+import eu.advance.logistics.flow.editor.model.ConstantBlock;
 
 /**
  *

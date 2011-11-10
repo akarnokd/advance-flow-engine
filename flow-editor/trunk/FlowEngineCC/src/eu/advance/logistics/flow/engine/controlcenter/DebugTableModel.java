@@ -20,22 +20,27 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.reactive.Observer;
-import java.awt.EventQueue; 
+
+import java.awt.EventQueue;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
 import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
+
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
 
 /**
  *
@@ -43,7 +48,9 @@ import org.netbeans.api.progress.ProgressHandleFactory;
  */
 class DebugTableModel extends AbstractTableModel {
 
-    private AdvanceEngineControl engine;
+    /** */
+	private static final long serialVersionUID = -3276249846112062077L;
+	private AdvanceEngineControl engine;
     private List<Entry> data = Lists.newArrayList();
     private List<Closeable> targets = Lists.newArrayList();
 
@@ -193,10 +200,10 @@ class DebugTableModel extends AbstractTableModel {
         final ProgressHandle ph = ProgressHandleFactory.createHandle("Closing debug...");
         ph.setInitialDelay(0);
         ph.start();
-        new SwingWorker() {
+        new SwingWorker<Void, Void>() {
 
             @Override
-            protected Object doInBackground() throws Exception {
+            protected Void doInBackground() throws Exception {
                 close();
                 return null;
             }

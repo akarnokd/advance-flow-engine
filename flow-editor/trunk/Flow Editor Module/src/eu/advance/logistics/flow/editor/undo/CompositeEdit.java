@@ -20,8 +20,9 @@
  */
 package eu.advance.logistics.flow.editor.undo;
 
-import com.google.common.collect.Lists;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 /**
  *
@@ -29,7 +30,9 @@ import java.util.List;
  */
 public class CompositeEdit extends UndoableEdit {
 
-    private String name;
+    /** */
+	private static final long serialVersionUID = 6102450412561633481L;
+	private String name;
     private List<UndoableEdit> edits = Lists.newArrayList();
 
     public CompositeEdit(String name) {

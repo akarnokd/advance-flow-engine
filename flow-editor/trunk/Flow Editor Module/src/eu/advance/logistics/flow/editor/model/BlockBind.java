@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import com.google.common.base.Objects;
 
 /**
  * <b>BlockBind</b>

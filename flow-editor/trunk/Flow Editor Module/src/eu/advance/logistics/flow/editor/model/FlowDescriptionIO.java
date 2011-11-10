@@ -20,6 +20,12 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
+import java.awt.Point;
+import java.util.List;
+import java.util.Map;
+
+import org.openide.util.NbBundle;
+
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
@@ -29,10 +35,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockVisuals;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
-import java.awt.Point;
-import java.util.List;
-import java.util.Map;
-import org.openide.util.NbBundle;
 
 /**
  *

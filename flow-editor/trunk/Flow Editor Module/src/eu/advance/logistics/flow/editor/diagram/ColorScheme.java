@@ -24,6 +24,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Stroke;
+
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.anchor.PointShapeFactory;

@@ -20,9 +20,10 @@
  */
 package eu.advance.logistics.flow.editor.undo;
 
+import java.awt.Point;
+
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
-import java.awt.Point;
 
 /**
  *
@@ -30,7 +31,9 @@ import java.awt.Point;
  */
 public class CompositeBlockRemoved extends UndoableEdit {
 
-    private CompositeBlock parent;
+    /** */
+	private static final long serialVersionUID = -9011582680460050484L;
+	private CompositeBlock parent;
     private CompositeBlock block;
 
     public CompositeBlockRemoved(CompositeBlock parent, CompositeBlock block) {

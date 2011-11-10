@@ -28,7 +28,9 @@ import eu.advance.logistics.flow.editor.model.BlockParameter;
  */
 public class ParameterRenamed extends UndoableEdit {
 
-    private BlockParameter parameter;
+    /** */
+	private static final long serialVersionUID = 5898456182768213730L;
+	private BlockParameter parameter;
     private String old;
     private String id;
     private String name;

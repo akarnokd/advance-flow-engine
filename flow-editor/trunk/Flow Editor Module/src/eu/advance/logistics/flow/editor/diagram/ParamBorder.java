@@ -22,13 +22,13 @@ package eu.advance.logistics.flow.editor.diagram;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.RoundRectangle2D;
+
 import org.netbeans.api.visual.border.Border;
 
 /**

@@ -20,11 +20,6 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -32,7 +27,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+
 import org.openide.util.Exceptions;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  *

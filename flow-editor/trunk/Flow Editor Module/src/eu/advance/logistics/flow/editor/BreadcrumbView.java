@@ -20,20 +20,23 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import com.google.common.collect.Lists;
-import eu.advance.logistics.flow.editor.model.CompositeBlock;
-import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
-import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
+
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+
+import com.google.common.collect.Lists;
+
+import eu.advance.logistics.flow.editor.model.CompositeBlock;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 
 /**
  *
@@ -94,8 +97,9 @@ class BreadcrumbView implements FlowDescriptionListener {
     }
 
     private static class ActiveBlockAction extends AbstractAction {
-
-        private CompositeBlock compositeBlock;
+        /** */
+		private static final long serialVersionUID = -7241249810446550214L;
+		private CompositeBlock compositeBlock;
 
         private ActiveBlockAction(CompositeBlock compositeBlock) {
             this.compositeBlock = compositeBlock;

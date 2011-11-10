@@ -20,10 +20,12 @@
  */
 package eu.advance.logistics.flow.editor.undo;
 
+import javax.swing.event.UndoableEditEvent;
+
+import org.openide.awt.UndoRedo;
+
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
-import javax.swing.event.UndoableEditEvent;
-import org.openide.awt.UndoRedo;
 
 /**
  *

@@ -20,17 +20,19 @@
  */
 package eu.advance.logistics.flow.editor.palette;
 
-import eu.advance.logistics.flow.editor.BlockRegistry;
-import eu.advance.logistics.flow.editor.model.BlockCategory;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.WeakListeners;
+
+import eu.advance.logistics.flow.editor.BlockRegistry;
+import eu.advance.logistics.flow.editor.model.BlockCategory;
 
 /**
  *
@@ -57,7 +59,7 @@ public class PaletteRootChildren extends Children.Keys<BlockCategory> implements
     @Override
     protected void removeNotify() {
         super.removeNotify();
-        setKeys(Collections.EMPTY_SET);
+        setKeys(Collections.<BlockCategory>emptySet());
     }
 
     private void update() {

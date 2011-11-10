@@ -20,7 +20,45 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.SystemColor;
+import java.awt.event.KeyEvent;
+import java.util.EnumSet;
+
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.AlignWithMoveDecorator;
+import org.netbeans.api.visual.action.InplaceEditorProvider;
+import org.netbeans.api.visual.action.PopupMenuProvider;
+import org.netbeans.api.visual.action.TextFieldInplaceEditor;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.anchor.Anchor;
+import org.netbeans.api.visual.anchor.AnchorFactory;
+import org.netbeans.api.visual.graph.GraphPinScene;
+import org.netbeans.api.visual.graph.layout.GridGraphLayout;
+import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.layout.SceneLayout;
+import org.netbeans.api.visual.router.Router;
+import org.netbeans.api.visual.router.RouterFactory;
+import org.netbeans.api.visual.widget.ConnectionWidget;
+import org.netbeans.api.visual.widget.EventProcessingType;
+import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.ImageUtilities;
+import org.openide.util.NbBundle;
+
 import com.google.common.collect.Lists;
+
 import eu.advance.logistics.flow.editor.FlowDescriptionDataObject;
 import eu.advance.logistics.flow.editor.actions.ConstAddAction;
 import eu.advance.logistics.flow.editor.actions.ConstEditAction;
@@ -41,41 +79,6 @@ import eu.advance.logistics.flow.editor.undo.BlockRenamed;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.xml.typesystem.XData;
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.SystemColor;
-import java.awt.event.KeyEvent;
-import java.util.EnumSet;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import org.netbeans.api.visual.action.ActionFactory;
-import org.netbeans.api.visual.action.AlignWithMoveDecorator;
-import org.netbeans.api.visual.action.InplaceEditorProvider;
-import org.netbeans.api.visual.action.PopupMenuProvider;
-import org.netbeans.api.visual.action.TextFieldInplaceEditor;
-import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.action.WidgetAction.State;
-import org.netbeans.api.visual.anchor.Anchor;
-import org.netbeans.api.visual.anchor.AnchorFactory;
-import org.netbeans.api.visual.graph.GraphPinScene;
-import org.netbeans.api.visual.graph.layout.GridGraphLayout;
-import org.netbeans.api.visual.layout.LayoutFactory;
-import org.netbeans.api.visual.layout.SceneLayout;
-import org.netbeans.api.visual.router.Router;
-import org.netbeans.api.visual.router.RouterFactory;
-import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.EventProcessingType;
-import org.netbeans.api.visual.widget.LabelWidget;
-import org.netbeans.api.visual.widget.LayerWidget;
-import org.netbeans.api.visual.widget.Widget;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.ImageUtilities;
-import org.openide.util.NbBundle;
 
 /**
  *
@@ -446,7 +449,7 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
             }));
         }
         if (BlockConnectionProvider.getParamType(widget, pin) == BlockParameter.Type.OUTPUT) {
-            final CompositeBlock parent = node.getParent();
+//            final CompositeBlock parent = node.getParent();
             widget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
 
                 @Override

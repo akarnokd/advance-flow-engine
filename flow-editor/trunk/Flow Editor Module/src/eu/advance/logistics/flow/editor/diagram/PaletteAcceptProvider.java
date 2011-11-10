@@ -20,20 +20,19 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
-import eu.advance.logistics.flow.editor.model.FlowDescription;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
-import java.awt.geom.AffineTransform;
 import java.lang.ref.WeakReference;
-import javax.swing.JComponent;
+
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeTransfer;
+
+import eu.advance.logistics.flow.editor.model.FlowDescription;
 
 /**
  *
@@ -41,9 +40,9 @@ import org.openide.nodes.NodeTransfer;
  */
 class PaletteAcceptProvider implements AcceptProvider {
 
-    private FlowScene scene;
+    protected FlowScene scene;
     private FlowDescription flowDescription;
-    private Rectangle dirty;
+    protected Rectangle dirty;
     private WeakReference<Transferable> activeTransferableRef;
     private WeakReference<Image> activeImageRef;
 

@@ -20,6 +20,22 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.Widget;
+import org.openide.util.ImageUtilities;
+
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.actions.ConstEditAction;
 import eu.advance.logistics.flow.editor.actions.DeleteBlockAction;
@@ -30,25 +46,7 @@ import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.editor.undo.CompositeEdit;
-import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.action.WidgetAction.State;
-import org.netbeans.api.visual.action.WidgetAction.WidgetKeyEvent;
-import org.netbeans.api.visual.action.WidgetAction.WidgetMouseEvent;
-import org.netbeans.api.visual.border.BorderFactory;
-import org.netbeans.api.visual.widget.LabelWidget;
-import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.widget.Widget;
-import org.openide.util.ImageUtilities;
 
 /**
  *

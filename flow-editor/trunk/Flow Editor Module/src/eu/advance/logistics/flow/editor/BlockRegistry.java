@@ -20,22 +20,6 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import eu.advance.logistics.flow.editor.model.BlockCategory;
-import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
-import eu.advance.logistics.flow.engine.AdvanceCompiler;
-import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
-import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
-import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
-import hu.akarnokd.reactive4java.base.Scheduler;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -44,11 +28,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -56,6 +41,19 @@ import org.openide.util.WeakListeners;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import eu.advance.logistics.flow.editor.model.BlockCategory;
+import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
+import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
+import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  *

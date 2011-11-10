@@ -30,7 +30,10 @@ import javax.swing.undo.CannotUndoException;
  */
 public abstract class UndoableEdit extends AbstractUndoableEdit {
 
-    protected abstract void restore(boolean redo);
+    /** */
+	private static final long serialVersionUID = 6525416198659035817L;
+
+	protected abstract void restore(boolean redo);
 
     @Override
     public void redo() throws CannotRedoException {
