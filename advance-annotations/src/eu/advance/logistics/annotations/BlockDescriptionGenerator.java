@@ -177,6 +177,7 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
                         pw.println(indent("<type-variable name=\"" + name + "\"/>", 2));
                     }
                 }
+                // input first
                 for (Element enclosed : e.getEnclosedElements()) {
                     if (enclosed.getKind() == ElementKind.FIELD) {
                         VariableElement field = (VariableElement) enclosed;
@@ -186,6 +187,12 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
                             String inputType = getNamedTypeRepresentation(input.value(), "input", name);
                             pw.println(indent(inputType, 2));
                         }
+                    }
+                }
+                // output next
+                for (Element enclosed : e.getEnclosedElements()) {
+                    if (enclosed.getKind() == ElementKind.FIELD) {
+                        VariableElement field = (VariableElement) enclosed;
                         Output output = field.getAnnotation(Output.class);
                         if (output != null) {
                             String name = (String) field.getConstantValue();
