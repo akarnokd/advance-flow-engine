@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xs:element name="collection">
+	<xs:include schemaLocation="wrapper.xsd"/>
+	<xs:element name="collection" type="collection">
+		<xs:annotation><xs:documentation>Specifies a generic collection container.</xs:documentation></xs:annotation>
+	</xs:element>
+	<xs:complexType name="collection">
 		<xs:annotation>
+			<xs:appinfo>
+				<!-- Indicate this type uses the following type variable. Uses the block-description.xsd#type-variable for its content description.-->
+				<advance-type-info>
+					<type-variable name="T"/>
+				</advance-type-info>
+			</xs:appinfo>
 			<xs:documentation>A basic ADVANCE type which represents a generic list-type container with a type parameter. You may reference this as advance:collection from the block or flow description.
 			</xs:documentation>
 		</xs:annotation>
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="item" minOccurs="0" maxOccurs="unbounded" type="xs:anyType">
-					<xs:annotation>
-						<xs:appinfo>
-							<advance-type-variable name="T"/>
-						</xs:appinfo>
-						<xs:documentation>The item with a generic type. Note that these elements must not contain any type definition.</xs:documentation>
-					</xs:annotation>
-				</xs:element>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
+		<xs:sequence>
+			<xs:element name="item" type="wrapper" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>The item with a generic type. Note that these elements must not contain any type definition.</xs:documentation>
+					<xs:appinfo>
+						<advance-type-info>
+							<type type-variable="T"/>
+						</advance-type-info>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>

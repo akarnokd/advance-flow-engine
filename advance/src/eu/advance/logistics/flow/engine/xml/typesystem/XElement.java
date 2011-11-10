@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 
 import java.io.BufferedWriter;
@@ -56,8 +57,10 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * A simplified XML element model.
@@ -123,6 +126,8 @@ public class XElement implements Iterable<XElement> {
 	protected final Map<XAttributeName, String> attributes = new LinkedHashMap<XAttributeName, String>();
 	/** The child elements. */
 	protected final List<XElement> children = new ArrayList<XElement>();
+	/** The user object to tag along. */
+	protected Object userObject;
 	/**
 	 * Constructor. Sets the name.
 	 * @param name the element name
@@ -455,6 +460,50 @@ public class XElement implements Iterable<XElement> {
 		
 	}
 	/**
+	 * Generate a new prefix if the current is empty or already exists but with a different URI.
+	 * @param nss the namespace to prefix cache.
+	 * @param currentNamespace the current namespace
+	 * @param currentPrefix the current prefix
+	 * @return a pair of the derived prefix and (the xmlns declaration if needed, null otherwise)
+	 */
+	protected Pair<String, String> createPrefix(Map<String, String> nss, String currentNamespace, String currentPrefix) {
+		if (currentNamespace == null) {
+			return Pair.of(null, null);
+		}
+		String pf = nss.get(currentNamespace);
+		
+		if (pf != null) {
+			return Pair.of(pf, null);
+		}
+		int nsc = 0;
+		pf = currentPrefix;
+		if (pf == null) {
+			pf = "ns" + nsc;
+		}
+		outer:
+		while (!Thread.currentThread().isInterrupted()) {
+			for (Map.Entry<String, String> e : nss.entrySet()) {
+				if (Objects.equal(e.getValue(), pf)) {
+					nsc++;
+					pf = "ns" + nsc;
+					continue outer;
+				}
+			}
+			// if we get here, the prefix is not yet used
+			break;
+		}
+		
+		nss.put(currentNamespace, pf);
+		
+		StringBuilder xmlns = new StringBuilder();
+		xmlns.append(" xmlns").append(pf != null && pf.length() > 0 ? ":" : "")
+		.append(pf != null && pf.length() > 0 ? pf : "").append("='")
+		.append(sanitize(currentNamespace)).append("'");
+		;
+		
+		return Pair.of(pf, xmlns.toString());
+	}
+	/**
 	 * Convert the element into a pretty printed string representation.
 	 * @param indent the current line indentation
 	 * @param nss the namespace cache
@@ -463,38 +512,43 @@ public class XElement implements Iterable<XElement> {
 	 */
 	public void toStringRep(String indent, Map<String, String> nss, 
 			StringBuilder out, Action1<? super XRepresentationRecord> callback) {
+		
+		Map<String, String> nss0 = Maps.newHashMap(nss);
+		
 		out.append(indent);
 		callback.invoke(new XRepresentationRecord(XRepresentationState.START_ELEMENT, this, out.length()));
 		out.append("<");
+		
+		Pair<String, String> pf = createPrefix(nss0, namespace, prefix);
+		
+		String prefix = pf.first;
 		if (prefix != null && prefix.length() > 0) {
 			out.append(prefix).append(":");
 		}
 		out.append(name);
-		if (namespace != null && !nss.containsKey(namespace)) {
-			nss.put(namespace, prefix != null && prefix.length() > 0 ? prefix : "");
-			
-			out.append(" xmlns").append(prefix != null && prefix.length() > 0 ? ":" : "")
-			.append(prefix != null && prefix.length() > 0 ? prefix : "").append("='").append(sanitize(namespace)).append("'");
+
+		if (pf.second != null) {
+			out.append(pf.second);
 		}
+		
 		if (attributes.size() > 0) {
 			for (XAttributeName an : attributes.keySet()) {
-				if (an.namespace != null && !nss.containsKey(an.namespace)) {
-					nss.put(an.namespace, an.prefix != null && an.prefix.length() > 0 ? an.prefix : "");
-					
-					out.append(" xmlns").append(an.prefix != null && an.prefix.length() > 0 ? ":" : "")
-					.append(an.prefix != null && an.prefix.length() > 0 ? an.prefix : "").append("='")
-					.append(sanitize(an.namespace)).append("'");
-				}
+				Pair<String, String> pfa = createPrefix(nss0, an.namespace, an.prefix);
 				out.append(" ");
-				if (an.prefix != null && an.prefix.length() > 0) {
-					out.append(an.prefix).append(":");
+				if (pfa.first != null && pfa.first.length() > 0) {
+					out.append(pfa.first).append(":");
 				}
 				out.append(an.name).append("='").append(sanitize(attributes.get(an))).append("'");
+				
+				if (pfa.second != null) {
+					out.append(pfa.second);
+				}
+				
 			}
 		}
 		
 		if (children.size() == 0) {
-			if (content == null) {
+			if (content == null || content.isEmpty()) {
 				out.append("/>");
 			} else {
 				out.append(">");
@@ -513,7 +567,7 @@ public class XElement implements Iterable<XElement> {
 				out.append(">");
 			}
 		} else {
-			if (content == null) {
+			if (content == null || content.isEmpty()) {
 				out.append(String.format(">%n"));
 			} else {
 				out.append(">");
@@ -524,7 +578,7 @@ public class XElement implements Iterable<XElement> {
 				out.append(String.format("%n"));
 			}
 			for (XElement e : children) {
-				e.toStringRep(indent + "  ", nss, out, callback);
+				e.toStringRep(indent + "  ", nss0, out, callback);
 			}
 			out.append(indent).append("</");
 			if (prefix != null && prefix.length() > 0) {
@@ -578,6 +632,7 @@ public class XElement implements Iterable<XElement> {
 		e.namespace = namespace;
 		e.content = content;
 		e.prefix = prefix;
+		e.userObject = userObject;
 		
 		for (Map.Entry<XAttributeName, String> me : attributes.entrySet()) {
 			XAttributeName an = new XAttributeName(me.getKey().name, me.getKey().namespace, me.getKey().prefix);
@@ -1180,5 +1235,49 @@ public class XElement implements Iterable<XElement> {
 		if (value != null) {
 			content = value.toString();
 		}
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof XElement)) {
+			return false;
+		}
+		XElement other = (XElement)obj;
+		if (!Objects.equal(this.content, other.content)) {
+			return false;
+		}
+		if (!this.attributes.equals(other.attributes)) {
+			return false;
+		}
+		if (!this.children.equals(other.children)) {
+			return false;
+		}
+		return true;
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(attributes, content, children);
+	}
+	/**
+	 * Retrieve the currently associated user object.
+	 * @param <T> the expected object type
+	 * @return the user object
+	 */
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public <T> T get() {
+		return (T)userObject;
+	}
+	/**
+	 * Replace the associated user object with a new object.
+	 * @param <T> the object type
+	 * @param newUserObject the new user object
+	 * @return the original user object
+	 */
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public <T> T set(@Nullable T newUserObject) {
+		T result = (T)userObject;
+		userObject = newUserObject;
+		return result;
 	}
 }

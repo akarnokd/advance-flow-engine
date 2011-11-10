@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2013 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -26,14 +26,14 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Returns the index of the last occurrence of the substring in the string.
- * Signature: LastIndexOf(string, string, integer) -> integer
+ * Signature: LastIndex_of(string, string, integer) -> integer
  * @author szmarcell
  */
 @Block(id = "___LastIndexOf", category = "string", scheduler = "IO", description = "Returns the index of the last occurrence of the substring in the string.")
@@ -42,10 +42,10 @@ public class LastIndexOf extends AdvanceBlock {
     protected static final Logger LOGGER = Logger.getLogger(LastIndexOf .class.getName());
     /** In. */
     @Input("advance:real")
-    protected static final String IN = "in";
+    private static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    protected static final String OUT = "out";
+    private static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,12 +57,12 @@ public class LastIndexOf extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-    // TODO implement 
+//TODO implement
     @Override
     protected void invoke(Map<String, XElement> map) {
-        double val = XData.getDouble(map.get(IN));
+        double val = AdvanceData.getDouble(map.get(IN));
         value = (value * count++ + val) / count;
-        dispatch(OUT, XData.create(value));
+        dispatch(OUT, AdvanceData.create(value));
     }
     
 }

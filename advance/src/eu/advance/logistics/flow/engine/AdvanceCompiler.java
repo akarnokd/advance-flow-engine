@@ -37,6 +37,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -44,10 +45,12 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToOutputError;
+import eu.advance.logistics.flow.engine.error.HasTypes;
 import eu.advance.logistics.flow.engine.error.MissingBlockError;
 import eu.advance.logistics.flow.engine.error.MissingDestinationError;
 import eu.advance.logistics.flow.engine.error.MissingDestinationPortError;
@@ -57,6 +60,7 @@ import eu.advance.logistics.flow.engine.error.MultiInputBindingError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
@@ -73,7 +77,6 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
@@ -97,14 +100,9 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 */
 	public AdvanceCompiler(AdvanceCompilerSettings settings) {
 		this.settings = settings;
-
-		baseTypes.add(Pair.of(schemaResolver().resolve(XData.OBJECT), XData.OBJECT));
-		baseTypes.add(Pair.of(schemaResolver().resolve(XData.INTEGER), XData.INTEGER));
-		baseTypes.add(Pair.of(schemaResolver().resolve(XData.REAL), XData.REAL));
-		baseTypes.add(Pair.of(schemaResolver().resolve(XData.STRING), XData.STRING));
-		baseTypes.add(Pair.of(schemaResolver().resolve(XData.BOOLEAN), XData.BOOLEAN));
-		baseTypes.add(Pair.of(schemaResolver().resolve(XData.TIMESTAMP), XData.TIMESTAMP));
-		baseTypes.add(Pair.of(schemaResolver().resolve(XData.COLLECTION), XData.COLLECTION));
+		for (URI u : AdvanceData.BASE_TYPES) {
+			baseTypes.add(Pair.of(schemaResolver().resolve(u), u));
+		}
 	}
 	@Override
 	public List<AdvanceBlock> compile(AdvanceCompositeBlock flow) {
@@ -473,6 +471,11 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			Deque<AdvanceType> types = Lists.newLinkedList();
 			for (AdvanceType at : result.wireTypes()) {
 				types.add(at);
+			}
+			for (AdvanceCompilationError e : result.errors()) {
+				if (e instanceof HasTypes) {
+					Iterables.addAll(types, ((HasTypes)e).types());
+				}
 			}
 			while (!types.isEmpty()) {
 				AdvanceType t = types.removeFirst();

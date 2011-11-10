@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2013 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -28,7 +28,7 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -58,7 +58,7 @@ public class Count extends AdvanceBlock {
     @Override
     protected void invoke(Map<String, XElement> map) {
         count++;
-        dispatch(OUT, XData.create(count));
+        dispatch(OUT, AdvanceData.create(count));
     }
     
 }

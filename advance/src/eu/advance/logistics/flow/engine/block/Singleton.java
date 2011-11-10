@@ -26,9 +26,9 @@ import java.util.Map;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -55,7 +55,7 @@ public class Singleton extends AdvanceBlock {
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		dispatch(OUT, XData.create(params.get(IN)));
+		dispatch(OUT, AdvanceData.create(params.get(IN)));
 	}
 
 }

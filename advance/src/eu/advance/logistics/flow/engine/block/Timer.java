@@ -32,9 +32,9 @@ import com.google.common.io.Closeables;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -70,7 +70,7 @@ public class Timer extends AdvanceBlock {
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		final int delay = XData.getInt(params.get(DELAY));
+		final int delay = AdvanceData.getInt(params.get(DELAY));
 		last.set(params.get(IN));
 		if (delay != interval) {
 			interval = delay;
