@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -36,16 +36,16 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Signature: ToReal(string) -> (real, boolean)
  * @author szmarcell
  */
-@Block(id="___ToReal", category="projection", scheduler="IO", description = "Convert a string into a real or indicate an error.")
+@Block(id = "___ToReal", category = "projection", scheduler = "IO", description = "Convert a string into a real or indicate an error.")
 public class ToReal extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(ToReal .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class ToReal extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

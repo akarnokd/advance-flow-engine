@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -36,16 +36,16 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Signature: Sum(collection<object>) -> real
  * @author szmarcell
  */
-@Block(id="Sum", category="aggregation", scheduler="IO", description = "Compute the sum of the elements within the collection which have the type of Integer or Real.")
+@Block(id = "Sum", category = "aggregation", scheduler = "IO", description = "Compute the sum of the elements within the collection which have the type of Integer or Real.")
 public class Sum extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Sum .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings

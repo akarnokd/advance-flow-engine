@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -32,20 +32,20 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Convert the string into a Base64 representation
+ * Convert the string into a Base64 representation.
  * Signature: EncodeBase64(string) -> string
  * @author szmarcell
  */
-@Block(id="___EncodeBase64", category="string", scheduler="IO", description = "Convert the string into a Base64 representation")
+@Block(id = "___EncodeBase64", category = "string", scheduler = "IO", description = "Convert the string into a Base64 representation")
 public class EncodeBase64 extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(EncodeBase64 .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class EncodeBase64 extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

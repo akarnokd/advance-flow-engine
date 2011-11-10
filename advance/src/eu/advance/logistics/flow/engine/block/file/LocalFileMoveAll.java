@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -36,16 +36,16 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Signature: LocalFileMoveAll(trigger, localfiledatastore, map<string, string>) -> boolean
  * @author szmarcell
  */
-@Block(id="___LocalFileMoveAll", category="file", scheduler="IO", description = "Move/rename a set of local files.")
+@Block(id = "___LocalFileMoveAll", category = "file", scheduler = "IO", description = "Move/rename a set of local files.")
 public class LocalFileMoveAll extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(LocalFileMoveAll .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class LocalFileMoveAll extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));
