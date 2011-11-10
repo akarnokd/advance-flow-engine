@@ -20,23 +20,27 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
+
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.undo.ParameterRemoved;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author TTS
  */
 public class ParamRemoveAction extends AbstractAction {
-
-    private UndoRedoSupport undoRedoSupport;
+    /** */
+	private static final long serialVersionUID = 5942002119680415645L;
+	private UndoRedoSupport undoRedoSupport;
     private BlockParameter parameter;
 
     public ParamRemoveAction(UndoRedoSupport urs, BlockParameter param) {

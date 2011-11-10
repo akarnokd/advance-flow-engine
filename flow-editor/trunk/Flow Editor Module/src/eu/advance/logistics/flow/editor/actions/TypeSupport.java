@@ -20,15 +20,14 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
-import eu.advance.logistics.flow.editor.BlockRegistry;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-import org.openide.nodes.Node;
-import org.openide.nodes.PropertySupport;
+
 import org.openide.util.Exceptions;
+
+import eu.advance.logistics.flow.editor.BlockRegistry;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 
 /**
  *
@@ -73,9 +72,9 @@ public class TypeSupport {
     }
     public AdvanceType advanceType;
     public String displayName;
-    public Class clazz;
+    public Class<?> clazz;
 
-    private TypeSupport(String desc, String type, Class clazz) throws URISyntaxException {
+    private TypeSupport(String desc, String type, Class<?> clazz) throws URISyntaxException {
         this.clazz = clazz;
         if (type != null) {
             advanceType = new AdvanceType();

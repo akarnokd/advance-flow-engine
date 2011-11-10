@@ -20,11 +20,15 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
-import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
+
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.ManageRealmsAction")
@@ -34,7 +38,10 @@ import org.openide.util.NbBundle;
 //})
 public final class ManageRealmsAction extends AbstractAction {
 
-    public ManageRealmsAction() {
+    /** */
+	private static final long serialVersionUID = -7310102906152257378L;
+
+	public ManageRealmsAction() {
         putValue(NAME, NbBundle.getMessage(ManageRealmsAction.class, "CTL_ManageRealmsAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

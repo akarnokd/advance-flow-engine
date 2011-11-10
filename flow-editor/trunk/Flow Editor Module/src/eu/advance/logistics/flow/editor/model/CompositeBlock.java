@@ -20,15 +20,17 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import eu.advance.logistics.flow.editor.BlockRegistry;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import eu.advance.logistics.flow.editor.BlockRegistry;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 
 /**
  * <b>CompositeBlock</b>

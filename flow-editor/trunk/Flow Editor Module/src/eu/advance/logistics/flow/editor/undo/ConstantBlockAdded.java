@@ -29,7 +29,9 @@ import eu.advance.logistics.flow.editor.model.ConstantBlock;
  */
 public class ConstantBlockAdded extends UndoableEdit {
 
-    private CompositeBlock parent;
+    /** */
+	private static final long serialVersionUID = 5038329338205286630L;
+	private CompositeBlock parent;
     private ConstantBlock block;
 
     public ConstantBlockAdded(CompositeBlock parent, ConstantBlock block) {

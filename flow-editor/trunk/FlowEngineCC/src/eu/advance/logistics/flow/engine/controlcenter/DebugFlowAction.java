@@ -20,14 +20,18 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
-import eu.advance.logistics.flow.engine.cc.CCDebugDialog;
-import eu.advance.logistics.flow.engine.cc.LabelManager;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+
+import com.google.common.eventbus.Subscribe;
+
+import eu.advance.logistics.flow.engine.cc.CCDebugDialog;
+import eu.advance.logistics.flow.engine.cc.LabelManager;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.DebugFlowAction")
@@ -37,7 +41,10 @@ import org.openide.windows.WindowManager;
 //})
 public final class DebugFlowAction  extends AbstractAction {
 
-    public DebugFlowAction() {
+    /** */
+	private static final long serialVersionUID = -5088512955025742741L;
+
+	public DebugFlowAction() {
         putValue(NAME, NbBundle.getMessage(DebugFlowAction.class, "CTL_DebugFlowAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

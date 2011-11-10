@@ -20,15 +20,18 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import eu.advance.logistics.flow.editor.BlockRegistry;
-import com.google.common.base.Objects;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.openide.util.ImageUtilities;
+
+import com.google.common.base.Objects;
+
+import eu.advance.logistics.flow.editor.BlockRegistry;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 
 /**
  * <b>BlockCategory</b>
@@ -43,7 +46,7 @@ public class BlockCategory implements Comparable<BlockCategory> {
     private String image_url;
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     private List<AdvanceBlockDescription> types;
-    private BlockRegistry registry;
+    protected BlockRegistry registry;
 
     public BlockCategory(BlockRegistry registry, String id, String name, String imageUrl) {
         this.registry = registry;

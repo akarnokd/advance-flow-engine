@@ -29,7 +29,9 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescriptio
  */
 public class ParameterChanged extends UndoableEdit {
 
-    private BlockParameter parameter;
+    /** */
+	private static final long serialVersionUID = 683482444446006238L;
+	private BlockParameter parameter;
     private AdvanceBlockParameterDescription old;
     private AdvanceBlockParameterDescription desc;
     private String name;

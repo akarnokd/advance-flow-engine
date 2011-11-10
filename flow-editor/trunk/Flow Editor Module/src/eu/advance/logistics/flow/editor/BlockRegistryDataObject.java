@@ -20,13 +20,11 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import com.google.common.io.Closeables;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
@@ -35,16 +33,22 @@ import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.nodes.Children;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
-import org.openide.nodes.Children;
-import org.openide.util.Lookup;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
-public class BlockRegistryDataObject extends MultiDataObject {
+import com.google.common.io.Closeables;
 
-    private final static String ICON_PATH = "eu/advance/logistics/flow/editor/palette/images/block.png";
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+
+public class BlockRegistryDataObject extends MultiDataObject {
+    /** */
+	private static final long serialVersionUID = 9177818560711558859L;
+	private final static String ICON_PATH = "eu/advance/logistics/flow/editor/palette/images/block.png";
 
     public BlockRegistryDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);

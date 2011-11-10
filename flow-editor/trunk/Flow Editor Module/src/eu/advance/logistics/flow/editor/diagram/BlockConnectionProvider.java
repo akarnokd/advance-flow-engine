@@ -20,18 +20,20 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import java.awt.Point;
+import java.util.List;
+
+import org.netbeans.api.visual.action.ConnectProvider;
+import org.netbeans.api.visual.action.ConnectorState;
+import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.Widget;
+
 import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
 import eu.advance.logistics.flow.editor.model.CompositeBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.undo.BindCreated;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import java.awt.Point;
-import java.util.List;
-import org.netbeans.api.visual.action.ConnectProvider;
-import org.netbeans.api.visual.action.ConnectorState;
-import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.widget.Widget;
 
 /**
  * <b>BlockConnectionProvider</b>
@@ -51,7 +53,7 @@ class BlockConnectionProvider implements ConnectProvider {
     @Override
     public boolean isSourceWidget(Widget widget) {
         if (widget instanceof PinWidget) {
-            final Object obj = scene.findObject((PinWidget) widget);
+            final Object obj = scene.findObject(widget);
             if (obj instanceof BlockParameter) {
                 final BlockParameter param = (BlockParameter) obj;
                 return getParamType((PinWidget) widget, param) == BlockParameter.Type.OUTPUT;
@@ -64,13 +66,13 @@ class BlockConnectionProvider implements ConnectProvider {
     @Override
     public ConnectorState isTargetWidget(Widget src, Widget dest) {
         if (dest instanceof PinWidget) {
-            final Object destObj = scene.findObject((PinWidget) dest);
+            final Object destObj = scene.findObject(dest);
             if (destObj instanceof BlockParameter) {
                 final BlockParameter destParam = (BlockParameter) destObj;
                 if (getParamType((PinWidget) dest, destParam) == BlockParameter.Type.INPUT) {
                     //controllo il source
                     if (src instanceof PinWidget) {
-                        final Object srcObj = scene.findObject((PinWidget) src);
+                        final Object srcObj = scene.findObject(src);
                         if (srcObj instanceof BlockParameter) {
                             final BlockParameter srcParam = (BlockParameter) srcObj;
                             if (getParamType((PinWidget) src, srcParam) == BlockParameter.Type.OUTPUT) {

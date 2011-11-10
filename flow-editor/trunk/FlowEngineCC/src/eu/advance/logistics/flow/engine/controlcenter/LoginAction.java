@@ -22,10 +22,11 @@ package eu.advance.logistics.flow.engine.controlcenter;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.openide.awt.ActionRegistration;
+
+import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 
 @ActionID(category = "RemoteFlowEngine",
 id = "eu.advance.logistics.flow.engine.controlcenter.LoginAction")

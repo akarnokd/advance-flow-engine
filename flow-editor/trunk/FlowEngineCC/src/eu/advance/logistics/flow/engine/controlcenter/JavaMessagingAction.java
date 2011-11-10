@@ -20,10 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.JavaMessagingAction")
@@ -33,7 +36,9 @@ import org.openide.util.NbBundle;
 //})
 public final class JavaMessagingAction  extends AbstractAction {
 
-    public JavaMessagingAction() {
+    /** */
+	private static final long serialVersionUID = -379874116134283466L;
+	public JavaMessagingAction() {
         putValue(NAME, NbBundle.getMessage(JavaMessagingAction.class, "CTL_JavaMessagingAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

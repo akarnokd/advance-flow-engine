@@ -20,13 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
-import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -37,12 +30,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.List;
+
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.NotificationDisplayer;
@@ -54,6 +49,15 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
 
+import com.google.common.eventbus.Subscribe;
+
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.UploadFlowAction")
 //@ActionRegistration(displayName = "#CTL_UploadFlowAction")
@@ -62,7 +66,10 @@ import org.openide.windows.WindowManager;
 //})
 public final class UploadFlowAction extends AbstractAction {
 
-    public UploadFlowAction() {
+    /** */
+	private static final long serialVersionUID = 349882597821499521L;
+
+	public UploadFlowAction() {
         putValue(NAME, NbBundle.getMessage(UploadFlowAction.class, "CTL_UploadFlowAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

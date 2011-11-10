@@ -20,6 +20,23 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
+import hu.akarnokd.reactive4java.base.Option;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.SwingWorker;
+
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
+import org.openide.awt.NotificationDisplayer;
+import org.openide.awt.StatusDisplayer;
+import org.openide.util.Exceptions;
+
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.cc.CCDebugRow;
@@ -30,19 +47,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import hu.akarnokd.reactive4java.base.Option;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Date;
-import java.util.concurrent.ExecutionException;
-import javax.swing.SwingWorker;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.awt.NotificationDisplayer;
-import org.openide.awt.StatusDisplayer;
-import org.openide.util.Exceptions;
 
 @ActionID(category = "RemoteFlowEngine",
 id = "eu.advance.logistics.flow.engine.controlcenter.VerifyFlowAction")
@@ -63,7 +67,7 @@ public final class VerifyFlowAction implements ActionListener {
         new VerifyWorker(engine, context).execute();
     }
 
-    private static class VerifyWorker extends SwingWorker {
+    private static class VerifyWorker extends SwingWorker<AdvanceCompilationResult, Void> {
 
         private AdvanceEngineControl engine;
         private FlowDescription flowDescription;
@@ -78,7 +82,7 @@ public final class VerifyFlowAction implements ActionListener {
         }
 
         @Override
-        protected Object doInBackground() throws Exception {
+        protected AdvanceCompilationResult doInBackground() throws Exception {
             AdvanceCompositeBlock flow = flowDescription.build();
             if (engine != null) {
                 return engine.verifyFlow(flow);
@@ -90,7 +94,7 @@ public final class VerifyFlowAction implements ActionListener {
         @Override
         protected void done() {
             try {
-                AdvanceCompilationResult result = (AdvanceCompilationResult) get();
+                AdvanceCompilationResult result = get();
                 flowDescription.setCompilationResult(result);
                 if (result != null) {
                     boolean ok = result.success();
@@ -112,37 +116,37 @@ public final class VerifyFlowAction implements ActionListener {
             }
         }
 
-        /**
-         * Show the results in the debug value dialog.
-         * @param result the result
-         */
-        protected void showResultDialog(AdvanceCompilationResult result) {
-            CCDebugRow dr = new CCDebugRow();
-            dr.watch = new CCWatchSettings();
-            dr.timestamp = new Date();
-            XElement e = new XElement("advance-compilation-result");
-            result.save(e);
-            dr.value = Option.some(e);
-            dr.watch.block = "";
-            dr.watch.blockType = "";
-            dr.watch.port = "";
-            dr.watch.realm = "";
+    }
+    /**
+     * Show the results in the debug value dialog.
+     * @param result the result
+     */
+    protected void showResultDialog(AdvanceCompilationResult result) {
+        CCDebugRow dr = new CCDebugRow();
+        dr.watch = new CCWatchSettings();
+        dr.timestamp = new Date();
+        XElement e = new XElement("advance-compilation-result");
+        result.save(e);
+        dr.value = Option.some(e);
+        dr.watch.block = "";
+        dr.watch.blockType = "";
+        dr.watch.port = "";
+        dr.watch.realm = "";
 
-            CCValueDialog dlg = new CCValueDialog(new LabelManager() {
+        CCValueDialog dlg = new CCValueDialog(new LabelManager() {
 
-                @Override
-                public String get(String key) {
-                    return key;
-                }
+            @Override
+            public String get(String key) {
+                return key;
+            }
 
-                @Override
-                public String format(String key, Object... values) {
-                    return String.format(key, values);
-                }
-            }, dr);
-            dlg.pack();
-            dlg.setLocationRelativeTo(null);
-            dlg.setVisible(true);
-        }
+            @Override
+            public String format(String key, Object... values) {
+                return String.format(key, values);
+            }
+        }, dr);
+        dlg.pack();
+        dlg.setLocationRelativeTo(null);
+        dlg.setVisible(true);
     }
 }

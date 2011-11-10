@@ -20,16 +20,18 @@
  */
 package eu.advance.logistics.flow.editor.undo;
 
-import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import java.awt.Point;
+
+import eu.advance.logistics.flow.editor.model.AbstractBlock;
 
 /**
  *
  * @author TTS
  */
 public class BlockMoved extends UndoableEdit {
-
-    private AbstractBlock block;
+    /** */
+	private static final long serialVersionUID = -3977837742592659424L;
+	private AbstractBlock block;
     private Point oldLocation;
     private Point newLocation;
 

@@ -20,10 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.ManageKeystoresAction")
@@ -33,7 +36,10 @@ import org.openide.util.NbBundle;
 //})
 public final class ManageKeystoresAction  extends AbstractAction {
 
-    public ManageKeystoresAction() {
+    /** */
+	private static final long serialVersionUID = 1399041205112371679L;
+
+	public ManageKeystoresAction() {
         putValue(NAME, NbBundle.getMessage(ManageKeystoresAction.class, "CTL_ManageKeystoresAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

@@ -20,16 +20,20 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.collect.Lists;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import java.util.List;
+
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.SwingWorker;
+
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Exceptions;
+
+import com.google.common.collect.Lists;
+
+import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 
 /**
  *
@@ -37,7 +41,9 @@ import org.openide.util.Exceptions;
  */
 class RealmListModel extends AbstractListModel implements ComboBoxModel {
 
-    private List<Entry> data = Lists.newArrayList();
+    /** */
+	private static final long serialVersionUID = 7365701152160888288L;
+	private List<Entry> data = Lists.newArrayList();
     private Entry selection;
     private JComboBox comboBox;
 

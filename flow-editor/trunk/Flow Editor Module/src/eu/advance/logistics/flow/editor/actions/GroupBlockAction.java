@@ -20,6 +20,13 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
+import org.openide.util.NbBundle;
+
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
@@ -31,18 +38,15 @@ import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.editor.undo.ParameterCreated;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author TTS
  */
 public class GroupBlockAction extends AbstractAction {
-
-    private FlowScene scene;
+    /** */
+	private static final long serialVersionUID = 8872612318103010406L;
+	private FlowScene scene;
     private FlowDescription flowDescription;
     private Point location;
 

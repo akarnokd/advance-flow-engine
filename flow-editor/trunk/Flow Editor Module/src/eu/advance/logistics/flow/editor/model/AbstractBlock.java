@@ -20,16 +20,19 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
-import eu.advance.logistics.flow.editor.model.BlockParameter.Type;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import java.awt.Point;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
+
+import eu.advance.logistics.flow.editor.model.BlockParameter.Type;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 
 /**
  * <b>AbstractBlock</b>

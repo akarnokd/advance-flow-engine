@@ -20,14 +20,17 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.collect.Lists;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import java.util.Collections;
 import java.util.List;
+
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
+
+import com.google.common.collect.Lists;
+
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 
 /**
  *
@@ -35,7 +38,9 @@ import javax.swing.JComboBox;
  */
 class ParamListModel extends AbstractListModel implements ComboBoxModel {
 
-    private List<Entry> data = Lists.newArrayList();
+    /** */
+	private static final long serialVersionUID = -6188414966650112162L;
+	private List<Entry> data = Lists.newArrayList();
     private Entry selection;
     private JComboBox comboBox;
 

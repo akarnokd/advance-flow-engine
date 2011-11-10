@@ -20,14 +20,9 @@
  */
 package eu.advance.logistics.flow.editor;
 
-import eu.advance.logistics.flow.editor.diagram.FlowScene;
-import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
-import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
-import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import java.awt.EventQueue;
 import java.io.IOException;
+
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
@@ -40,19 +35,27 @@ import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.nodes.Children;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
-import org.openide.nodes.Children;
-import org.openide.util.Lookup;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
 
-public class FlowDescriptionDataObject extends MultiDataObject {
+import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
+import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 
-    private InstanceContent instanceContent = new InstanceContent();
+public class FlowDescriptionDataObject extends MultiDataObject {
+    /** */
+	private static final long serialVersionUID = 3358658136300582839L;
+	private InstanceContent instanceContent = new InstanceContent();
     private Lookup lookup;
 
     public FlowDescriptionDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {

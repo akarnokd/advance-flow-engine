@@ -20,10 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.WebDataSourcesAction")
@@ -33,7 +36,10 @@ import org.openide.util.NbBundle;
 //})
 public final class WebDataSourcesAction  extends AbstractAction {
 
-    public WebDataSourcesAction() {
+    /** */
+	private static final long serialVersionUID = -2451718985440230405L;
+
+	public WebDataSourcesAction() {
         putValue(NAME, NbBundle.getMessage(WebDataSourcesAction.class, "CTL_WebDataSourcesAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

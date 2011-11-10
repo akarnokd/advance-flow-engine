@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.editor.diagram;
 
 import java.awt.Image;
+
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
@@ -75,6 +76,7 @@ public class PinWidget extends Widget implements Comparable<PinWidget> {
      * @param previousState the previous state
      * @param state the new state
      */
+    @Override
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
         scheme.updateUI(this, previousState, state);
     }

@@ -20,22 +20,26 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
+import org.openide.util.NbBundle;
+
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockChanged;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author TTS
  */
 public class ConstEditAction extends AbstractAction {
-
-    private UndoRedoSupport undoRedoSupport;
+    /** */
+	private static final long serialVersionUID = -1618036093974995937L;
+	private UndoRedoSupport undoRedoSupport;
     private ConstantBlock target;
 
     public ConstEditAction(UndoRedoSupport urs, ConstantBlock target) {

@@ -21,9 +21,7 @@
 package eu.advance.logistics.flow.editor.diagram;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.geom.RoundRectangle2D;
+
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.Scene;

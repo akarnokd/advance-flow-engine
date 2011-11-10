@@ -28,7 +28,9 @@ import eu.advance.logistics.flow.editor.model.AbstractBlock;
  */
 public class BlockRenamed extends UndoableEdit {
 
-    private AbstractBlock block;
+    /** */
+	private static final long serialVersionUID = -1805447750391822329L;
+	private AbstractBlock block;
     private String oldName;
     private String newName;
 

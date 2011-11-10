@@ -20,33 +20,36 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
-import eu.advance.logistics.flow.editor.ContextSupport;
-import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import org.netbeans.api.visual.widget.Scene.SceneListener;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.Presenter;
 import org.openide.util.lookup.Lookups;
 
+import eu.advance.logistics.flow.editor.ContextSupport;
+import eu.advance.logistics.flow.editor.diagram.FlowScene;
+
 /**
  * 
  * @author TTS
  */
 public final class ZoomAction extends AbstractAction implements Presenter.Toolbar {
-
-    private final static String ACTION_PATH = "Actions/View"; // NOI18N
+    /** */
+	private static final long serialVersionUID = 8567879189595727337L;
+	private final static String ACTION_PATH = "Actions/View"; // NOI18N
     private final static String ICON_BASE_KEY = "iconBase"; // NOI18N
     private final static String ICON_BASE = "eu/advance/logistics/flow/editor/actions/zoom.png"; // NOI18N
     private FlowScene flowScene;

@@ -20,7 +20,15 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.awt.event.ActionEvent;
+import java.util.List;
+
+import javax.swing.AbstractAction;
+
+import org.openide.util.NbBundle;
+
 import com.google.common.collect.Lists;
+
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.BlockBind;
@@ -35,19 +43,16 @@ import eu.advance.logistics.flow.editor.undo.ConstantBlockRemoved;
 import eu.advance.logistics.flow.editor.undo.SimpleBlockRemoved;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.editor.undo.UndoableEdit;
-import java.awt.event.ActionEvent;
-import java.util.List;
-import javax.swing.AbstractAction;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author TTS
  */
 public class DeleteBlockAction extends AbstractAction {
-
-    private UndoRedoSupport undoRedoSupport;
-    private FlowDescription flowDescription;
+    /** */
+	private static final long serialVersionUID = -2773928407114841355L;
+	private UndoRedoSupport undoRedoSupport;
+    protected FlowDescription flowDescription;
     private List<AbstractBlock> blocks;
 
     public DeleteBlockAction(UndoRedoSupport urs, FlowDescription fd, AbstractBlock block) {

@@ -20,6 +20,18 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.swing.AbstractAction;
+
+import org.netbeans.api.visual.widget.Widget;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.BlockBind;
@@ -32,32 +44,18 @@ import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockAdded;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.net.URI;
-import java.net.URISyntaxException;
-import javax.swing.AbstractAction;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import org.netbeans.api.visual.widget.Widget;
-import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author TTS
  */
 public class ConstAddAction extends AbstractAction {
-
-    private UndoRedoSupport undoRedoSupport;
+    /** */
+	private static final long serialVersionUID = -7737062280779360996L;
+	private UndoRedoSupport undoRedoSupport;
     private FlowScene scene;
     private CompositeBlock parent;
     private BlockParameter target;

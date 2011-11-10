@@ -29,7 +29,9 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
  */
 public class ConstantBlockChanged extends UndoableEdit {
 
-    private ConstantBlock block;
+    /** */
+	private static final long serialVersionUID = 7803236340426571669L;
+	private ConstantBlock block;
     private AdvanceConstantBlock old;
     private AdvanceConstantBlock current;
 

@@ -20,10 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.SOAPChannelsAction")
@@ -33,7 +36,10 @@ import org.openide.util.NbBundle;
 //})
 public final class SOAPChannelsAction  extends AbstractAction {
 
-    public SOAPChannelsAction() {
+    /** */
+	private static final long serialVersionUID = -2971952157512332975L;
+
+	public SOAPChannelsAction() {
         putValue(NAME, NbBundle.getMessage(SOAPChannelsAction.class, "CTL_SOAPChannelsAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);

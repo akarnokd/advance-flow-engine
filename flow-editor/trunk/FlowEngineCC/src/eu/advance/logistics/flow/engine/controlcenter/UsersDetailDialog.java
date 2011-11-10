@@ -24,9 +24,12 @@ package eu.advance.logistics.flow.engine.controlcenter;
  *
  * @author TTS
  */
+@SuppressWarnings({ "serial", "rawtypes" })
 public class UsersDetailDialog extends javax.swing.JDialog {
 
-    /** Creates new form UsersDetailDialog */
+    /** */
+	private static final long serialVersionUID = -3122133530183342583L;
+	/** Creates new form UsersDetailDialog */
     public UsersDetailDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -41,9 +44,6 @@ public class UsersDetailDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         engineLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -115,29 +115,16 @@ public class UsersDetailDialog extends javax.swing.JDialog {
         saveButton = new javax.swing.JButton();
         refreshButton = new javax.swing.JButton();
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane2.setViewportView(jTable1);
-
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(UsersDetailDialog.class, "UsersDetailDialog.jLabel1.text")); // NOI18N
 
-        engineLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        engineLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
         engineLabel.setText("https://localhost:8081/ADVANCE_DEV"); // NOI18N
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(UsersDetailDialog.class, "UsersDetailDialog.jLabel3.text")); // NOI18N
 
-        versionLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        versionLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
         versionLabel.setText("0.00.001"); // NOI18N
 
         detailsPane.setName(org.openide.util.NbBundle.getMessage(UsersDetailDialog.class, "UsersDetailDialog.GeneralPanel.title")); // NOI18N
@@ -682,13 +669,10 @@ public class UsersDetailDialog extends javax.swing.JDialog {
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
-    private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JComboBox keystoreCombo;
     private javax.swing.JPanel leftPanel;

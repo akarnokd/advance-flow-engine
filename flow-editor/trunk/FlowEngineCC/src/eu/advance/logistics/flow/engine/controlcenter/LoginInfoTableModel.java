@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.engine.controlcenter;
 
 import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -29,7 +30,9 @@ import javax.swing.table.AbstractTableModel;
  */
 class LoginInfoTableModel extends AbstractTableModel {
 
-    private List<LoginInfo> data;
+    /** */
+	private static final long serialVersionUID = -6394245658681942794L;
+	private List<LoginInfo> data;
 
     LoginInfoTableModel(List<LoginInfo> data) {
         this.data = data;

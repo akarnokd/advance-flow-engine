@@ -20,14 +20,15 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
-import com.google.common.eventbus.Subscribe;
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
 import org.openide.util.NbBundle;
+
+import com.google.common.eventbus.Subscribe;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.ManageUsersAction")
@@ -37,7 +38,10 @@ import org.openide.util.NbBundle;
 //})
 public final class ManageUsersAction extends AbstractAction {
 
-    public ManageUsersAction() {
+    /** */
+	private static final long serialVersionUID = 4198743187764631961L;
+
+	public ManageUsersAction() {
         putValue(NAME, NbBundle.getMessage(ManageUsersAction.class, "CTL_ManageUsersAction"));
         setEnabled(false);
         EngineController.getInstance().getEventBus().register(this);
@@ -52,10 +56,9 @@ public final class ManageUsersAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         final TableModel tableModel = new DefaultTableModel();
         final ListDialog dlg = new ListDialog(tableModel);
-        final JButton btn = dlg.getConfirmButton();
+        dlg.getConfirmButton();
         dlg.setTitle(NbBundle.getMessage(ManageUsersAction.class, "ManageUsersAction.title"));
-        //btn.setText(NbBundle.getMessage(ManageUsersAction.class, "ManageUsersAction.button"));
-        final JTable table = dlg.getTable();
+        dlg.getTable();
 
 
         dlg.setLocationRelativeTo(dlg.getOwner());
