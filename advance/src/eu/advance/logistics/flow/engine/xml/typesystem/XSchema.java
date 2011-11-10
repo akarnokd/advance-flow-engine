@@ -134,7 +134,7 @@ public final class XSchema {
 	public static XType parse(XElement schema, Func1<String, XElement> resolver) {
 		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XElement.XSD));
 		if (roots.size() != 1) {
-			throw new IllegalArgumentException("Zero or multi-rooted schema not supported");
+			throw new IllegalArgumentException("Zero or multi-rooted schema not supported:\r\n" + schema);
 		}
 		XElement root = roots.get(0);
 
@@ -282,7 +282,9 @@ public final class XSchema {
 									setComplexType(c, complexType, types, memory);
 									setAttributes(c, extension, types, memory);
 								} else {
-									throw new AssertionError("Unknown extension base type " + base);
+									if (!base.endsWith(":anyType")) {
+										throw new AssertionError("Unknown extension base type " + base);
+									}
 								}
 							}
 						} else {
@@ -321,7 +323,9 @@ public final class XSchema {
 									setComplexType(c, extension, types, memory);
 									c.complexType.capabilities.addAll(0, baseCopy.capabilities);
 								} else {
-									throw new AssertionError("Unknown extension base type " + base);
+									if (!base.endsWith(":anyType")) {
+										throw new AssertionError("Unknown extension base type " + base);
+									}
 								}
 							}
 						} else {
@@ -565,17 +569,16 @@ public final class XSchema {
 			if (maxo.equals("unbounded")) {
 				return XCardinality.ZERO_OR_MANY;
 			}
-			throw new AssertionError("0 to Max cardinality not supported: " + maxo);
 		} else
 		if (mino.equals("1")) {
 			if (maxo.equals("1")) {
 				return XCardinality.ONE;
 			} else
 			if (maxo.equals("unbounded")) {
-				throw new AssertionError("1 to Max cardinality not supported: " + maxo);
+				return XCardinality.ONE_OR_MANY;
 			}
 		}
-		throw new AssertionError("Min cardinality not supported: " + mino);
+		throw new AssertionError("Cardinality not supported: " + mino + " .. " + maxo + "\r\n" + e);
 	}
 	/**
 	 * Convert an XSD simple type into an XValueType.

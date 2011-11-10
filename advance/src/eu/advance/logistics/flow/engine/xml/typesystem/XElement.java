@@ -43,7 +43,6 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,7 +65,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * A simplified XML element model.
  *  @author akarnokd
  */
-public class XElement implements Iterable<XElement> {
+public class XElement /* implements Iterable<XElement> */ {
 	/** The XSD namespace. */
 	public static final String XSD = "http://www.w3.org/2001/XMLSchema";
 	/** The XSD instance URI. */
@@ -178,10 +177,12 @@ public class XElement implements Iterable<XElement> {
 	public List<XAttributeName> getAttributeNames() {
 		return new ArrayList<XAttributeName>(attributes.keySet());
 	}
+	/*
 	@Override
 	public Iterator<XElement> iterator() {
 		return children.iterator();
 	}
+	*/
 	/**
 	 * Returns an iterator which enumerates all children with the given name.
 	 * @param name the name of the children to select

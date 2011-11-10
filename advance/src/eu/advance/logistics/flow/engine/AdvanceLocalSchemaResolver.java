@@ -26,6 +26,7 @@ import hu.akarnokd.reactive4java.base.Func1;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -38,10 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 
 import eu.advance.logistics.flow.engine.model.fd.UnresolvableSchemaURIException;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
@@ -85,6 +87,36 @@ public class AdvanceLocalSchemaResolver implements AdvanceSchemaResolver {
 								} catch (XMLStreamException ex) {
 									LOG.error(ex.toString(), ex);
 								}
+							}
+							URL u = getClass().getResource("/" + base + "/" + param1);
+							if (u != null) {
+								try {
+									InputStream in = u.openStream();
+									try {
+										return XElement.parseXML(in);
+									} catch (XMLStreamException ex) {
+										LOG.error(ex.toString(), ex);
+									} finally {
+										Closeables.closeQuietly(in);
+									}
+								} catch (IOException ex) {
+									LOG.error(ex.toString(), ex);
+								}
+							}
+						}
+						URL u = getClass().getResource("/" + param1);
+						if (u != null) {
+							try {
+								InputStream in = u.openStream();
+								try {
+									return XElement.parseXML(in);
+								} catch (XMLStreamException ex) {
+									LOG.error(ex.toString(), ex);
+								} finally {
+									Closeables.closeQuietly(in);
+								}
+							} catch (IOException ex) {
+								LOG.error(ex.toString(), ex);
 							}
 						}
 						return null;

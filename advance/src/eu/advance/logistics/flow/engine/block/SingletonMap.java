@@ -21,7 +21,6 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import java.util.LinkedList;
 import java.util.Map;
 
 import eu.advance.logistics.annotations.Block;
@@ -33,39 +32,33 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * A simple generic block that reserves the children of the supplied advance:collection type object.
- * @author akarnokd, 2011.07.01.
+ * Creates a map with a single key-value pair.
+ * @author akarnokd, 2011.11.10.
  */
-@Block(scheduler = "NOW", 
-description = "Block to reverse the elements of the input collection.", 
-parameters = { "T" }, category = "data-transformations")
-public class Reverse extends AdvanceBlock {
-	/** In. */
-    @Input("advance:collection<?T>")
-    private static final String IN = "in";
+@Block(scheduler = "NOW", parameters = { "K", "V" }, 
+description = "Creates a map with a single key-value pair.",
+category = "data-transformations")
+public class SingletonMap extends AdvanceBlock {
+	/** Key. */
+    @Input("?K")
+    private static final String KEY = "key";
+    /** Value. */
+    @Input("?V")
+    private static final String VALUE = "value";
     /** Out. */
-    @Output("advance:collection<?T>")
+    @Output("advance:map<?K,?V>")
     private static final String OUT = "out";
-	
 	/**
 	 * Constructor.
 	 * @param settings the block settings
 	 */
-	public Reverse(AdvanceBlockSettings settings) {
+	public SingletonMap(AdvanceBlockSettings settings) {
 		super(settings);
 	}
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		XElement in = params.get(IN);
-		
-		LinkedList<XElement> out = new LinkedList<XElement>();
-		for (XElement e : AdvanceData.getItems(in)) {
-			out.addFirst(e.copy());
-		}
-		XElement e = AdvanceData.create();
-		e.children().addAll(out);
-		dispatch(OUT, e);
+		dispatch(OUT, AdvanceData.createMap(params.get(KEY), params.get(VALUE)));
 	}
 
 }
