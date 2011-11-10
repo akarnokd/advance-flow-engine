@@ -75,11 +75,7 @@ public final class BasicLocalEngine {
 	 */
 	public static AdvanceEngineControl create(String userName, String workDir) {
 		final AdvanceEngineConfig config = defaultConfig(workDir);
-		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
-		compilerSettings.schemaResolver = config.schemaResolver; 
-		compilerSettings.blockResolver = config.blockResolver; 
-		compilerSettings.schedulers = config.schedulerMap;
-		compilerSettings.datastore = config.datastore();
+		AdvanceCompilerSettings compilerSettings = config.createCompilerSettings();
 		AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
 		AdvanceDataStore datastore = config.datastore();
 		try {

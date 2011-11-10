@@ -552,11 +552,7 @@ public class CCLocalLogin extends JDialog {
 		try {
 			engineConfig.initialize(XElement.parseXML(file), workDir);
 			
-			AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
-			compilerSettings.schemaResolver = engineConfig.schemaResolver; 
-			compilerSettings.blockResolver = engineConfig.blockResolver; 
-			compilerSettings.schedulers = engineConfig.schedulerMap;
-			compilerSettings.datastore = engineConfig.datastore();
+			AdvanceCompilerSettings compilerSettings = engineConfig.createCompilerSettings();
 			AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
 			
 			AdvanceDataStore datastore = engineConfig.datastore();

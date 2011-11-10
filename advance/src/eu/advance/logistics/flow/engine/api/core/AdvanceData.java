@@ -347,7 +347,7 @@ public final class AdvanceData {
 		destination.attributes().putAll(source.attributes());
 		destination.content = source.content;
 		destination.set(source.get());
-		for (XElement c : source) {
+		for (XElement c : source.children()) {
 			destination.add(c.copy());
 		}
 	}
@@ -367,7 +367,7 @@ public final class AdvanceData {
 		}
 		destination.content = source.content;
 		destination.set(source.get());
-		for (XElement c : source) {
+		for (XElement c : source.children()) {
 			destination.add(c.copy());
 		}
 	}
@@ -543,6 +543,7 @@ public final class AdvanceData {
 		XElement result = new XElement("map");
 		for (Map.Entry<XElement, XElement> e : map.entrySet()) {
 			XElement item = result.add("item");
+			addRename(item, "pair", null);
 			item.add(rename(e.getKey(), "first"));
 			item.add(rename(e.getValue(), "second"));
 		}
@@ -719,17 +720,11 @@ public final class AdvanceData {
 			return Pair.of(element.name, element.namespace);
 		}
 		int idx1 = n1.lastIndexOf(',');
-		if (idx1 < 0) {
-			idx1 = n1.length();
-		}
 		if (n2 != null) {
 			int idx2 = n2.lastIndexOf(',');
-			if (idx2 < 0) {
-				idx2 = n2.length();
-			}
-			return Pair.of(n1.substring(0, idx1), n2.substring(0, idx1));
+			return Pair.of(n1.substring(idx1 + 1), n2.substring(idx2 + 1));
 		}
-		return Pair.of(n1.substring(0, idx1), null);
+		return Pair.of(n1.substring(idx1 + 1), null);
 	}
 	/**
 	 * Returns true if both XML are the same, considering the notion of original names if present.
@@ -782,7 +777,7 @@ public final class AdvanceData {
 	 */
 	public static XElement toCollection(XElement container,
 			XElement collection) {
-		for (XElement e : container) {
+		for (XElement e : container.children()) {
 			collection.add(rename(e, "item"));
 		}
 		return collection;
@@ -796,7 +791,7 @@ public final class AdvanceData {
 	 */
 	public static XElement toCollection(XElement container,
 			Func1<XElement, Boolean> itemFilter, XElement collection) {
-		for (XElement e : container) {
+		for (XElement e : container.children()) {
 			if (itemFilter.invoke(e)) {
 				collection.add(rename(e, "item"));
 			}
@@ -854,10 +849,19 @@ public final class AdvanceData {
 	 * @param args no arguments
 	 */
 	public static void main(String[] args) {
+		XElement c0 = create();
+		XElement c1 = create(c0);
+		XElement c2 = create(c1);
+		System.out.println(c2);
+		
 		XElement c = create(create("abc"), create(1), create(true));
 		System.out.println(c);
 		XElement cont = toContainer(c, new XElement("container"));
 		System.out.println(cont);
 		System.out.println(toCollection(cont, create()));
+		
+		XElement map = createMap(create("abc"), create(1));
+		System.out.println(map);
+		
 	}
 }

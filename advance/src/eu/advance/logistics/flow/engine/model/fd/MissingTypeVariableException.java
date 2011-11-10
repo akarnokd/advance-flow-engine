@@ -43,7 +43,7 @@ public class MissingTypeVariableException extends RuntimeException {
 	}
 	@Override
 	public String toString() {
-		return path + " " + identifier;
+		return "Missing type variable identifier of a block description: " + identifier + "\r\n" + path;
 	}
 	@Override
 	public String getMessage() {

@@ -16,7 +16,7 @@
 			<xs:documentation>Represents a pair of objects: Pair(T, U)</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="first" type="wrapper" minOccurs="1"  maxOccurs="1">
+			<xs:element name="first" type="wrapper" minOccurs="1">
 				<xs:annotation>
 					<xs:appinfo>
 						<advance-type-info>
@@ -26,7 +26,7 @@
 					<xs:documentation>The first object of the pair.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="second" type="wrapper" minOccurs="1" maxOccurs="2">
+			<xs:element name="second" type="wrapper" minOccurs="1">
 				<xs:annotation>
 					<xs:appinfo>
 						<advance-type-info>

@@ -21,51 +21,34 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import java.util.LinkedList;
 import java.util.Map;
 
 import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * A simple generic block that reserves the children of the supplied advance:collection type object.
- * @author akarnokd, 2011.07.01.
+ * This module provides an invalid parametric type.
+ * @author akarnokd, 2011.11.10.
  */
-@Block(scheduler = "NOW", 
-description = "Block to reverse the elements of the input collection.", 
-parameters = { "T" }, category = "data-transformations")
-public class Reverse extends AdvanceBlock {
-	/** In. */
-    @Input("advance:collection<?T>")
-    private static final String IN = "in";
+@Block(scheduler = "NOW",  
+description = "Test, provides an invalid parametric type.",
+category = "data-transformations")
+public class StringOfString extends AdvanceBlock {
     /** Out. */
-    @Output("advance:collection<?T>")
-    private static final String OUT = "out";
-	
+    @Output("advance:string<advance:string>")
+    protected static final String OUT = "out";
 	/**
 	 * Constructor.
 	 * @param settings the block settings
 	 */
-	public Reverse(AdvanceBlockSettings settings) {
+	public StringOfString(AdvanceBlockSettings settings) {
 		super(settings);
 	}
-
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		XElement in = params.get(IN);
 		
-		LinkedList<XElement> out = new LinkedList<XElement>();
-		for (XElement e : AdvanceData.getItems(in)) {
-			out.addFirst(e.copy());
-		}
-		XElement e = AdvanceData.create();
-		e.children().addAll(out);
-		dispatch(OUT, e);
 	}
-
 }

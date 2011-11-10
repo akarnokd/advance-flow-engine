@@ -164,7 +164,7 @@ public class AdvanceBlockDescription implements XSerializable {
 					if (ta.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
 						AdvanceType sv = sharedTypes.get(ta.typeVariableName);
 						if (sv == null) {
-							throw new MissingTypeVariableException(root.getXPath(), ta.typeVariableName);
+							throw new MissingTypeVariableException(root.toString(), ta.typeVariableName);
 						}
 						at.typeArguments.set(i, sv);
 					}
