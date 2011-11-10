@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -32,20 +32,20 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * List emails in the specified email-account
+ * List emails in the specified email-account.
  * Signature: EmailList(trigger, string) -> collection<emailinfo>
  * @author szmarcell
  */
-@Block(id="___EmailList", category="comm", scheduler="IO", description = "List emails in the specified email-account")
+@Block(id = "___EmailList", category = "comm", scheduler = "IO", description = "List emails in the specified email-account")
 public class EmailList extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(EmailList .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,6 +57,7 @@ public class EmailList extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

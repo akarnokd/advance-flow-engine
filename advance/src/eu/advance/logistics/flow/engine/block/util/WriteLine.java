@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -32,20 +32,20 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Writes the incoming value to the console for debugging purposes
+ * Writes the incoming value to the console for debugging purposes.
  * Signature: WriteLine(t)
  * @author szmarcell
  */
-@Block(id="___WriteLine", category="string", scheduler="IO", description = "Writes the incoming value to the console for debugging purposes")
+@Block(id = "___WriteLine", category = "string", scheduler = "IO", description = "Writes the incoming value to the console for debugging purposes")
 public class WriteLine extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(WriteLine .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class WriteLine extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

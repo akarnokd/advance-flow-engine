@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -32,32 +32,32 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Get a value by the given key from the map or indicate if no such element exists
- * Signature: getVGalue(map<t, u>, t) -> (u, boolean)
+ * Returns an empty collection.
+ * Signature: EmptyCollection(trigger) -> collection<t>
  * @author szmarcell
  */
-@Block(id="___getVGalue", category="projection", scheduler="IO", description = "Get a value by the given key from the map or indicate if no such element exists")
-public class getVGalue extends AdvanceBlock {
+@Block(id = "___EmptyCollection", category = "projection", scheduler = "IO", description = "Returns an empty collection.")
+public class EmptyCollection extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(getVGalue .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(EmptyCollection .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
      */
-    public getVGalue(AdvanceBlockSettings settings) {
+    public EmptyCollection(AdvanceBlockSettings settings) {
         super(settings);
     }
     /** The running count. */
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

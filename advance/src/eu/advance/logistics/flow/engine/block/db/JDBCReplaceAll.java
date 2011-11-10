@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -36,16 +36,16 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Signature: JDBCReplaceAll(datastore, string, collection<map<string, object>>) -> collection<map<string, object>>
  * @author szmarcell
  */
-@Block(id="___JDBCReplaceAll", category="db", scheduler="IO", description = "The combined operation of insert and update operations, e.g., tries to insert a batch of new entries into the datastore or update an existing ones.")
+@Block(id = "___JDBCReplaceAll", category = "db", scheduler = "IO", description = "The combined operation of insert and update operations, e.g., tries to insert a batch of new entries into the datastore or update an existing ones.")
 public class JDBCReplaceAll extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(JDBCReplaceAll .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class JDBCReplaceAll extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

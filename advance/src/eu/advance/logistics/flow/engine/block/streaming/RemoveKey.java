@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -32,20 +32,20 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Removes the given key from the map and returns a new map without that key and the value it contained
+ * Removes the given key from the map and returns a new map without that key and the value it contained.
  * Signature: RemoveKey(map<t, u>, t) -> (map<t, u>, u)
  * @author szmarcell
  */
-@Block(id="___RemoveKey", category="streaming", scheduler="IO", description = "Removes the given key from the map and returns a new map without that key and the value it contained")
+@Block(id = "___RemoveKey", category = "streaming", scheduler = "IO", description = "Removes the given key from the map and returns a new map without that key and the value it contained")
 public class RemoveKey extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(RemoveKey .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class RemoveKey extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

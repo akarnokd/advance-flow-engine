@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -36,16 +36,16 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Signature: Max(collection<object>) -> (real, integer)
  * @author szmarcell
  */
-@Block(id="Max", category="aggregation", scheduler="IO", description = "Returns the largest value in the collection along with its last occurrence.")
+@Block(id = "Max", category = "aggregation", scheduler = "IO", description = "Returns the largest value in the collection along with its last occurrence.")
 public class Max extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Max .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings

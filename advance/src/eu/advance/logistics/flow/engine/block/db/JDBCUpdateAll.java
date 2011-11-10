@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -32,20 +32,20 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Updates multiple values at the same time with the given SQL query on the datasource and emits an update count once the batch update completes
+ * Updates multiple values at the same time with the given SQL query on the datasource and emits an update count once the batch update completes.
  * Signature: JDBCUpdateAll(datasource, string, collection<map<string, object>>) -> integer
  * @author szmarcell
  */
-@Block(id="___JDBCUpdateAll", category="db", scheduler="IO", description = "Updates multiple values at the same time with the given SQL query on the datasource and emits an update count once the batch update completes")
+@Block(id = "___JDBCUpdateAll", category = "db", scheduler = "IO", description = "Updates multiple values at the same time with the given SQL query on the datasource and emits an update count once the batch update completes")
 public class JDBCUpdateAll extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(JDBCUpdateAll .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class JDBCUpdateAll extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -32,20 +32,20 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key
+ * Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key.
  * Signature: FilterMapByKey(map<t, u>, xpath) -> map<t, u>
  * @author szmarcell
  */
-@Block(id="___FilterMapByKey", category="data-filtering", scheduler="IO", description = "Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key")
+@Block(id = "___FilterMapByKey", category = "data-filtering", scheduler = "IO", description = "Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key")
 public class FilterMapByKey extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(FilterMapByKey .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class FilterMapByKey extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

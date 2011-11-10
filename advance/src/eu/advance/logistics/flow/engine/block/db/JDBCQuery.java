@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -36,16 +36,16 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Signature: JDBCQuery(trigger, datasource, string, schema<t>) ->map<string, object>
  * @author szmarcell
  */
-@Block(id="___JDBCQuery", category="db", scheduler="IO", description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value.")
+@Block(id = "___JDBCQuery", category = "db", scheduler = "IO", description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value.")
 public class JDBCQuery extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(JDBCQuery .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,7 +57,7 @@ public class JDBCQuery extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

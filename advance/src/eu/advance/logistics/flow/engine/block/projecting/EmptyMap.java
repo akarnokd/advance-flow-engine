@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.Returns an empty collection.;
+package eu.advance.logistics.flow.engine.block.projecting;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -32,31 +32,32 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * EmptyCollection
- * Signature: EmptyCollection (trigger) -> collection<t>
+ * Returns an empty collection.
+ * Signature: EmptyMap(trigger) -> map<t, u>
  * @author szmarcell
  */
-@Block(id=".java", category="projecting", scheduler="IO", description = "EmptyCollection")
-public class .java extends AdvanceBlock {
+@Block(id = "___EmptyMap", category = "projection", scheduler = "IO", description = "Returns an empty collection")
+public class EmptyMap extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(.java .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(EmptyMap .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
      */
-    public .java(AdvanceBlockSettings settings) {
+    public EmptyMap(AdvanceBlockSettings settings) {
         super(settings);
     }
     /** The running count. */
     private int count;
     /** The running sum. */
     private double value;
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));

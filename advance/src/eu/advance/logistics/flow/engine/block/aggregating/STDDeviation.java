@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -36,16 +36,16 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * Signature: STDDeviation(collection<object>) -> real
  * @author szmarcell
  */
-@Block(id="___STDDeviation", category="aggregation", scheduler="IO", description = "Computes the standard deviation of numerical elements of the supplied collection.")
+@Block(id = "___STDDeviation", category = "aggregation", scheduler = "IO", description = "Computes the standard deviation of numerical elements of the supplied collection.")
 public class STDDeviation extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(STDDeviation .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
@@ -57,9 +57,9 @@ public class STDDeviation extends AdvanceBlock {
     private int count;
     /** The running sum. */
     private double value;
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
-        // TODO implement
         double val = XData.getDouble(map.get(IN));
         value = (value * count++ + val) / count;
         dispatch(OUT, XData.create(value));

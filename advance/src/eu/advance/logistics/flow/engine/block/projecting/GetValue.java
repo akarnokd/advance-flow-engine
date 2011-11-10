@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.util;
+package eu.advance.logistics.flow.engine.block.projecting;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -32,32 +32,32 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Returns the index of the last occurrence of the substring in the string.
- * Signature: LastIndex_of(string, string, integer) -> integer
+ * Get a value by the given key from the map or indicate if no such element exists.
+ * Signature: GetValue(map<t, u>, t) -> (u, boolean)
  * @author szmarcell
  */
-@Block(id="___LastIndex_of", category="string", scheduler="IO", description = "Returns the index of the last occurrence of the substring in the string.")
-public class LastIndex_of extends AdvanceBlock {
+@Block(id = "___GetValue", category = "projection", scheduler = "IO", description = "Get a value by the given key from the map or indicate if no such element exists")
+public class GetValue extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(LastIndex_of .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(GetValue .class.getName());
     /** In. */
     @Input("advance:real")
-    private static final String IN = "in";
+    protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    private static final String OUT = "out";
+    protected static final String OUT = "out";
     /**
      * Constructor.
      * @param settings the block settings
      */
-    public LastIndex_of(AdvanceBlockSettings settings) {
+    public GetValue(AdvanceBlockSettings settings) {
         super(settings);
     }
     /** The running count. */
     private int count;
     /** The running sum. */
     private double value;
-//TODO implement
+    // TODO implement 
     @Override
     protected void invoke(Map<String, XElement> map) {
         double val = XData.getDouble(map.get(IN));
