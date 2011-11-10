@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="wrapper.xsd"/>
+	<xs:element name="pair" type="pair">
+		<xs:annotation><xs:documentation>Represents a pair of objects: Pair(T, U).</xs:documentation></xs:annotation>
+	</xs:element>
+	<xs:complexType name="pair">
+		<xs:annotation>
+			<xs:appinfo>
+				<!-- Indicate this type uses the following type variable. Uses the block-description.xsd#type-variable for its content description.-->
+				<advance-type-info>
+					<type-variable name="T"/>
+					<type-variable name="U"/>
+				</advance-type-info>
+			</xs:appinfo>
+			<xs:documentation>Represents a pair of objects: Pair(T, U)</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="first" type="wrapper" minOccurs="1"  maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<advance-type-info>
+							<type type-variable='T'/>
+						</advance-type-info>
+					</xs:appinfo>
+					<xs:documentation>The first object of the pair.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="second" type="wrapper" minOccurs="1" maxOccurs="2">
+				<xs:annotation>
+					<xs:appinfo>
+						<advance-type-info>
+							<type type-variable='U'/>
+						</advance-type-info>
+					</xs:appinfo>
+					<xs:documentation>The second object of the pair.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

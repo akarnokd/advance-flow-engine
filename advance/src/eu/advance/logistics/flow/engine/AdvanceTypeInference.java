@@ -44,6 +44,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.error.CombinedTypeError;
 import eu.advance.logistics.flow.engine.error.ConcreteVsParametricTypeError;
 import eu.advance.logistics.flow.engine.error.IncompatibleBaseTypesError;
@@ -53,7 +54,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
@@ -501,7 +501,7 @@ public final class AdvanceTypeInference {
 		// if parametric vs concrete, the common supertype is advance:object
 		if (t1.getKind() != t2.getKind()) {
 			t.type = new XType();
-			t.typeURI = XData.OBJECT;
+			t.typeURI = AdvanceData.OBJECT;
 		} else {
 			t.type = XSchema.intersection(t1.type, t2.type);
 			if (t.type == t1.type) {

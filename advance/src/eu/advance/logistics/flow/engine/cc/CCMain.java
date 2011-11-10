@@ -394,12 +394,12 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	/**
 	 * <p>
 	 * This class is used to detect Event Dispatch Thread rule violations.<br/>
-	 * See <a href="http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html">How to Use Threads</a> for more info
+	 * See <a href = "http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html">How to Use Threads</a> for more info
 	 * </p>
 	 * <p>
 	 * This is a modification of original idea of Scott Delap.<br/>
 	 * Initial version of <code>ThreadCheckingRepaintManager</code> can be found here<br>
-	 * <a href="http://www.clientjava.com/blog/2004/08/20/1093059428000.html">Easily Find Swing Threading Mistakes</a>
+	 * <a href = "http://www.clientjava.com/blog/2004/08/20/1093059428000.html">Easily Find Swing Threading Mistakes</a>
 	 * </p>
 	 * <p>
 	 * Alex Ruiz modified to make a test fail if an EDT violation is detected.

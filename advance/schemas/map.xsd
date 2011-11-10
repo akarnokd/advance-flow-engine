@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="collection.xsd"/>
+	<xs:element name="map" type="map">
+		<xs:annotation>
+			<xs:documentation>The map type representing key-value pairs.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="map">
+		<xs:annotation>
+			<xs:appinfo>
+				<!-- Indicate this type uses the following type variable. Uses the block-description.xsd#type-variable for its content description.-->
+				<advance-type-info>
+					<type-variable name="K"/>
+					<type-variable name="V"/>
+					<type type="advance:pair">
+						<type-argument type-variable="K"/>
+						<type-argument type-variable="V"/>
+					</type>
+				</advance-type-info>
+			</xs:appinfo>
+			<xs:documentation>A generic map of type-value pairs.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="collection"/>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

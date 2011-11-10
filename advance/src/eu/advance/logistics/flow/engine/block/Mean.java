@@ -26,13 +26,13 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- *
+ *.
  * @author szmarcell
  */
 @Block(description = "Block to calculate the running mean of incoming values.", category = "aggregation")
@@ -58,9 +58,9 @@ public class Mean extends AdvanceBlock {
     private double value;
     @Override
     protected void invoke(Map<String, XElement> map) {
-        double val = XData.getDouble(map.get(IN));
+        double val = AdvanceData.getDouble(map.get(IN));
         value = (value * count++ + val) / count;
-        dispatch(OUT, XData.create(value));
+        dispatch(OUT, AdvanceData.create(value));
     }
     
 }

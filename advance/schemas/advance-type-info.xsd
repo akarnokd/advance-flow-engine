@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 (http://www.altova.com) by MESMERiZE (MSM) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="block-description.xsd"/>
+	<xs:element name="advance-type-info">
+		<xs:annotation>
+			<xs:documentation>Defines the custom elements used in the schema descriptions.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="type-variable" type="type-variable" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The listing and bounding of type variables used by the target type.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="type" type='type' minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Tells the schema parser that the element in question uses the specified type variable, instead of the supplied concrete type (mostly xs:anyType).</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

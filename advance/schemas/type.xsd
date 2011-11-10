@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 (http://www.altova.com) by MESMERiZE (MSM) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="type" type="type">
+		<xs:annotation>
+			<xs:appinfo>
+				<advance-type-info>
+					<type-variable name="T"/>
+				</advance-type-info>
+			</xs:appinfo>
+			<xs:documentation>The ADVANCE type constructor.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="type">
+		<xs:sequence>
+			<xs:element name="type-argument" type="type" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>The type argument definitions.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="type" type="xs:anyURI" use="required">
+			<xs:annotation>
+				<xs:documentation>The base type URI.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>

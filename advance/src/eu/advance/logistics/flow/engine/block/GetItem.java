@@ -26,9 +26,9 @@ import java.util.Map;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -59,10 +59,10 @@ public class GetItem extends AdvanceBlock {
 
 	@Override
 	protected void invoke(Map<String, XElement> params) {
-		int index = XData.getInt(params.get(INDEX));
+		int index = AdvanceData.getInt(params.get(INDEX));
 		XElement in = params.get(IN);
 		if (in.children().size() > index) {
-			dispatch(OUT, XData.getItem(in, index));
+			dispatch(OUT, AdvanceData.getItem(in, index));
 		}
 	}
 

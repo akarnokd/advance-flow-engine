@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.util;
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>
- * <p>Homepage: <a href="http://iharder.net/base64">http://iharder.net/base64</a>.</p>
+ * <p>Homepage: <a href = "http://iharder.net/base64">http://iharder.net/base64</a>.</p>
  * 
  * <p>Example:</p>
  * 
@@ -37,7 +37,7 @@ package eu.advance.logistics.flow.engine.util;
  * things as first gzipping the bytes before encoding them, not inserting linefeeds,
  * and encoding using the URL-safe and Ordered dialects.</p>
  *
- * <p>Note, according to <a href="http://www.faqs.org/rfcs/rfc3548.html">RFC3548</a>,
+ * <p>Note, according to <a href = "http://www.faqs.org/rfcs/rfc3548.html">RFC3548</a>,
  * Section 2.1, implementations should not add line feeds unless explicitly told
  * to do so. I've got Base64 set to this behavior now, although earlier versions
  * broke lines by default.</p>
@@ -94,7 +94,7 @@ package eu.advance.logistics.flow.engine.util;
  *   that may affect you:
  *   <ul>
  *    <li><em>Does not break lines, by default.</em> This is to keep in compliance with
- *      <a href="http://www.faqs.org/rfcs/rfc3548.html">RFC3548</a>.</li>
+ *      <a href = "http://www.faqs.org/rfcs/rfc3548.html">RFC3548</a>.</li>
  *    <li><em>Throws exceptions instead of returning null values.</em> Because some operations
  *      (especially those that may permit the GZIP option) use IO streams, there
  *      is a possibility of an java.io.IOException being thrown. After some discussion and
@@ -124,7 +124,7 @@ package eu.advance.logistics.flow.engine.util;
  *   URL and file name friendly format that preserves lexical ordering as described
  *   in http://www.faqs.org/qa/rfcc-1940.html</li>
  *   </ol>
- *   Special thanks to Jim Kellerman at <a href="http://www.powerset.com/">http://www.powerset.com/</a>
+ *   Special thanks to Jim Kellerman at <a href = "http://www.powerset.com/">http://www.powerset.com/</a>
  *   for contributing the new Base64 dialects.
  *  </li>
  * 
@@ -160,7 +160,7 @@ package eu.advance.logistics.flow.engine.util;
  * I am placing this code in the Public Domain. Do with it as you will.
  * This software comes with no guarantees or warranties but with
  * plenty of well-wishing instead!
- * Please visit <a href="http://iharder.net/base64">http://iharder.net/base64</a>
+ * Please visit <a href = "http://iharder.net/base64">http://iharder.net/base64</a>
  * periodically to check for updates or to contribute improvements.
  * </p>
  *
@@ -197,7 +197,7 @@ public final class Base64 {
 	/** 
 	 * Encode using Base64-like encoding that is URL- and Filename-safe as described
 	 * in Section 4 of RFC3548: 
-	 * <a href="http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
+	 * <a href = "http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
 	 * It is important to note that data encoded this way is <em>not</em> officially valid Base64, 
 	 * or at the very least should not be called Base64 without also specifying that is
 	 * was encoded using the URL- and Filename-safe dialect.
@@ -207,7 +207,7 @@ public final class Base64 {
 
 	/**
 	 * Encode using the special "ordered" dialect of Base64 described here:
-	 * <a href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
+	 * <a href = "http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
 	 */
 	public static final int ORDERED = 32;
 
@@ -299,7 +299,7 @@ public final class Base64 {
 
 	/**
 	 * Used in the URL- and Filename-safe dialect described in Section 4 of RFC3548: 
-	 * <a href="http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
+	 * <a href = "http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
 	 * Notice that the last two bytes become "hyphen" and "underscore" instead of "plus" and "slash."
 	 */
 	private static final byte[] URL_SAFE_ALPHABET = {
@@ -363,7 +363,7 @@ public final class Base64 {
 	/**
 	 * I don't get the point of this technique, but someone requested it,
 	 * and it is described here:
-	 * <a href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
+	 * <a href = "http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
 	 */
 	private static final byte[] ORDERED_ALPHABET = {
 		(byte)'-',
