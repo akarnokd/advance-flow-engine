@@ -71,7 +71,7 @@ public class Merge extends AdvanceBlock {
 	@Override
 	protected Observer<Void> runReactiveBlock(
 			List<AdvancePort> reactivePorts) {
-		functionClose.add(Reactive.observeOn(
+		addCloseable(Reactive.observeOn(
 				Reactive.merge(reactivePorts), scheduler()).register(new InvokeObserver<XElement>() {
 			@Override
 			public void next(XElement value) {
@@ -93,7 +93,7 @@ public class Merge extends AdvanceBlock {
 		return new RunObserver() {
 			@Override
 			public void next(Void value) {
-				functionClose.add(scheduler.schedule(new Runnable() {
+				addCloseable(scheduler.schedule(new Runnable() {
 					@Override
 					public void run() {
 						for (XElement e : Interactive.select(getConstantPorts(), new Func1<AdvancePort, XElement>() {

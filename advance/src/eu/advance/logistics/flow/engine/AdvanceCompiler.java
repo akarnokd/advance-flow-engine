@@ -175,7 +175,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			// bind
 			if (root.parent == null) {
 				for (AdvanceBlock ab : flow) {
-					for (AdvancePort p : ab.inputs) {
+					for (AdvancePort p : ab.inputs.values()) {
 						if (p instanceof AdvanceBlockPort) {
 							ConstantOrBlock cb = walkBinding(ab.parent(), ab.id(), p.name());
 							if (cb != null) {

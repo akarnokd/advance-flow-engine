@@ -384,12 +384,12 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		if (blocks != null) {
 			for (AdvanceBlock b : blocks) {
 				if (b.id().equals(blockId)) {
-					for (AdvancePort p : b.inputs) {
+					for (AdvancePort p : b.inputs.values()) {
 						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
 							return ((AdvanceBlockPort)p).getDiagnosticPort();
 						}
 					}
-					for (AdvancePort p : b.outputs) {
+					for (AdvancePort p : b.outputs.values()) {
 						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
 							return ((AdvanceBlockPort)p).getDiagnosticPort();
 						}
@@ -454,7 +454,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		}
 		for (AdvanceBlock b : blocks) {
 			if (b.id().equals(blockId)) {
-				for (AdvancePort p : b.inputs) {
+				for (AdvancePort p : b.inputs.values()) {
 					if (p.name().equals(port)) {
 						if (p instanceof AdvanceBlockPort) {
 							AdvanceBlockPort bp = (AdvanceBlockPort) p;

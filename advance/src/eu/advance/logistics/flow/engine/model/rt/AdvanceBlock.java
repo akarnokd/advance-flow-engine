@@ -57,13 +57,13 @@ public abstract class AdvanceBlock {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlock.class);
 	/** The input ports. */
-	public final List<AdvancePort> inputs;
+	public final Map<String, AdvancePort> inputs;
 	/** The output ports. */
-	public final List<AdvanceBlockPort> outputs;
+	public final Map<String, AdvanceBlockPort> outputs;
 	/** The block diagnostic observable. */
 	protected DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
 	/** List of functions to close when the block is terminated via done(). */
-	protected final List<Closeable> functionClose;
+	private final List<Closeable> functionClose;
 	/** The block execution context. */
 	protected final AdvanceBlockSettings settings;
 	/**
@@ -72,8 +72,8 @@ public abstract class AdvanceBlock {
 	 */
 	public AdvanceBlock(AdvanceBlockSettings settings) {
 		this.settings = settings;
-		this.inputs = Lists.newArrayList();
-		this.outputs = Lists.newArrayList();
+		this.inputs = Maps.newLinkedHashMap();
+		this.outputs = Maps.newLinkedHashMap();
 		this.functionClose = Collections.synchronizedList(Lists.<Closeable>newArrayList());
 	}
 	/** 
@@ -86,17 +86,17 @@ public abstract class AdvanceBlock {
 			if (cb == null) {
 				AdvanceBlockPort p = new AdvanceBlockPort(this, in.id);
 				p.init();
-				inputs.add(p);
+				inputs.put(p.name, p);
 			} else {
 				AdvanceConstantPort p = new AdvanceConstantPort(this, in.id);
 				p.value = cb.value;
-				inputs.add(p);
+				inputs.put(p.name, p);
 			}
 		}
 		for (AdvanceBlockParameterDescription out : description().outputs.values()) {
 			AdvanceBlockPort p = new AdvanceBlockPort(this, out.id);
 			p.init();
-			outputs.add(p);
+			outputs.put(p.name, p);
 		}
 		diagnostic = new DefaultObservable<AdvanceBlockDiagnostic>(false, false);
 	}
@@ -104,7 +104,7 @@ public abstract class AdvanceBlock {
 	 * @return Retrieves a list of ports which are of reactive nature, e.g., they are not constants.
 	 */
 	public List<AdvancePort> getReactivePorts() {
-		return Lists.newArrayList(Interactive.where(inputs, new Func1<AdvancePort, Boolean>() {
+		return Lists.newArrayList(Interactive.where(inputs.values(), new Func1<AdvancePort, Boolean>() {
 			@Override
 			public Boolean invoke(AdvancePort param1) {
 				return !(param1 instanceof AdvanceConstantPort);
@@ -115,7 +115,7 @@ public abstract class AdvanceBlock {
 	 * @return Retrieves a list of ports which are of reactive nature, e.g., they are not constants.
 	 */
 	public List<AdvancePort> getConstantPorts() {
-		return Lists.newArrayList(Interactive.where(inputs, new Func1<AdvancePort, Boolean>() {
+		return Lists.newArrayList(Interactive.where(inputs.values(), new Func1<AdvancePort, Boolean>() {
 			@Override
 			public Boolean invoke(AdvancePort param1) {
 				return (param1 instanceof AdvanceConstantPort);
@@ -143,7 +143,7 @@ public abstract class AdvanceBlock {
 	 */
 	protected Observer<Void> runReactiveBlock(
 			List<AdvancePort> reactivePorts) {
-		functionClose.add(Reactive.observeOn(
+		addCloseable(Reactive.observeOn(
 				Reactive.combine(reactivePorts), scheduler()).register(new InvokeObserver<List<XElement>>() {
 			@Override
 			public void next(List<XElement> value) {
@@ -199,7 +199,7 @@ public abstract class AdvanceBlock {
 		return new RunObserver() {
 			@Override
 			public void next(Void value) {
-				functionClose.add(scheduler().schedule(new Runnable() {
+				addCloseable(scheduler().schedule(new Runnable() {
 					@Override
 					public void run() {
 						// no reactive parameters
@@ -221,8 +221,7 @@ public abstract class AdvanceBlock {
 			// prepare input parameters
 			Map<String, XElement> funcIn = Maps.newHashMap();
 			int j = 0;
-			for (int i = 0; i < inputs.size(); i++) {
-				AdvancePort p = inputs.get(i);
+			for (AdvancePort p : inputs.values()) {
 				if (p instanceof AdvanceConstantPort) {
 					funcIn.put(p.name(), ((AdvanceConstantPort) p).value);
 				} else {
@@ -277,20 +276,20 @@ public abstract class AdvanceBlock {
 	 */
 	protected void dispatch(Map<String, ? extends Iterable<XElement>> funcOut) {
 		boolean valid = true;
-		for (int i = 0; i < outputs.size(); i++) {
-			if (!funcOut.containsKey(outputs.get(i).name)) {
-				diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
-				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description().id);
+		for (Map.Entry<String, ? extends Iterable<XElement>> e : funcOut.entrySet()) {
+			if (!outputs.containsKey(e.getKey())) {
 				valid = false;
+				diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(new IllegalArgumentException(e.getKey() + " missing"))));
+				LOG.error("missing output '" + e.getKey() + "' at the block type " + description().id);
+				valid = false;
+			} else {
+				AdvanceBlockPort p = getOutput(e.getKey());
+				for (XElement xe : e.getValue()) {
+					p.next(xe);
+				}
 			}
 		}
 		if (valid) {
-			for (int i = 0; i < outputs.size(); i++) {
-				AdvanceBlockPort p = outputs.get(i);
-				for (XElement xe : funcOut.get(p.name)) {
-					p.next(xe);
-				}
-			}						
 			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.FINISH)));
 		}
 
@@ -301,18 +300,17 @@ public abstract class AdvanceBlock {
 	 */
 	protected void dispatchOutput(Map<String, XElement> funcOut) {
 		boolean valid = true;
-		for (int i = 0; i < outputs.size(); i++) {
-			if (!funcOut.containsKey(outputs.get(i).name)) {
-				diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(new IllegalArgumentException(outputs.get(i).name + " missing"))));
-				LOG.error("missing output '" + outputs.get(i).name + "' at the block type " + description().id);
+		for (Map.Entry<String, XElement> e : funcOut.entrySet()) {
+			if (!outputs.containsKey(e.getKey())) {
 				valid = false;
+				diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(new IllegalArgumentException(e.getKey() + " missing"))));
+				LOG.error("missing output '" + e.getKey() + "' at the block type " + description().id);
+				valid = false;
+			} else {
+				getOutput(e.getKey()).next(e.getValue());
 			}
 		}
 		if (valid) {
-			for (int i = 0; i < outputs.size(); i++) {
-				AdvanceBlockPort p = outputs.get(i);
-				p.next(funcOut.get(p.name));
-			}						
 			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.FINISH)));
 		}
 
@@ -332,7 +330,7 @@ public abstract class AdvanceBlock {
 				LOG.info("", ex);
 			}
 		}
-		for (AdvancePort ap : inputs) {
+		for (AdvancePort ap : inputs.values()) {
 			if (ap instanceof AdvanceBlockPort) {
 				((AdvanceBlockPort) ap).disconnect();
 			}
@@ -355,12 +353,15 @@ public abstract class AdvanceBlock {
 	 * @return the block port
 	 */
 	public AdvanceBlockPort getOutput(@NonNull String name) {
-		for (AdvanceBlockPort p : outputs) {
-			if (p.name().equals(name)) {
-				return p;
-			}
-		}
-		return null;
+		return outputs.get(name);
+	}
+	/**
+	 * Returns the input port with the given name.
+	 * @param name the input port name
+	 * @return the input port
+	 */
+	public AdvancePort getInput(@NonNull String name) {
+		return inputs.get(name);
 	}
 	/**
 	 * Called after the block has been detached and done() has been called in
@@ -407,5 +408,12 @@ public abstract class AdvanceBlock {
 	 */
 	public AdvanceCompositeBlock parent() {
 		return settings.parent;
+	}
+	/**
+	 * Add a closeable object ot the list of things to close when the block is terminated.
+	 * @param c the closeable
+	 */
+	public void addCloseable(@NonNull Closeable c) {
+		functionClose.add(c);
 	}
 }
