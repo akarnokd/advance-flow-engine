@@ -20,6 +20,14 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import eu.advance.logistics.flow.editor.model.BlockBind;
+import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.error.HasBinding;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -30,12 +38,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
+import org.netbeans.api.settings.ConvertAsProperties;
 import org.netbeans.api.visual.model.ObjectSceneEvent;
 import org.netbeans.api.visual.model.ObjectSceneEventType;
 import org.netbeans.api.visual.model.ObjectSceneListener;
@@ -49,25 +56,19 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
-
-import eu.advance.logistics.flow.editor.diagram.FlowScene;
-import eu.advance.logistics.flow.editor.model.BlockBind;
-import eu.advance.logistics.flow.editor.model.FlowDescription;
-import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import org.openide.util.ImageUtilities;
 
 /**
  * Visual flow editor.
  * 
  * @author TTS
  */
+@ConvertAsProperties(dtd = "-//eu.advance.logistics.flow.editor//EditorTopComponent//EN",
+autostore = false)
 @TopComponent.Description(preferredID = "EditorTopComponent",
-//iconBase = "SET/PATH/TO/ICON/HERE",
+//iconBase="SET/PATH/TO/ICON/HERE",
 persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED)
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
 public final class EditorTopComponent extends TopComponent {
@@ -111,6 +112,9 @@ public final class EditorTopComponent extends TopComponent {
         undoRedo = dataObject.getLookup().lookup(UndoRedoSupport.class).getUndoRedo();
 
         //associateLookup(Lookups.fixed(new Object[]{flowDiagramController}));
+        TreeBrowserTopComponent.getDefault().setFlowDescription(fd);
+        NavigatorTopComponent.getDefault().setFlowScene(scene);
+        scene.getView().requestFocus();
     }
 
     public FlowDescriptionDataObject getDataObject() {
@@ -134,18 +138,17 @@ public final class EditorTopComponent extends TopComponent {
     private javax.swing.JScrollPane scrollpane;
     // End of variables declaration//GEN-END:variables
 
-    @Override
+  @Override
     public UndoRedo getUndoRedo() {
         return undoRedo;
     }
 
-    private void sceneRequestFocus() {
-        if (dataObject != null) {
-            FlowScene scene = dataObject.getLookup().lookup(FlowScene.class);
-            if (scene != null) {
-                scene.getView().requestFocus();
-            }
-        }
+    private FlowScene getFlowScene() {
+        return (dataObject != null) ? dataObject.getLookup().lookup(FlowScene.class) : null;
+    }
+
+    private FlowDescription getFlowDescription() {
+        return (dataObject != null) ? dataObject.getLookup().lookup(FlowDescription.class) : null;
     }
 
     @Override
@@ -154,17 +157,26 @@ public final class EditorTopComponent extends TopComponent {
 
     @Override
     public void componentClosed() {
-        //dataObject.getLookup().lookup(FlowDescription.class).close();
+        NavigatorTopComponent.getDefault().setFlowScene(null);
+        TreeBrowserTopComponent.getDefault().setFlowDescription(null);
     }
 
     @Override
     protected void componentActivated() {
-        sceneRequestFocus();
+        FlowScene scene = getFlowScene();
+        NavigatorTopComponent.getDefault().setFlowScene(scene);
+        TreeBrowserTopComponent.getDefault().setFlowDescription(getFlowDescription());
+        if (scene != null) {
+            scene.getView().requestFocus();
+        }
     }
 
     @Override
     protected void componentShowing() {
-        sceneRequestFocus();
+        FlowScene scene = getFlowScene();
+        if (scene != null) {
+            scene.getView().requestFocus();
+        }
     }
 
     private boolean checkSave() {
@@ -304,35 +316,28 @@ public final class EditorTopComponent extends TopComponent {
         }
     };
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        String path = null;
+    void writeProperties(java.util.Properties p) {
+        p.setProperty("version", "1.0");
         if (dataObject != null) {
             File file = FileUtil.toFile(dataObject.getPrimaryFile());
             if (file != null) {
                 try {
-                    path = file.getCanonicalPath();
+                    p.setProperty("file", file.getCanonicalPath());
                 } catch (IOException ex) {
                     System.err.println(ex.getMessage());
                 }
             }
         }
-        if (path != null) {
-            out.writeInt(1);
-            out.writeObject(path);
-        } else {
-            out.writeInt(0);
-        }
     }
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
+    void readProperties(java.util.Properties p) {
+        String version = p.getProperty("version");
+        String path = null;
+        if (version.equals("1.0")) {
+            path = p.getProperty("file");
+        }
         DataObject dobj = null;
-        int version = in.readInt();
-        if (version == 1) {
-            String path = in.readObject().toString();
+        if (path != null) {
             File file = new File(path);
             if (file.exists()) {
                 try {

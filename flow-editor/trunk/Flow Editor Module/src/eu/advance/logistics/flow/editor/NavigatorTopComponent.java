@@ -29,6 +29,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import org.openide.windows.WindowManager;
 
 /**
  * Navigator panel.
@@ -46,18 +47,6 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_NavigatorAction",
 preferredID = "NavigatorTopComponent")
 public final class NavigatorTopComponent extends TopComponent {
-
-    private ContextSupport<FlowScene> contextSupport = new ContextSupport<FlowScene>(FlowScene.class) {
-
-        @Override
-        protected void contextChanged(FlowScene scene) {
-            removeAll();
-            if (scene != null) {
-                add(scene.getSatelliteView(), BorderLayout.CENTER);
-            }
-            validate();
-        }
-    };
 
     public NavigatorTopComponent() {
         initComponents();
@@ -88,25 +77,23 @@ public final class NavigatorTopComponent extends TopComponent {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-    @Override
-    public void componentOpened() {
-        contextSupport.activate();
-    }
-
-    @Override
-    public void componentClosed() {
-        contextSupport.deactivate();
-    }
-
     void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
     }
 
     void readProperties(java.util.Properties p) {
-//        String version = p.getProperty("version");
-        // TODO read your settings according to their version
+        String version = p.getProperty("version");
+    }
+
+    void setFlowScene(FlowScene scene) {
+        removeAll();
+        if (scene != null) {
+            add(scene.getSatelliteView(), BorderLayout.CENTER);
+        }
+        validate();
+    }
+
+    static NavigatorTopComponent getDefault() {
+        return (NavigatorTopComponent) WindowManager.getDefault().findTopComponent("NavigatorTopComponent");
     }
 }

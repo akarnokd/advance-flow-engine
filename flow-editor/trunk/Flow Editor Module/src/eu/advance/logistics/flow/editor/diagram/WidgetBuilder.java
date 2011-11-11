@@ -80,6 +80,7 @@ class WidgetBuilder {
                     return super.keyPressed(widget, event);
                 }
             });
+            widget.getHeader().setToolTipText("Type: " + simpleBlock.description.id);
         } else if (block instanceof CompositeBlock) {
             final CompositeBlock compositeBlock = (CompositeBlock) block;
             widget.setNodeImage(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/palette/images/block.png"));
@@ -163,18 +164,17 @@ class WidgetBuilder {
     static void configure(PinWidget w, BlockParameter param) {
         w.setPinName(param.getDisplayName());
         AdvanceBlockParameterDescription d = param.getDescription();
-        if (d.displayName != null || d.documentation != null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("<html>");
-            if (d.displayName != null) {
-                sb.append("<b>").append(d.displayName).append("</b><br>");
-            }
-            if (d.documentation != null) {
-                sb.append(d.documentation);
-            }
-            sb.append("</html>");
-            w.setToolTipText(sb.toString());
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>");
+        sb.append(param.getDescription().type.toString()).append("<br>");
+        if (d.displayName != null) {
+            sb.append("<b>").append(d.displayName).append("</b><br>");
         }
+        if (d.documentation != null) {
+            sb.append(d.documentation);
+        }
+        sb.append("</html>");
+        w.setToolTipText(sb.toString());
     }
 
     private void deleteBlock(AbstractBlock block, String name) {
