@@ -3,6 +3,22 @@ Advance Flow Editor + Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Editor Version 0.11.203 Notes
+-----------------------------
+
+Uses Engine Version 0.11.202
+
+Minor GUI improvements
+
+Engine Version 0.11.202 Notes
+-----------------------------
+
+Added blocks for the review demo.
+
+Fixed block output dispatching
+
+Fixed block model.
+
 Editor Version 0.10.193 Notes
 -----------------------------
 
