@@ -22,20 +22,20 @@ package eu.advance.logistics.flow.editor;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JTree;
 
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
-import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.tree.FlowDescriptionNode;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.windows.WindowManager;
 
 /**
  * @author TTS
@@ -54,13 +54,6 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
 
     private ExplorerManager explorerManager = new ExplorerManager();
     private BeanTreeView treeView = new BeanTreeView();
-    private ContextSupport<FlowDescription> contextSupport = new ContextSupport<FlowDescription>(FlowDescription.class) {
-
-        @Override
-        protected void contextChanged(FlowDescription fd) {
-            setFlowDescription(fd);
-        }
-    };
 
     public TreeBrowserTopComponent() {
         initComponents();
@@ -88,35 +81,19 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-    @Override
-    public void componentOpened() {
-        contextSupport.activate();
-    }
-
-    @Override
-    public void componentClosed() {
-        contextSupport.deactivate();
-    }
 
     void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
     }
 
     void readProperties(java.util.Properties p) {
-//        String version = p.getProperty("version");
-        // TODO read your settings according to their version
+        String version = p.getProperty("version");
     }
 
-    private void setFlowDescription(FlowDescription fd) {
+    void setFlowDescription(FlowDescription fd) {
         if (fd != null) {
-            explorerManager.setRootContext(new FlowDescriptionNode(fd));
-            JTree t = (JTree) treeView.getViewport().getView();
-            for (int i = 0; i < t.getRowCount(); i++) {
-                t.expandRow(i);
-            }
+            FlowDescriptionNode n = new FlowDescriptionNode(fd);
+            explorerManager.setRootContext(n);
         } else {
             explorerManager.setRootContext(Node.EMPTY);
         }
@@ -125,5 +102,9 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
     @Override
     public ExplorerManager getExplorerManager() {
         return explorerManager;
+    }
+
+    static TreeBrowserTopComponent getDefault() {
+        return (TreeBrowserTopComponent) WindowManager.getDefault().findTopComponent("TreeBrowserTopComponent");
     }
 }
