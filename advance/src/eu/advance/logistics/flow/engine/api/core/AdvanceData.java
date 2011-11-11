@@ -238,8 +238,17 @@ public final class AdvanceData {
 	public static final URI PAIR = uri("advance:pair");
 	/** A map. */
 	public static final URI WRAPPER = uri("advance:wrapper");
+	// TODO ------------------------------------------------------------------
+	// TODO only for the duration of the demo!
 	/** A type constructor. */
-	public static final URI TYPE = uri("advance:type");
+	public static final URI PALLET = uri("advance:pallet");
+	/** A type constructor. */
+	public static final URI HALF_PALLET = uri("advance:half-pallet");
+	/** A type constructor. */
+	public static final URI FULL_PALLET = uri("advance:full-pallet");
+	/** A type constructor. */
+	public static final URI TRUCK = uri("advance:truck");
+	// TODO ------------------------------------------------------------------
 	/** The list of base types. */
 	public static final List<URI> BASE_TYPES;
 	static {

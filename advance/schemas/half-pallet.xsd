@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 (http://www.altova.com) by MESMERiZE (MSM) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="pallet.xsd"/>
+	<xs:element name="half-pallet" type="half-pallet">
+		<xs:annotation>
+			<xs:documentation>A half sized pallet.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="half-pallet">
+		<xs:annotation>
+			<xs:documentation>A half sized pallet.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="pallet">
+				<xs:attribute name="half" type="xs:boolean" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
