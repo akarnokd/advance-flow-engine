@@ -77,8 +77,8 @@ import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.editor.undo.BindRemoved;
 import eu.advance.logistics.flow.editor.undo.BlockRenamed;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.typesystem.XData;
 
 /**
  *
@@ -414,19 +414,19 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
 
                     String s = null;
                     
-                    if (XData.BOOLEAN.equals(at.typeURI)) {
+                    if (AdvanceData.BOOLEAN.equals(at.typeURI)) {
                         s = "Boolean";
                     } else
-                    if (XData.INTEGER.equals(at.typeURI)) {
+                    if (AdvanceData.INTEGER.equals(at.typeURI)) {
                         s = "Integer";
                     } else
-                    if (XData.REAL.equals(at.typeURI)) {
+                    if (AdvanceData.REAL.equals(at.typeURI)) {
                         s = "Real";
                     } else
-                    if (XData.STRING.equals(at.typeURI)) {
+                    if (AdvanceData.STRING.equals(at.typeURI)) {
                         s = "String";
                     } else
-                    if (XData.TIMESTAMP.equals(at.typeURI)) {
+                    if (AdvanceData.TIMESTAMP.equals(at.typeURI)) {
                         s = "Timestamp";
                     }
                     if (s != null) {
