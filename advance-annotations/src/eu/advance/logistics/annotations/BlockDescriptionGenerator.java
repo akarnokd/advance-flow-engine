@@ -184,7 +184,7 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
                         Input input = field.getAnnotation(Input.class);
                         if (input != null) {
                             String name = (String) field.getConstantValue();
-                            String inputType = getNamedTypeRepresentation(input.value(), "input", name);
+                            String inputType = getNamedTypeRepresentation(input, name);
                             pw.println(indent(inputType, 2));
                         }
                     }
@@ -256,6 +256,39 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
      */
     private String getTypeRepresentation(String type, String tagName) {
         return getNamedTypeRepresentation(type, tagName, null);
+    }
+    /**
+     * Returns a named type representation.
+     * @param type the type
+     * @param tagName the tag name
+     * @param name the name
+     * @return the representation
+     */
+    private String getNamedTypeRepresentation(Input input, String name) {
+        String result = "<input " + (name == null ? "" : "id=\"" + name + "\"");
+        result += " required=\"" + input.required() + "\"";
+        result += " varargs=\"" + input.variable() + "\"";
+        String type = input.value();
+        boolean hasTP = hasTypeParameters(type);
+        boolean hasConst = input.defaultConstant() != null && !input.defaultConstant().isEmpty();
+        if (hasTP || hasConst) {
+        	
+        	if (hasTP) {
+        		result += " type=\"" + getRootType(type) + "\">\n";
+                result += indent(getTypeArgumentsRepresentation(type)) + "\n";
+        	} else {
+        		result += ">\n";
+        	}
+        	if (hasConst) {
+        		result += "<default>\n" + indent(input.defaultConstant()) + "\n</default>\n";
+        	}
+            result += "</input>\n";
+        } else if (isParameter(type)) {
+            result += " type-variable=\"" + type.substring(1) + "\"/>";
+        } else {
+            result += " type=\"" + type + "\"/>";
+        }
+        return result;
     }
     /**
      * Returns a named type representation.
