@@ -127,7 +127,15 @@ public class BlockRegistry {
     }
 
     public BlockCategory findByType(AdvanceBlockDescription description) {
-        return descriptions.get(description);
+        BlockCategory cat = descriptions.get(description);
+        if (cat == null) {
+            for (Map.Entry<AdvanceBlockDescription, BlockCategory> e : descriptions.entrySet()) {
+                if (e.getKey().id.equals(description.id)) {
+                    return e.getValue();
+                }
+            }
+        }
+        return find(null);
     }
 
     public AdvanceBlockDescription findType(String type) {

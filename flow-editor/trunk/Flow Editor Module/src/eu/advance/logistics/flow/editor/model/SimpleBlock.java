@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.editor.model;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import java.util.Map;
 
 /**
  * <b>SimpleBlock</b>
@@ -31,6 +32,8 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescriptio
 public class SimpleBlock extends AbstractBlock {
 
     public final AdvanceBlockDescription description;
+    /** The saved varargs counts used by this block. */
+    public Map<String, Integer> varargs;
 
     public SimpleBlock(String id, AdvanceBlockDescription desc) {
         this.id = id;
