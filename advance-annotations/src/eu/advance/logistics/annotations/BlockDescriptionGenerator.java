@@ -271,23 +271,26 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
         String type = input.value();
         boolean hasTP = hasTypeParameters(type);
         boolean hasConst = input.defaultConstant() != null && !input.defaultConstant().isEmpty();
-        if (hasTP || hasConst) {
-        	
-        	if (hasTP) {
-        		result += " type=\"" + getRootType(type) + "\">\n";
-                result += indent(getTypeArgumentsRepresentation(type)) + "\n";
-        	} else {
-        		result += ">\n";
-        	}
-        	if (hasConst) {
-        		result += "<default>\n" + indent(input.defaultConstant()) + "\n</default>\n";
-        	}
-            result += "</input>\n";
+        if (hasTP) {
+    		result += " type=\"" + getRootType(type) + "\"";
         } else if (isParameter(type)) {
-            result += " type-variable=\"" + type.substring(1) + "\"/>";
+            result += " type-variable=\"" + type.substring(1) + "\"";
         } else {
-            result += " type=\"" + type + "\"/>";
+            result += " type=\"" + type + "\"";
         }
+        if (hasTP || hasConst) {
+        	result += ">\n";
+            if (hasTP) {
+            	result += indent(getTypeArgumentsRepresentation(type)) + "\n";
+            }
+            if (hasConst) {
+            	result += indent("<default>\n") + indent(input.defaultConstant(), 2) + "\n" + indent("</default>") + "\n";
+            }
+        	result += "</input>";
+        } else {
+        	result += "/>";
+        }
+
         return result;
     }
     /**
