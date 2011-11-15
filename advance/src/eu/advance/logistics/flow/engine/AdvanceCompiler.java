@@ -152,11 +152,24 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			// current level blocks
 			for (AdvanceBlockReference br : root.blocks.values()) {
 				Map<String, AdvanceConstantBlock> consts = Maps.newHashMap();
-				AdvanceBlockDescription bd = blockResolver().lookup(br.type);
+				
+				AdvanceBlockRegistryEntry bd = blockResolver().lookup(br.type);
+				bd = new AdvanceBlockRegistryEntry(bd, bd.derive(br));
+				
 				for (AdvanceBlockParameterDescription bdp : bd.inputs.values()) {
 					ConstantOrBlock cb = walkBinding(root, br.id, bdp.id);
 					if (cb != null && cb.constant != null) {
 						consts.put(bdp.id, cb.constant);
+					} else
+					if (bdp.defaultValue != null) {
+						AdvanceConstantBlock constBlock = new AdvanceConstantBlock();
+						constBlock.id = "<const>" + br.id + ":" + bdp.id;
+						constBlock.type = bdp.type.type;
+						if (bdp.type != null) {
+							constBlock.typeURI = bdp.type.typeURI;
+						}
+						constBlock.value = bdp.defaultValue;
+						consts.put(bdp.id, constBlock);
 					}
 				}
 				AdvanceBlockSettings blockSettings = new AdvanceBlockSettings();
@@ -165,8 +178,10 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				blockSettings.schedulers = schedulers();
 				blockSettings.datastore = this.settings.datastore;
 				blockSettings.pools = this.settings.pools;
+				blockSettings.instance = br;
+				blockSettings.description = bd;
 				
-				AdvanceBlock ab = blockResolver().create(blockSettings, br.type);
+				AdvanceBlock ab = blockResolver().create(blockSettings);
 				ab.init(consts);
 				
 				flow.add(ab);
@@ -361,9 +376,10 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					}
 				} else
 				if (cb.blocks.containsKey(bb.sourceBlock)) {
+					AdvanceBlockReference br = cb.blocks.get(bb.sourceBlock);
 					Map<String, AdvanceType> at = typeMemory.get(bb.sourceBlock);
 					if (at == null) {
-						AdvanceBlockDescription block = blockResolver().lookup(cb.blocks.get(bb.sourceBlock).type).copy();
+						AdvanceBlockDescription block = blockResolver().lookup(cb.blocks.get(bb.sourceBlock).type).copy().derive(br);
 						at = Maps.newHashMap();
 						for (AdvanceBlockParameterDescription bpd : block.inputs.values()) {
 							resolve(bpd.type);
@@ -410,9 +426,10 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				}
 				// evaluate destination
 				if (cb.blocks.containsKey(bb.destinationBlock)) {
+					AdvanceBlockReference br = cb.blocks.get(bb.destinationBlock);
 					Map<String, AdvanceType> at = typeMemory.get(bb.destinationBlock);
 					if (at == null) {
-						AdvanceBlockDescription block = blockResolver().lookup(cb.blocks.get(bb.destinationBlock).type).copy();
+						AdvanceBlockDescription block = blockResolver().lookup(cb.blocks.get(bb.destinationBlock).type).copy().derive(br);
 						at = Maps.newHashMap();
 						for (AdvanceBlockParameterDescription bpd : block.inputs.values()) {
 							resolve(bpd.type);
@@ -549,7 +566,15 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			if (cb.blocks.containsKey(bb.sourceBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.sourceBlock);
 				input = b;
-				AdvanceBlockRegistryEntry block = blockResolver().lookup(b.type);
+				
+				AdvanceBlockRegistryEntry lookup = blockResolver().lookup(b.type);
+				List<AdvanceCompilationError> err = lookup.verify(b);
+				if (!err.isEmpty()) {
+					result.addError(err);
+					continue;
+				}
+				
+				AdvanceBlockDescription block = lookup.derive(b);
 				if (block.inputs.containsKey(bb.sourceParameter)) {
 					result.addError(new SourceToInputBindingError(bb));
 					continue;
@@ -595,7 +620,15 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			if (cb.blocks.containsKey(bb.destinationBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.destinationBlock);
 				output = b;
-				AdvanceBlockRegistryEntry block = blockResolver().lookup(b.type);
+				
+				AdvanceBlockRegistryEntry lookup = blockResolver().lookup(b.type);
+				List<AdvanceCompilationError> err = lookup.verify(b);
+				if (!err.isEmpty()) {
+					result.addError(err);
+					continue;
+				}
+				
+				AdvanceBlockDescription block = lookup.derive(b);
 				if (block.outputs.containsKey(bb.destinationParameter)) {
 					result.addError(new DestinationToOutputError(bb));
 					continue;

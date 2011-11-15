@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
@@ -124,6 +125,11 @@ public abstract class AdvanceBlock {
 	}
 	/** 
 	 * Schedule the execution of the body function.
+	 * <p>The block implementations may override this method to perform any
+	 * custom registration to the input ports (e.g., observe them independently.)</p>
+	 * <p>The returned observer will be invoked once all block run() has been called
+	 * in the current realm. This entry point may be used to issue computation in case
+	 * a block only uses constant inputs.</p>
 	 * @return the observer to trigger in the run phase
 	 */
 	public Observer<Void> run() {
@@ -232,6 +238,7 @@ public abstract class AdvanceBlock {
 			invoke(funcIn);
 			
 		} catch (Throwable t) {
+			LOG.error(t.toString(), t);
 			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(t)));
 		}
 	}
@@ -292,7 +299,13 @@ public abstract class AdvanceBlock {
 		if (valid) {
 			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.FINISH)));
 		}
-
+	}
+	/**
+	 * Dispatch a multimap of values.
+	 * @param output the multimap of values
+	 */
+	protected void dispatch(Multimap<String, XElement> output) {
+		dispatch(output.asMap());
 	}
 	/**
 	 * Dispatches the given map of output values to various ports.
@@ -316,7 +329,8 @@ public abstract class AdvanceBlock {
 
 	}
 	/**
-	 * The body function to invoke. Implementation should should invoke the {@link #dispatchOutput(Map)} method
+	 * The body function to invoke. Implementation should should invoke one of the 
+	 * {@code dispatch} methods 
 	 * when the computation is over. This may happen synchronously (or asynchronously)
 	 * @param params the parameters
 	 */

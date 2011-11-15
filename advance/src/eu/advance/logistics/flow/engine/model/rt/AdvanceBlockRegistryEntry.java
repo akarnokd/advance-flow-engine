@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
@@ -43,6 +44,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  */
 public class AdvanceBlockRegistryEntry extends AdvanceBlockDescription 
 implements XSerializable {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlockRegistryEntry.class);
 	/** The implementation class. */
 	public String clazz;
 	/** The preferred scheduler. */
@@ -54,6 +57,22 @@ implements XSerializable {
 			return new AdvanceBlockRegistryEntry();
 		}
 	};
+	/**
+	 * Default constructor.
+	 */
+	public AdvanceBlockRegistryEntry() {
+		// empty
+	}
+	/**
+	 * Copy constructor with the option to copy settings from another registry but use the given description.
+	 * @param other the other registry
+	 * @param desc the description to use instead
+	 */
+	public AdvanceBlockRegistryEntry(AdvanceBlockRegistryEntry other, AdvanceBlockDescription desc) {
+		this.clazz = other.clazz;
+		this.scheduler = other.scheduler;
+		super.assign(desc);
+	}
 	@Override
 	public void load(XElement root) {
 		super.load(root);
@@ -62,7 +81,7 @@ implements XSerializable {
 		if (s != null) {
 			scheduler = AdvanceSchedulerPreference.valueOf(s);
 		} else {
-			scheduler = AdvanceSchedulerPreference.CPU;
+			scheduler = AdvanceSchedulerPreference.IO;
 		}
 	}
 	@Override
@@ -70,6 +89,14 @@ implements XSerializable {
 		super.save(destination);
 		destination.set("class", clazz);
 		destination.set("scheduler", scheduler.name());
+	}
+	@Override
+	public AdvanceBlockRegistryEntry copy() {
+		AdvanceBlockRegistryEntry result = new AdvanceBlockRegistryEntry();
+		XElement e = new XElement("e");
+		save(e);
+		result.load(e);
+		return result;
 	}
 	/**
 	 * Parse an XML tree which contains block registry descriptions as a list.

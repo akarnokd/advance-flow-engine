@@ -33,6 +33,10 @@ import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.error.MissingVarargsError;
+import eu.advance.logistics.flow.engine.error.NonVarargsError;
+import eu.advance.logistics.flow.engine.error.UnsetVarargsError;
+import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.util.Strings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
@@ -62,6 +66,8 @@ public class AdvanceBlockDescription implements XSerializable {
 	public final Map<String, AdvanceBlockParameterDescription> outputs = Maps.newLinkedHashMap();
 	/** The definitions of various generic type parameters. */
 	public final Map<String, AdvanceTypeVariable> typeVariables = Maps.newLinkedHashMap();
+	/** True if any of the input was defined to be varargs. */
+	public boolean hasVarargs;
 	/**
 	 * @return a copy of this block description with separate type graph.
 	 */
@@ -74,6 +80,20 @@ public class AdvanceBlockDescription implements XSerializable {
 		result.load(bs);
 		
 		return result;
+	}
+	/**
+	 * Assign (shared) values from the other block description.
+	 * @param other the other description
+	 */
+	public void assign(@NonNull AdvanceBlockDescription other) {
+		this.id = other.id;
+		this.category = other.category;
+		this.displayName = other.displayName;
+		this.keywords.addAll(other.keywords);
+		this.documentation = other.documentation;
+		this.inputs.putAll(other.inputs);
+		this.outputs.putAll(other.outputs);
+		this.typeVariables.putAll(other.typeVariables);
 	}
 	/**
 	 * Load the contents from an XML element with a schema of <code>block-description.xsd</code>.
@@ -128,9 +148,11 @@ public class AdvanceBlockDescription implements XSerializable {
 		}
 		LinkedList<AdvanceType> typeParams = Lists.newLinkedList();
 		
+		hasVarargs = false;
 		for (XElement inp : root.childrenWithName("input")) {
 			AdvanceBlockParameterDescription bpd = new AdvanceBlockParameterDescription();
 			bpd.load(inp);
+			hasVarargs |= bpd.varargs;
 			if (inputs.put(bpd.id, bpd) != null) {
 				throw new DuplicateIdentifierException(inp.getXPath(), bpd.id);
 			}
@@ -222,6 +244,67 @@ public class AdvanceBlockDescription implements XSerializable {
 		for (AdvanceBlockDescription item : list) {
 			item.save(result.add("block-description"));
 		}
+		return result;
+	}
+	/**
+	 * Verify if the given reference can be used to derive the actual block registry entry.
+	 * @param ref the reference from the flow-description
+	 * @return the list of error cases
+	 */
+	public List<AdvanceCompilationError> verify(AdvanceBlockReference ref) {
+		List<AdvanceCompilationError> error = Lists.newArrayList();
+		for (String s : ref.varargs.keySet()) {
+			AdvanceBlockParameterDescription bd = inputs.get(s);
+			if (bd == null) {
+				error.add(new MissingVarargsError(ref.id, ref.type, s));
+			} else
+			if (!bd.varargs) {
+				error.add(new NonVarargsError(ref.id, ref.type, s));
+			}
+		}
+		for (AdvanceBlockParameterDescription d : inputs.values()) {
+			if (d.varargs && !ref.varargs.containsKey(d.id)) {
+				error.add(new UnsetVarargsError(ref.id, ref.type, d.id));
+			}
+		}
+		return error;
+	}
+	/**
+	 * Use this block reference to derive a custom block based on the variable argument counts.
+	 * @param ref the original reference
+	 * @return the derived description
+	 */
+	public AdvanceBlockDescription derive(AdvanceBlockReference ref) {
+		if (ref.varargs.size() == 0) {
+			return this;
+		}
+		AdvanceBlockDescription result = new AdvanceBlockDescription();
+		
+		result.id = id;
+		result.displayName = displayName;
+		result.category = category;
+		result.documentation = documentation;
+		result.keywords.addAll(keywords);
+		result.typeVariables.putAll(typeVariables);
+		
+		for (Map.Entry<String, AdvanceBlockParameterDescription> e : inputs.entrySet()) {
+			if (ref.varargs.containsKey(e.getKey())) {
+				int count = ref.varargs.get(e.getKey());
+				for (int i = 1; i <= count; i++) {
+					AdvanceBlockParameterDescription original = e.getValue();
+					AdvanceBlockParameterDescription value = original.copy();
+					value.type = original.type; // keep shared type
+					value.id = e.getKey() + i;
+					value.varargs = false;
+					result.inputs.put(value.id, value);
+				}
+			} else {
+				result.inputs.put(e.getKey(), e.getValue());
+			}
+		}
+		
+		result.outputs.putAll(outputs);
+		
 		return result;
 	}
 }

@@ -91,7 +91,7 @@ public class InputBox extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JInternalFrame("Input box", false);
+		frame = new JInternalFrame(settings.id, false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		button = new JButton("Send");
 		message = new JLabel(titleDefer);

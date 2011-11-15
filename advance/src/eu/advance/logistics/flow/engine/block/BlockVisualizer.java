@@ -21,16 +21,11 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.Arrays;
 import java.util.Deque;
-import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.JDesktopPane;
@@ -59,7 +54,7 @@ public class BlockVisualizer extends JFrame {
 	 */
 	public BlockVisualizer() {
 		super("Advance Block Visualizations");
-		desktop = new ScrollableDesktop();
+		desktop = new JDesktopPane();
 		getContentPane().add(new JScrollPane(desktop));
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
@@ -173,65 +168,5 @@ public class BlockVisualizer extends JFrame {
 			instance.setVisible(true);
 		}
 		return instance;
-	}
-	/**
-	 * A DesktopPane with support for scrolling its contents.
-	 * @author akarnokd, 2011.11.07.
-	 */
-	public static class ScrollableDesktop extends JDesktopPane {
-		/** */
-		private static final long serialVersionUID = 2927356450989873143L;
-		/** The listeners.*/
-		protected Hashtable<Component, ComponentListener> listeners = new Hashtable<Component, ComponentListener>();
-
-		@Override
-		public Dimension getPreferredSize() {
-	      JInternalFrame [] array = getAllFrames();
-	      int maxX = 0;
-	      int maxY = 0;
-	      for (int i = 0; i < array.length; i++) {
-	        int x = array[i].getX() + array[i].getWidth();
-	        if (x < maxX) {
-	        	maxX = x;
-	        }
-	        int y = array[i].getY() + array[i].getHeight();
-	        if (y < maxY) {
-	        	maxY = y;
-	        }
-	      }
-	      return new Dimension(maxX, maxY);
-	    }
-
-		@Override
-		public void add(Component comp, Object constraints) {
-			super.add(comp, constraints);
-			ComponentListener listener = new ComponentListener() {
-				@Override
-				public void componentResized(ComponentEvent e) { // Layout the
-																	// JScrollPane
-					getParent().getParent().validate();
-				}
-				@Override
-				public void componentMoved(ComponentEvent e) {
-					componentResized(e);
-				}
-
-				@Override
-				public void componentShown(ComponentEvent e) {
-				}
-
-				@Override
-				public void componentHidden(ComponentEvent e) {
-				}
-			};
-			comp.addComponentListener(listener);
-			listeners.put(comp, listener);
-		}
-		@Override
-		public void remove(Component comp) {
-			comp.removeComponentListener(listeners.get(comp));
-			super.remove(comp);
-			getParent().getParent().validate(); // Layout the JScrollPane
-		}
 	}
 }

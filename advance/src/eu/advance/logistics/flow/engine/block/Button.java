@@ -79,7 +79,7 @@ public class Button extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JInternalFrame("Button", false);
+		frame = new JInternalFrame(settings.id, false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		button = new JButton("Click me");
 		

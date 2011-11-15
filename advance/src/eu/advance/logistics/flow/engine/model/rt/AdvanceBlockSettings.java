@@ -27,6 +27,7 @@ import java.util.Map;
 
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 
 /**
@@ -46,6 +47,8 @@ public class AdvanceBlockSettings {
 	public AdvanceDataStore datastore;
 	/** The connection pools to various objects. */
 	public AdvancePools pools;
+	/** The block reference as specified in the flow. */
+	public AdvanceBlockReference instance;
 	/** Default constructor. */
 	public AdvanceBlockSettings() {
 		

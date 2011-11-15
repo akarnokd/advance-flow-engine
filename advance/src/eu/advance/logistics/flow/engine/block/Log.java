@@ -106,7 +106,7 @@ public class Log extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JInternalFrame("Log", true);
+		frame = new JInternalFrame(settings.id, true);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		rowcount = new JLabel("Rows: 0");
 		model = new AbstractTableModel() {
@@ -213,12 +213,12 @@ public class Log extends AdvanceBlock {
 		
 		gl.setHorizontalGroup(
 			gl.createParallelGroup(Alignment.CENTER)
-			.addComponent(sp)
+			.addComponent(sp, 0, 250, Short.MAX_VALUE)
 			.addComponent(rowcount)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
-			.addComponent(sp)
+			.addComponent(sp, 0, 250, Short.MAX_VALUE)
 			.addComponent(rowcount)
 		);
 		frame.pack();

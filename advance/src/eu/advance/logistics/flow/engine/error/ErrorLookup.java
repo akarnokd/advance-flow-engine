@@ -63,6 +63,9 @@ public final class ErrorLookup {
 		TypeMismatchError.register(ERROR_LOOKUP);
 		MissingBlockError.register(ERROR_LOOKUP);
 		TypeArgumentCountError.register(ERROR_LOOKUP);
+		MissingVarargsError.register(ERROR_LOOKUP);
+		NonVarargsError.register(ERROR_LOOKUP);
+		UnsetVarargsError.register(ERROR_LOOKUP);
 	}
 	/**
 	 * Locate the error via its simple class name.

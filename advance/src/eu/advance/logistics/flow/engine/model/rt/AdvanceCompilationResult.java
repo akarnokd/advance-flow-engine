@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.model.rt;
 
 import hu.akarnokd.reactive4java.base.Func0;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -130,11 +131,20 @@ public class AdvanceCompilationResult implements XSerializable {
         return result;
 	}
 	/**
-	 * Add a compilation error.
-	 * @param error the compilation error
+	 * Add a (bunch of) compilation error.
+	 * @param errors the compilation error
 	 */
-	public void addError(@NonNull AdvanceCompilationError error) {
-		errors.add(error);
+	public void addError(@NonNull AdvanceCompilationError... errors) {
+		addError(Arrays.asList(errors));
+	}
+	/**
+	 * Add a sequence compilation error.
+	 * @param errors the compilation error
+	 */
+	public void addError(@NonNull Iterable<? extends AdvanceCompilationError> errors) {
+		for (AdvanceCompilationError e : errors) {
+			this.errors.add(e);
+		}
 	}
 	/**
 	 * Sets the wire type.

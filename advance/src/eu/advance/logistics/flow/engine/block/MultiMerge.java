@@ -41,17 +41,14 @@ import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * A block that merges the incoming values of its parameters but without waiting for both of them.
+ * A block that merges the incoming values of its parameters but without waiting for all of them.
  * @author akarnokd, 2011.07.01.
  */
-@Block(scheduler = "NOW", description = "Block to merge two streams of the same type. This block does not wait for all of its inputs to be ready.", parameters = { "T" })
-public class Merge extends AdvanceBlock {
+@Block(scheduler = "NOW", description = "Block to merge many streams of the same type. This block does not wait for all of its inputs to be ready.", parameters = { "T" })
+public class MultiMerge extends AdvanceBlock {
 	/** 1. */
-    @Input(value = "?T", required = false)
-    protected static final String IN1 = "1";
-    /** 2. */
-    @Input(value = "?T", required = false)
-    protected static final String IN2 = "2";
+    @Input(value = "?T", variable = true, required = false)
+    protected static final String IN = "in";
     /** Out. */
     @Output("?T")
     private static final String OUT = "out";
@@ -60,7 +57,7 @@ public class Merge extends AdvanceBlock {
 	 * Constructor.
 	 * @param settings the block settings
 	 */
-	public Merge(AdvanceBlockSettings settings) {
+	public MultiMerge(AdvanceBlockSettings settings) {
 		super(settings);
 	}
 	
