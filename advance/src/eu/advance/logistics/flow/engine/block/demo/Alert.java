@@ -23,8 +23,6 @@ package eu.advance.logistics.flow.engine.block.demo;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Map;
 
 import javax.swing.GroupLayout;
@@ -32,10 +30,10 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
@@ -49,15 +47,13 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 @Block(category = "demo", description = "Displays a red rectangle if the trigger arrives.")
 public class Alert extends AdvanceBlock {
 	/** The title attribute. */
-    @Input("advance:object")
-    protected static final String TRIGGER = "trigger";
+    @Input("advance:boolean")
+    protected static final String TRIGGER = "alert";
     
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	/** The status indicator panel. */
 	protected JPanel panel;
-	/** The highlight timer. */
-	protected Timer highlightTimer;
 	/**
 	 * Constructor.
 	 * @param settings the block settings
@@ -79,7 +75,7 @@ public class Alert extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JInternalFrame("Alert", false);
+		frame = new JInternalFrame(id(), false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		Container c = frame.getContentPane();
@@ -93,34 +89,29 @@ public class Alert extends AdvanceBlock {
 		
 		gl.setHorizontalGroup(
 			gl.createSequentialGroup()
-			.addComponent(panel, 300, 300, 300)
+			.addComponent(panel, 200, 200, 200)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
-			.addComponent(panel, 100, 100, 100)
+			.addComponent(panel, 50, 50, 50)
 		);
 
 		frame.pack();
 		frame.setVisible(true);
 		
-		highlightTimer = new Timer(3000, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				panel.setBackground(Color.GREEN);
-				highlightTimer.stop();
-			}
-		});
-		
 		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
 	protected void invoke(Map<String, XElement> params) {
+		final boolean b = AdvanceData.getBoolean(params.get(TRIGGER));
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				panel.setBackground(Color.RED);
-				highlightTimer.stop();
-				highlightTimer.start();
+				if (b) {
+					panel.setBackground(Color.RED);
+				} else {
+					panel.setBackground(Color.GREEN);
+				}
 			}
 		});
 	}
@@ -130,7 +121,6 @@ public class Alert extends AdvanceBlock {
 			@Override
 			public void run() {
 				if (frame != null) {
-					highlightTimer.stop();
 					frame.dispose();
 					BlockVisualizer.getInstance().remove(frame);
 				}

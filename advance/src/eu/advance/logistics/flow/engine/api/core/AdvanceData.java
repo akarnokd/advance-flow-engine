@@ -79,6 +79,14 @@ public final class AdvanceData {
 	 * @param e the element
 	 * @return the value
 	 */
+	public static boolean getBoolean(XElement e) {
+		return "true".equals(e.content) || "1".equals(e.content);
+	}
+	/**
+	 * Extract the integer value from an {@code advance:integer} type object.
+	 * @param e the element
+	 * @return the value
+	 */
 	public static int getInt(XElement e) {
 		return Integer.parseInt(e.content);
 	}

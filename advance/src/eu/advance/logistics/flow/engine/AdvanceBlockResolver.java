@@ -62,14 +62,11 @@ public class AdvanceBlockResolver {
 	/**
 	 * Create a concrete block by using the given settings.
 	 * @param settings the block contextuals settings
-	 * @param type the block type
 	 * @return the new block instance 
 	 */
-	public AdvanceBlock create(AdvanceBlockSettings settings, String type) {
-		AdvanceBlockRegistryEntry e = blocks.get(type);
-		settings.description = e;
+	public AdvanceBlock create(AdvanceBlockSettings settings) {
 		try {
-			Class<?> clazz = Class.forName(e.clazz);
+			Class<?> clazz = Class.forName(settings.description.clazz);
 			if (AdvanceBlock.class.isAssignableFrom(clazz)) {
 				try {
 					Constructor<?> c = clazz.getConstructor(
@@ -89,7 +86,7 @@ public class AdvanceBlockResolver {
 					LOG.error(ex.toString(), ex);
 				}
 			} else {
-				LOG.error("Block " + type + " of class " + e.clazz + " is not an AdvanceBlock");
+				LOG.error("Block " + settings.instance.type + " of class " + settings.description.clazz + " is not an AdvanceBlock");
 			}
 		} catch (ClassNotFoundException ex) {
 			LOG.error(ex.toString(), ex);

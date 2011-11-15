@@ -181,11 +181,11 @@ public class BayStatus extends AdvanceBlock {
 		
 		gl.setHorizontalGroup(
 			gl.createSequentialGroup()
-			.addComponent(sp, 100, 300, Short.MAX_VALUE)
+			.addComponent(sp, 100, 200, Short.MAX_VALUE)
 		);
 		gl.setVerticalGroup(
 			gl.createSequentialGroup()
-			.addComponent(sp, 100, 500, Short.MAX_VALUE)
+			.addComponent(sp, 100, 200, Short.MAX_VALUE)
 		);
 
 		frame.pack();

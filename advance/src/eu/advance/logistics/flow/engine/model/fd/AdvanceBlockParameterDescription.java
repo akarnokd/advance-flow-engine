@@ -21,8 +21,12 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 
@@ -30,7 +34,9 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
  * An input or output parameter description of an ADVANCE block.
  * @author akarnokd, 2011.06.21.
  */
-public class AdvanceBlockParameterDescription implements XSerializable {
+public class AdvanceBlockParameterDescription implements XSerializable, Copyable<AdvanceBlockParameterDescription> {
+	/** The logger. */
+	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlockParameterDescription.class);
 	/** The unique (among other inputs or outputs of this block) identifier of the input parameter. This ID will be used by the block wiring within the flow description. */
 	@NonNull
 	public String id;
@@ -41,6 +47,12 @@ public class AdvanceBlockParameterDescription implements XSerializable {
 	public String documentation;
 	/** The type variable. */
 	public AdvanceType type;
+	/** Indicates that this input is required. */
+	public boolean required;
+	/** If non-null, it contains the default constant. */
+	public XElement defaultValue;
+	/** Indicates that the parameter is actually a variable argument. */
+	public boolean varargs;
 	/**
 	 * Load a parameter description from an XML element which conforms the {@code block-description.xsd}.
 	 * @param root the root element of an input/output node.
@@ -50,6 +62,16 @@ public class AdvanceBlockParameterDescription implements XSerializable {
 		id = root.get("id");
 		displayName = root.get("displayname");
 		documentation = root.get("documentation");
+		required = root.getBoolean("required", true);
+		XElement c = root.childElement("default");
+		if (c != null) {
+			if (c.children().size() == 1) {
+				defaultValue = c.children().get(0);
+			} else {
+				LOG.error("Missing default value: " + root);
+			}
+		}
+		varargs = root.getBoolean("varargs", false);
 		type = new AdvanceType();
 		type.load(root);
 	}
@@ -59,5 +81,18 @@ public class AdvanceBlockParameterDescription implements XSerializable {
 		destination.set("displayname", displayName);
 		destination.set("documentation", documentation);
 		type.save(destination);
+	}
+	@Override
+	public AdvanceBlockParameterDescription copy() {
+		AdvanceBlockParameterDescription result = new AdvanceBlockParameterDescription();
+		result.id = id;
+		result.displayName = displayName;
+		result.documentation = documentation;
+		result.required = required;
+		result.defaultValue = defaultValue;
+		result.varargs = varargs;
+		result.type = type.copy();
+		
+		return result;
 	}
 }

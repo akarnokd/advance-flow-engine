@@ -95,7 +95,7 @@ public class Gate extends AdvanceBlock {
 	 * Create the GUI.
 	 */
 	protected void createGUI() {
-		frame = new JInternalFrame("Gate", false);
+		frame = new JInternalFrame(settings.id, false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		button = new JButton(buttonTitleDefer);
 		queueLength = new JLabel("Queue length: 0");

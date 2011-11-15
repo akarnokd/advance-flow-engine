@@ -62,7 +62,7 @@ public class HubManager extends AdvanceBlock {
     @Output("advance:collection<advance:integer>")
     protected static final String CURRENT_LOAD = "current-load";
     /** Trigger output to singla a critical load. */
-    @Output("advance:object")
+    @Output("advance:boolean")
     protected static final String CRITICAL_LOAD_TRIGGER = "critical-load-trigger";
     /** The consumption throughput. */
     @Output("advance:collection<advance:integer>")
@@ -183,8 +183,6 @@ public class HubManager extends AdvanceBlock {
     		bayLoads.add(AdvanceData.rename(AdvanceData.create(bayCount), "item"));
     	}
     	dispatch(CURRENT_LOAD, bayLoads);
-    	if (alert) {
-    		dispatch(CRITICAL_LOAD_TRIGGER, AdvanceData.createObject());
-    	}
+    	dispatch(CRITICAL_LOAD_TRIGGER, AdvanceData.create(alert));
 	}
 }

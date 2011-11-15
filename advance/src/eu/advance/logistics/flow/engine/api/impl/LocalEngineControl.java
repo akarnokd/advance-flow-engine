@@ -594,7 +594,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 				r.modifiedAt = new Date();
 				datastore.updateRealm(r);
 			} else {
-				LOG.debug("Start failed");
+				LOG.debug("Start failed due compilation errors: " + verify.errors());
 				r.status = AdvanceRealmStatus.ERROR;
 				r.modifiedAt = new Date();
 				datastore.updateRealm(r);
