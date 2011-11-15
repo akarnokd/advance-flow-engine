@@ -74,7 +74,9 @@ class FlowDescriptionIO {
             }
             AdvanceBlockDescription advBlockDesc = r.findType(advBlock.type);
             if (advBlockDesc != null) {
+                advBlockDesc = advBlockDesc.derive(advBlock);
                 SimpleBlock block = parent.createBlock(advBlock.id, advBlockDesc);
+                block.varargs = advBlock.varargs;
                 readLocation(advBlock.keywords, advBlock.visuals, block);
             }
         }
@@ -128,12 +130,16 @@ class FlowDescriptionIO {
         }
         for (AbstractBlock block : parent.getChildren()) {
             if (block instanceof SimpleBlock) {
+                SimpleBlock sb = ((SimpleBlock) block);
                 AdvanceBlockReference aBlockRef = new AdvanceBlockReference();
                 aBlockRef.id = block.getId();
                 aBlockRef.parent = aCompositeBlock;
-                aBlockRef.type = ((SimpleBlock) block).description.id;
+                aBlockRef.type = sb.description.id;
                 saveLocation(aBlockRef.keywords, aBlockRef.visuals, block);
                 aCompositeBlock.blocks.put(aBlockRef.id, aBlockRef);
+                if (sb.varargs != null && !sb.varargs.isEmpty()) {
+                    aBlockRef.varargs.putAll(sb.varargs);
+                }
             } else if (block instanceof CompositeBlock) {
                 AdvanceCompositeBlock aCompositeBlockChild = build((CompositeBlock) block);
                 saveLocation(aCompositeBlockChild.keywords, aCompositeBlockChild.visuals, block);
