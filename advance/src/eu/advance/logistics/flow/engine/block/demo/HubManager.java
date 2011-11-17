@@ -23,7 +23,6 @@ package eu.advance.logistics.flow.engine.block.demo;
 import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,7 +35,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -76,15 +74,8 @@ public class HubManager extends AdvanceBlock {
     		return new Random();
     	}
     };
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public HubManager(AdvanceBlockSettings settings) {
-		super(settings);
-	}
     @Override
-    protected void invoke(Map<String, XElement> map) {
+    protected void invoke() {
     	// solved otherwise
     }
     @Override

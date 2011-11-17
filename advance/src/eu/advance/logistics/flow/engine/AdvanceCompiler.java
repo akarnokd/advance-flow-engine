@@ -163,9 +163,9 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		final List<String> blockIds = Lists.newArrayList(blocks.keySet());
 		resolver = new AdvanceBlockResolver() {
 			@Override
-			public AdvanceBlock create(AdvanceBlockSettings settings) {
-				AdvanceBlockResolver br = blocks.get(settings.description.id);
-				return br != null ? br.create(settings) : null;
+			public AdvanceBlock create(String id) {
+				AdvanceBlockResolver br = blocks.get(id);
+				return br != null ? br.create(id) : null;
 			}
 			@Override
 			public AdvanceBlockRegistryEntry lookup(String id) {
@@ -248,9 +248,10 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				blockSettings.pools = this.settings.pools;
 				blockSettings.instance = br;
 				blockSettings.description = bd;
+				blockSettings.constantParams = consts;
 				
-				AdvanceBlock ab = blockResolver().create(blockSettings);
-				ab.init(consts);
+				AdvanceBlock ab = blockResolver().create(br.type);
+				ab.init(blockSettings);
 				
 				flow.add(ab);
 				currentLevelBlocks.add(ab);
@@ -258,7 +259,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			// bind
 			if (root.parent == null) {
 				for (AdvanceBlock ab : flow) {
-					for (AdvancePort p : ab.inputs.values()) {
+					for (AdvancePort p : ab.inputs()) {
 						if (p instanceof AdvanceBlockPort) {
 							ConstantOrBlock cb = walkBinding(ab.parent(), ab.id(), p.name());
 							if (cb != null) {

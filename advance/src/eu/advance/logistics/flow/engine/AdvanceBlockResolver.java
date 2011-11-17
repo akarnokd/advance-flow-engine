@@ -26,7 +26,6 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 
 /**
  * The base interface for resolving blocks.
@@ -41,10 +40,10 @@ public interface AdvanceBlockResolver {
 	AdvanceBlockRegistryEntry lookup(@NonNull String id);
 	/**
 	 * Create a concrete block by using the given settings.
-	 * @param settings the block contextuals settings
+	 * @param id the block type identifier
 	 * @return the new block instance 
 	 */
-	AdvanceBlock create(AdvanceBlockSettings settings);
+	AdvanceBlock create(@NonNull String id);
 	/** 
 	 * Returns a list of supported block ids.
 	 * @return the list of supported block ids 

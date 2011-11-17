@@ -25,7 +25,6 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
-import java.util.Map;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -39,7 +38,6 @@ import javax.swing.SwingUtilities;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -67,18 +65,11 @@ public class InputBox extends AdvanceBlock {
 	protected JLabel message;
 	/** The deferred button title. */
 	protected String titleDefer = "Message:";
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public InputBox(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	public void init(Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(constantParams);
-		if (constantParams.containsKey(TITLE)) {
-			titleDefer = constantParams.get(TITLE).value.content;
+	public void init(AdvanceBlockSettings settings) {
+		super.init(settings);
+		if (settings.constantParams.containsKey(TITLE)) {
+			titleDefer = settings.constantParams.get(TITLE).value.content;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -148,7 +139,7 @@ public class InputBox extends AdvanceBlock {
 		});
 	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		final String title = params.get(TITLE).content;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

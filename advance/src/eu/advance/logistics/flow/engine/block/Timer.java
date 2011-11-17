@@ -23,7 +23,6 @@ package eu.advance.logistics.flow.engine.block;
 
 import java.io.Closeable;
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,7 +33,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -61,15 +59,8 @@ public class Timer extends AdvanceBlock {
 	protected int interval = -1;
 	/** The last value to submit. */
 	protected final AtomicReference<XElement> last = new AtomicReference<XElement>();
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public Timer(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		final int delay = AdvanceData.getInt(params.get(DELAY));
 		last.set(params.get(IN));
 		if (delay != interval) {

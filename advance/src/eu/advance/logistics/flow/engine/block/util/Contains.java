@@ -20,49 +20,37 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
  * Check if the substring is within the string.
  * Signature: Contains(string, string) -> boolean
  * @author szmarcell
  */
-@Block(id = "___Contains", category = "string", scheduler = "IO", description = "Check if the substring is within the string.")
+@Block(id = "___Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string.")
 public class Contains extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Contains .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:string")
     protected static final String IN = "in";
+    /** Substring. */
+    @Output("advance:string")
+    protected static final String SUBSTRING = "substring";
     /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /**
-     * Constructor.
-     * @param settings the block settings
-     */
-    public Contains(AdvanceBlockSettings settings) {
-        super(settings);
-    }
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    @Output("advance:boolean")
+    protected static final String OUT = "boolean";
     @Override
-    protected void invoke(Map<String, XElement> map) {
-        double val = AdvanceData.getDouble(map.get(IN));
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+    protected void invoke() {
+        String in1 = getString(IN);
+        String in2 = getString(SUBSTRING);
+        dispatch(OUT, AdvanceData.create(in1.contains(in2)));
     }
     
 }

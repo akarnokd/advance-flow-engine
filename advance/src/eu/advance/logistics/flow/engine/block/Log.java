@@ -31,7 +31,6 @@ import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -55,7 +54,6 @@ import eu.advance.logistics.flow.engine.cc.CCDebugRow;
 import eu.advance.logistics.flow.engine.cc.CCValueDialog;
 import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
 import eu.advance.logistics.flow.engine.cc.LabelManager;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -85,16 +83,9 @@ public class Log extends AdvanceBlock {
 	protected JTable table;
 	/** The number of rows. */
 	protected JLabel rowcount;
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public Log(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	public void init(Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(constantParams);
+	public void init(AdvanceBlockSettings settings) {
+		super.init(settings);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -226,7 +217,7 @@ public class Log extends AdvanceBlock {
 		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		final XElement in = params.get(IN);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

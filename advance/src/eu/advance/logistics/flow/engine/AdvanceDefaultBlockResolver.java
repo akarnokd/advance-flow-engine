@@ -35,7 +35,6 @@ import com.google.common.collect.Maps;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 
 /**
  * Class that locates and creates blocks based on their name.
@@ -73,16 +72,16 @@ public class AdvanceDefaultBlockResolver implements AdvanceBlockResolver {
 		return Lists.newArrayList(blocks.keySet());
 	}
 	@Override
-	public AdvanceBlock create(AdvanceBlockSettings settings) {
+	public AdvanceBlock create(@NonNull String id) {
 		try {
-			Class<?> clazz = Class.forName(settings.description.clazz, true, classLoader);
+			AdvanceBlockRegistryEntry e = blocks.get(id);
+			Class<?> clazz = Class.forName(e.clazz, true, classLoader);
 			if (AdvanceBlock.class.isAssignableFrom(clazz)) {
 				try {
-					Constructor<?> c = clazz.getConstructor(
-							AdvanceBlockSettings.class);
-					return AdvanceBlock.class.cast(c.newInstance(settings));
+					Constructor<?> c = clazz.getConstructor();
+					return AdvanceBlock.class.cast(c.newInstance());
 				} catch (NoSuchMethodException ex) {
-					LOG.error("Missing constructor of {AdvanceBlockSettings}", ex);
+					LOG.error("Missing default constructor.", ex);
 				} catch (SecurityException ex) {
 					LOG.error(ex.toString(), ex);
 				} catch (InstantiationException ex) {
@@ -95,7 +94,7 @@ public class AdvanceDefaultBlockResolver implements AdvanceBlockResolver {
 					LOG.error(ex.toString(), ex);
 				}
 			} else {
-				LOG.error("Block " + settings.instance.type + " of class " + settings.description.clazz + " is not an AdvanceBlock");
+				LOG.error("Block " + id + " of class " + e.clazz + " is not an AdvanceBlock");
 			}
 		} catch (ClassNotFoundException ex) {
 			LOG.error(ex.toString(), ex);

@@ -29,6 +29,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 
 /**
  * The record for initializing a block.
@@ -49,6 +50,8 @@ public class AdvanceBlockSettings {
 	public AdvancePools pools;
 	/** The block reference as specified in the flow. */
 	public AdvanceBlockReference instance;
+	/** Constant parameters. */
+	public Map<String, AdvanceConstantBlock> constantParams;
 	/** Default constructor. */
 	public AdvanceBlockSettings() {
 		

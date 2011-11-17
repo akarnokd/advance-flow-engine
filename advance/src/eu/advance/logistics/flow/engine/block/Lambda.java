@@ -34,7 +34,6 @@ import javax.script.SimpleBindings;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockState;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
@@ -43,16 +42,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * @author akarnokd, 2011.11.14.
  */
 public abstract class Lambda extends AdvanceBlock {
-
-	/**
-	 * Constructor.
-	 * @param settings the settings
-	 */
-	public Lambda(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		ScriptEngineManager sef = new ScriptEngineManager();
 		ScriptEngine se = sef.getEngineByName("js");
 		if (se != null) {

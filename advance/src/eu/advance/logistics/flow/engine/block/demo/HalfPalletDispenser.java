@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.block.demo;
 
-import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -28,7 +27,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -52,15 +50,8 @@ public class HalfPalletDispenser extends AdvanceBlock {
     		return new Random();
     	}
     };
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public HalfPalletDispenser(AdvanceBlockSettings settings) {
-		super(settings);
-	}
     @Override
-    protected void invoke(Map<String, XElement> map) {
+    protected void invoke() {
     	DemoDatastore ds = DemoDatastore.instance();
     	int n = ds.getMaxDestinations();
     	XElement fullPallet = DemoTypes.createHalfPallet(rnd.get().nextInt(n));

@@ -23,7 +23,6 @@ package eu.advance.logistics.flow.engine.block.demo;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.util.Map;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
@@ -35,10 +34,8 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * A block which displays a single frame with a single titled button.
@@ -54,16 +51,9 @@ public class Alert extends AdvanceBlock {
 	protected JInternalFrame frame;
 	/** The status indicator panel. */
 	protected JPanel panel;
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public Alert(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	public void init(Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(constantParams);
+	public void init(AdvanceBlockSettings settings) {
+		super.init(settings);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -102,7 +92,7 @@ public class Alert extends AdvanceBlock {
 		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		final boolean b = AdvanceData.getBoolean(params.get(TRIGGER));
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

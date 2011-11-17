@@ -22,7 +22,6 @@ package eu.advance.logistics.flow.engine.block.demo;
 
 import java.awt.Container;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -39,7 +38,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -69,18 +67,11 @@ public class TruckLoader extends AdvanceBlock {
 	protected JLabel currentLoad;
 	/** The capacity level. */
 	protected final AtomicInteger capacity = new AtomicInteger(5);
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public TruckLoader(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	public void init(Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(constantParams);
-		if (constantParams.containsKey(CAPACITY)) {
-			capacity.set(AdvanceData.getInt(constantParams.get(CAPACITY).value));
+	public void init(AdvanceBlockSettings settings) {
+		super.init(settings);
+		if (settings.constantParams.containsKey(CAPACITY)) {
+			capacity.set(AdvanceData.getInt(settings.constantParams.get(CAPACITY).value));
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -119,9 +110,9 @@ public class TruckLoader extends AdvanceBlock {
 		BlockVisualizer.getInstance().add(frame);
 	}
     @Override
-    protected void invoke(Map<String, XElement> map) {
-    	XElement pallet = map.get(PALLET);
-    	capacity.set(AdvanceData.getInt(map.get(CAPACITY)));
+    protected void invoke() {
+    	XElement pallet = get(PALLET);
+    	capacity.set(getInt(CAPACITY));
     	pallets.add(pallet);
     	if (pallets.size() >= capacity.get()) {
     		XElement truck = DemoTypes.createTruck(pallets);
