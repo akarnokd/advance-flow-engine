@@ -43,6 +43,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePlugin;
+import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePluginDetails;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
@@ -56,10 +58,13 @@ import eu.advance.logistics.flow.engine.error.MissingDestinationError;
 import eu.advance.logistics.flow.engine.error.MissingDestinationPortError;
 import eu.advance.logistics.flow.engine.error.MissingSourceError;
 import eu.advance.logistics.flow.engine.error.MissingSourcePortError;
+import eu.advance.logistics.flow.engine.error.MissingVarargsError;
 import eu.advance.logistics.flow.engine.error.MultiInputBindingError;
+import eu.advance.logistics.flow.engine.error.NonVarargsError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
+import eu.advance.logistics.flow.engine.error.UnsetVarargsError;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
@@ -77,6 +82,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
 import eu.advance.logistics.flow.engine.util.Triplet;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
@@ -94,14 +100,22 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	protected final AdvanceCompilerSettings settings;
 	/** The predefined list of base types. */
 	protected final List<Pair<XType, URI>> baseTypes = Lists.newArrayList();
+	/** The block resolver used for the compilations. */
+	protected AdvanceBlockResolver resolver;
+	/** The schema resolver used for the compilations. */
+	protected AdvanceSchemaResolver schemas;
+	/** The current list of blocks. */
+	protected List<AdvanceBlockRegistryEntry> blocks = Lists.newArrayList();
 	/**
 	 * Constructor.
 	 * @param settings the compiler settings
 	 */
 	public AdvanceCompiler(AdvanceCompilerSettings settings) {
 		this.settings = settings;
+		AdvanceSchemaResolver res = new AdvanceDefaultSchemaResolver(
+				settings.defaultSchemas, Maps.<String, XElement>newHashMap());
 		for (URI u : AdvanceData.BASE_TYPES) {
-			baseTypes.add(Pair.of(schemaResolver().resolve(u), u));
+			baseTypes.add(Pair.of(res.resolve(u.toString()), u));
 		}
 	}
 	@Override
@@ -112,21 +126,75 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	}
 	@Override
 	public List<AdvanceBlockRegistryEntry> blocks() {
-		return Lists.newArrayList(blockResolver().blocks.values());
+		return blocks;
+	}
+	/**
+	 * Unifies the blocks and schemas from plugins with the defaults.
+	 */
+	protected void handlePlugins() {
+		this.resolver = null;
+		this.schemas = null;
+		
+		final Map<String, AdvanceBlockResolver> blocks = Maps.newHashMap(settings.defaultBlocks);
+		final Map<String, XElement> schemas = Maps.newHashMap();
+	
+		for (AdvancePluginDetails p : settings.pluginManager.plugins()) {
+			AdvancePlugin plugin = p.open();
+
+			for (Map.Entry<String, XElement> s : plugin.schemas().entrySet()) {
+				if (schemas.containsKey(s.getKey())) {
+					LOG.error("Plugin " + plugin.details() + " contains a conflicting schema definition: " + s.getKey());
+					continue;
+				}
+				schemas.put(s.getKey(), s.getValue());
+			}
+			AdvanceBlockResolver br = plugin.blockResolver();
+			for (String b : br.blocks()) {
+				if (blocks.containsKey(b)) {
+					LOG.error("Plugin " + plugin.details() + " contains a conflicting block definition: " + b);
+					continue;
+				}
+				blocks.put(b, br);
+			}
+		}
+		
+		this.schemas = new AdvanceDefaultSchemaResolver(settings.defaultSchemas, schemas);
+		
+		final List<String> blockIds = Lists.newArrayList(blocks.keySet());
+		resolver = new AdvanceBlockResolver() {
+			@Override
+			public AdvanceBlock create(AdvanceBlockSettings settings) {
+				AdvanceBlockResolver br = blocks.get(settings.description.id);
+				return br != null ? br.create(settings) : null;
+			}
+			@Override
+			public AdvanceBlockRegistryEntry lookup(String id) {
+				AdvanceBlockResolver br = blocks.get(id);
+				return br != null ? br.lookup(id) : null;
+			}
+			@Override
+			public List<String> blocks() {
+				return blockIds;
+			}
+		};
+		this.blocks = Lists.newArrayList();
+		for (String s : blocks.keySet()) {
+			this.blocks.add(resolver.lookup(s));
+		}
 	}
 	/**
 	 * Returns the block resolver.
 	 * @return the block resolver
 	 */
 	public AdvanceBlockResolver blockResolver() {
-		return settings.blockResolver;
+		return resolver;
 	}
 	/**
 	 * Returns the schema resolver.
 	 * @return the schema resolver
 	 */
 	public AdvanceSchemaResolver schemaResolver() {
-		return settings.schemaResolver;
+		return schemas;
 	}
 	/**
 	 * Returns the schedulers.
@@ -330,6 +398,8 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	public AdvanceCompilationResult verify(
 			AdvanceCompositeBlock enclosingBlock) {
 		
+		handlePlugins();
+		
 		AdvanceCompilationResult result = new AdvanceCompilationResult();
 		
 		LinkedList<TypeRelation> relations = Lists.newLinkedList();
@@ -368,7 +438,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 						AdvanceType at2 = new AdvanceType();
 						AdvanceConstantBlock constblock = cb.constants.get(bb.sourceBlock);
 						at2.typeURI = constblock.typeURI;
-						at2.type = schemaResolver().resolve(constblock.typeURI);
+						at2.type = schemaResolver().resolve(constblock.typeURI.toString());
 						typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
 						tr.left = at2;
 					} else {
@@ -568,7 +638,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				input = b;
 				
 				AdvanceBlockRegistryEntry lookup = blockResolver().lookup(b.type);
-				List<AdvanceCompilationError> err = lookup.verify(b);
+				List<AdvanceCompilationError> err = verifyVarargs(lookup, b);
 				if (!err.isEmpty()) {
 					result.addError(err);
 					continue;
@@ -622,7 +692,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				output = b;
 				
 				AdvanceBlockRegistryEntry lookup = blockResolver().lookup(b.type);
-				List<AdvanceCompilationError> err = lookup.verify(b);
+				List<AdvanceCompilationError> err = verifyVarargs(lookup, b);
 				if (!err.isEmpty()) {
 					result.addError(err);
 					continue;
@@ -667,6 +737,30 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		}
 	}
 	/**
+	 * Verify if the given reference can be used to derive the actual block registry entry.
+	 * @param desc the description to verify
+	 * @param ref the reference from the flow-description
+	 * @return the list of error cases
+	 */
+	public List<AdvanceCompilationError> verifyVarargs(AdvanceBlockDescription desc, AdvanceBlockReference ref) {
+		List<AdvanceCompilationError> error = Lists.newArrayList();
+		for (String s : ref.varargs.keySet()) {
+			AdvanceBlockParameterDescription bd = desc.inputs.get(s);
+			if (bd == null) {
+				error.add(new MissingVarargsError(ref.id, ref.type, s));
+			} else
+			if (!bd.varargs) {
+				error.add(new NonVarargsError(ref.id, ref.type, s));
+			}
+		}
+		for (AdvanceBlockParameterDescription d : desc.inputs.values()) {
+			if (d.varargs && !ref.varargs.containsKey(d.id)) {
+				error.add(new UnsetVarargsError(ref.id, ref.type, d.id));
+			}
+		}
+		return error;
+	}
+	/**
 	 * Resolve the schemas in the given type recursively and in place.
 	 * It caches the resolved schemas for the duration of this method
 	 * @param type the type to start with
@@ -680,7 +774,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				String key = t.typeURI.toString();
 				XType xt = schemaTypeCache.get(key);
 				if (xt == null) {
-					xt = schemaResolver().resolve(t.typeURI);
+					xt = schemaResolver().resolve(t.typeURI.toString());
 					schemaTypeCache.put(key, xt);
 				}
 				t.type = xt;

@@ -23,6 +23,9 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 import java.util.Set;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Sets;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * The XML naming record.
@@ -48,9 +51,27 @@ public class XName implements XComparable<XName> {
 		
 		return XRelation.NONE;
 	}
+	/**
+	 * Assign values from another instance.
+	 * @param other the another instance
+	 */
+	public void assign(@NonNull XName other) {
+		this.name = other.name;
+		this.semantics = other.semantics;
+		this.aliases = other.aliases != null ? Sets.newHashSet(other.aliases) : null;
+	}
 	@Override
 	public String toString() {
-		return "XName { name = " + name + ", semantics = " + semantics + ", aliases = " + aliases + " } ";
+		StringBuilder b = new StringBuilder();
+		b.append("XName { name = ").append(name);
+		if (semantics != null) {
+			b.append(", semantics = ").append(semantics);
+		}
+		if (aliases != null && !aliases.isEmpty()) {
+			b.append(", aliases = ").append(aliases);
+		}
+		b.append(" }");
+		return b.toString();
 	}
 	@Override
 	public boolean equals(Object obj) {

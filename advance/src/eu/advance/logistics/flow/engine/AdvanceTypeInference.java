@@ -283,8 +283,8 @@ public final class AdvanceTypeInference {
 					return result;
 				} else
 				if (rel.left.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
-					XRelation xr = XSchema.compare(rel.left.type, rel.right.type);
-					if (xr != XRelation.EQUAL && xr != XRelation.EXTENDS) {
+					AdvanceType u = unionFunc.invoke(rel.left, rel.right);
+					if (u == null) {
 						result.addError(new IncompatibleTypesError(rel.wire, rel.left, rel.right));
 						return result;
 					} else {
@@ -416,14 +416,6 @@ public final class AdvanceTypeInference {
 			AdvanceBlockBind wire) {
 		// if left >= right is elementary, e.g., neither of them is a parametric type, just return a relation with them
 		if (left.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE && right.getKind() != AdvanceTypeKind.PARAMETRIC_TYPE) {
-			if (left.getKind() == AdvanceTypeKind.CONCRETE_TYPE && right.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
-				// the two concrete types are not related
-				XRelation xr = XSchema.compare(left.type, right.type);
-				if (xr != XRelation.EQUAL && xr != XRelation.EXTENDS) {
-					result.addError(new IncompatibleTypesError(wire, left, right));
-					return false;
-				}
-			}
 			relations.add(new TypeRelation(left, right, wire));
 		} else
 		// if C(t1,...,tn) >= right

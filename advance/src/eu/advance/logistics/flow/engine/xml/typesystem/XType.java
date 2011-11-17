@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
 /**
  * The definition of an XML type: basically a root element
  * or an element with complex type.
@@ -119,14 +120,16 @@ public class XType implements XComparable<XType> {
 	 * @param memory the memory to avoid infinite type display
 	 */
 	void toStringPretty(String indent, StringBuilder out, Set<XType> memory) {
-		out.append(indent).append("XType [").append(String.format("%n"));
+		out.append(indent).append("XType");
+		out.append(" [");
 		if (capabilities.size() > 0) {
+			out.append(String.format("%n"));
 			for (XCapability c : capabilities) {
 				c.toStringPretty(indent + "  ", out, memory);
 			}
 			out.append(indent).append("]");
 		} else {
-			out.append(" ]");
+			out.append("]");
 		}
 		out.append(String.format("%n"));
 	}

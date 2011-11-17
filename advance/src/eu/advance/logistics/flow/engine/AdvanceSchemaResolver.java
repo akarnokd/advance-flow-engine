@@ -21,8 +21,6 @@
 
 package eu.advance.logistics.flow.engine;
 
-import java.net.URI;
-
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
@@ -32,8 +30,8 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 public interface AdvanceSchemaResolver {
 	/**
 	 * Resolve a schema URI link.
-	 * @param schemaURI the schema URI.
+	 * @param typeName the type name to resolve
 	 * @return the parsed schema
 	 */
-	XType resolve(URI schemaURI);
+	XType resolve(String typeName);
 }

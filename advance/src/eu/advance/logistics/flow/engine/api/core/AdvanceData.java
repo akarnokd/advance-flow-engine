@@ -46,8 +46,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeVariable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
 
@@ -425,106 +423,6 @@ public final class AdvanceData {
 	 */
 	public static XElement create(XElement... items) {
 		return create(Arrays.asList(items));
-	}
-	/**
-	 * Creates a concrete (e.g., no type arguments or parametric type with the supplied base type and type arguments.
-	 * <p>Note: the {@code AdvanceType.type} is not resolved.</p>
-	 * <p>Example:</p>
-	 * <pre>createType(COLLECTION, createType(STRING))</pre>
-	 * @param baseType the base type
-	 * @param types the type arguments.
-	 * @return the created new type
-	 */
-	@NonNull
-	public static AdvanceType createType(@NonNull URI baseType, AdvanceType... types) {
-		return createType(baseType, Arrays.asList(types));
-	}
-	/**
-	 * Creates an unbounded variable type.
-	 * @param name the variable name
-	 * @return the created type
-	 */
-	@NonNull
-	public static AdvanceType createType(@NonNull String name) {
-		AdvanceType t = new AdvanceType();
-		t.typeVariableName = name;
-		t.typeVariable = new AdvanceTypeVariable();
-		t.typeVariable.name = name;
-		return t;
-	}
-	/**
-	 * Creates a bounded variable type.
-	 * @param name the variable name
-	 * @param upperBound defines if the type bounds are the upper bounds, e.g., {@code T super B1, B2, B3}.
-	 * @param bound1 the first bound
-	 * @param boundsRest the rest of the bounds
-	 * @return the created type
-	 */
-	@NonNull
-	public static AdvanceType createType(@NonNull String name, boolean upperBound, AdvanceType bound1, AdvanceType... boundsRest) {
-		AdvanceType t = new AdvanceType();
-		t.typeVariableName = name;
-		t.typeVariable = new AdvanceTypeVariable();
-		t.typeVariable.name = name;
-		t.typeVariable.isUpperBound = upperBound;
-		t.typeVariable.bounds.add(bound1);
-		t.typeVariable.bounds.addAll(Arrays.asList(boundsRest));
-		return t;
-	}
-	/**
-	 * Creates a bounded variable type.
-	 * @param name the variable name
-	 * @param upperBound defines if the type bounds are the upper bounds, e.g., {@code T super B1, B2, B3}.
-	 * @param bounds the type bounds
-	 * @return the created type
-	 */
-	@NonNull
-	public static AdvanceType createType(@NonNull String name, boolean upperBound, Iterable<? extends AdvanceType> bounds) {
-		AdvanceType t = new AdvanceType();
-		t.typeVariableName = name;
-		t.typeVariable = new AdvanceTypeVariable();
-		t.typeVariable.name = name;
-		t.typeVariable.isUpperBound = upperBound;
-		Iterables.addAll(t.typeVariable.bounds, bounds);
-		return t;
-	}
-	
-	/**
-	 * Creates a concrete (e.g., no type arguments or parametric type with the supplied base type and type arguments.
-	 * <p>Note: the {@code AdvanceType.type} is not resolved.</p>
-	 * <p>Example:</p>
-	 * <pre>createType(COLLECTION, createType(STRING))</pre>
-	 * @param baseType the base type
-	 * @param types the type arguments.
-	 * @return the created new type
-	 */
-	@NonNull
-	public static AdvanceType createType(@NonNull URI baseType, Iterable<? extends AdvanceType> types) {
-		AdvanceType t = new AdvanceType();
-		t.typeURI = baseType;
-		Iterables.addAll(t.typeArguments, types);
-		return t;
-		
-	}
-	/**
-	 * Creates an {@code advance:type} type constructor XML.
-	 * @param type the type to convert to XML
-	 * @return the XML representing the type constructor
-	 */
-	public static XElement createType(AdvanceType type) {
-		XElement result = new XElement("type");
-		type.save(result);
-		return result;
-	}
-	/**
-	 * Converts the XML type declaration into an actual AdvanceType object.
-	 * @param type the type XML
-	 * @return the  the type object
-	 */
-	public static AdvanceType getType(XElement type) {
-		AdvanceType t = new AdvanceType();
-		t.load(type);
-		return t;
 	}
 	/**
 	 * Creates a map from the list of the subsequent key and values.

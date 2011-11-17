@@ -33,10 +33,6 @@ import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import eu.advance.logistics.flow.engine.error.MissingVarargsError;
-import eu.advance.logistics.flow.engine.error.NonVarargsError;
-import eu.advance.logistics.flow.engine.error.UnsetVarargsError;
-import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.util.Strings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
@@ -245,29 +241,6 @@ public class AdvanceBlockDescription implements XSerializable {
 			item.save(result.add("block-description"));
 		}
 		return result;
-	}
-	/**
-	 * Verify if the given reference can be used to derive the actual block registry entry.
-	 * @param ref the reference from the flow-description
-	 * @return the list of error cases
-	 */
-	public List<AdvanceCompilationError> verify(AdvanceBlockReference ref) {
-		List<AdvanceCompilationError> error = Lists.newArrayList();
-		for (String s : ref.varargs.keySet()) {
-			AdvanceBlockParameterDescription bd = inputs.get(s);
-			if (bd == null) {
-				error.add(new MissingVarargsError(ref.id, ref.type, s));
-			} else
-			if (!bd.varargs) {
-				error.add(new NonVarargsError(ref.id, ref.type, s));
-			}
-		}
-		for (AdvanceBlockParameterDescription d : inputs.values()) {
-			if (d.varargs && !ref.varargs.containsKey(d.id)) {
-				error.add(new UnsetVarargsError(ref.id, ref.type, d.id));
-			}
-		}
-		return error;
 	}
 	/**
 	 * Use this block reference to derive a custom block based on the variable argument counts.

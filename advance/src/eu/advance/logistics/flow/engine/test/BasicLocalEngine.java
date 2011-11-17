@@ -24,7 +24,6 @@ package eu.advance.logistics.flow.engine.test;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
@@ -33,14 +32,15 @@ import javax.xml.stream.XMLStreamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.engine.AdvanceBlockResolver;
 import eu.advance.logistics.flow.engine.AdvanceCompiler;
 import eu.advance.logistics.flow.engine.AdvanceCompilerSettings;
+import eu.advance.logistics.flow.engine.AdvanceDefaultBlockResolver;
 import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
-import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
-import eu.advance.logistics.flow.engine.AdvanceSchemaResolver;
+import eu.advance.logistics.flow.engine.AdvancePluginManager;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
@@ -180,20 +180,26 @@ public final class BasicLocalEngine {
 	 */
 	public static AdvanceFlowCompiler createCompiler() {
 		
-		AdvanceSchemaResolver sr = new AdvanceLocalSchemaResolver(Collections.<String>emptyList());
-
 		Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
 		
 		for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
 			bm.put(e.id, e);
 		}
 		
-		AdvanceBlockResolver br = new AdvanceBlockResolver(bm);
-
+		AdvanceDefaultBlockResolver br = new AdvanceDefaultBlockResolver(bm);
+		Map<String, AdvanceBlockResolver> brMap = Maps.newHashMap();
+		for (String s : bm.keySet()) {
+			brMap.put(s, br);
+		}
+		
 		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
-		compilerSettings.schemaResolver = sr; 
-		compilerSettings.blockResolver = br; 
+		// engine-local schemas
+		compilerSettings.defaultSchemas = Lists.newArrayList();
+		// default blocks
+		compilerSettings.defaultBlocks = brMap; 
 		compilerSettings.schedulers = Maps.newHashMap();
+		// without plugins
+		compilerSettings.pluginManager = new AdvancePluginManager("");
 		AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
 
 		return compiler;

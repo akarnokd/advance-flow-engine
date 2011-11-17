@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Scheduler;
 
+import java.util.List;
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
@@ -34,14 +35,16 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
  *
  */
 public class AdvanceCompilerSettings {
-	/** The schema resolver. */
-	public AdvanceSchemaResolver schemaResolver;
-	/** The block resolver. */
-	public AdvanceBlockResolver blockResolver;
+	/** The default schema locations. */
+	public List<String> defaultSchemas;
+	/** The default blocks. */
+	public Map<String, AdvanceBlockResolver> defaultBlocks;
 	/** The map of various schedulers. */
 	public Map<AdvanceSchedulerPreference, Scheduler> schedulers;
 	/** The unchecked datastore. */
 	public AdvanceDataStore datastore;
 	/** The connection pools manager. */
 	public AdvancePools pools;
+	/** The plugin manager. */
+	public AdvancePluginManager pluginManager;
 }
