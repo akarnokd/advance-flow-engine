@@ -20,49 +20,37 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
  * Check if the string ends with another string.
  * Signature: EndsWith(string, string) -> boolean
  * @author szmarcell
  */
-@Block(id = "___EndsWith", category = "string", scheduler = "IO", description = "Check if the string ends with another string.")
+@Block(id = "___EndsWith", category = "string", scheduler = "NOW", description = "Check if the string ends with another string.")
 public class EndsWith extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(EndsWith .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:string")
     protected static final String IN = "in";
+    /** In. */
+    @Input("advance:string")
+    protected static final String SUFFIX = "suffix";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:boolean")
     protected static final String OUT = "out";
-    /**
-     * Constructor.
-     * @param settings the block settings
-     */
-    public EndsWith(AdvanceBlockSettings settings) {
-        super(settings);
-    }
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
-    protected void invoke(Map<String, XElement> map) {
-        double val = AdvanceData.getDouble(map.get(IN));
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+    protected void invoke() {
+        String value = getString(IN);
+        String start = getString(SUFFIX);
+        dispatch(OUT, AdvanceData.create(value.endsWith(start)));
     }
     
 }

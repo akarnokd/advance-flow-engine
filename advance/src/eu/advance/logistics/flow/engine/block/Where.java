@@ -26,7 +26,6 @@ import java.util.Map;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -46,13 +45,6 @@ public class Where extends Lambda {
 	/** The output value. */
 	@Output("?T")
 	protected static final String OUT = "out";
-	/**
-	 * Constructor.
-	 * @param settings the settings
-	 */
-	public Where(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 
 	@Override
 	protected String scriptParamName() {

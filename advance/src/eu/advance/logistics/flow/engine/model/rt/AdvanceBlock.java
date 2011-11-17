@@ -32,7 +32,10 @@ import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +47,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
@@ -58,32 +62,25 @@ public abstract class AdvanceBlock {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlock.class);
 	/** The input ports. */
-	public final Map<String, AdvancePort> inputs;
+	protected final Map<String, AdvancePort> inputs = Maps.newHashMap();
 	/** The output ports. */
-	public final Map<String, AdvanceBlockPort> outputs;
+	protected final Map<String, AdvanceBlockPort> outputs = Maps.newHashMap();
 	/** The block diagnostic observable. */
 	protected DefaultObservable<AdvanceBlockDiagnostic> diagnostic;
 	/** List of functions to close when the block is terminated via done(). */
-	private final List<Closeable> functionClose;
+	private final List<Closeable> functionClose = Collections.synchronizedList(Lists.<Closeable>newArrayList());
 	/** The block execution context. */
-	protected final AdvanceBlockSettings settings;
-	/**
-	 * Constructor.
-	 * @param settings the block initialization settings
-	 */
-	public AdvanceBlock(AdvanceBlockSettings settings) {
-		this.settings = settings;
-		this.inputs = Maps.newLinkedHashMap();
-		this.outputs = Maps.newLinkedHashMap();
-		this.functionClose = Collections.synchronizedList(Lists.<Closeable>newArrayList());
-	}
+	protected AdvanceBlockSettings settings;
+	/** The current parameter map. */
+	protected final Map<String, XElement> params = Maps.newHashMap();
 	/** 
 	 * Initialize the block input and output ports, prepare the diagnostic ports.
-	 * @param constantParams the map of those parameters who have a constant input instead of other output ports
+	 * @param settings the block initialization settings
 	 */
-	public void init(final Map<String, AdvanceConstantBlock> constantParams) {
+	public void init(AdvanceBlockSettings settings) {
+		this.settings = settings;
 		for (AdvanceBlockParameterDescription in : description().inputs.values()) {
-			AdvanceConstantBlock cb = constantParams.get(in.id); 
+			AdvanceConstantBlock cb = settings.constantParams.get(in.id); 
 			if (cb == null) {
 				AdvanceBlockPort p = new AdvanceBlockPort(this, in.id);
 				p.init();
@@ -224,23 +221,29 @@ public abstract class AdvanceBlock {
 	void invokeBody(List<XElement> value, Scheduler scheduler) {
 		diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.START)));
 		try {
-			// prepare input parameters
-			Map<String, XElement> funcIn = Maps.newHashMap();
+			params.clear();
 			int j = 0;
 			for (AdvancePort p : inputs.values()) {
 				if (p instanceof AdvanceConstantPort) {
-					funcIn.put(p.name(), ((AdvanceConstantPort) p).value);
+					params.put(p.name(), ((AdvanceConstantPort) p).value);
 				} else {
-					funcIn.put(p.name(), value.get(j++));
+					params.put(p.name(), value.get(j++));
 				}
 			}
 			
-			invoke(funcIn);
+			invoke();
 			
 		} catch (Throwable t) {
-			LOG.error(t.toString(), t);
-			diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(t)));
+			log(t);
 		}
+	}
+	/**
+	 * Log the exception to the diagnostic port.
+	 * @param t the throwable
+	 */
+	protected void log(@NonNull Throwable t) {
+		LOG.error(t.toString(), t);
+		diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(t)));
 	}
 	/**
 	 * Dispatch a set of outputs given by subsequent String and XElement types.
@@ -331,10 +334,11 @@ public abstract class AdvanceBlock {
 	/**
 	 * The body function to invoke. Implementation should should invoke one of the 
 	 * {@code dispatch} methods 
-	 * when the computation is over. This may happen synchronously (or asynchronously)
-	 * @param params the parameters
+	 * when the computation is over. This may happen synchronously (or asynchronously).
+	 * The input parameter values might be accessed through the
+	 * {@code getXYZ()} methods or through the private {@code params} map.
 	 */
-	protected abstract void invoke(Map<String, XElement> params);
+	protected abstract void invoke();
 	/** Terminate the block. */
 	public void done() {
 		for (Closeable c : functionClose) {
@@ -429,5 +433,116 @@ public abstract class AdvanceBlock {
 	 */
 	public void addCloseable(@NonNull Closeable c) {
 		functionClose.add(c);
+	}
+	/** 
+	 * Returns the collection of inputs.
+	 * @return the collection of inputs
+	 */
+	public Collection<AdvancePort> inputs() {
+		return inputs.values();
+	}
+	/**
+	 * Returns the collection of outputs.
+	 * @return the collection of outputs
+	 */
+	public Collection<AdvanceBlockPort> outputs() {
+		return outputs.values();
+	}
+	/**
+	 * Returns a boolean parameter value.
+	 * @param name the parameter name
+	 * @return the value
+	 */
+	protected boolean getBoolean(String name) {
+		return AdvanceData.getBoolean(get(name));
+	}
+	/**
+	 * Returns a int parameter value.
+	 * @param name the parameter name
+	 * @return the value
+	 */
+	protected int getInt(String name) {
+		return AdvanceData.getInt(get(name));
+	}
+	/**
+	 * Returns a double parameter value.
+	 * @param name the parameter name
+	 * @return the value
+	 */
+	protected double getDouble(String name) {
+		return AdvanceData.getDouble(get(name));
+	}
+	/**
+	 * Returns a string parameter value.
+	 * @param name the parameter name
+	 * @return the value
+	 */
+	protected String getString(String name) {
+		return AdvanceData.getString(get(name));
+	}
+	/**
+	 * Returns a timestamp parameter value.
+	 * @param name the parameter name
+	 * @return the value
+	 * @throws ParseException if the date parsing failed
+	 */
+	protected Date getTimestamp(String name) throws ParseException {
+		return AdvanceData.getTimestamp(get(name));
+	}
+	/**
+	 * Returns a XML parameter value.
+	 * @param name the parameter name
+	 * @return the value
+	 */
+	protected XElement get(String name) {
+		return params.get(name);
+	}
+	/**
+	 * Dispatches the output value to the given port.
+	 * @param name the port name
+	 * @param value the value
+	 */
+	protected void set(String name, boolean value) {
+		dispatch(name, AdvanceData.create(value));
+	}
+	/**
+	 * Dispatches the output value to the given port.
+	 * @param name the port name
+	 * @param value the value
+	 */
+	protected void set(String name, int value) {
+		dispatch(name, AdvanceData.create(value));
+	}
+	/**
+	 * Dispatches the output value to the given port.
+	 * @param name the port name
+	 * @param value the value
+	 */
+	protected void set(String name, double value) {
+		dispatch(name, AdvanceData.create(value));
+	}
+	/**
+	 * Dispatches the output value to the given port.
+	 * @param name the port name
+	 * @param value the value
+	 */
+	protected void set(String name, String value) {
+		dispatch(name, AdvanceData.create(value));
+	}
+	/**
+	 * Dispatches the output value to the given port.
+	 * @param name the port name
+	 * @param value the value
+	 */
+	protected void set(String name, Date value) {
+		dispatch(name, AdvanceData.create(value));
+	}
+	/**
+	 * Dispatches the output value to the given port.
+	 * @param name the port name
+	 * @param value the value
+	 */
+	protected void set(String name, XElement value) {
+		dispatch(name, value);
 	}
 }

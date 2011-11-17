@@ -22,14 +22,12 @@
 package eu.advance.logistics.flow.engine.block;
 
 import java.util.LinkedList;
-import java.util.Map;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -47,16 +45,8 @@ public class Reverse extends AdvanceBlock {
     @Output("advance:collection<?T>")
     private static final String OUT = "out";
 	
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public Reverse(AdvanceBlockSettings settings) {
-		super(settings);
-	}
-
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		XElement in = params.get(IN);
 		
 		LinkedList<XElement> out = new LinkedList<XElement>();

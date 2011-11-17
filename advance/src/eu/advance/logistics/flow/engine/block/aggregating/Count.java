@@ -20,16 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
  * Counts the elements in the given collection.
@@ -46,17 +43,10 @@ public class Count extends AdvanceBlock {
     /** Out. */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /**
-     * Constructor.
-     * @param settings the block settings
-     */
-    public Count(AdvanceBlockSettings settings) {
-        super(settings);
-    }
     /** The running count. */
     private int count;
     @Override
-    protected void invoke(Map<String, XElement> map) {
+    protected void invoke() {
         count++;
         dispatch(OUT, AdvanceData.create(count));
     }

@@ -20,49 +20,37 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
  * Test if the given regular expression matches the string.
  * Signature: RegexpMatches(string, string) -> boolean
  * @author szmarcell
  */
-@Block(id = "___RegexpMatches", category = "string", scheduler = "IO", description = "Test if the given regular expression matches the string")
+@Block(id = "___RegexpMatches", category = "string", scheduler = "NOW", description = "Test if the given regular expression matches the string")
 public class RegexpMatches extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(RegexpMatches .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:string")
     protected static final String IN = "in";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:string")
+    protected static final String REGEXP = "regexp";
+    /** Out. */
+    @Output("advance:string")
     protected static final String OUT = "out";
-    /**
-     * Constructor.
-     * @param settings the block settings
-     */
-    public RegexpMatches(AdvanceBlockSettings settings) {
-        super(settings);
-    }
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
-    protected void invoke(Map<String, XElement> map) {
-        double val = AdvanceData.getDouble(map.get(IN));
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+    protected void invoke() {
+    	String in = getString(IN);
+    	String regexp = getString(REGEXP);
+    	dispatch(OUT, AdvanceData.create(in.matches(regexp)));
     }
     
 }

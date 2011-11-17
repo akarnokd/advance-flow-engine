@@ -21,14 +21,10 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import java.util.Map;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * The block dispatches its single input into two outputs.
@@ -48,16 +44,9 @@ public class Dispatch extends AdvanceBlock {
     /** Out1. */
     @Output("?T")
     private static final String OUT2 = "out2";
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public Dispatch(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		dispatch(OUT1, params.get(IN), OUT2, params.get(IN));
 	}
 

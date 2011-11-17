@@ -25,7 +25,6 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -40,7 +39,6 @@ import javax.swing.SwingUtilities;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -71,18 +69,11 @@ public class Gate extends AdvanceBlock {
 	protected String buttonTitleDefer = "Click me";
 	/** The queued messages. */
 	protected final Queue<XElement> messages = new LinkedBlockingQueue<XElement>();
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public Gate(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	public void init(Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(constantParams);
-		if (constantParams.containsKey(TITLE)) {
-			buttonTitleDefer = constantParams.get(TITLE).value.content;
+	public void init(AdvanceBlockSettings settings) {
+		super.init(settings);
+		if (settings.constantParams.containsKey(TITLE)) {
+			buttonTitleDefer = settings.constantParams.get(TITLE).value.content;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -143,7 +134,7 @@ public class Gate extends AdvanceBlock {
 		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		final String title = params.get(TITLE).content;
 		messages.add(params.get(IN));
 		final int size = messages.size();

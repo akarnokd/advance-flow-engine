@@ -29,13 +29,11 @@ import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -56,16 +54,8 @@ public class Merge extends AdvanceBlock {
     @Output("?T")
     private static final String OUT = "out";
 	
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public Merge(AdvanceBlockSettings settings) {
-		super(settings);
-	}
-	
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		// The default zip-behavior is ignored
 	}
 	@Override

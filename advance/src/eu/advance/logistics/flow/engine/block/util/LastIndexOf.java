@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -28,8 +27,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Returns the index of the last occurrence of the substring in the string.
@@ -41,28 +38,26 @@ public class LastIndexOf extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(LastIndexOf .class.getName());
     /** In. */
-    @Input("advance:real")
-    private static final String IN = "in";
+    @Input("advance:string")
+    protected static final String IN = "in";
+    /** In. */
+    @Input("advance:string")
+    protected static final String SUBSTRING = "substring";
+    /** In. */
+    @Input(value = "advance:integer", defaultConstant = "<integer>-1</integer>")
+    protected static final String START = "start";
     /** Out. */
-    @Output("advance:real")
-    private static final String OUT = "out";
-    /**
-     * Constructor.
-     * @param settings the block settings
-     */
-    public LastIndexOf(AdvanceBlockSettings settings) {
-        super(settings);
-    }
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-//TODO implement
+    @Output("advance:integer")
+    protected static final String OUT = "out";
     @Override
-    protected void invoke(Map<String, XElement> map) {
-        double val = AdvanceData.getDouble(map.get(IN));
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+    protected void invoke() {
+        String in = getString(IN);
+        String substring = getString(SUBSTRING);
+        int start = getInt(START);
+        if (start < 0) {
+        	start = in.length();
+        }
+        
+        dispatch(OUT, AdvanceData.create(in.lastIndexOf(substring, start)));
     }
-    
 }

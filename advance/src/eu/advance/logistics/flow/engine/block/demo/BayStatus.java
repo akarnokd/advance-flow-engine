@@ -28,7 +28,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,7 +44,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
@@ -75,21 +73,14 @@ public class BayStatus extends AdvanceBlock {
     protected final List<Integer> values = Lists.newArrayList();
 	/** The peer frame. */
 	protected JInternalFrame frame;
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public BayStatus(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	public void init(Map<String, AdvanceConstantBlock> constantParams) {
-		super.init(constantParams);
-		if (constantParams.containsKey(TITLE)) {
-			title.set(AdvanceData.getString(constantParams.get(TITLE).value));
+	public void init(AdvanceBlockSettings settings) {
+		super.init(settings);
+		if (settings.constantParams.containsKey(TITLE)) {
+			title.set(AdvanceData.getString(settings.constantParams.get(TITLE).value));
 		}
-		if (constantParams.containsKey(CRITICAL_LOAD_LIMIT)) {
-			criticalLoadLimit.set(AdvanceData.getInt(constantParams.get(CRITICAL_LOAD_LIMIT).value));
+		if (settings.constantParams.containsKey(CRITICAL_LOAD_LIMIT)) {
+			criticalLoadLimit.set(AdvanceData.getInt(settings.constantParams.get(CRITICAL_LOAD_LIMIT).value));
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -194,7 +185,7 @@ public class BayStatus extends AdvanceBlock {
 		BlockVisualizer.getInstance().add(frame);
 	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		title.set(AdvanceData.getString(params.get(TITLE)));
 		criticalLoadLimit.set(AdvanceData.getInt(params.get(CRITICAL_LOAD_LIMIT)));
 		final List<XElement> list = AdvanceData.getList(params.get(LOAD));

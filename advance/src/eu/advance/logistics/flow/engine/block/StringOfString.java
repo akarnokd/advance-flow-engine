@@ -21,13 +21,9 @@
 
 package eu.advance.logistics.flow.engine.block;
 
-import java.util.Map;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * This module provides an invalid parametric type.
@@ -40,15 +36,8 @@ public class StringOfString extends AdvanceBlock {
     /** Out. */
     @Output("advance:string<advance:string>")
     protected static final String OUT = "out";
-	/**
-	 * Constructor.
-	 * @param settings the block settings
-	 */
-	public StringOfString(AdvanceBlockSettings settings) {
-		super(settings);
-	}
 	@Override
-	protected void invoke(Map<String, XElement> params) {
+	protected void invoke() {
 		
 	}
 }

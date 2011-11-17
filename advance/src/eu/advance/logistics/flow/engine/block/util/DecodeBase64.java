@@ -20,49 +20,39 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.Map;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.util.Base64;
 
 /**
  * Convert the Base64 representation into a string.
  * Signature: DecodeBase64(string) -> string
  * @author szmarcell
  */
-@Block(id = "___DecodeBase64", category = "string", scheduler = "IO", description = "Convert the Base64 representation into a string.")
+@Block(id = "___DecodeBase64", category = "string", scheduler = "NOW", description = "Convert the Base64 representation into a string.")
 public class DecodeBase64 extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(DecodeBase64 .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:string")
     protected static final String IN = "in";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:string")
     protected static final String OUT = "out";
-    /**
-     * Constructor.
-     * @param settings the block settings
-     */
-    public DecodeBase64(AdvanceBlockSettings settings) {
-        super(settings);
-    }
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
-    protected void invoke(Map<String, XElement> map) {
-        double val = AdvanceData.getDouble(map.get(IN));
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+    protected void invoke() {
+        String in = getString(IN);
+        try {
+        	dispatch(OUT, AdvanceData.create(new String(Base64.decode(in), "ISO-8859-1")));
+        } catch (IOException ex) {
+        	log(ex);
+        }
     }
     
 }

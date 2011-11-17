@@ -20,16 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
  * Compute the sum of the elements within the collection which have the type of Integer or Real.
@@ -46,18 +43,11 @@ public class Sum extends AdvanceBlock {
     /** Out. */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /**
-     * Constructor.
-     * @param settings the block settings
-     */
-    public Sum(AdvanceBlockSettings settings) {
-        super(settings);
-    }
     /** The running sum. */
     private double value;
     @Override
-    protected void invoke(Map<String, XElement> map) {
-        double val = AdvanceData.getDouble(map.get(IN));
+    protected void invoke() {
+        double val = getDouble(IN);
         value += val;
         dispatch(OUT, AdvanceData.create(value));
     }
