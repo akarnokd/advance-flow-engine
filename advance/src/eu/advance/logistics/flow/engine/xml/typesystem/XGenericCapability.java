@@ -18,110 +18,54 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
+
 package eu.advance.logistics.flow.engine.xml.typesystem;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 
 /**
- * The XML capability description, basically the class field description.
- * Attributes and inner elements share the same description
- * and probably won't overlap in terms of a name.
- *  @author akarnokd
+ * A maybe generic capability defining a simple, complex or generic typed {@code element}.
+ * @author akarnokd, 2011.11.16.
  */
-public class XCapability implements XComparable<XCapability> {
+public class XGenericCapability {
 	/** The element name. */
-	public XName name;
+	public final XName name = new XName();
 	/** The element cardinality. */
 	public XCardinality cardinality;
 	/** The element's simple type if non null. */
 	public XValueType valueType;
 	/** The element's complex type if non null. */
-	public XType complexType;
-	@Override
-	public XRelation compareTo(XCapability o) {
-		return compareTo(o, new HashSet<XType>());
-	}
+	private XGenericBaseType complexType;
+	/** The generic type arguments. */
+	public final List<XGenericType> arguments = Lists.newArrayList();
+	/** The parent type. */
+	public XGenericBaseType parent;
 	/**
-	 * Compare two capabilities in respect to the given type memory to
-	 * avoid recursion on complex capabilities.
-	 * @param o the other capability 
-	 * @param memory the type memory
-	 * @return the relation
+	 * Create a deep copy of this capability.
+	 * @return the copy
 	 */
-	public XRelation compareTo(XCapability o, Set<XType> memory) {
-		int equal = 0;
-		int ext = 0;
-		int sup = 0;
-		switch (name.compareTo(o.name)) {
-		case EQUAL:
-			equal++;
-			break;
-		case EXTENDS:
-			ext++;
-			break;
-		case SUPER:
-			sup++;
-			break;
-		case NONE:
-			return XRelation.NONE;
-		default:
-		}
-		if (complexType != null && o.complexType != null) {
-			switch (complexType.compareTo(o.complexType, memory)) {
-			case EQUAL:
-				equal++;
-				break;
-			case EXTENDS:
-				ext++;
-				break;
-			case SUPER:
-				sup++;
-				break;
-			case NONE:
-				return XRelation.NONE;
-			default:
-			}
-		} else
-		if ((complexType == null) != (complexType == null)) {
-			return XRelation.NONE;
-		}
-		if (valueType != null && valueType == o.valueType) {
-			equal++;
-		}
-		switch (XCardinality.compare(cardinality, o.cardinality)) {
-		case EQUAL:
-			equal++;
-			break;
-		case EXTENDS:
-			ext++;
-			break;
-		case SUPER:
-			sup++;
-			break;
-		case NONE:
-			return XRelation.NONE;
-		default:
+	public XGenericCapability copy() {
+		XGenericCapability result = new XGenericCapability();
+		
+		result.name.assign(name);
+		result.cardinality = cardinality;
+		result.valueType = valueType;
+		result.complexType = complexType.copy();
+		
+		for (XGenericType gt : arguments) {
+			result.arguments.add(gt.copy());
 		}
 		
-		int all = equal + ext + sup;
-		if (all == equal) {
-			return XRelation.EQUAL;
-		}
-		if (all == equal + ext) {
-			return XRelation.EXTENDS;
-		}
-		if (all == equal + sup) {
-			return XRelation.SUPER;
-		}
-		// mixed content, inconclusive
-		return XRelation.NONE;
+		return result;
 	}
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		toStringPretty("", b, new HashSet<XType>());
+		toStringPretty("", b, new HashSet<XGenericBaseType>());
 		return b.toString();
 	}
 	/**
@@ -130,8 +74,20 @@ public class XCapability implements XComparable<XCapability> {
 	 * @param out the output buffer
 	 * @param memory the types already expressed won't be detailed again
 	 */
-	void toStringPretty(String indent, StringBuilder out, Set<XType> memory) {
-		out.append(indent).append("XCapability {").append(String.format("%n"));
+	void toStringPretty(String indent, StringBuilder out, 
+			Set<XGenericBaseType> memory) {
+		out.append(indent).append("XCapability");
+		if (!arguments.isEmpty()) {
+			out.append("<");
+			for (int i = 0; i < arguments.size(); i++) {
+				if (i > 0) {
+					out.append(", ");
+				}
+				out.append(arguments.get(i));
+			}
+			out.append(">");
+		}
+		out.append(" {").append(String.format("%n"));
 		out.append(indent).append("  name = ").append(name).append(String.format(",%n"));
 		out.append(indent).append("  cardinality = ").append(cardinality).append(String.format(",%n"));
 		if (valueType != null) {
@@ -144,12 +100,29 @@ public class XCapability implements XComparable<XCapability> {
 				complexType.toStringPretty(indent + "    ", out, memory);
 				memory.remove(complexType);
 			} else {
-				out.append(indent).append("  complexType = XType ...").append(String.format("%n"));
+				out.append(indent).append("  complexType = XGenericBaseType ...").append(String.format("%n"));
 			}
 		}
 		if (complexType == null && valueType == null) {
 			out.append(indent).append("  type could not be determined").append(String.format("%n"));
 		}
 		out.append(indent).append("}").append(String.format("%n"));
+	}
+	/**
+	 * Returns the complex type if any.
+	 * @return the complex type or null
+	 */
+	public XGenericBaseType complexType() {
+		return complexType;
+	}
+	/**
+	 * Sets the complex type.
+	 * @param newComplexType the complex type
+	 */
+	public void complexType(XGenericBaseType newComplexType) {
+		this.complexType = newComplexType;
+		if (complexType != null) {
+			this.complexType.parent = this;
+		}
 	}
 }

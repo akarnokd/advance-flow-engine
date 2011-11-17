@@ -26,6 +26,7 @@ import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +38,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1280,5 +1282,54 @@ public class XElement /* implements Iterable<XElement> */ {
 		T result = (T)userObject;
 		userObject = newUserObject;
 		return result;
+	}
+	/**
+	 * Check if the simply-named attribute exists.
+	 * @param name the name of the attribute
+	 * @return true if the attribute exists
+	 */
+	public boolean hasAttribute(@NonNull String name) {
+		return get(name) != null;
+	}
+	/**
+	 * Check if the attribute exists.
+	 * @param name the attribute name
+	 * @param namespace the attribute namespace
+	 * @return true if the attribute exists
+	 */
+	public boolean hasAttribute(@NonNull String name, @Nullable String namespace) {
+		return get(name, namespace) != null;
+	}
+	/**
+	 * Test if this XElement has the given name.
+	 * @param name the name to test against
+	 * @return true if the names equal
+	 */
+	public boolean hasName(@NonNull String name) {
+		return Objects.equal(this.name, name);
+	}
+	/**
+	 * Test if this XElement has the given name and namespace.
+	 * @param name the name to test against
+	 * @param namespace the namespace to test against
+	 * @return true if the names and namespaces equal
+	 */
+	public boolean hasName(@NonNull String name, @Nullable String namespace) {
+		return hasName(name) && Objects.equal(this.namespace, namespace);
+	}
+	/**
+	 * Parse an XML from the supplied URL.
+	 * @param url the target URL
+	 * @return the parsed XML
+	 * @throws IOException if an I/O error occurs
+	 * @throws XMLStreamException if a parser error occurs
+	 */
+	public static XElement parseXML(URL url) throws IOException, XMLStreamException {
+		InputStream in = new BufferedInputStream(url.openStream());
+		try {
+			return parseXML(in);
+		} finally {
+			in.close();
+		}
 	}
 }

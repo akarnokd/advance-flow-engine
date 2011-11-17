@@ -26,11 +26,8 @@ import hu.akarnokd.reactive4java.base.Pair;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,62 +65,6 @@ public final class XSchema {
 	/** Utility class. */
 	private XSchema() {
 		// utility class
-	}
-	/**
-	 * @param args no arguments
-	 * @throws Exception ignored
-	 */
-	public static void main(String[] args) throws Exception {
-		XElement schema1 = XElement.parseXML("test/type1.xsd");
-		XElement schema2 = XElement.parseXML("test/type2.xsd");
-		XElement schema3 = XElement.parseXML("test/type3.xsd");
-		Func1<String, XElement> resolver = new Func1<String, XElement>() {
-			@Override
-			public XElement invoke(String param1) {
-				File f = new File("schemas", param1);
-				if (f.canRead()) {
-					try {
-						return XElement.parseXML(f);
-					} catch (XMLStreamException ex) {
-						LOG.error(ex.toString(), ex);
-					} catch (IOException ex) {
-						LOG.error(ex.toString(), ex);
-					}
-				}
-				return null;
-			}
-		};
-//		
-//		System.out.println(schema1);
-		XType t1 = parse(schema1, resolver);
-//		System.out.println(t1);
-//		System.out.println(schema2);
-		XType t2 = parse(schema2, resolver);
-//		System.out.println(t2);
-//		System.out.println(t1.compareTo(t2));
-//		System.out.println(t2.compareTo(t1));
-//		System.out.println(t1.compareTo(t1));
-//		
-//		System.out.println();
-		XType t3 = parse(schema3, resolver);
-//		System.out.println(t1.compareTo(t3));
-//		System.out.println(compare(t1, t3));
-		
-		XType t4 = fromInstance(XElement.parseXML("schemas/block-registry.xml"));
-		System.out.println(t4);
-		XType t5 = parse(XElement.parseXML("schemas/block-registry.xsd"), resolver);
-		System.out.println(t5);
-		System.out.println(compare(t4, t5));
-		
-		System.out.println(t1.intersection(t2));
-		System.out.println(t2.intersection(t3).compareTo(t3));
-		System.out.println(t2.union(t3));
-		
-		XType stringType = parse(XElement.parseXML("schemas/string.xsd"), resolver);
-		XType intType = parse(XElement.parseXML("schemas/integer.xsd"), resolver);
-
-		System.out.println(intersection(stringType, intType));
-		System.out.println(union(stringType, intType));
 	}
 	/**
 	 * Create the XML type by parsing the given schema document.
@@ -165,7 +106,6 @@ public final class XSchema {
 		c.name.name = root.get("name");
 		// FIXME set semantic token and aliases
 		c.cardinality = getCardinality(root);
-		c.genericType = getGenericType(root);
 		
 		result.capabilities.add(c);
 		
@@ -205,12 +145,7 @@ public final class XSchema {
 					if (complexType != null) {
 						setComplexType(c, complexType, typedefs, memory);
 					} else {
-						if (c.genericType != null) {
-							c.complexType = new XType(); // empty type
-						} else {
-							throw new AssertionError("Strange element: " + root.get("name"));
-						}
-							
+						throw new AssertionError("Strange element: " + root.get("name"));
 					}
 				}
 			}
@@ -307,14 +242,15 @@ public final class XSchema {
 							String base = extension.get("base");
 							XElement simpleBase = findType(base, "simpleType", types);
 							if (simpleBase != null) {
+								c.complexType = c.complexType.copy();
+								
 								XCapability cap = new XCapability();
 								cap.name = c.name;
 								cap.cardinality = XCardinality.ONE;
 								setSimpleType(cap, simpleBase, types);
 								setComplexType(c, extension, types, memory);
-								c.complexType = c.complexType.copy();
-								c.complexType.capabilities.add(cap);
 
+								c.complexType.capabilities.add(cap);
 							} else {
 								XElement complexType = findType(base, "complexType", types);
 								if (complexType != null) {
@@ -490,32 +426,11 @@ public final class XSchema {
 		for (XElement inc : includes) {
 			String loc = inc.get("schemaLocation");
 			if (loc != null && memory.add(loc)) {
-				// if remote location
-				if (loc.startsWith("http") || loc.startsWith("https")) {
-					try {
-						XElement xe = null;
-						URL u = new URL(loc);
-						InputStream in = u.openStream();
-						try {
-							xe = XElement.parseXML(in);
-						} finally {
-							in.close();
-						}
-						searchTypes(xe, typedefs, memory, new URLResolver(u));
-					} catch (MalformedURLException ex) {
-						
-					} catch (IOException ex) {
-						
-					} catch (XMLStreamException ex) {
-						
-					}
+				XElement in = resolver.invoke(loc);
+				if (in != null) {
+					searchTypes(in, typedefs, memory, resolver);
 				} else {
-					XElement in = resolver.invoke(loc);
-					if (in != null) {
-						searchTypes(in, typedefs, memory, resolver);
-					} else {
-						throw new RuntimeException("Could not locate schema file for " + loc);
-					}
+					throw new RuntimeException("Could not locate schema file for " + loc);
 				}
 			}
 		}
@@ -550,7 +465,7 @@ public final class XSchema {
 	 * @param e the element definition
 	 * @return the cardinality
 	 */
-	static XCardinality getCardinality(XElement e) {
+	public static XCardinality getCardinality(XElement e) {
 		String mino = e.get("minOccurs");
 		String maxo = e.get("maxOccurs");
 		if (mino == null) {
@@ -689,28 +604,6 @@ public final class XSchema {
 			return XRelation.EQUAL;
 		}
 		return XRelation.NONE;
-	}
-	/**
-	 * Find the custom application node which defines the generic type information of this type.
-	 * @param elementDef the &lt;element> entry
-	 * @return the generics definition or null if no such present
-	 */
-	static XGenerics getGenericType(XElement elementDef) {
-		// TODO think about this a bit more
-		XElement annot = elementDef.childElement("annotation", XElement.XSD);
-		if (annot != null) {
-			XElement appinfo = annot.childElement("appinfo", XElement.XSD);
-			if (appinfo != null) {
-				XElement gt = appinfo.childElement("advance-type-variable");
-				if (gt != null) {
-					String paramName = gt.get("name");
-					XGenerics xg = new XGenerics();
-					xg.name = paramName;
-					return xg;
-				}
-			}
-		}
-		return null;
 	}
 	/**
 	 * Infer and generate an xml type from the given XML instance based on its structure.
@@ -1065,5 +958,30 @@ public final class XSchema {
 		}
 		return is;
 		
+	}
+	/**
+	 * @param args no arguments
+	 * @throws Exception ignored
+	 */
+	public static void main(String[] args) throws Exception {
+		Func1<String, XElement> resolver = new Func1<String, XElement>() {
+			@Override
+			public XElement invoke(String param1) {
+				File f = new File("schemas", param1);
+				if (f.canRead()) {
+					try {
+						return XElement.parseXML(f);
+					} catch (XMLStreamException ex) {
+						LOG.error(ex.toString(), ex);
+					} catch (IOException ex) {
+						LOG.error(ex.toString(), ex);
+					}
+				}
+				return null;
+			}
+		};
+//		System.out.println(XSchema.parse(XElement.parseXML("schemas/collection.xsd"), resolver));
+//		System.out.println(XSchema.parse(XElement.parseXML("schemas/pair.xsd"), resolver));
+		System.out.println(XSchema.parse(XElement.parseXML("schemas/map.xsd"), resolver));
 	}
 }

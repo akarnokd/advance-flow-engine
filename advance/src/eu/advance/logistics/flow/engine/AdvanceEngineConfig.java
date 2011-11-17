@@ -77,11 +77,9 @@ public class AdvanceEngineConfig {
 	/** The block registry. */
 	public String blockRegistry;
 	/** The block resolver. */
-	public AdvanceBlockResolver blockResolver;
+	public Map<String, AdvanceBlockResolver> defaultBlocks;
 	/** The schema directories. */
 	public final List<String> schemas = Lists.newArrayList();
-	/** The schema resolver. */
-	public AdvanceLocalSchemaResolver schemaResolver;
 	/** A JDBC based datastore datasource. */
 	private AdvanceJDBCDataSource jdbcDataSource;
 	/** The local datastore object. */
@@ -100,6 +98,10 @@ public class AdvanceEngineConfig {
 	protected String workDir;
 	/** The connection pool managers. */
 	protected AdvancePools pools;
+	/** The plugin manager. */
+	protected AdvancePluginManager pluginManager;
+	/** The plugin manager closeable. */
+	protected Closeable pluginManagerCloseable;
 	/**
 	 * Create the lookup.
 	 * @param blockRegistries The block registries
@@ -127,7 +129,11 @@ public class AdvanceEngineConfig {
 		} catch (IOException ex) {
 			throw new IllegalArgumentException(ex);
 		}
-		blockResolver = new AdvanceBlockResolver(blocks);
+		AdvanceDefaultBlockResolver br = new AdvanceDefaultBlockResolver(blocks);
+		defaultBlocks = Maps.newHashMap();
+		for (String blockId : blocks.keySet()) {
+			defaultBlocks.put(blockId, br);
+		}
 	}
 	
 	/**
@@ -160,7 +166,6 @@ public class AdvanceEngineConfig {
 		for (XElement xs : configXML.childrenWithName("schemas")) {
 			schemas.add(workDir + "/" + xs.get("location"));
 		}
-		schemaResolver = new AdvanceLocalSchemaResolver(schemas);
 		
 		// initialize keystores
 		for (XElement xks : configXML.childrenWithName("keystore")) {
@@ -209,11 +214,21 @@ public class AdvanceEngineConfig {
 			jdbcDataStore = new JDBCDataStore(null, jdbcPool); // TODO JDBC update
 		}
 		pools = new AdvancePools(new AdvancePoolCreator(datastore()));
+		
+		String pluginDir = workDir + "/plugins"; 
+		XElement xpluginDir = configXML.childElement("plugins");
+		if (xpluginDir != null) {
+			pluginDir = workDir + "/" + xpluginDir.content;
+		}
+		pluginManager = new AdvancePluginManager(pluginDir);
+		pluginManager.run();
+		pluginManagerCloseable = get(AdvanceSchedulerPreference.IO).schedule(pluginManager, 5, 5, TimeUnit.SECONDS);
 	}
 	/**
 	 * Terminate and close everything.
 	 */
 	public void close() {
+		Closeables.close0(pluginManagerCloseable);
 		for (ExecutorService s : schedulerMapExecutors.values()) {
 			s.shutdown();
 		}
@@ -238,6 +253,7 @@ public class AdvanceEngineConfig {
 				LOG.error(ex.toString(), ex);
 			}
 		}
+		pluginManager = null;
 	}
 	/**
 	 * Initialize the schedulers from the configuration.
@@ -357,11 +373,12 @@ public class AdvanceEngineConfig {
 	 */
 	public AdvanceCompilerSettings createCompilerSettings() {
 		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
-		compilerSettings.schemaResolver = schemaResolver; 
-		compilerSettings.blockResolver = blockResolver; 
+		compilerSettings.defaultSchemas = schemas; 
+		compilerSettings.defaultBlocks = defaultBlocks; 
 		compilerSettings.schedulers = schedulerMap;
 		compilerSettings.datastore = datastore();
 		compilerSettings.pools = pools();
+		compilerSettings.pluginManager = pluginManager;
 		return compilerSettings;
 	}
 }

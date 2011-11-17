@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.error;
 
 import hu.akarnokd.reactive4java.base.Func0;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
@@ -34,7 +35,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
  * The wire binds a concrete type and a parametric type which cannot be in subtype relation.
  * @author akarnokd, 2011.07.21.
  */
-public class ConcreteVsParametricTypeError implements AdvanceCompilationError, HasBinding {
+public class ConcreteVsParametricTypeError implements AdvanceCompilationError, HasBinding, HasTypes {
 	/** The wire identifier. */
 	public AdvanceBlockBind binding;
 	/** The left side of the binding. */
@@ -95,5 +96,9 @@ public class ConcreteVsParametricTypeError implements AdvanceCompilationError, H
 	@Override
 	public AdvanceBlockBind binding() {
 		return binding;
+	}
+	@Override
+	public Iterable<AdvanceType> types() {
+		return Arrays.asList(left, right);
 	}
 }
