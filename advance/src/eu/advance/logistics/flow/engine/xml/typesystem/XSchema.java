@@ -52,6 +52,7 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.inference.TypeRelation;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
 
 
@@ -570,7 +571,7 @@ public final class XSchema {
 	 * @param t2 the second type
 	 * @return the relation
 	 */
-	public static XRelation compare(XType t1, XType t2) {
+	public static TypeRelation compare(XType t1, XType t2) {
 		if (t1.capabilities.size() > 1) {
 			throw new IllegalArgumentException("t1 should have only one capability, instead, it has " + t1.capabilities.size());
 		}
@@ -578,38 +579,38 @@ public final class XSchema {
 			throw new IllegalArgumentException("t2 should have only one capability, instead, it has " + t2.capabilities.size());
 		}
 		if (t1.capabilities.size() == 0 && t2.capabilities.size() == 0) {
-			return XRelation.EQUAL;
+			return TypeRelation.EQUAL;
 		} else
 		if (t1.capabilities.size() == 0) {
 			XType ct2 = t2.capabilities.get(0).complexType;
 			if (ct2 != null && ct2.capabilities.size() == 0) {
-				return XRelation.EQUAL;
+				return TypeRelation.EQUAL;
 			}
-			return XRelation.SUPER;
+			return TypeRelation.SUPER;
 		} else
 		if (t2.capabilities.size() == 0) {
 			XType ct1 = t1.capabilities.get(0).complexType;
 			if (ct1 != null && ct1.capabilities.size() == 0) {
-				return XRelation.EQUAL;
+				return TypeRelation.EQUAL;
 			}
-			return XRelation.EXTENDS;
+			return TypeRelation.EXTENDS;
 		} else
 		if ((t1.capabilities.get(0).complexType == null) != (t2.capabilities.get(0).complexType == null)) {
-			return XRelation.NONE;
+			return TypeRelation.NONE;
 		} else
 		if (t1.capabilities.get(0).complexType != null && t2.capabilities.get(0).complexType != null) {
 			return t1.capabilities.get(0).complexType.compareTo(t2.capabilities.get(0).complexType);
 		} else
 		if (t1.capabilities.get(0).valueType == t2.capabilities.get(0).valueType) {
-			return XRelation.EQUAL;
+			return TypeRelation.EQUAL;
 		} else
 		if (t1.capabilities.get(0).valueType == XValueType.REAL &&  t2.capabilities.get(0).valueType == XValueType.INTEGER) {
-			return XRelation.SUPER;
+			return TypeRelation.SUPER;
 		} else
 		if (t1.capabilities.get(0).valueType == XValueType.INTEGER && t2.capabilities.get(0).valueType == XValueType.REAL) {
-			return XRelation.EXTENDS;
+			return TypeRelation.EXTENDS;
 		}
-		return XRelation.NONE;
+		return TypeRelation.NONE;
 	}
 	/**
 	 * Infer and generate an xml type from the given XML instance based on its structure.
@@ -884,11 +885,11 @@ public final class XSchema {
 	 * @return the intersection type
 	 */
 	public static XType intersection(XType t1, XType t2) {
-		XRelation rel = compare(t1, t2);
-		if (rel == XRelation.EQUAL || rel == XRelation.SUPER) {
+		TypeRelation rel = compare(t1, t2);
+		if (rel == TypeRelation.EQUAL || rel == TypeRelation.SUPER) {
 			return t1;
 		} else
-		if (rel == XRelation.EXTENDS) {
+		if (rel == TypeRelation.EXTENDS) {
 			return t2;
 		}
 		XCapability c0 = t1.capabilities.get(0);
@@ -926,11 +927,11 @@ public final class XSchema {
 	 * @return the union type
 	 */
 	public static XType union(XType t1, XType t2) {
-		XRelation rel = compare(t1, t2);
-		if (rel == XRelation.EQUAL || rel == XRelation.EXTENDS) {
+		TypeRelation rel = compare(t1, t2);
+		if (rel == TypeRelation.EQUAL || rel == TypeRelation.EXTENDS) {
 			return t1;
 		} else
-		if (rel == XRelation.SUPER) {
+		if (rel == TypeRelation.SUPER) {
 			return t2;
 		}
 		XCapability c0 = t1.capabilities.get(0);

@@ -33,6 +33,7 @@ import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.util.Strings;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
@@ -173,13 +174,13 @@ public class AdvanceBlockDescription implements XSerializable {
 		
 		while (!typeParams.isEmpty()) {
 			AdvanceType at = typeParams.removeFirst();
-			if (at.getKind() == AdvanceTypeKind.VARIABLE_TYPE && at.typeVariable == null) {
+			if (at.kind() == TypeKind.VARIABLE_TYPE && at.typeVariable == null) {
 				at.typeVariable = typeVariables.get(at.typeVariableName);
 			} else
-			if (at.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+			if (at.kind() == TypeKind.PARAMETRIC_TYPE) {
 				int i = 0;
 				for (AdvanceType ta : Lists.newArrayList(at.typeArguments)) {
-					if (ta.getKind() == AdvanceTypeKind.VARIABLE_TYPE) {
+					if (ta.kind() == TypeKind.VARIABLE_TYPE) {
 						AdvanceType sv = sharedTypes.get(ta.typeVariableName);
 						if (sv == null) {
 							throw new MissingTypeVariableException(root.toString(), ta.typeVariableName);

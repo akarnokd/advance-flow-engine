@@ -60,7 +60,6 @@ public final class ErrorLookup {
 		SourceToCompositeInputError.register(ERROR_LOOKUP);
 		SourceToCompositeOutputError.register(ERROR_LOOKUP);
 		SourceToInputBindingError.register(ERROR_LOOKUP);
-		TypeMismatchError.register(ERROR_LOOKUP);
 		MissingBlockError.register(ERROR_LOOKUP);
 		TypeArgumentCountError.register(ERROR_LOOKUP);
 		MissingVarargsError.register(ERROR_LOOKUP);

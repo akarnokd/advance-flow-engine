@@ -23,6 +23,8 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 import java.util.HashSet;
 import java.util.Set;
 
+import eu.advance.logistics.flow.engine.inference.TypeRelation;
+
 
 /**
  * The XML capability description, basically the class field description.
@@ -40,7 +42,7 @@ public class XCapability implements XComparable<XCapability> {
 	/** The element's complex type if non null. */
 	public XType complexType;
 	@Override
-	public XRelation compareTo(XCapability o) {
+	public TypeRelation compareTo(XCapability o) {
 		return compareTo(o, new HashSet<XType>());
 	}
 	/**
@@ -50,7 +52,7 @@ public class XCapability implements XComparable<XCapability> {
 	 * @param memory the type memory
 	 * @return the relation
 	 */
-	public XRelation compareTo(XCapability o, Set<XType> memory) {
+	public TypeRelation compareTo(XCapability o, Set<XType> memory) {
 		int equal = 0;
 		int ext = 0;
 		int sup = 0;
@@ -65,7 +67,7 @@ public class XCapability implements XComparable<XCapability> {
 			sup++;
 			break;
 		case NONE:
-			return XRelation.NONE;
+			return TypeRelation.NONE;
 		default:
 		}
 		if (complexType != null && o.complexType != null) {
@@ -80,12 +82,12 @@ public class XCapability implements XComparable<XCapability> {
 				sup++;
 				break;
 			case NONE:
-				return XRelation.NONE;
+				return TypeRelation.NONE;
 			default:
 			}
 		} else
 		if ((complexType == null) != (complexType == null)) {
-			return XRelation.NONE;
+			return TypeRelation.NONE;
 		}
 		if (valueType != null && valueType == o.valueType) {
 			equal++;
@@ -101,22 +103,22 @@ public class XCapability implements XComparable<XCapability> {
 			sup++;
 			break;
 		case NONE:
-			return XRelation.NONE;
+			return TypeRelation.NONE;
 		default:
 		}
 		
 		int all = equal + ext + sup;
 		if (all == equal) {
-			return XRelation.EQUAL;
+			return TypeRelation.EQUAL;
 		}
 		if (all == equal + ext) {
-			return XRelation.EXTENDS;
+			return TypeRelation.EXTENDS;
 		}
 		if (all == equal + sup) {
-			return XRelation.SUPER;
+			return TypeRelation.SUPER;
 		}
 		// mixed content, inconclusive
-		return XRelation.NONE;
+		return TypeRelation.NONE;
 	}
 	@Override
 	public String toString() {

@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import eu.advance.logistics.flow.engine.inference.TypeRelation;
+
 
 /**
  * The definition of an XML type: basically a root element
@@ -35,7 +37,7 @@ public class XType implements XComparable<XType> {
 	/** The capability set of the type. */
 	public final List<XCapability> capabilities = new ArrayList<XCapability>();
 	@Override
-	public XRelation compareTo(XType o) {
+	public TypeRelation compareTo(XType o) {
 		return compareTo(o, new HashSet<XType>());
 	}
 	/**
@@ -52,7 +54,7 @@ public class XType implements XComparable<XType> {
 	 * @param memory the memory to keep track the traversed types
 	 * @return the relation
 	 */
-	public XRelation compareTo(XType o, Set<XType> memory) {
+	public TypeRelation compareTo(XType o, Set<XType> memory) {
 		memory.add(this);
 		int equal = 0;
 		int ext = 0;
@@ -63,7 +65,7 @@ public class XType implements XComparable<XType> {
 				inner:
 				for (XCapability c1 : o.capabilities) {
 					// the same member?
-					if (c0.name.compareTo(c1.name) != XRelation.NONE) {
+					if (c0.name.compareTo(c1.name) != TypeRelation.NONE) {
 						switch (c0.compareTo(c1, memory)) {
 						case EQUAL:
 							equal++;
@@ -85,27 +87,27 @@ public class XType implements XComparable<XType> {
 		int all = equal + ext + sup;
 		if (all < capabilities.size()
 				&& all < o.capabilities.size()) {
-			return XRelation.NONE;
+			return TypeRelation.NONE;
 		}
 		int diff = capabilities.size() - o.capabilities.size();
 		
 		if (all == equal) {
 			if (diff > 0) {
-				return XRelation.EXTENDS;
+				return TypeRelation.EXTENDS;
 			} else
 			if (diff < 0) {
-				return XRelation.SUPER;
+				return TypeRelation.SUPER;
 			}
-			return XRelation.EQUAL;
+			return TypeRelation.EQUAL;
 		}
 		if (all == equal + ext && diff >= 0) {
-			return XRelation.EXTENDS;
+			return TypeRelation.EXTENDS;
 		}
 		if (all == equal + sup && diff <= 0) {
-			return XRelation.SUPER;
+			return TypeRelation.SUPER;
 		}
 		// mixed content, inconclusive
-		return XRelation.NONE;
+		return TypeRelation.NONE;
 	}
 	@Override
 	public String toString() {
@@ -156,11 +158,11 @@ public class XType implements XComparable<XType> {
 	 * @return the intersection type
 	 */
 	public XType intersection(XType other, Set<XType> memory) {
-		XRelation rel = compareTo(other);
-		if (rel == XRelation.EXTENDS) {
+		TypeRelation rel = compareTo(other);
+		if (rel == TypeRelation.EXTENDS) {
 			return other;
 		} else
-		if (rel == XRelation.SUPER || rel == XRelation.EQUAL) {
+		if (rel == TypeRelation.SUPER || rel == TypeRelation.EQUAL) {
 			return this;
 		}
 		XType is = new XType();
@@ -170,7 +172,7 @@ public class XType implements XComparable<XType> {
 				inner:
 				for (XCapability c1 : other.capabilities) {
 					// the same member?
-					if (c0.name.compareTo(c1.name) != XRelation.NONE) {
+					if (c0.name.compareTo(c1.name) != TypeRelation.NONE) {
 						XCapability c2 = new XCapability();
 						c2.name = c0.name;
 						// both complex types?
@@ -225,11 +227,11 @@ public class XType implements XComparable<XType> {
 	 * @return the union type 
 	 */
 	public XType union(XType other, Set<XType> memory) {
-		XRelation rel = compareTo(other);
-		if (rel == XRelation.EXTENDS || rel == XRelation.EQUAL) {
+		TypeRelation rel = compareTo(other);
+		if (rel == TypeRelation.EXTENDS || rel == TypeRelation.EQUAL) {
 			return this;
 		} else
-		if (rel == XRelation.SUPER) {
+		if (rel == TypeRelation.SUPER) {
 			return other;
 		}
 		XType is = new XType();
@@ -239,7 +241,7 @@ public class XType implements XComparable<XType> {
 			if (c0.complexType == null || !memory.contains(c0.complexType)) {
 				for (XCapability c1 : other.capabilities) {
 					// the same member?
-					if (c0.name.compareTo(c1.name) != XRelation.NONE) {
+					if (c0.name.compareTo(c1.name) != TypeRelation.NONE) {
 						XCapability c2 = new XCapability();
 						c2.name = c0.name;
 						// both complex types?
@@ -278,7 +280,7 @@ public class XType implements XComparable<XType> {
 		for (XCapability c1 : other.capabilities) {
 			for (XCapability c0 : capabilities) {
 				if (c0.complexType == null || !memory.contains(c0.complexType)) {
-					if (c0.name.compareTo(c1.name) != XRelation.NONE) {
+					if (c0.name.compareTo(c1.name) != TypeRelation.NONE) {
 						continue outer2;
 					}					
 				}

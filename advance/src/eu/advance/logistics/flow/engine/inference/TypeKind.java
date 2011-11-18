@@ -19,20 +19,17 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.xml.typesystem;
-
-import eu.advance.logistics.flow.engine.inference.TypeRelation;
+package eu.advance.logistics.flow.engine.inference;
 
 /**
- * The comparison interface for two types.
- * @author akarnokd, 2011.03.09.
- * @param <T> the element type
+ * The enum representing the kind of an Advance type.
+ * @author akarnokd, 2011.07.07.
  */
-public interface XComparable<T> {
-	/**
-	 * Compare this instance to the other instance.
-	 * @param other the other instance
-	 * @return the relation result
-	 */
-	TypeRelation compareTo(T other);
+public enum TypeKind {
+	/** A concrete and exact type, e.g., advance:integer and such. */
+	CONCRETE_TYPE,
+	/** A concrete basetype with one or more generic type parameter, such as advance:collection. */
+	PARAMETRIC_TYPE,
+	/** An arbitrary type variable with optional type constraints. */
+	VARIABLE_TYPE
 }
