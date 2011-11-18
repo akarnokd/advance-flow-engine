@@ -21,14 +21,10 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
-import hu.akarnokd.reactive4java.base.Action1;
-import hu.akarnokd.reactive4java.base.Pair;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -57,24 +53,6 @@ public class AdvanceType implements Type, XSerializable {
 	public XType type;
 	/** The type arguments used by the concrete type. */
 	public final List<AdvanceType> typeArguments = Lists.newArrayList();
-	/**
-	 * Set a type identifier on the given type.
-	 */
-	public static final Action1<Pair<AdvanceType, Set<AdvanceType>>> SET_TYPE_ID = new Action1<Pair<AdvanceType, Set<AdvanceType>>>() {
-		@Override
-		public void invoke(Pair<AdvanceType, Set<AdvanceType>> value) {
-			if (value.first.kind() == TypeKind.VARIABLE_TYPE) {
-				if (value.second.add(value.first)) {
-					value.first.id = value.second.size();
-				}
-			} else
-			if (value.first.kind() == TypeKind.PARAMETRIC_TYPE) {
-				for (AdvanceType ta : value.first.typeArguments) {
-					invoke(Pair.of(ta, value.second));
-				}
-			}
-		}
-	};
 	@Override
 	public String toString() {
 		if (typeURI != null) {

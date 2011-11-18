@@ -24,8 +24,7 @@ package eu.advance.logistics.flow.engine.inference;
 
 /**
  * The base interface for a type.
- * @author karnokd, 2011.11.18.
- * @version $Revision 1.0$
+ * @author akarnokd, 2011.11.18.
  */
 public interface Type {
 	/**

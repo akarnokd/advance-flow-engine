@@ -26,8 +26,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * A base interface to report the inference results and errors.
- * @author karnokd, 2011.11.18.
- * @version $Revision 1.0$
+ * @author akarnokd, 2011.11.18.
  * @param <T> the type system type
  * @param <W> the back-reference to the original relation
  */

@@ -35,7 +35,6 @@ package eu.advance.logistics.flow.engine.util;
  * The capitalization does not matter but the order does.
  * Some elements can be omitted from the list
  * @author akarnokd, 2007.12.06.
- * @version $Revision 1.0$
  */
 public class DistinguishedName {
 	/**
