@@ -106,7 +106,6 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Original idea: http://www.koders.com/java/fid165B893DAEA5F8D4AD44CCF9B8FBE75B01CE6575.aspx
  * @author akarnokd, 2007.12.06.
- * @version $Revision 1.0$
  */
 @SuppressWarnings("deprecation")
 public class KeystoreManager {

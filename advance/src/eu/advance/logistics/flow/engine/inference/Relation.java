@@ -23,8 +23,7 @@ package eu.advance.logistics.flow.engine.inference;
 
 /**
  * Represents a type inequality, noted by left &lt;: right.
- * @author karnokd, 2011.11.18.
- * @version $Revision 1.0$
+ * @author akarnokd, 2011.11.18.
  * @param <T> the type system type
  * @param <W> the reference to the source of the inequality
  */

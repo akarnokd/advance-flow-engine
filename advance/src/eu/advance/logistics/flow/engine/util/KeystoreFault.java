@@ -25,7 +25,6 @@ package eu.advance.logistics.flow.engine.util;
  * An unchecked runtime exception used to report
  * the keystore and key management related exceptions.
  * @author akarnokd, 2007.12.07.
- * @version $Revision 1.0$
  */
 public class KeystoreFault extends RuntimeException {
 

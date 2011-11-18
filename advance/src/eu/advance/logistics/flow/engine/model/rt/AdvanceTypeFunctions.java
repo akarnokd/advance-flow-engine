@@ -41,8 +41,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
 /**
  * The type functions for the AdvanceType type system.
- * @author karnokd, 2011.11.18.
- * @version $Revision 1.0$
+ * @author akarnokd, 2011.11.18.
  */
 public class AdvanceTypeFunctions implements TypeFunctions<AdvanceType> {
 	/** The logger. */
@@ -102,19 +101,6 @@ public class AdvanceTypeFunctions implements TypeFunctions<AdvanceType> {
 	}
 
 	@Override
-	public AdvanceType createTop() {
-		AdvanceType t = fresh();
-		t.typeURI = AdvanceData.OBJECT;
-		t.type = new XType();
-		return t;
-	}
-
-	@Override
-	public AdvanceType createBottom() {
-		return null;
-	}
-
-	@Override
 	public void setId(AdvanceType type, Set<AdvanceType> memory) {
 		Deque<AdvanceType> deque = Lists.newLinkedList();
 		deque.add(type);
@@ -142,6 +128,8 @@ public class AdvanceTypeFunctions implements TypeFunctions<AdvanceType> {
 	@Override
 	public AdvanceType copy(AdvanceType type) {
 		AdvanceType t = fresh();
+		t.typeVariable = type.typeVariable;
+		t.typeVariableName = type.typeVariableName;
 		t.type = type.type;
 		t.typeURI = type.typeURI;
 		t.typeArguments.addAll(type.typeArguments);

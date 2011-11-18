@@ -29,8 +29,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * The interface to represent varios functions for the type inference.
- * @author karnokd, 2011.11.18.
- * @version $Revision 1.0$
+ * @author akarnokd, 2011.11.18.
  * @param <T> a type system type
  */
 public interface TypeFunctions<T extends Type> {
@@ -61,19 +60,6 @@ public interface TypeFunctions<T extends Type> {
 	 */
 	@NonNull
 	TypeRelation compare(@NonNull T first, @NonNull T second);
-	/**
-	 * Creates a top type, e.g., a type {@code k} which for every {@code t} {@code k <= t}.
-	 * <p>A Java example would be a {@code java.lang.Object}.</p>
-	 * @return the created top type
-	 */
-	@Nullable
-	T createTop();
-	/**
-	 * Create a bottom type, e.g., a type {@code k} which for every {@code t} {@code t <= k}.
-	 * @return the created bottom type
-	 */
-	@Nullable
-	T createBottom();
 	/**
 	 * Adds the given type to the memory and sets an unique identifier.
 	 * <p>Used for debugging purposes.</p>

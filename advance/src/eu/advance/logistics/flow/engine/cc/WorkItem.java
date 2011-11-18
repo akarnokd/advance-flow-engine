@@ -24,7 +24,6 @@ package eu.advance.logistics.flow.engine.cc;
 /**
  * Workitem interface for simple SwingWorker task management.
  * @author akarnokd, 2009.08.03.
- * @version $Revision 1.0$
  */
 public interface WorkItem extends Runnable {
 	/** Called in EDT when the worker operation is completed. */
