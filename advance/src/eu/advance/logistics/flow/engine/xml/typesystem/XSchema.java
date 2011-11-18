@@ -431,7 +431,7 @@ public final class XSchema {
 				if (in != null) {
 					searchTypes(in, typedefs, memory, resolver);
 				} else {
-					throw new RuntimeException("Could not locate schema file for " + loc);
+					throw new RuntimeException("Could not locate schema file for " + loc + " in:\r\n" + root);
 				}
 			}
 		}

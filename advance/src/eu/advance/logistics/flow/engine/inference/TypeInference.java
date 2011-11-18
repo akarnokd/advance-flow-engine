@@ -404,7 +404,9 @@ public final class TypeInference<T extends Type, W> {
 			W wire) {
 		if (left.kind() == TypeKind.PARAMETRIC_TYPE && right.kind() == TypeKind.PARAMETRIC_TYPE) {
 			// if D(t1,...,tn) >= C(u1,...,un)
-			if (functions.arguments(left) != functions.arguments(right)) {
+			List<T> leftArgs = functions.arguments(left);
+			List<T> rigthArgs = functions.arguments(right);
+			if (leftArgs.size() != rigthArgs.size()) {
 				result.errorArgumentCount(left, right, wire);
 				return false;
 			}
@@ -414,8 +416,8 @@ public final class TypeInference<T extends Type, W> {
 				result.errorIncompatibleBaseTypes(left, right, wire);
 				return false;
 			}
-			Iterator<T> ts = functions.arguments(left).iterator();
-			Iterator<T> us = functions.arguments(right).iterator();
+			Iterator<T> ts = leftArgs.iterator();
+			Iterator<T> us = rigthArgs.iterator();
 			while (ts.hasNext() && us.hasNext()) {
 				if (!subc(ts.next(), us.next(), wire)) {
 					return false;

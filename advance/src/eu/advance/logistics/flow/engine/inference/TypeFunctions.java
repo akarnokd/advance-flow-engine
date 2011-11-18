@@ -80,22 +80,25 @@ public interface TypeFunctions<T extends Type> {
 	 * @param type the type
 	 * @param memory the memory
 	 */
-	void setId(T type, Set<T> memory);
+	void setId(@NonNull T type, @NonNull Set<T> memory);
 	/**
 	 * Returns the list of the type arguments.
 	 * @param type the type
 	 * @return the type arguments
 	 */
-	List<T> arguments(T type);
+	@NonNull 
+	List<T> arguments(@NonNull T type);
 	/**
 	 * Create a fresh type variable.
 	 * @return the new type variable
 	 */
+	@NonNull 
 	T fresh();
 	/**
 	 * Creates a copy of the given type.
 	 * @param type the source type
 	 * @return the new type
 	 */
-	T copy(T type);
+	@NonNull
+	T copy(@NonNull T type);
 }

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +58,12 @@ public class AdvanceDefaultSchemaResolver implements AdvanceSchemaResolver {
 	protected final List<String> schemaLocations = Lists.newArrayList();
 	/** The list of schema locations. */
 	protected final Map<String, XElement> schemaXMLs = Maps.newHashMap();
+	/**
+	 * Constructor with no additional schema locations or preloaded schema XMLs.
+	 */
+	public AdvanceDefaultSchemaResolver() {
+		this(Collections.<String>emptyList(), Collections.<String, XElement>emptyMap());
+	}
 	/**
 	 * Constructor with the collection of schema locations.
 	 * @param schemaLocations the schema location directories
@@ -94,10 +101,7 @@ public class AdvanceDefaultSchemaResolver implements AdvanceSchemaResolver {
 			URL resource = getClass().getResource("/" + name + ".xsd");
 			return Pair.of(XElement.parseXML(resource), resource);
 		} else
-		if (typeName.startsWith("http:") 
-				|| typeName.startsWith("https:") 
-				|| typeName.startsWith("file:")
-				|| typeName.startsWith("ftp:")) {
+		if (typeName.contains(":")) {
 			URL url = new URL(typeName);
 			return Pair.of(XElement.parseXML(url), url);
 		}

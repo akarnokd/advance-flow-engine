@@ -145,7 +145,7 @@ public class AdvanceTypeFunctions implements TypeFunctions<AdvanceType> {
 		t.type = type.type;
 		t.typeURI = type.typeURI;
 		t.typeArguments.addAll(type.typeArguments);
-		return null;
+		return t;
 	}
 	
 }
