@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2013 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -20,24 +20,20 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.reactive.Observer;
+
+import java.io.FileWriter;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockState;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 
 /**
  * Save the data into a local file, appending the received input at the end of file or overwriting the file.
@@ -103,9 +99,6 @@ public class LocalFileOutput extends AdvanceBlock {
         }
         return new RunObserver();
 
-    }
-    private void register(AdvancePort port, Observer<XElement> observer) {
-        addCloseable(Reactive.observeOn(port, scheduler()).register(observer));
     }
     /** The filename. */
     private String file;

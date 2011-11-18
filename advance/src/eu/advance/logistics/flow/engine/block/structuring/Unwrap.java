@@ -20,27 +20,21 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
-import hu.akarnokd.reactive4java.reactive.Observer;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import hu.akarnokd.reactive4java.reactive.Reactive;
 
 /**
  * Extracts elements from a collection and dispatches them one-by-one.
  * Signature: Unwrap(collection<t>) -> t
  * @author szmarcell
  */
-@Block(id = "Unwrap", category = "data-transformations", scheduler = "IO", parameters = {"T"}, description = "Extracts elements from a collection and dispatches them one-by-one.")
+@Block(id = "Unwrap", category = "data-transformations", scheduler = "IO", parameters = { "T" }, description = "Extracts elements from a collection and dispatches them one-by-one.")
 public class Unwrap extends AdvanceBlock {
 
     /** The logger. */
@@ -52,27 +46,8 @@ public class Unwrap extends AdvanceBlock {
     @Output("?T")
     protected static final String OUT = "out";
     @Override
-    public Observer<Void> run() {
-        AdvancePort port = getInput(IN);
-        if (port instanceof AdvanceConstantPort) {
-            invoke(((AdvanceConstantPort) port).value);
-        } else if (port != null) {
-            addCloseable(Reactive.observeOn(port, scheduler()).register(new InvokeObserver<XElement>() {
-
-                @Override
-                public void next(XElement value) {
-                    invoke(value);
-                }
-            }));
-        }
-        return new RunObserver();
-    }
-    @Override
     protected void invoke() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-    private void invoke(XElement collection) {
-        for (XElement element : AdvanceData.getList(collection)) {
+        for (XElement element : AdvanceData.getList(get(IN))) {
             dispatch(OUT, element);
         }
     }

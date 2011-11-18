@@ -31,10 +31,10 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockState;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**

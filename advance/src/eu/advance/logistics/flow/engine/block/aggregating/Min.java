@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.util;
+package eu.advance.logistics.flow.engine.block.aggregating;
 
 import java.util.logging.Logger;
 
@@ -29,28 +29,27 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 
 /**
- * Check if the substring is within the string.
- * Signature: Contains(string, string) -> boolean
+ * Returns the smallest value in the collection along with its last occurrence.
+ * Signature: Min(collection<object>) -> (real, integer)
  * @author szmarcell
  */
-@Block(id = "Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string.")
-public class Contains extends AdvanceBlock {
+@Block(id = "Min", category = "aggregation", scheduler = "IO", description = "Returns the smallest value in the collection along with its last occurrence.")
+public class Min extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Contains .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(Min .class.getName());
     /** In. */
-    @Input("advance:string")
+    @Input("advance:real")
     protected static final String IN = "in";
-    /** Substring. */
-    @Output("advance:string")
-    protected static final String SUBSTRING = "substring";
     /** Out. */
-    @Output("advance:boolean")
-    protected static final String OUT = "boolean";
+    @Output("advance:real")
+    protected static final String OUT = "out";
+    /** The running sum. */
+    private double value = Double.MAX_VALUE;
     @Override
     protected void invoke() {
-        String in1 = getString(IN);
-        String in2 = getString(SUBSTRING);
-        dispatch(OUT, AdvanceData.create(in1.contains(in2)));
+        double val = getDouble(IN);
+        value = Math.min(val, value);
+        dispatch(OUT, AdvanceData.create(value));
     }
     
 }

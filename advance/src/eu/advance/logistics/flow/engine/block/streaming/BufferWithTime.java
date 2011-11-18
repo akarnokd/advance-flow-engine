@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
@@ -46,10 +45,6 @@ public class BufferWithTime extends AdvanceBlock {
     /** Out. */
     @Output("advance:collection<?T>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
     // TODO implement 
     @Override
     protected void invoke() {

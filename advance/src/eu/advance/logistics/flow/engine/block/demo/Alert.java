@@ -32,10 +32,10 @@ import javax.swing.SwingUtilities;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 
 /**
  * A block which displays a single frame with a single titled button.

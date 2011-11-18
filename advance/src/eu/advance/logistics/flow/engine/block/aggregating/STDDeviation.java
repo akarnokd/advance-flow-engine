@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.util;
+package eu.advance.logistics.flow.engine.block.aggregating;
 
 import java.util.logging.Logger;
 
@@ -29,28 +29,30 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 
 /**
- * Check if the substring is within the string.
- * Signature: Contains(string, string) -> boolean
+ * Computes the standard deviation of numerical elements of the supplied collection.
+ * Signature: STDDeviation(collection<object>) -> real
  * @author szmarcell
  */
-@Block(id = "Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string.")
-public class Contains extends AdvanceBlock {
+@Block(id = "___STDDeviation", category = "aggregation", scheduler = "IO", description = "Computes the standard deviation of numerical elements of the supplied collection.")
+public class STDDeviation extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Contains .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(STDDeviation .class.getName());
     /** In. */
-    @Input("advance:string")
+    @Input("advance:real")
     protected static final String IN = "in";
-    /** Substring. */
-    @Output("advance:string")
-    protected static final String SUBSTRING = "substring";
     /** Out. */
-    @Output("advance:boolean")
-    protected static final String OUT = "boolean";
+    @Output("advance:real")
+    protected static final String OUT = "out";
+    /** The running count. */
+    private int count;
+    /** The running sum. */
+    private double value;
+    // TODO implement 
     @Override
     protected void invoke() {
-        String in1 = getString(IN);
-        String in2 = getString(SUBSTRING);
-        dispatch(OUT, AdvanceData.create(in1.contains(in2)));
+        double val = getDouble(IN);
+        value = (value * count++ + val) / count;
+        dispatch(OUT, AdvanceData.create(value));
     }
     
 }

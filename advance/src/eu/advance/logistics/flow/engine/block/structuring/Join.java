@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 
 /**
@@ -33,7 +32,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: Join(t, u, schema<v>) -> v
  * @author szmarcell
  */
-@Block(id = "___Join", category = "data-transformations", scheduler = "IO", parameters = {"T", "U", "V +T,+U"}, description = "Join two objects structurally and return the new structure.")
+@Block(id = "___Join", category = "data-transformations", scheduler = "IO", parameters = { "T", "U", "V +T,+U" }, description = "Join two objects structurally and return the new structure.")
 public class Join extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Join .class.getName());

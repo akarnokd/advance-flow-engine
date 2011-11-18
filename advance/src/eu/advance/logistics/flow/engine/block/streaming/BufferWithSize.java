@@ -20,20 +20,22 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import com.google.common.collect.Lists;
 import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+
+import java.util.LinkedList;
 import java.util.logging.Logger;
+
+import com.google.common.collect.Lists;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.util.LinkedList;
 
 /**
  * Buffers the incoming values into a collection with a maximum size and forwards this collection once fully filled.
@@ -56,9 +58,13 @@ public class BufferWithSize extends AdvanceBlock {
     /** Out. */
     @Output("advance:collection<?T>")
     protected static final String OUT = "out";
+    /** The elements. */
     private LinkedList<XElement> elements = Lists.newLinkedList();
+    /** The maximum size. */
     private int maxSize = 0;
+    /** The actual size. */
     private int actualSize = 0;
+    /** Should be eager? */
     private boolean eager = false;
     @Override
     public Observer<Void> run() {
@@ -108,6 +114,10 @@ public class BufferWithSize extends AdvanceBlock {
         return new RunObserver();
     }
     
+    /**
+     * Invoke the computation.
+     * @param element the element value
+     */
     private void invoke(XElement element) {
         if (actualSize == maxSize) {
             elements.poll();

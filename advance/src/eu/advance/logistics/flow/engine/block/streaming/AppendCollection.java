@@ -20,22 +20,22 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import java.util.List;
 
 /**
  * Returns a new collection with the given value appended to its end.
  * Signature: AppendCollection(collection<t>, t) -> collection<t>
  * @author szmarcell
  */
-@Block(id = "AppendCollection", category = "streaming", scheduler = "IO", parameters = {"T"}, description = "Returns a new collection with the given value appended to its end")
+@Block(id = "AppendCollection", category = "streaming", scheduler = "IO", parameters = { "T" }, description = "Returns a new collection with the given value appended to its end")
 public class AppendCollection extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(AppendCollection .class.getName());

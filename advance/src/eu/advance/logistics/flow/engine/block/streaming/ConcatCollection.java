@@ -20,28 +20,26 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.SortedMaps;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.TreeMap;
 import java.util.logging.Logger;
+
+import com.google.common.collect.Lists;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeMap;
 
 /**
  * Concatenate two collections.
  * Signature: ConcatCollection(collection<t>, collection<t>) -> collection<t>
  * @author szmarcell
  */
-@Block(id = "ConcatCollection", category = "streaming", scheduler = "IO", parameters = {"T"}, description = "Concatenate two collections.")
+@Block(id = "ConcatCollection", category = "streaming", scheduler = "IO", parameters = { "T" }, description = "Concatenate two collections.")
 public class ConcatCollection extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(ConcatCollection .class.getName());

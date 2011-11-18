@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.block.demo;
 
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
