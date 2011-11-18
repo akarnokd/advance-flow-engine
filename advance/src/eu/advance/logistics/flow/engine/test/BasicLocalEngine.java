@@ -51,6 +51,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
@@ -205,6 +206,7 @@ public final class BasicLocalEngine {
 		compilerSettings.schedulers = Maps.newHashMap();
 		// without plugins
 		compilerSettings.pluginManager = new AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext>("");
+		compilerSettings.resolver = new AdvanceData();
 		AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
 				new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 
