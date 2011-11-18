@@ -2,7 +2,9 @@
 <!-- edited with XMLSpy v2010 rel. 3 (http://www.altova.com) by MESMERiZE (MSM) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:element name="wrapper" type="wrapper">
-		<xs:annotation><xs:documentation>A generic wrapper for a type T.</xs:documentation></xs:annotation>
+		<xs:annotation>
+			<xs:documentation>A generic wrapper for a type T.</xs:documentation>
+		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="wrapper">
 		<xs:annotation>
@@ -10,7 +12,7 @@
 				<xs:documentation>Defines a generic base-type to wrap objects into standard collections, e.g., Wrapper[T]. It contains
 				attributes to preserve the original elements name and namespace which is inevitable overridden by the container.</xs:documentation>
 				<advance-type-info>
-					<type type-variable="T"/>
+					<type-variable name="T"/>
 				</advance-type-info>
 			</xs:appinfo>
 		</xs:annotation>
