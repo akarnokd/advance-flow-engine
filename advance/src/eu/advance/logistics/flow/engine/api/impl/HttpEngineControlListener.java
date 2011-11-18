@@ -39,10 +39,10 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * The listener for Engine control messages coming through the HTTP XML interface.
@@ -166,9 +166,9 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		} else
 		if ("debug-block".equals(function)) {
 			final String realm = request.get("realm");
-			return AdvanceXMLExchange.multiple(Reactive.select(ctrl.debugBlock(request.get("realm"), request.get("block-id")), new Func1<AdvanceBlockDiagnostic, XElement>() {
+			return AdvanceXMLExchange.multiple(Reactive.select(ctrl.debugBlock(request.get("realm"), request.get("block-id")), new Func1<BlockDiagnostic, XElement>() {
 				@Override
-				public XElement invoke(AdvanceBlockDiagnostic param1) {
+				public XElement invoke(BlockDiagnostic param1) {
 					param1.realm = realm;
 					return XSerializables.storeItem("block-diagnostic", param1);
 				}
@@ -176,9 +176,9 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		} else
 		if ("debug-parameter".equals(function)) {
 			final String realm = request.get("realm");
-			return AdvanceXMLExchange.multiple(Reactive.select(ctrl.debugParameter(request.get("realm"), request.get("block-id"), request.get("port")), new Func1<AdvanceParameterDiagnostic, XElement>() {
+			return AdvanceXMLExchange.multiple(Reactive.select(ctrl.debugParameter(request.get("realm"), request.get("block-id"), request.get("port")), new Func1<PortDiagnostic, XElement>() {
 				@Override
-				public XElement invoke(AdvanceParameterDiagnostic param1) {
+				public XElement invoke(PortDiagnostic param1) {
 					param1.realm = realm;
 					return XSerializables.storeItem("parameter-diagnostic", param1);
 				}

@@ -33,11 +33,12 @@ import com.google.common.collect.Sets;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.ConstantPort;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *.
@@ -80,14 +81,14 @@ public class HubManager extends AdvanceBlock {
     }
     @Override
     public Observer<Void> run() {
-    	AdvancePort cll = getInput(CRITICAL_LOAD_LIMIT);
-    	if (cll instanceof AdvanceConstantPort) {
-    		criticalLoadLimit.set(AdvanceData.getInt(((AdvanceConstantPort)cll).value));
+    	Port<XElement, AdvanceType> cll = getInput(CRITICAL_LOAD_LIMIT);
+    	if (cll instanceof ConstantPort) {
+    		criticalLoadLimit.set(resolver().getInt(((ConstantPort<XElement, AdvanceType>)cll).value));
     	} else {
     		addCloseable(Reactive.observeOn(cll, scheduler()).register(new Observer<XElement>() {
     			@Override
     			public void next(XElement value) {
-    				criticalLoadLimit.set(AdvanceData.getInt(value));    				
+    				criticalLoadLimit.set(resolver().getInt(value));    				
     			}
     			@Override
     			public void error(Throwable ex) {
@@ -134,13 +135,13 @@ public class HubManager extends AdvanceBlock {
     	DemoDatastore ds = DemoDatastore.instance();
     	int n = ds.getMaxDestinations();
     	
-    	XElement throughput = AdvanceData.create();
+    	XElement throughput = resolver().create();
    	
     	for (int i = 0; i < n; i++) {
     		int bayCount = ds.bayCount(i);
     		int delta = rnd.get().nextInt(bayCount + 1);
     		ds.removeFromBay(i, delta);
-    		throughput.add(AdvanceData.rename(AdvanceData.create(delta), "item"));
+    		throughput.add(AdvanceData.rename(resolver().create(delta), "item"));
     	}    	
     	dispatch(THROUGHPUT, throughput);
     	sendStatus(ds);
@@ -164,16 +165,16 @@ public class HubManager extends AdvanceBlock {
 	public void sendStatus(DemoDatastore ds) {
 		int cll = criticalLoadLimit.get();
     	int n = ds.getMaxDestinations();
-    	XElement bayLoads = AdvanceData.create();
+    	XElement bayLoads = resolver().create();
     	boolean alert = false;
     	for (int i = 0; i < n; i++) {
     		int bayCount = ds.bayCount(i);
     		if (bayCount >= cll) {
     			alert = true;
     		}
-    		bayLoads.add(AdvanceData.rename(AdvanceData.create(bayCount), "item"));
+    		bayLoads.add(AdvanceData.rename(resolver().create(bayCount), "item"));
     	}
     	dispatch(CURRENT_LOAD, bayLoads);
-    	dispatch(CRITICAL_LOAD_TRIGGER, AdvanceData.create(alert));
+    	dispatch(CRITICAL_LOAD_TRIGGER, resolver().create(alert));
 	}
 }

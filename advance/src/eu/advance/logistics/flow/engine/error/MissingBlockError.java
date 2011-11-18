@@ -26,7 +26,7 @@ import hu.akarnokd.reactive4java.base.Func0;
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The referenced block type cannot be found.

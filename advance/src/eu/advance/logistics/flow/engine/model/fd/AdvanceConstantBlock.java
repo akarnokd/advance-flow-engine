@@ -29,10 +29,10 @@ import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.typesystem.XType;
 import eu.advance.logistics.flow.engine.util.Strings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Represents a constant block in the flow descriptor.

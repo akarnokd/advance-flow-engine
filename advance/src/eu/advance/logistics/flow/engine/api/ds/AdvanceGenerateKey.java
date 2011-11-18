@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.util.DistinguishedName;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Request to generate a new key.

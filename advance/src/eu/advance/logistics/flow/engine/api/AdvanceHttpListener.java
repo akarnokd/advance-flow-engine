@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Base interface for the capability to dispatch an XML message and the logged-in user name.

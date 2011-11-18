@@ -35,12 +35,12 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
@@ -67,7 +67,7 @@ public interface AdvanceEngineControl {
 	 * @throws AdvanceControlException if the user is not allowed to list the blocks.
 	 */
 	@NonNull 
-	List<AdvanceBlockRegistryEntry> queryBlocks() 
+	List<BlockRegistryEntry> queryBlocks() 
 	throws IOException, AdvanceControlException;
 	/**
 	 * Return the engine version information.
@@ -269,7 +269,7 @@ public interface AdvanceEngineControl {
 	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the block is missing
 	 */
 	@NonNull 
-	Observable<AdvanceBlockDiagnostic> debugBlock(@NonNull String realm, @NonNull String blockId) throws IOException, AdvanceControlException;
+	Observable<BlockDiagnostic> debugBlock(@NonNull String realm, @NonNull String blockId) throws IOException, AdvanceControlException;
 	/**
 	 * Ask for the observable sequence of port messages of the given port/block/realm.
 	 * @param realm the realm
@@ -280,7 +280,7 @@ public interface AdvanceEngineControl {
 	 * @throws AdvanceControlException if the user is not allowed to debug in the realm or the referenced parameter is missing
 	 */
 	@NonNull 
-	Observable<AdvanceParameterDiagnostic> debugParameter(@NonNull String realm, @NonNull String blockId, @NonNull String port) throws IOException, AdvanceControlException;
+	Observable<PortDiagnostic> debugParameter(@NonNull String realm, @NonNull String blockId, @NonNull String port) throws IOException, AdvanceControlException;
 	/**
 	 * Inject a value into the given  realm/block/input port.
 	 * @param realm the realm

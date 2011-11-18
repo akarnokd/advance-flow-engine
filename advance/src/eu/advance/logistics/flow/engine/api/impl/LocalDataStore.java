@@ -82,8 +82,8 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The local realm object containing various tables.

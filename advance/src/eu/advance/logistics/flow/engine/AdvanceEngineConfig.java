@@ -57,13 +57,16 @@ import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
 import eu.advance.logistics.flow.engine.api.impl.AdvancePoolCreator;
 import eu.advance.logistics.flow.engine.api.impl.JDBCDataStore;
 import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPriority;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
+import eu.advance.logistics.flow.engine.runtime.SchedulerPriority;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The engine configuration record.
@@ -77,7 +80,7 @@ public class AdvanceEngineConfig {
 	/** The block registry. */
 	public String blockRegistry;
 	/** The block resolver. */
-	public Map<String, AdvanceBlockResolver> defaultBlocks;
+	public Map<String, AdvanceBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>> defaultBlocks;
 	/** The schema directories. */
 	public final List<String> schemas = Lists.newArrayList();
 	/** A JDBC based datastore datasource. */
@@ -91,15 +94,15 @@ public class AdvanceEngineConfig {
 	/** The local keystores. */
 	public final Map<String, AdvanceKeyStore> keystores = Maps.newHashMap();
 	/** The scheduler mappings. */
-	public final EnumMap<AdvanceSchedulerPreference, Scheduler> schedulerMap = new EnumMap<AdvanceSchedulerPreference, Scheduler>(AdvanceSchedulerPreference.class);
+	public final EnumMap<SchedulerPreference, Scheduler> schedulerMap = new EnumMap<SchedulerPreference, Scheduler>(SchedulerPreference.class);
 	/** The backing executor services to allow peaceful shutdown. */
-	public final EnumMap<AdvanceSchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<AdvanceSchedulerPreference, ExecutorService>(AdvanceSchedulerPreference.class);
+	public final EnumMap<SchedulerPreference, ExecutorService> schedulerMapExecutors = new EnumMap<SchedulerPreference, ExecutorService>(SchedulerPreference.class);
 	/** The working directory. */
 	protected String workDir;
 	/** The connection pool managers. */
 	protected AdvancePools pools;
 	/** The plugin manager. */
-	protected AdvancePluginManager pluginManager;
+	protected AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext> pluginManager;
 	/** The plugin manager closeable. */
 	protected Closeable pluginManagerCloseable;
 	/**
@@ -107,11 +110,11 @@ public class AdvanceEngineConfig {
 	 * @param blockRegistries The block registries
 	 */
 	protected void initBlockRegistry(Iterable<XElement> blockRegistries) {
-		Map<String, AdvanceBlockRegistryEntry> blocks = Maps.newHashMap();
+		Map<String, BlockRegistryEntry> blocks = Maps.newHashMap();
 		try {
 			InputStream in = getClass().getResourceAsStream("/block-registry.xml");
 			try {
-				for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
+				for (BlockRegistryEntry e : BlockRegistryEntry.parseRegistry(
 						XElement.parseXML(in))) {
 					blocks.put(e.id, e);
 				}
@@ -119,7 +122,7 @@ public class AdvanceEngineConfig {
 				in.close();
 			}
 			for (XElement br : blockRegistries) {
-				for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(
+				for (BlockRegistryEntry e : BlockRegistryEntry.parseRegistry(
 						XElement.parseXML(workDir + "/" + br.get("file")))) {
 					blocks.put(e.id, e);
 				}
@@ -129,7 +132,8 @@ public class AdvanceEngineConfig {
 		} catch (IOException ex) {
 			throw new IllegalArgumentException(ex);
 		}
-		AdvanceDefaultBlockResolver br = new AdvanceDefaultBlockResolver(blocks);
+		AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext> br = 
+				new AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>(blocks);
 		defaultBlocks = Maps.newHashMap();
 		for (String blockId : blocks.keySet()) {
 			defaultBlocks.put(blockId, br);
@@ -142,7 +146,7 @@ public class AdvanceEngineConfig {
 	 * @return the scheduler
 	 */
 	@NonNull
-	public Scheduler get(@NonNull AdvanceSchedulerPreference pref) {
+	public Scheduler get(@NonNull SchedulerPreference pref) {
 		return schedulerMap.get(pref);
 	}
 	/**
@@ -220,9 +224,9 @@ public class AdvanceEngineConfig {
 		if (xpluginDir != null) {
 			pluginDir = workDir + "/" + xpluginDir.content;
 		}
-		pluginManager = new AdvancePluginManager(pluginDir);
+		pluginManager = new AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext>(pluginDir);
 		pluginManager.run();
-		pluginManagerCloseable = get(AdvanceSchedulerPreference.IO).schedule(pluginManager, 5, 5, TimeUnit.SECONDS);
+		pluginManagerCloseable = get(SchedulerPreference.IO).schedule(pluginManager, 5, 5, TimeUnit.SECONDS);
 	}
 	/**
 	 * Terminate and close everything.
@@ -262,7 +266,7 @@ public class AdvanceEngineConfig {
 	protected void initSchedulers(Iterable<XElement> schedulerConfigs) {
 		initNowScheduler();
 		for (XElement sc : schedulerConfigs) {
-			createScheduler(AdvanceSchedulerPreference.valueOf(sc.get("type")), sc.get("concurrency"), 
+			createScheduler(SchedulerPreference.valueOf(sc.get("type")), sc.get("concurrency"), 
 					sc.get("priority"));
 		}
 	}
@@ -273,7 +277,7 @@ public class AdvanceEngineConfig {
 	 * @param priority the priority percent value (0..100) or IDLE, VERY_LOW, LOW, NORMAL, ABOVE_NORMAL, HIGH, VERY_HIGH, MAX
 	 */
 	protected void createScheduler(
-			AdvanceSchedulerPreference sp,
+			SchedulerPreference sp,
 			String concurrency, String priority) {
 		int n = Runtime.getRuntime().availableProcessors();
 		if (!"ALL_CORES".equals(concurrency)) {
@@ -281,7 +285,7 @@ public class AdvanceEngineConfig {
 		}
 		int p = Thread.NORM_PRIORITY;
 		if (priority.length() > 0 && Character.isLetter(priority.charAt(0))) {
-			AdvanceSchedulerPriority ep = AdvanceSchedulerPriority.valueOf(priority);
+			SchedulerPriority ep = SchedulerPriority.valueOf(priority);
 			p = ep.priority;
 		} else {
 			// priority in percent
@@ -319,7 +323,7 @@ public class AdvanceEngineConfig {
 	protected void initNowScheduler() {
 		// ------------------------------------------------------
 		// Create the current thread scheduler
-		schedulerMap.put(AdvanceSchedulerPreference.NOW, new Scheduler() {
+		schedulerMap.put(SchedulerPreference.NOW, new Scheduler() {
 			@Override
 			public Closeable schedule(Runnable run) {
 				run.run();
@@ -371,14 +375,17 @@ public class AdvanceEngineConfig {
 	 * Creates a compiler settings based on this configuration.
 	 * @return a compiler settings based on this configuration.
 	 */
-	public AdvanceCompilerSettings createCompilerSettings() {
-		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
+	public AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> createCompilerSettings() {
+		AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = 
+				new AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext>();
 		compilerSettings.defaultSchemas = schemas; 
 		compilerSettings.defaultBlocks = defaultBlocks; 
 		compilerSettings.schedulers = schedulerMap;
-		compilerSettings.datastore = datastore();
-		compilerSettings.pools = pools();
+		compilerSettings.context = new AdvanceRuntimeContext();
+		compilerSettings.context.datastore = datastore();
+		compilerSettings.context.pools = pools();
 		compilerSettings.pluginManager = pluginManager;
+		compilerSettings.resolver = new AdvanceData();
 		return compilerSettings;
 	}
 }

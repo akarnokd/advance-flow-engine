@@ -53,19 +53,21 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.comm.FTPPoolManager;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.comm.JMSPoolManager;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockPort;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.Block;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.ReactivePort;
 import eu.advance.logistics.flow.engine.util.KeystoreFault;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A synchronized local flow engine control object storing data in local XML file.
@@ -80,13 +82,13 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	/** The set of schema locations. */
 	protected final List<String> schemas;
 	/** The flow compiler. */
-	protected final AdvanceFlowCompiler compiler;
+	protected final AdvanceFlowCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler;
 	/** The flow executor. */
 	protected final AdvanceFlowExecutor executor;
 	/**
 	 * The realm runtimes.
 	 */
-	protected final Map<String, List<AdvanceBlock>> realmRuntime = Maps.newConcurrentMap();
+	protected final Map<String, List<Block<XElement, AdvanceType, AdvanceRuntimeContext>>> realmRuntime = Maps.newConcurrentMap();
 	/**
 	 * The output of the realm verification.
 	 */
@@ -104,7 +106,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public LocalEngineControl(
 			AdvanceDataStore datastore, 
 			Iterable<String> schemas, 
-			AdvanceFlowCompiler compiler,
+			AdvanceFlowCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler,
 			AdvanceFlowExecutor executor,
 			String workDir) {
 		this.datastore = datastore;
@@ -118,7 +120,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		throw new AdvanceControlException("The getUser() does not work at this level.");
 	}
 	@Override
-	public List<AdvanceBlockRegistryEntry> queryBlocks()
+	public List<BlockRegistryEntry> queryBlocks()
 			throws IOException, AdvanceControlException {
 		return compiler.blocks();
 	}
@@ -361,12 +363,12 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		}
 	}
 	@Override
-	public Observable<AdvanceBlockDiagnostic> debugBlock(
+	public Observable<BlockDiagnostic> debugBlock(
 			String realm, String blockId)
 			throws IOException, AdvanceControlException {
-		List<AdvanceBlock> blocks = realmRuntime.get(realm);
+		List<Block<XElement, AdvanceType, AdvanceRuntimeContext>> blocks = realmRuntime.get(realm);
 		if (blocks != null) {
-			for (AdvanceBlock b : blocks) {
+			for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : blocks) {
 				if (b.id().equals(blockId)) {
 					return b.getDiagnosticPort();
 				}
@@ -376,22 +378,22 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		throw new AdvanceControlException("Missing realm " + realm);
 	}
 	@Override
-	public Observable<AdvanceParameterDiagnostic> debugParameter(
+	public Observable<PortDiagnostic> debugParameter(
 			String realm, String blockId,
 			String port) throws IOException,
 			AdvanceControlException {
-		List<AdvanceBlock> blocks = realmRuntime.get(realm);
+		List<Block<XElement, AdvanceType, AdvanceRuntimeContext>> blocks = realmRuntime.get(realm);
 		if (blocks != null) {
-			for (AdvanceBlock b : blocks) {
+			for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : blocks) {
 				if (b.id().equals(blockId)) {
-					for (AdvancePort p : b.inputs()) {
-						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
-							return ((AdvanceBlockPort)p).getDiagnosticPort();
+					for (Port<?, ?> p : b.inputs()) {
+						if (p instanceof ReactivePort && p.name().equals(port)) {
+							return ((ReactivePort<?, ?>)p).getDiagnosticPort();
 						}
 					}
-					for (AdvancePort p : b.outputs()) {
-						if (p instanceof AdvanceBlockPort && p.name().equals(port)) {
-							return ((AdvanceBlockPort)p).getDiagnosticPort();
+					for (Port<?, ?> p : b.outputs()) {
+						if (p instanceof ReactivePort && p.name().equals(port)) {
+							return ((ReactivePort<?, ?>)p).getDiagnosticPort();
 						}
 					}
 					throw new AdvanceControlException("Missing port " + port + " on block " + blockId + " in realm " + realm);
@@ -448,16 +450,16 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		if (r.status != AdvanceRealmStatus.RUNNING) {
 			throw new AdvanceControlException("Realm " + realm + " is not running");
 		}
-		List<AdvanceBlock> blocks = realmRuntime.get(realm);
+		List<Block<XElement, AdvanceType, AdvanceRuntimeContext>> blocks = realmRuntime.get(realm);
 		if (blocks == null) {
 			throw new AdvanceControlException("Realm " + realm + " is not compiled");
 		}
-		for (AdvanceBlock b : blocks) {
+		for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : blocks) {
 			if (b.id().equals(blockId)) {
-				for (AdvancePort p : b.inputs()) {
+				for (Port<XElement, AdvanceType> p : b.inputs()) {
 					if (p.name().equals(port)) {
-						if (p instanceof AdvanceBlockPort) {
-							AdvanceBlockPort bp = (AdvanceBlockPort) p;
+						if (p instanceof ReactivePort) {
+							ReactivePort<XElement, AdvanceType> bp = (ReactivePort<XElement, AdvanceType>) p;
 							bp.next(value);
 							return;
 						} else {
@@ -578,10 +580,10 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			realmVerifications.put(r.name, verify);
 			if (verify.success()) {
 				LOG.debug("Compiling flow");
-				List<AdvanceBlock> blocks = compiler.compile(flow);
+				List<Block<XElement, AdvanceType, AdvanceRuntimeContext>> blocks = compiler.compile(r.name, flow);
 				realmRuntime.put(r.name, blocks);
 				LOG.debug("Restoring block state");
-				for (AdvanceBlock b : blocks) {
+				for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : blocks) {
 					XElement state = datastore.queryBlockState(r.name, b.id());
 					if (state != null) {
 						b.restoreState(state);
@@ -630,10 +632,10 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		r.modifiedAt = new Date();
 		datastore.updateRealm(r);
 		try {
-			List<AdvanceBlock> blocks = realmRuntime.remove(r.name);
+			List<Block<XElement, AdvanceType, AdvanceRuntimeContext>> blocks = realmRuntime.remove(r.name);
 			if (blocks != null) {
 				executor.done(blocks);
-				for (AdvanceBlock b : blocks) {
+				for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : blocks) {
 					XElement state = b.saveState();
 					datastore.updateBlockState(r.name, b.id(), state);
 				}

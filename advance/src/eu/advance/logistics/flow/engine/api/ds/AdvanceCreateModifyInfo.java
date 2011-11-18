@@ -29,8 +29,8 @@ import java.util.Date;
 import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.util.Base64;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The creation/modification time and user information.

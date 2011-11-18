@@ -31,11 +31,11 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.ConstantPort;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Buffers the incoming values into a collection with a maximum size and forwards this collection once fully filled.
@@ -68,17 +68,17 @@ public class BufferWithSize extends AdvanceBlock {
     private boolean eager = false;
     @Override
     public Observer<Void> run() {
-        AdvancePort sizePort = inputs.get(SIZE);
-        AdvancePort eagerPort = inputs.get(EAGER);
-        AdvancePort elementPort = inputs.get(ELEMENT);
-        if (sizePort instanceof AdvanceConstantPort) {
-            maxSize = AdvanceData.getInt(((AdvanceConstantPort)sizePort).value);
+        Port<XElement, AdvanceType> sizePort = inputs.get(SIZE);
+        Port<XElement, AdvanceType> eagerPort = inputs.get(EAGER);
+        Port<XElement, AdvanceType> elementPort = inputs.get(ELEMENT);
+        if (sizePort instanceof ConstantPort) {
+            maxSize = resolver().getInt(((ConstantPort<XElement, AdvanceType>)sizePort).value);
         } else if (sizePort != null) {
             addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
 
                 @Override
                 public void next(XElement value) {
-                    int nSize = AdvanceData.getInt(value);
+                    int nSize = resolver().getInt(value);
                     if (actualSize > nSize) {
                         for (int i = 0; i < actualSize - nSize; i++) {
                             elements.poll();
@@ -89,19 +89,19 @@ public class BufferWithSize extends AdvanceBlock {
                 }
             }));
         }
-        if (eagerPort instanceof AdvanceConstantPort) {
-            eager = Boolean.parseBoolean(((AdvanceConstantPort)eagerPort).value.content);
+        if (eagerPort instanceof ConstantPort) {
+            eager = resolver().getBoolean(((ConstantPort<XElement, AdvanceType>)eagerPort).value);
         } else if (eagerPort != null) {
             addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
 
                 @Override
                 public void next(XElement value) {
-                    eager = Boolean.parseBoolean(value.content);
+                    eager = resolver().getBoolean(value);
                 }
             }));
         }
-        if (elementPort instanceof AdvanceConstantPort) {
-            invoke(((AdvanceConstantPort)elementPort).value);
+        if (elementPort instanceof ConstantPort) {
+            invoke(((ConstantPort<XElement, AdvanceType>)elementPort).value);
         } else if (eagerPort != null) {
             addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
 
@@ -126,7 +126,7 @@ public class BufferWithSize extends AdvanceBlock {
         elements.add(element);
         actualSize++;
         if (maxSize == actualSize || eager) {
-            dispatch(OUT, AdvanceData.create(elements));
+            dispatch(OUT, resolver().create(elements));
         }
     }
     

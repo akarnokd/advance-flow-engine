@@ -43,14 +43,14 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
 import eu.advance.logistics.flow.engine.util.NewThreadScheduler;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * An {@code AdvanceEngineControl} implementation which translates the API calls into XML message exchanges through
@@ -140,10 +140,10 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 		return XSerializables.parseItem(response, AdvanceUser.CREATOR);
 	}
 	@Override
-	public List<AdvanceBlockRegistryEntry> queryBlocks() throws IOException,
+	public List<BlockRegistryEntry> queryBlocks() throws IOException,
 			AdvanceControlException {
 		XElement response = comm.query(XSerializables.createRequest("query-blocks"));
-		return XSerializables.parseList(response, "block", AdvanceBlockRegistryEntry.CREATOR);
+		return XSerializables.parseList(response, "block", BlockRegistryEntry.CREATOR);
 	}
 	@Override
 	public List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException,
@@ -286,12 +286,12 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 * Consider using the {@link hu.akarnokd.reactive4java.reactive.Reactive#registerOn(Observable, hu.akarnokd.reactive4java.base.Scheduler)}</p>
 	 */
 	@Override
-	public Observable<AdvanceBlockDiagnostic> debugBlock(final String realm,
+	public Observable<BlockDiagnostic> debugBlock(final String realm,
 			final String blockId) throws IOException, AdvanceControlException {
-		return new Observable<AdvanceBlockDiagnostic>() {
+		return new Observable<BlockDiagnostic>() {
 			@Override
 			public Closeable register(final
-					Observer<? super AdvanceBlockDiagnostic> observer) {
+					Observer<? super BlockDiagnostic> observer) {
 				
 				return comm.receive(XSerializables.createRequest(
 						"debug-block", "realm", realm, "block-id", blockId), new NewThreadScheduler())
@@ -307,7 +307,7 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 					}
 					@Override
 					public void next(XElement value) {
-						observer.next(XSerializables.parseItem(value, AdvanceBlockDiagnostic.CREATOR));
+						observer.next(XSerializables.parseItem(value, BlockDiagnostic.CREATOR));
 					};
 				});
 			}
@@ -320,13 +320,13 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	 * Consider using the {@link hu.akarnokd.reactive4java.reactive.Reactive#registerOn(Observable, hu.akarnokd.reactive4java.base.Scheduler)}</p>
 	 */
 	@Override
-	public Observable<AdvanceParameterDiagnostic> debugParameter(final String realm,
+	public Observable<PortDiagnostic> debugParameter(final String realm,
 			final String blockId, final String port) throws IOException,
 			AdvanceControlException {
-		return new Observable<AdvanceParameterDiagnostic>() {
+		return new Observable<PortDiagnostic>() {
 			@Override
 			public Closeable register(final
-					Observer<? super AdvanceParameterDiagnostic> observer) {
+					Observer<? super PortDiagnostic> observer) {
 				return comm.receive(XSerializables.createRequest(
 						"debug-parameter", "realm", realm, "block-id", blockId, "port", port), new NewThreadScheduler())
 				.register(new Observer<XElement>() {
@@ -340,7 +340,7 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 					}
 					@Override
 					public void next(XElement value) {
-						observer.next(XSerializables.parseItem(value, AdvanceParameterDiagnostic.CREATOR));
+						observer.next(XSerializables.parseItem(value, PortDiagnostic.CREATOR));
 					};
 				});
 			}

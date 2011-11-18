@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.typesystem.XSchema;
+import eu.advance.logistics.flow.engine.typesystem.XType;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Class to resolve schemas and load them as XTypes from local file system.

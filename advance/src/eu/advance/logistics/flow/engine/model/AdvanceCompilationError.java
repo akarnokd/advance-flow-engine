@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.model;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * A simple base interface for reporting various compilation problems.

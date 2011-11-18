@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Record to store visualization properties of a block, constant or composite block.

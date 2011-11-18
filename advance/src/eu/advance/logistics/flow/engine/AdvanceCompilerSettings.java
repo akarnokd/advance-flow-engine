@@ -26,25 +26,27 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import java.util.List;
 import java.util.Map;
 
-import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.runtime.DataResolver;
+import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
 
 /**
+ * The compiler settings.
  * @author akarnokd, 2011.11.08.
- *
+ * @param <T> the runtime type of the dataflow
+ * @param <X> the type system type
+ * @param <C> the context object to pass into the blocks
  */
-public class AdvanceCompilerSettings {
+public class AdvanceCompilerSettings<T, X, C> {
 	/** The default schema locations. */
 	public List<String> defaultSchemas;
 	/** The default blocks. */
-	public Map<String, AdvanceBlockResolver> defaultBlocks;
+	public Map<String, AdvanceBlockResolver<T, X, C>> defaultBlocks;
 	/** The map of various schedulers. */
-	public Map<AdvanceSchedulerPreference, Scheduler> schedulers;
-	/** The unchecked datastore. */
-	public AdvanceDataStore datastore;
-	/** The connection pools manager. */
-	public AdvancePools pools;
+	public Map<SchedulerPreference, Scheduler> schedulers;
 	/** The plugin manager. */
-	public AdvancePluginManager pluginManager;
+	public AdvancePluginManager<T, X, C> pluginManager;
+	/** The context object. */
+	public C context;
+	/** The data resolver. */
+	public DataResolver<T> resolver;
 }

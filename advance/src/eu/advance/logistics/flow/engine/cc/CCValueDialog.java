@@ -70,9 +70,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XAttributeName;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement.XRepresentationRecord;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement.XAttributeName;
+import eu.advance.logistics.flow.engine.xml.XElement.XRepresentationRecord;
 
 /**
  * The value dialog.

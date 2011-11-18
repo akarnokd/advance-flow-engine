@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Computes the running count, mean, variance and standard deviation of the input values.
@@ -66,11 +65,11 @@ public class SimpleRunningStatistics extends AdvanceBlock {
         double newMean = mean + (val - mean) / count;
         s += (val - mean) * (val - newMean);
         mean = newMean;
-        dispatch(OUT_COUNT, AdvanceData.create(count));
-        dispatch(OUT_MEAN, AdvanceData.create(mean));
+        dispatch(OUT_COUNT, resolver().create(count));
+        dispatch(OUT_MEAN, resolver().create(mean));
         double variance = count > 1 ? s / (count - 1) : 0.0;
-        dispatch(OUT_VAR, AdvanceData.create(variance));
-        dispatch(OUT_DEV, AdvanceData.create(Math.sqrt(variance)));
+        dispatch(OUT_VAR, resolver().create(variance));
+        dispatch(OUT_DEV, resolver().create(Math.sqrt(variance)));
     }
     
 }

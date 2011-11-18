@@ -32,8 +32,8 @@ import com.google.common.collect.Sets;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * User settings.

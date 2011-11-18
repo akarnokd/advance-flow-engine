@@ -47,6 +47,7 @@ import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePlugin;
 import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePluginDetails;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeOutputError;
@@ -76,59 +77,59 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockPort;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceTypeFunctions;
+import eu.advance.logistics.flow.engine.runtime.Block;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.BlockSettings;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.runtime.ReactivePort;
+import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
+import eu.advance.logistics.flow.engine.typesystem.XSchema;
+import eu.advance.logistics.flow.engine.typesystem.XType;
 import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The ADVANCE block compiler which turns the the flow description into runnable advance blocks.
  * @author akarnokd, 2011.06.27.
+ * @param <T> the runtime type of the dataflow
+ * @param <X> the type system type
+ * @param <C> the runtime context
  */
-public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowExecutor {
+public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X, C>, AdvanceFlowExecutor {
 	/** The logger. */
-	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceFlowEngine.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceCompiler.class);
 	/** The cache for schema uri to types. */
 	protected Map<String, XType> schemaTypeCache = Maps.newConcurrentMap();
 	/** Thec compiler settings. */
-	protected final AdvanceCompilerSettings settings;
+	protected final AdvanceCompilerSettings<T, X, C> settings;
 	/** The predefined list of base types. */
 	protected final List<Pair<XType, URI>> baseTypes = Lists.newArrayList();
 	/** The block resolver used for the compilations. */
-	protected AdvanceBlockResolver resolver;
+	protected AdvanceBlockResolver<T, X, C> resolver;
 	/** The schema resolver used for the compilations. */
 	protected AdvanceSchemaResolver schemas;
 	/** The current list of blocks. */
-	protected List<AdvanceBlockRegistryEntry> blocks = Lists.newArrayList();
+	protected List<BlockRegistryEntry> blocks = Lists.newArrayList();
 	/**
 	 * Constructor.
 	 * @param settings the compiler settings
 	 */
-	public AdvanceCompiler(AdvanceCompilerSettings settings) {
+	public AdvanceCompiler(AdvanceCompilerSettings<T, X, C> settings) {
 		this.settings = settings;
 		AdvanceSchemaResolver res = new AdvanceDefaultSchemaResolver(
 				settings.defaultSchemas, Maps.<String, XElement>newHashMap());
-		for (URI u : AdvanceData.BASE_TYPES) {
+		for (URI u : settings.resolver.baseTypes()) {
 			baseTypes.add(Pair.of(res.resolve(u.toString()), u));
 		}
 	}
 	@Override
-	public List<AdvanceBlock> compile(AdvanceCompositeBlock flow) {
-		List<AdvanceBlock> result = Lists.newArrayList();
-		compile(flow, result);
+	public List<Block<T, X, C>> compile(String realm, AdvanceCompositeBlock flow) {
+		List<Block<T, X, C>> result = Lists.newArrayList();
+		compile(realm, flow, result);
 		return result;
 	}
 	@Override
-	public List<AdvanceBlockRegistryEntry> blocks() {
+	public List<BlockRegistryEntry> blocks() {
 		return blocks;
 	}
 	/**
@@ -138,11 +139,11 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		this.resolver = null;
 		this.schemas = null;
 		
-		final Map<String, AdvanceBlockResolver> blocks = Maps.newHashMap(settings.defaultBlocks);
+		final Map<String, AdvanceBlockResolver<T, X, C>> blocks = Maps.newHashMap(settings.defaultBlocks);
 		final Map<String, XElement> schemas = Maps.newHashMap();
 	
-		for (AdvancePluginDetails p : settings.pluginManager.plugins()) {
-			AdvancePlugin plugin = p.open();
+		for (AdvancePluginDetails<T, X, C> p : settings.pluginManager.plugins()) {
+			AdvancePlugin<T, X, C> plugin = p.open();
 
 			for (Map.Entry<String, XElement> s : plugin.schemas().entrySet()) {
 				if (schemas.containsKey(s.getKey())) {
@@ -151,7 +152,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				}
 				schemas.put(s.getKey(), s.getValue());
 			}
-			AdvanceBlockResolver br = plugin.blockResolver();
+			AdvanceBlockResolver<T, X, C> br = plugin.blockResolver();
 			for (String b : br.blocks()) {
 				if (blocks.containsKey(b)) {
 					LOG.error("Plugin " + plugin.details() + " contains a conflicting block definition: " + b);
@@ -164,15 +165,15 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		this.schemas = new AdvanceDefaultSchemaResolver(settings.defaultSchemas, schemas);
 		
 		final List<String> blockIds = Lists.newArrayList(blocks.keySet());
-		resolver = new AdvanceBlockResolver() {
+		resolver = new AdvanceBlockResolver<T, X, C>() {
 			@Override
-			public AdvanceBlock create(String id) {
-				AdvanceBlockResolver br = blocks.get(id);
+			public Block<T, X, C> create(String id) {
+				AdvanceBlockResolver<T, X, C> br = blocks.get(id);
 				return br != null ? br.create(id) : null;
 			}
 			@Override
-			public AdvanceBlockRegistryEntry lookup(String id) {
-				AdvanceBlockResolver br = blocks.get(id);
+			public BlockRegistryEntry lookup(String id) {
+				AdvanceBlockResolver<T, X, C> br = blocks.get(id);
 				return br != null ? br.lookup(id) : null;
 			}
 			@Override
@@ -189,7 +190,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 * Returns the block resolver.
 	 * @return the block resolver
 	 */
-	public AdvanceBlockResolver blockResolver() {
+	public AdvanceBlockResolver<T, X, C> blockResolver() {
 		return resolver;
 	}
 	/**
@@ -203,57 +204,52 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 * Returns the schedulers.
 	 * @return the schedulers
 	 */
-	public Map<AdvanceSchedulerPreference, Scheduler> schedulers() {
+	public Map<SchedulerPreference, Scheduler> schedulers() {
 		return settings.schedulers;
 	}
 	/**
 	 * Compile the composite block.
+	 * @param realm the realm where the flow is compiled into
 	 * @param root the flow description
 	 * @param flow the entire compiled flow model
 	 */
-	public void compile(
+	public void compile(String realm,
 			AdvanceCompositeBlock root, 
-			List<AdvanceBlock> flow
+			List<Block<T, X, C>> flow
 			) {
-		List<AdvanceBlock> currentLevelBlocks = Lists.newArrayList();
+		List<Block<T, X, C>> currentLevelBlocks = Lists.newArrayList();
 		try {
 			for (AdvanceCompositeBlock cb : root.composites.values()) {
-				compile(cb, flow);
+				compile(realm, cb, flow);
 			}
 			// current level blocks
 			for (AdvanceBlockReference br : root.blocks.values()) {
-				Map<String, AdvanceConstantBlock> consts = Maps.newHashMap();
+				Map<String, T> consts = Maps.newHashMap();
 				
-				AdvanceBlockRegistryEntry bd = blockResolver().lookup(br.type);
-				bd = new AdvanceBlockRegistryEntry(bd, bd.derive(br));
+				BlockRegistryEntry bd = blockResolver().lookup(br.type);
+				bd = new BlockRegistryEntry(bd, bd.derive(br));
 				
 				for (AdvanceBlockParameterDescription bdp : bd.inputs.values()) {
 					ConstantOrBlock cb = walkBinding(root, br.id, bdp.id);
 					if (cb != null && cb.constant != null) {
-						consts.put(bdp.id, cb.constant);
+						consts.put(bdp.id, settings.resolver.get(cb.constant.value));
 					} else
 					if (bdp.defaultValue != null) {
-						AdvanceConstantBlock constBlock = new AdvanceConstantBlock();
-						constBlock.id = "<const>" + br.id + ":" + bdp.id;
-						constBlock.type = bdp.type.type;
-						if (bdp.type != null) {
-							constBlock.typeURI = bdp.type.typeURI;
-						}
-						constBlock.value = bdp.defaultValue;
-						consts.put(bdp.id, constBlock);
+						consts.put(bdp.id, settings.resolver.get(bdp.defaultValue));
 					}
 				}
-				AdvanceBlockSettings blockSettings = new AdvanceBlockSettings();
+				BlockSettings<T, C> blockSettings = new BlockSettings<T, C>();
 				blockSettings.id = br.id;
 				blockSettings.parent = root;
 				blockSettings.schedulers = schedulers();
-				blockSettings.datastore = this.settings.datastore;
-				blockSettings.pools = this.settings.pools;
+				blockSettings.context = this.settings.context;
 				blockSettings.instance = br;
 				blockSettings.description = bd;
-				blockSettings.constantParams = consts;
+				blockSettings.constantValues = consts;
+				blockSettings.realm = realm;
+				blockSettings.resolver = settings.resolver;
 				
-				AdvanceBlock ab = blockResolver().create(br.type);
+				Block<T, X, C> ab = blockResolver().create(br.type);
 				ab.init(blockSettings);
 				
 				flow.add(ab);
@@ -261,14 +257,14 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			}
 			// bind
 			if (root.parent == null) {
-				for (AdvanceBlock ab : flow) {
-					for (AdvancePort p : ab.inputs()) {
-						if (p instanceof AdvanceBlockPort) {
+				for (Block<T, X, C> ab : flow) {
+					for (Port<T, X> p : ab.inputs()) {
+						if (p instanceof ReactivePort) {
 							ConstantOrBlock cb = walkBinding(ab.parent(), ab.id(), p.name());
 							if (cb != null) {
-								for  (AdvanceBlock ab2 : flow) {
+								for  (Block<T, X, C> ab2 : flow) {
 									if (ab2.parent() == cb.composite && ab2.id().equals(cb.block)) {
-										((AdvanceBlockPort) p).connect(ab2.getOutput(cb.param));
+										((ReactivePort<T, X>) p).connect(ab2.getOutput(cb.param));
 										break;
 									}
 								}
@@ -280,7 +276,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		} catch (RuntimeException ex) {
 			LOG.error(ex.toString(), ex);
 			// terminate blocks
-			for (AdvanceBlock b : currentLevelBlocks) {
+			for (Block<T, X, C> b : currentLevelBlocks) {
 				try {
 					b.done();
 				} catch (Throwable t) {
@@ -295,11 +291,11 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 * @param flow the list of blocks
 	 */
 	@Override
-	public void run(Iterable<? extends AdvanceBlock> flow) {
+	public void run(Iterable<? extends Block<?, ?, ?>> flow) {
 		// arm
 		try {
 			List<Observer<Void>> notifycations = Lists.newLinkedList();
-			for (AdvanceBlock ab : flow) {
+			for (Block<?, ?, ?> ab : flow) {
 				notifycations.add(ab.run());
 			}
 			// notify
@@ -308,7 +304,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			}
 		} catch (RuntimeException ex) {
 			LOG.error(ex.toString(), ex);
-			for (AdvanceBlock b : flow) {
+			for (Block<?, ?, ?> b : flow) {
 				try {
 					b.done();
 				} catch (Throwable t) {
@@ -323,8 +319,8 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 	 * @param flow the flow
 	 */
 	@Override
-	public void done(Iterable<? extends AdvanceBlock> flow) {
-		for (AdvanceBlock ab : flow) {
+	public void done(Iterable<? extends Block<?, ?, ?>> flow) {
+		for (Block<?, ?, ?> ab : flow) {
 			ab.done();
 		}
 	}
@@ -642,7 +638,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				AdvanceBlockReference b = cb.blocks.get(bb.sourceBlock);
 				input = b;
 				
-				AdvanceBlockRegistryEntry lookup = blockResolver().lookup(b.type);
+				BlockRegistryEntry lookup = blockResolver().lookup(b.type);
 				List<AdvanceCompilationError> err = verifyVarargs(lookup, b);
 				if (!err.isEmpty()) {
 					result.addError(err);
@@ -696,7 +692,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 				AdvanceBlockReference b = cb.blocks.get(bb.destinationBlock);
 				output = b;
 				
-				AdvanceBlockRegistryEntry lookup = blockResolver().lookup(b.type);
+				BlockRegistryEntry lookup = blockResolver().lookup(b.type);
 				List<AdvanceCompilationError> err = verifyVarargs(lookup, b);
 				if (!err.isEmpty()) {
 					result.addError(err);

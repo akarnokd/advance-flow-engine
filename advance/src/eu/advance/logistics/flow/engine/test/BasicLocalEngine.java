@@ -51,8 +51,10 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Creates a basic local flow engine with a constant configuration.
@@ -75,8 +77,9 @@ public final class BasicLocalEngine {
 	 */
 	public static AdvanceEngineControl create(String userName, String workDir) {
 		final AdvanceEngineConfig config = defaultConfig(workDir);
-		AdvanceCompilerSettings compilerSettings = config.createCompilerSettings();
-		AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
+		AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = config.createCompilerSettings();
+		AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
+				new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 		AdvanceDataStore datastore = config.datastore();
 		try {
 			if (datastore.queryUsers().isEmpty()) {
@@ -178,29 +181,32 @@ public final class BasicLocalEngine {
 	 * Creates a compiler with the locally available block registry and schemas.
 	 * @return the compiler
 	 */
-	public static AdvanceFlowCompiler createCompiler() {
+	public static AdvanceFlowCompiler<XElement, AdvanceType, AdvanceRuntimeContext> createCompiler() {
 		
-		Map<String, AdvanceBlockRegistryEntry> bm = Maps.newHashMap();
+		Map<String, BlockRegistryEntry> bm = Maps.newHashMap();
 		
-		for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseDefaultRegistry()) {
+		for (BlockRegistryEntry e : BlockRegistryEntry.parseDefaultRegistry()) {
 			bm.put(e.id, e);
 		}
 		
-		AdvanceDefaultBlockResolver br = new AdvanceDefaultBlockResolver(bm);
-		Map<String, AdvanceBlockResolver> brMap = Maps.newHashMap();
+		AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext> br = 
+				new AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>(bm);
+		Map<String, AdvanceBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>> brMap = Maps.newHashMap();
 		for (String s : bm.keySet()) {
 			brMap.put(s, br);
 		}
 		
-		AdvanceCompilerSettings compilerSettings = new AdvanceCompilerSettings();
+		AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = 
+				new AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext>();
 		// engine-local schemas
 		compilerSettings.defaultSchemas = Lists.newArrayList();
 		// default blocks
 		compilerSettings.defaultBlocks = brMap; 
 		compilerSettings.schedulers = Maps.newHashMap();
 		// without plugins
-		compilerSettings.pluginManager = new AdvancePluginManager("");
-		AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
+		compilerSettings.pluginManager = new AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext>("");
+		AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
+				new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 
 		return compiler;
 	}

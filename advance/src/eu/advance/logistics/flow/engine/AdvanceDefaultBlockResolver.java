@@ -33,25 +33,28 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.Block;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
  * Class that locates and creates blocks based on their name.
  * @author akarnokd, 2011.09.28.
+ * @param <T> the runtime type of the dataflow
+ * @param <X> the type system type
+ * @param <C> the runtime context
  */
-public class AdvanceDefaultBlockResolver implements AdvanceBlockResolver {
+public class AdvanceDefaultBlockResolver<T, X, C> implements AdvanceBlockResolver<T, X, C> {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceDefaultBlockResolver.class);
 	/** The block descriptions. */
-	protected final Map<String, AdvanceBlockRegistryEntry> blocks = Maps.newHashMap();
+	protected final Map<String, BlockRegistryEntry> blocks = Maps.newHashMap();
 	/** The classloader user to initialize the block instances. */
 	protected final ClassLoader classLoader;
 	/**
 	 * Constructor. Initializes the block registry.
 	 * @param blocks the map from block name to block description
 	 */
-	public AdvanceDefaultBlockResolver(Map<String, AdvanceBlockRegistryEntry> blocks) {
+	public AdvanceDefaultBlockResolver(Map<String, BlockRegistryEntry> blocks) {
 		this(blocks, Thread.currentThread().getContextClassLoader());
 	}
 	/**
@@ -59,12 +62,12 @@ public class AdvanceDefaultBlockResolver implements AdvanceBlockResolver {
 	 * @param blocks the map from block name to block description
 	 * @param classLoader the class loader used to initialize block instances
 	 */
-	public AdvanceDefaultBlockResolver(Map<String, AdvanceBlockRegistryEntry> blocks, ClassLoader classLoader) {
+	public AdvanceDefaultBlockResolver(Map<String, BlockRegistryEntry> blocks, ClassLoader classLoader) {
 		this.blocks.putAll(blocks);
 		this.classLoader = classLoader != null ? classLoader : ClassLoader.getSystemClassLoader();
 	}
 	@Override
-	public AdvanceBlockRegistryEntry lookup(@NonNull String id) {
+	public BlockRegistryEntry lookup(@NonNull String id) {
 		return blocks.get(id);
 	}
 	@Override
@@ -72,14 +75,17 @@ public class AdvanceDefaultBlockResolver implements AdvanceBlockResolver {
 		return Lists.newArrayList(blocks.keySet());
 	}
 	@Override
-	public AdvanceBlock create(@NonNull String id) {
+	public Block<T, X, C> create(@NonNull String id) {
 		try {
-			AdvanceBlockRegistryEntry e = blocks.get(id);
+			BlockRegistryEntry e = blocks.get(id);
 			Class<?> clazz = Class.forName(e.clazz, true, classLoader);
-			if (AdvanceBlock.class.isAssignableFrom(clazz)) {
+			if (Block.class.isAssignableFrom(clazz)) {
 				try {
 					Constructor<?> c = clazz.getConstructor();
-					return AdvanceBlock.class.cast(c.newInstance());
+					// FIXME is ther any way to actually check the type parameters of the resolved blocks?
+					@SuppressWarnings("unchecked")
+					Block<T, X, C> b = Block.class.cast(c.newInstance()); 
+					return b;
 				} catch (NoSuchMethodException ex) {
 					LOG.error("Missing default constructor.", ex);
 				} catch (SecurityException ex) {

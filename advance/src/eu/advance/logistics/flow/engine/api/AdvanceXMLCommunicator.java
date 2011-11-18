@@ -26,7 +26,7 @@ import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.IOException;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Base interface for classes that communicate via XML based messages.

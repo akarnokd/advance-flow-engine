@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Parse a real from the received string.
@@ -45,7 +44,7 @@ public class ParseReal extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-        dispatch(OUT, AdvanceData.create(getDouble(IN)));
+        dispatch(OUT, resolver().create(getDouble(IN)));
     }
     
 }

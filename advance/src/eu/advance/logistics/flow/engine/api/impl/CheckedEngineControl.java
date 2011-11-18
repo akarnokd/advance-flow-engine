@@ -38,12 +38,12 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Wraps the given engine control object and for each call, it checks
@@ -111,7 +111,7 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public List<AdvanceBlockRegistryEntry> queryBlocks() throws IOException,
+	public List<BlockRegistryEntry> queryBlocks() throws IOException,
 			AdvanceControlException {
 		check(AdvanceUserRights.LIST_BLOCKS);
 		return control.queryBlocks();
@@ -274,14 +274,14 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public Observable<AdvanceBlockDiagnostic> debugBlock(String realm,
+	public Observable<BlockDiagnostic> debugBlock(String realm,
 			String blockId) throws IOException, AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.DEBUG);
 		return control.debugBlock(realm, blockId);
 	}
 
 	@Override
-	public Observable<AdvanceParameterDiagnostic> debugParameter(String realm,
+	public Observable<PortDiagnostic> debugParameter(String realm,
 			String blockId, String port) throws IOException,
 			AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.DEBUG);

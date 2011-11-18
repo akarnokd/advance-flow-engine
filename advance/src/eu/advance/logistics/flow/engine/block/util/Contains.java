@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Check if the substring is within the string.
@@ -50,7 +49,7 @@ public class Contains extends AdvanceBlock {
     protected void invoke() {
         String in1 = getString(IN);
         String in2 = getString(SUBSTRING);
-        dispatch(OUT, AdvanceData.create(in1.contains(in2)));
+        dispatch(OUT, resolver().create(in1.contains(in2)));
     }
     
 }

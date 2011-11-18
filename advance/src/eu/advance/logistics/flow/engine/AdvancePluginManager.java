@@ -21,9 +21,6 @@
 
 package eu.advance.logistics.flow.engine;
 
-import hu.akarnokd.reactive4java.reactive.DefaultObservable;
-import hu.akarnokd.reactive4java.reactive.Observable;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,31 +50,30 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 
 /**
  * The ADVANCE plugin manager to load and watch plugins from a plugin directory.
  * <p>A plugin is a JAR file with a {@code block-registry.xml} found in its root directory.</p>
  * @author akarnokd, 2011.11.17.
+ * @param <T> the runtime type of the dataflow
+ * @param <X> the type system type
+ * @param <C> the runtime context
  */
-public class AdvancePluginManager implements Runnable {
+public class AdvancePluginManager<T, X, C> implements Runnable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvancePluginManager.class);
 	/** The plugin directory. */
 	protected final String directory;
-	/**
-	 * The observable to notify listeners if a plugin changed.
-	 */
-	protected final DefaultObservable<PluginChangeEvent> pluginChanged = new DefaultObservable<PluginChangeEvent>();
 	/** The list of known plugins. */
-	protected final List<AdvancePluginDetails> plugins = Lists.newArrayList();
+	protected final List<AdvancePluginDetails<T, X, C>> plugins = Lists.newArrayList();
 	/**
 	 * Contains information about a plugin. 
 	 * @author akarnokd, 2011.11.17.
 	 */
-	public class AdvancePluginDetails {
+	public static class AdvancePluginDetails<T, X, C> {
 		/** The filename. */
 		public final String filename;
 		/** The last known size. */
@@ -85,14 +81,18 @@ public class AdvancePluginManager implements Runnable {
 		/** The last modification time. */
 		public final long modified;
 		/** The plugin object. */
-		private AdvancePlugin plugin;
+		private AdvancePlugin<T, X, C> plugin;
+		/** The plugin's base directory. */
+		private final String directory;
 		/**
 		 * Constructor. Initializes the fields.
+		 * @param directory the base directory
 		 * @param filename the plugin filename (within the work directory)
 		 * @param size the file size
 		 * @param modified the last modification date
 		 */
-		public AdvancePluginDetails(String filename, long size, long modified) {
+		public AdvancePluginDetails(String directory, String filename, long size, long modified) {
+			this.directory = directory;
 			this.filename = filename;
 			this.size = size;
 			this.modified = modified;
@@ -107,7 +107,7 @@ public class AdvancePluginManager implements Runnable {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof AdvancePluginDetails) {
-				AdvancePluginDetails pd = (AdvancePluginDetails) obj;
+				AdvancePluginDetails<?, ?, ?> pd = (AdvancePluginDetails<?, ?, ?>) obj;
 				return pd.filename.equals(filename);
 				
 			}
@@ -125,9 +125,9 @@ public class AdvancePluginManager implements Runnable {
 		 * Open and load this plugin.
 		 * @return the plugin
 		 */
-		public synchronized AdvancePlugin open() {
+		public synchronized AdvancePlugin<T, X, C> open() {
 			if (plugin == null) {
-				final Map<String, AdvanceBlockRegistryEntry> blocks = Maps.newHashMap();
+				final Map<String, BlockRegistryEntry> blocks = Maps.newHashMap();
 				final Map<String, XElement> schemas = Maps.newHashMap();
 				try {
 					final URLClassLoader c = createClassLoader(getFile().toURI().toURL());
@@ -143,14 +143,15 @@ public class AdvancePluginManager implements Runnable {
 							LOG.error(ex.toString(), ex);
 						}
 					}
-					final AdvanceDefaultBlockResolver br = new AdvanceDefaultBlockResolver(blocks, c);
-					plugin = new AdvancePlugin() {
+					final AdvanceDefaultBlockResolver<T, X, C> br = 
+							new AdvanceDefaultBlockResolver<T, X, C>(blocks, c);
+					plugin = new AdvancePlugin<T, X, C>() {
 						@Override
-						public AdvancePluginDetails details() {
+						public AdvancePluginDetails<T, X, C> details() {
 							return AdvancePluginDetails.this;
 						}
 						@Override
-						public AdvanceDefaultBlockResolver blockResolver() {
+						public AdvanceBlockResolver<T, X, C> blockResolver() {
 							return br;
 						}
 						@Override
@@ -169,17 +170,17 @@ public class AdvancePluginManager implements Runnable {
 	 * The Advance Plugin service provider interface.
 	 * @author akarnokd, 2011.11.17.
 	 */
-	public interface AdvancePlugin {
+	public interface AdvancePlugin<T, X, C> {
 		/**
 		 * Returns the associated plugin details. 
 		 * @return The associated plugin details. 
 		 */
-		AdvancePluginDetails details();
+		AdvancePluginDetails<T, X, C> details();
 		/**
 		 * Returns a block resolver for this plugin.
 		 * @return the block resolver
 		 */
-		AdvanceBlockResolver blockResolver();
+		AdvanceBlockResolver<T, X, C> blockResolver();
 		/**
 		 * The map of schemas supported by this plugin.
 		 * @return the schema map 
@@ -199,27 +200,6 @@ public class AdvancePluginManager implements Runnable {
 		REMOVED
 	}
 	/**
-	 * The plugin change event.
-	 * @author akarnokd, 2011.11.17.
-	 */
-	public static class PluginChangeEvent {
-		/** The change type. */
-		public final PluginChangeEventType type;
-		/** The plugin affected. */
-		public final AdvancePluginDetails plugin;
-		/**
-		 * Constructor. Initializes the fields
-		 * @param type the event type
-		 * @param plugin the affected plugin
-		 */
-		public PluginChangeEvent(PluginChangeEventType type,
-				AdvancePluginDetails plugin) {
-			this.type = type;
-			this.plugin = plugin;
-		}
-		
-	}
-	/**
 	 * Constructor.
 	 * @param directory the plugin directory
 	 */
@@ -229,20 +209,13 @@ public class AdvancePluginManager implements Runnable {
 	
 	@Override
 	public void run() {
-		List<AdvancePluginDetails> current = scanForPlugins();
-		List<AdvancePluginDetails> old = plugins();
-		List<AdvancePluginDetails> next = merge(old, current);
+		List<AdvancePluginDetails<T, X, C>> current = scanForPlugins();
+		List<AdvancePluginDetails<T, X, C>> old = plugins();
+		List<AdvancePluginDetails<T, X, C>> next = merge(old, current);
 		synchronized (plugins) {
 			plugins.clear();
 			plugins.addAll(next);
 		}
-	}
-	/**
-	 * The observable for plugin change events.
-	 * @return the observable for plugin change events.
-	 */
-	public Observable<PluginChangeEvent> pluginChangeEvents() {
-		return pluginChanged;
 	}
 	/**
 	 * Compare the state of the old and new plugins and send out
@@ -251,12 +224,14 @@ public class AdvancePluginManager implements Runnable {
 	 * @param newer the newer list of plugins
 	 * @return true if any plugin changed
 	 */
-	protected List<AdvancePluginDetails> merge(List<AdvancePluginDetails> old, List<AdvancePluginDetails> newer) {
-		Set<AdvancePluginDetails> oldSet = Sets.newHashSet(old);
-		List<AdvancePluginDetails> result = Lists.newArrayList();
+	protected List<AdvancePluginDetails<T, X, C>> merge(
+			List<AdvancePluginDetails<T, X, C>> old, 
+			List<AdvancePluginDetails<T, X, C>> newer) {
+		Set<AdvancePluginDetails<T, X, C>> oldSet = Sets.newHashSet(old);
+		List<AdvancePluginDetails<T, X, C>> result = Lists.newArrayList();
 		outer:
-		for (AdvancePluginDetails pold : old) {
-			for (AdvancePluginDetails pnew : newer) {
+		for (AdvancePluginDetails<T, X, C> pold : old) {
+			for (AdvancePluginDetails<T, X, C> pnew : newer) {
 				if (pold.filename.equals(pnew.filename)) {
 					if (pold.modified != pnew.modified || pold.size != pnew.size) {
 						result.add(pnew);
@@ -266,9 +241,8 @@ public class AdvancePluginManager implements Runnable {
 					continue outer;
  				}
 			}
-			notify(PluginChangeEventType.REMOVED, pold);
 		}
-		for (AdvancePluginDetails pnew : newer) {
+		for (AdvancePluginDetails<T, X, C> pnew : newer) {
 			if (!oldSet.contains(pnew)) {
 				result.add(pnew);
 			}
@@ -276,21 +250,13 @@ public class AdvancePluginManager implements Runnable {
 		return result;
 	}
 	/**
-	 * Send out the notification.
-	 * @param type the notification type
-	 * @param plugin the affected plugin
-	 */
-	protected void notify(PluginChangeEventType type, AdvancePluginDetails plugin) {
-		pluginChanged.next(new PluginChangeEvent(type, plugin));
-	}
-	/**
 	 * Scan the plugin directory for plugins.
 	 * @return the list of plugins
 	 */
-	protected List<AdvancePluginDetails> scanForPlugins() {
+	protected List<AdvancePluginDetails<T, X, C>> scanForPlugins() {
 		File dir = new File(directory);
 		File[] entries = dir.listFiles();
-		List<AdvancePluginDetails> result = Lists.newArrayList();
+		List<AdvancePluginDetails<T, X, C>> result = Lists.newArrayList();
 		if (entries != null) {
 			for (File f : entries) {
 				if (f.getName().toLowerCase().endsWith(".jar")) {
@@ -298,8 +264,8 @@ public class AdvancePluginManager implements Runnable {
 						JarFile jf = new JarFile(f);
 						try {
 							if (jf.getEntry("block-registry.xml") != null) {
-								AdvancePluginDetails d = new AdvancePluginDetails(
-										f.getName(), f.length(), f.lastModified());
+								AdvancePluginDetails<T, X, C> d = new AdvancePluginDetails<T, X, C>(
+										directory, f.getName(), f.length(), f.lastModified());
 								result.add(d);
 							}
 						} finally {
@@ -386,13 +352,13 @@ public class AdvancePluginManager implements Runnable {
 	 * @throws IOException if the registry could't be loaded
 	 * @throws XMLStreamException if the registry couldn't be parsed
 	 */
-	public static Map<String, AdvanceBlockRegistryEntry> getBlockRegistry(URL u) 
+	public static Map<String, BlockRegistryEntry> getBlockRegistry(URL u) 
 			throws IOException, XMLStreamException {
 		URL registryFile = new URL(u, "block-registry.xml");
 		InputStream in = registryFile.openStream();
 		try {
-			Map<String, AdvanceBlockRegistryEntry> result = Maps.newHashMap();
-			for (AdvanceBlockRegistryEntry e : AdvanceBlockRegistryEntry.parseRegistry(XElement.parseXML(in))) {
+			Map<String, BlockRegistryEntry> result = Maps.newHashMap();
+			for (BlockRegistryEntry e : BlockRegistryEntry.parseRegistry(XElement.parseXML(in))) {
 				result.put(e.id, e);
 			}
 			return result;
@@ -470,25 +436,9 @@ public class AdvancePluginManager implements Runnable {
 	 * Returns a list of detected plugins.
 	 * @return the list of the current plugins
 	 */
-	public List<AdvancePluginDetails> plugins() {
+	public List<AdvancePluginDetails<T, X, C>> plugins() {
 		synchronized (plugins) {
 			return Lists.newArrayList(plugins);
-		}
-	}
-	/**
-	 * Test program.
-	 * @param args no arguments
-	 * @throws Exception ignored
-	 */
-	public static void main(String[] args) throws Exception {
-		AdvancePluginManager m = new AdvancePluginManager("plugins");
-		m.run();
-		List<AdvancePluginDetails> plugins2 = m.plugins();
-		for (AdvancePluginDetails p : plugins2) {
-			System.out.println(p);
-			AdvancePlugin plugin = p.open();
-			System.out.printf("  Registry: %s%n", plugin.blockResolver().blocks().size());
-			System.out.printf("  Schemas : %s%n", plugin.schemas().size());
 		}
 	}
 }

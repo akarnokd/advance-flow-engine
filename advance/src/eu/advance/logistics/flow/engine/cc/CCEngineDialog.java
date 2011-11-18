@@ -82,10 +82,10 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDrivers;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPriority;
+import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
+import eu.advance.logistics.flow.engine.runtime.SchedulerPriority;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Create or manage existing properties of a local flow engine.
@@ -1223,7 +1223,7 @@ public class CCEngineDialog extends JFrame {
 		/** */
 		private static final long serialVersionUID = -8563147471843994750L;
 		/** The preference type. */
-		protected final AdvanceSchedulerPreference preference;
+		protected final SchedulerPreference preference;
 		/** All cores. */
 		protected JRadioButton allCores;
 		/** Fixed number of cores. */
@@ -1242,7 +1242,7 @@ public class CCEngineDialog extends JFrame {
 		 * Create the panel.
 		 * @param preference the preference.
 		 */
-		public SchedulerPanel(AdvanceSchedulerPreference preference) {
+		public SchedulerPanel(SchedulerPreference preference) {
 			this.preference = preference;
 			GroupLayout gl = createLayout(this);
 			
@@ -1253,8 +1253,8 @@ public class CCEngineDialog extends JFrame {
 			bg.add(numCores);
 			
 			number = new JFormattedTextField(1);
-			priority = new JComboBox(AdvanceSchedulerPriority.values());
-			priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+			priority = new JComboBox(SchedulerPriority.values());
+			priority.setSelectedItem(SchedulerPriority.NORMAL);
 			priorityMode = new JRadioButton(labels.get("Priority level:"));
 			priorityPercent = new JRadioButton(labels.get("Priority:"));
 			priorityNumber = new JFormattedTextField(50);
@@ -1313,16 +1313,16 @@ public class CCEngineDialog extends JFrame {
 		
 		GroupLayout gl = createLayout(p);
 		
-		cpuScheduler = new SchedulerPanel(AdvanceSchedulerPreference.CPU);
+		cpuScheduler = new SchedulerPanel(SchedulerPreference.CPU);
 		cpuScheduler.allCores.setSelected(true);
 		cpuScheduler.setBorder(BorderFactory.createTitledBorder(labels.get("CPU scheduler")));
 		
-		ioScheduler = new SchedulerPanel(AdvanceSchedulerPreference.IO);
+		ioScheduler = new SchedulerPanel(SchedulerPreference.IO);
 		ioScheduler.number.setValue(32);
 		ioScheduler.numCores.setSelected(true);
 		ioScheduler.setBorder(BorderFactory.createTitledBorder(labels.get("I/O scheduler")));
 		
-		sequentialScheduler = new SchedulerPanel(AdvanceSchedulerPreference.SEQUENTIAL);
+		sequentialScheduler = new SchedulerPanel(SchedulerPreference.SEQUENTIAL);
 		sequentialScheduler.setBorder(BorderFactory.createTitledBorder(labels.get("Sequential scheduler")));
 		sequentialScheduler.allCores.setEnabled(false);
 		sequentialScheduler.numCores.setSelected(true);
@@ -1349,16 +1349,16 @@ public class CCEngineDialog extends JFrame {
 		cpuScheduler.allCores.setSelected(true);
 		cpuScheduler.number.setValue(null);
 		cpuScheduler.priorityMode.setSelected(true);
-		cpuScheduler.priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+		cpuScheduler.priority.setSelectedItem(SchedulerPriority.NORMAL);
 		cpuScheduler.priorityNumber.setValue(50);
 		
 		ioScheduler.numCores.setSelected(true);
 		ioScheduler.number.setValue(32);
 		ioScheduler.priorityMode.setSelected(true);
-		ioScheduler.priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+		ioScheduler.priority.setSelectedItem(SchedulerPriority.NORMAL);
 		ioScheduler.priorityNumber.setValue(50);
 
-		sequentialScheduler.priority.setSelectedItem(AdvanceSchedulerPriority.NORMAL);
+		sequentialScheduler.priority.setSelectedItem(SchedulerPriority.NORMAL);
 		sequentialScheduler.priorityNumber.setValue(50);
 	}
 	/**
@@ -1451,7 +1451,7 @@ public class CCEngineDialog extends JFrame {
 		}
 		
 		for (XElement xscheduler : config.childrenWithName("scheduler")) {
-			AdvanceSchedulerPreference type = AdvanceSchedulerPreference.valueOf(xscheduler.get("type"));
+			SchedulerPreference type = SchedulerPreference.valueOf(xscheduler.get("type"));
 			switch (type) {
 			case CPU:
 				initScheduler(cpuScheduler, xscheduler);
@@ -1487,7 +1487,7 @@ public class CCEngineDialog extends JFrame {
 		}
 		int p = Thread.NORM_PRIORITY;
 		if (priority.length() > 0 && Character.isLetter(priority.charAt(0))) {
-			AdvanceSchedulerPriority pi = AdvanceSchedulerPriority.valueOf(priority);
+			SchedulerPriority pi = SchedulerPriority.valueOf(priority);
 			panel.priority.setSelectedItem(pi);
 			panel.priorityNumber.setValue(pi.priority * 10);
 			panel.priorityMode.setSelected(true);

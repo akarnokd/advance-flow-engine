@@ -83,13 +83,13 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
 import eu.advance.logistics.flow.engine.util.CachedThreadPoolScheduler;
 import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * Debug flow dialog.
@@ -137,7 +137,7 @@ public class CCDebugDialog extends JFrame {
 	/** The rows. */
 	final List<CCDebugRow> rows = Lists.newArrayList();
 	/** The block types. */
-	final Map<String, AdvanceBlockRegistryEntry> blockTypes = Maps.newHashMap();
+	final Map<String, BlockRegistryEntry> blockTypes = Maps.newHashMap();
 	/** The action menu. */
 	private JPopupMenu actionMenu;
 	/** List of active watchers. */
@@ -195,7 +195,7 @@ public class CCDebugDialog extends JFrame {
 				String block = (String)blocks.getSelectedItem();
 				if (block != null && !block.isEmpty() && blocks.getSelectedIndex() >= 0) {
 					AdvanceBlockReference r = blockRefs.get(blocks.getSelectedIndex());
-					AdvanceBlockRegistryEntry re = blockTypes.get(r.type);
+					BlockRegistryEntry re = blockTypes.get(r.type);
 					if (re != null) {
 						DefaultComboBoxModel pm = new DefaultComboBoxModel();
 						portList.clear();
@@ -443,7 +443,7 @@ public class CCDebugDialog extends JFrame {
 		r.watch.blockType = "Merge";
 		r.watch.port = "in";
 		r.timestamp = new Date();
-		r.value = Option.some(XSerializables.storeList("block-registry", "block", AdvanceBlockRegistryEntry.parseDefaultRegistry()));
+		r.value = Option.some(XSerializables.storeList("block-registry", "block", BlockRegistryEntry.parseDefaultRegistry()));
 		rows.add(r);
 		
 		r = new CCDebugRow();
@@ -553,10 +553,10 @@ public class CCDebugDialog extends JFrame {
 			ws.realm = realm;
 			ws.block = block.id;
 			ws.blockType = block.type;
-			ws.handler = Reactive.observeOn(Reactive.registerOn(engine.debugBlock(realm, ws.block), scheduler), edt).register(new Observer<AdvanceBlockDiagnostic>() {
+			ws.handler = Reactive.observeOn(Reactive.registerOn(engine.debugBlock(realm, ws.block), scheduler), edt).register(new Observer<BlockDiagnostic>() {
 	
 				@Override
-				public void next(AdvanceBlockDiagnostic value) {
+				public void next(BlockDiagnostic value) {
 					CCDebugRow r = new CCDebugRow();
 					r.watch = ws;
 					r.timestamp = value.timestamp;
@@ -606,10 +606,10 @@ public class CCDebugDialog extends JFrame {
 			ws.block = block.id;
 			ws.blockType = block.type;
 			ws.port = port;
-			ws.handler = Reactive.observeOn(Reactive.registerOn(engine.debugParameter(realm, ws.block, port), scheduler), edt).register(new Observer<AdvanceParameterDiagnostic>() {
+			ws.handler = Reactive.observeOn(Reactive.registerOn(engine.debugParameter(realm, ws.block, port), scheduler), edt).register(new Observer<PortDiagnostic>() {
 	
 				@Override
-				public void next(AdvanceParameterDiagnostic value) {
+				public void next(PortDiagnostic value) {
 					CCDebugRow r = new CCDebugRow();
 					r.watch = ws;
 					r.timestamp = value.timestamp;
@@ -675,7 +675,7 @@ public class CCDebugDialog extends JFrame {
 			/** The realms. */
 			List<String> list;
 			/** The the registry. */
-			Map<String, AdvanceBlockRegistryEntry> map = Maps.newHashMap();
+			Map<String, BlockRegistryEntry> map = Maps.newHashMap();
 			/** An exception. */
 			Throwable t;
 			@Override
@@ -687,7 +687,7 @@ public class CCDebugDialog extends JFrame {
 							return param1.name;
 						}
 					}));
-					for (AdvanceBlockRegistryEntry e : engine.queryBlocks()) {
+					for (BlockRegistryEntry e : engine.queryBlocks()) {
 						map.put(e.id, e);
 					}
 				} catch (Throwable t) {

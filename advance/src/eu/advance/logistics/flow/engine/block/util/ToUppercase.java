@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Convert the string to uppercase.
@@ -46,7 +45,7 @@ public class ToUppercase extends AdvanceBlock {
     @Override
     protected void invoke() {
         String value = getString(IN);
-        dispatch(OUT, AdvanceData.create(value.toUpperCase()));
+        dispatch(OUT, resolver().create(value.toUpperCase()));
     }
     
 }

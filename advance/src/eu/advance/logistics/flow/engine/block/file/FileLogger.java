@@ -34,11 +34,12 @@ import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockState;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockState;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Save the data into a local file, appeding the received input at the end of the file with a timestamp.
@@ -58,14 +59,14 @@ public class FileLogger extends AdvanceBlock {
     @Input("advance:string")
     protected static final String APPEND = "append";
     @Override
-    protected Observer<Void> runReactiveBlock(List<AdvancePort> reactivePorts) {
-        for (AdvancePort port : reactivePorts) {
+    protected Observer<Void> runReactiveBlock(List<Port<XElement, AdvanceType>> reactivePorts) {
+        for (Port<XElement, AdvanceType> port : reactivePorts) {
             if (APPEND.equals(port.name())) {
                 addCloseable(Reactive.observeOn(port, scheduler()).register(new InvokeObserver<XElement>() {
 
                     @Override
                     public void next(XElement value) {
-                        diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.START)));
+                        diagnostic.next(new BlockDiagnostic("", description().id, Option.some(BlockState.START)));
                         FileWriter fw = null;
                         try {
                             fw = new FileWriter(file, true);
@@ -73,13 +74,13 @@ public class FileLogger extends AdvanceBlock {
                             pw.println(DATETIME.format(new Date()) + " | " + value.content);
                             pw.close();
                         } catch (Throwable t) {
-                            diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(t)));
+                            diagnostic.next(new BlockDiagnostic("", description().id, Option.<BlockState>error(t)));
                         } finally {
                             if (fw != null) {
                                 try {
                                     fw.close();
                                 } catch (Exception ex) {
-                                    diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(ex)));
+                                    diagnostic.next(new BlockDiagnostic("", description().id, Option.<BlockState>error(ex)));
                                 }
                             }
                         }

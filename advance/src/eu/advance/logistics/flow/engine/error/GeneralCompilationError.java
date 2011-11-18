@@ -22,7 +22,7 @@
 package eu.advance.logistics.flow.engine.error;
 
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A general compilation error indicator when the error details are stored in XML.
