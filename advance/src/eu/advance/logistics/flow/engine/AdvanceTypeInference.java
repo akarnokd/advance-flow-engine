@@ -283,12 +283,10 @@ public final class AdvanceTypeInference {
 					return result;
 				} else
 				if (rel.left.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
-					AdvanceType u = unionFunc.invoke(rel.left, rel.right);
-					if (u == null) {
+					XRelation r = compare(rel.left, rel.right);
+					if (r == XRelation.SUPER || r == XRelation.NONE) {
 						result.addError(new IncompatibleTypesError(rel.wire, rel.left, rel.right));
 						return result;
-					} else {
-						result.setType(rel.wire.id, rel.left);
 					}
 				} else {
 					if (!subc(rel.left, rel.right, rel.wire)) {
@@ -310,6 +308,15 @@ public final class AdvanceTypeInference {
 			}
 		}
 		return result;
+	}
+	/**
+	 * Compare two types, including the automatic cast possibilities.
+	 * @param t1 the first type
+	 * @param t2 the second type
+	 * @return the comparison result
+	 */
+	protected XRelation compare(AdvanceType t1, AdvanceType t2) {
+		return XSchema.compare(t1.type, t2.type);
 	}
 	/**
 	 * Returns the most specific type from the sumbitted types.
