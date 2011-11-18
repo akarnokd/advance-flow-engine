@@ -599,9 +599,15 @@ public final class XSchema {
 		} else
 		if (t1.capabilities.get(0).complexType != null && t2.capabilities.get(0).complexType != null) {
 			return t1.capabilities.get(0).complexType.compareTo(t2.capabilities.get(0).complexType);
-		}
+		} else
 		if (t1.capabilities.get(0).valueType == t2.capabilities.get(0).valueType) {
 			return XRelation.EQUAL;
+		} else
+		if (t1.capabilities.get(0).valueType == XValueType.REAL &&  t2.capabilities.get(0).valueType == XValueType.INTEGER) {
+			return XRelation.SUPER;
+		} else
+		if (t1.capabilities.get(0).valueType == XValueType.INTEGER && t2.capabilities.get(0).valueType == XValueType.REAL) {
+			return XRelation.EXTENDS;
 		}
 		return XRelation.NONE;
 	}
