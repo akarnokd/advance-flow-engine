@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import com.google.common.collect.Lists;
+import hu.akarnokd.reactive4java.reactive.Observer;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -27,32 +29,99 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+import java.util.LinkedList;
 
 /**
  * Buffers the incoming values into a collection with a maximum size and forwards this collection once fully filled.
- * Signature: BufferWithSize(t, integer) -> collection<t>
+ * Signature: BufferWithSize(t, integer, boolean) -> collection<t>
  * @author szmarcell
  */
-@Block(id = "___BufferWithSize", category = "streaming", scheduler = "IO", description = "Buffers the incoming values into a collection with a maximum size and forwards this collection once fully filled.")
+@Block(id = "BufferWithSize", category = "streaming", scheduler = "IO", parameters = "T", description = "Buffers the incoming values into a collection with a maximum size and forwards this collection. Forwards the collection only when fully filled (the default behaviour), unless eagerness is set.")
 public class BufferWithSize extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(BufferWithSize .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
+    /** In element. */
+    @Input("?T")
+    protected static final String ELEMENT = "element";
+    /** In size. */
+    @Input("advance:integer")
+    protected static final String SIZE = "size";
+    /** In eagerness. */
+    @Input("advance:boolean")
+    protected static final String EAGER = "eager";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    private LinkedList<XElement> elements = Lists.newLinkedList();
+    private int maxSize = 0;
+    private int actualSize = 0;
+    private boolean eager = false;
     @Override
-    protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+    public Observer<Void> run() {
+        AdvancePort sizePort = inputs.get(SIZE);
+        AdvancePort eagerPort = inputs.get(EAGER);
+        AdvancePort elementPort = inputs.get(ELEMENT);
+        if (sizePort instanceof AdvanceConstantPort) {
+            maxSize = AdvanceData.getInt(((AdvanceConstantPort)sizePort).value);
+        } else if (sizePort != null) {
+            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
+
+                @Override
+                public void next(XElement value) {
+                    int nSize = AdvanceData.getInt(value);
+                    if (actualSize > nSize) {
+                        for (int i = 0; i < actualSize - nSize; i++) {
+                            elements.poll();
+                        }
+                        actualSize = nSize;
+                    }
+                    maxSize = nSize;
+                }
+            }));
+        }
+        if (eagerPort instanceof AdvanceConstantPort) {
+            eager = Boolean.parseBoolean(((AdvanceConstantPort)eagerPort).value.content);
+        } else if (eagerPort != null) {
+            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
+
+                @Override
+                public void next(XElement value) {
+                    eager = Boolean.parseBoolean(value.content);
+                }
+            }));
+        }
+        if (elementPort instanceof AdvanceConstantPort) {
+            invoke(((AdvanceConstantPort)elementPort).value);
+        } else if (eagerPort != null) {
+            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
+
+                @Override
+                public void next(XElement value) {
+                    invoke(value);
+                }
+            }));
+        }
+        return new RunObserver();
     }
     
+    private void invoke(XElement element) {
+        if (actualSize == maxSize) {
+            elements.poll();
+            actualSize--;
+        }
+        elements.add(element);
+        actualSize++;
+        if (maxSize == actualSize || eager) {
+            dispatch(OUT, AdvanceData.create(elements));
+        }
+    }
+    
+    @Override
+    protected void invoke() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

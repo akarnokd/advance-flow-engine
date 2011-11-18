@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: ConcatString(string, string) -> string
  * @author szmarcell
  */
-@Block(id = "___ConcatString", category = "string", scheduler = "NOW", description = "Concatenate two strings.")
+@Block(id = "ConcatString", category = "string", scheduler = "NOW", description = "Concatenate two strings.")
 public class ConcatString extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(ConcatString .class.getName());

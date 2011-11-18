@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: IndexOf(string, string, integer) -> integer
  * @author szmarcell
  */
-@Block(id = "___IndexOf", category = "string", scheduler = "IO", description = "Returns the index of the first occurrence of the substring in the string.")
+@Block(id = "IndexOf", category = "string", scheduler = "IO", description = "Returns the index of the first occurrence of the substring in the string.")
 public class IndexOf extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(IndexOf .class.getName());

@@ -27,30 +27,34 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Test if the given regular expression matches the string.
  * Signature: RegexpMatches(string, string) -> boolean
  * @author szmarcell
  */
-@Block(id = "___RegexpMatches", category = "string", scheduler = "NOW", description = "Test if the given regular expression matches the string")
+@Block(id = "RegexpMatches", category = "string", scheduler = "NOW", description = "Test if the given regular expression matches the string")
 public class RegexpMatches extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(RegexpMatches .class.getName());
-    /** In. */
+    /** In string. */
     @Input("advance:string")
-    protected static final String IN = "in";
+    protected static final String STRING = "string";
+    /** In pattern. */
+    @Input("advance:string")
+    protected static final String PATTERN = "pattern";
     /** Out. */
-    @Output("advance:string")
-    protected static final String REGEXP = "regexp";
-    /** Out. */
-    @Output("advance:string")
+    @Output("advance:boolean")
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-    	String in = getString(IN);
-    	String regexp = getString(REGEXP);
-    	dispatch(OUT, AdvanceData.create(in.matches(regexp)));
+        String string = get(STRING).content;
+        String patternStr = get(PATTERN).content;
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(string);
+        dispatch(OUT, AdvanceData.create(matcher.matches()));
     }
     
 }

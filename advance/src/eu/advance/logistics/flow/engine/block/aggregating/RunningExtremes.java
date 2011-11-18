@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -27,31 +28,38 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Compute the average of the integer or real values within the collection.
- * Signature: Average(collection<object>) -> real
+ * Computes the smallest and largest values of the received inputs.
+ * Signature: RunningExtremes(T +advance:real) -> (T, T)
  * @author szmarcell
  */
-@Block(id = "Average", category = "aggregation", scheduler = "IO", description = "Compute the average of the integer or real values within the collection.")
-public class Average extends AdvanceBlock {
+@Block(id = "RunningExtremes", category = "aggregation", scheduler = "NOW", description = "Computes the smallest and largest values of the received inputs.")
+public class RunningExtremes extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Average .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(RunningExtremes .class.getName());
     /** In. */
-    @Input("advance:collection<advance:real>")
+    @Input("advance:real")
     protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
+    protected static final String MIN = "min";
+    /** Out. */
+    @Output("advance:real")
+    protected static final String MAX = "max";
+    /** The running minimum. */
+    private Double min = Double.MAX_VALUE;
+    /** The running maximum. */
+    private Double max = Double.MIN_VALUE;
     @Override
     protected void invoke() {
         double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+        min = Math.min(val, min);
+        max = Math.max(val, max);
+        dispatch(MIN, AdvanceData.create(min));
+        dispatch(MAX, AdvanceData.create(max));
     }
     
 }

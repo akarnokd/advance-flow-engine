@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: Contains(string, string) -> boolean
  * @author szmarcell
  */
-@Block(id = "___Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string.")
+@Block(id = "Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string.")
 public class Contains extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Contains .class.getName());

@@ -20,6 +20,10 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.SortedMaps;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -27,32 +31,39 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeMap;
 
 /**
  * Concatenate two collections.
  * Signature: ConcatCollection(collection<t>, collection<t>) -> collection<t>
  * @author szmarcell
  */
-@Block(id = "___ConcatCollection", category = "streaming", scheduler = "IO", description = "Concatenate two collections.")
+@Block(id = "ConcatCollection", category = "streaming", scheduler = "IO", parameters = {"T"}, description = "Concatenate two collections.")
 public class ConcatCollection extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(ConcatCollection .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input(value = "advance:collection<?T>", variable = true)
     protected static final String IN = "in";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+        TreeMap<String, XElement> collections = new TreeMap<String, XElement>();
+        
+        for (AdvancePort port : getReactivePorts()) {
+            String name = port.name();
+            collections.put(name, get(name));
+        }
+        LinkedList<XElement> result = Lists.newLinkedList();
+        for (XElement collection : collections.values()) {
+            result.addAll(AdvanceData.getList(collection));
+        }
+        dispatch(OUT, AdvanceData.create(result));
     }
     
 }

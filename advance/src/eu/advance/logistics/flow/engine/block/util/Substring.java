@@ -25,20 +25,29 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
  * Extract a substring from a string.
+ * Default values of the from and to ports are the beginning and the end of the string respectively.
  * Signature: Substring(string, integer, integer) -> string
  * @author szmarcell
  */
-@Block(id = "___Substring", category = "string", scheduler = "NOW", description = "Extract a substring from a string")
+@Block(id = "Substring", category = "string", scheduler = "IO", description = "Extract a substring from a string. Default values of the from and to ports are the beginning and the end of the string respectively.")
 public class Substring extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Substring .class.getName());
-    /** In. */
+    /** In string. */
     @Input("advance:string")
-    protected static final String IN = "in";
+    protected static final String STRING = "string";
+    /** In from. */
+    @Input(value = "advance:integer", required = false)
+    protected static final String FROM = "from";
+    /** In to. */
+    @Input(value = "advance:integer", required = false)
+    protected static final String TO = "to";
     /** In. */
     @Input("advance:string")
     protected static final String START = "start";
@@ -50,13 +59,19 @@ public class Substring extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-    	String in = getString(IN);
-    	int start = getInt(START);
-    	int end = getInt(END);
-    	if (end < 0) {
-    		end = in.length();
-    	}
-    	set(OUT, in.substring(start, end));
+        String string = getString(STRING);
+        XElement fromEl = get(FROM);
+        XElement toEl = get(TO);
+        if (toEl == null) {
+            if (fromEl == null) {
+                dispatch(OUT, AdvanceData.create(string));
+            } else {
+                dispatch(OUT, AdvanceData.create(string.substring(Integer.parseInt(fromEl.content))));
+            }
+        } else {
+            int from = fromEl == null ? 0 : Integer.parseInt(fromEl.content);
+            dispatch(OUT, AdvanceData.create(string.substring(from, Integer.parseInt(toEl.content))));
+        }
     }
     
 }

@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: EndsWith(string, string) -> boolean
  * @author szmarcell
  */
-@Block(id = "___EndsWith", category = "string", scheduler = "NOW", description = "Check if the string ends with another string.")
+@Block(id = "EndsWith", category = "string", scheduler = "NOW", description = "Check if the string ends with another string.")
 public class EndsWith extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(EndsWith .class.getName());
