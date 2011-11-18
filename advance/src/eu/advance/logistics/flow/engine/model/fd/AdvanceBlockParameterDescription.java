@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * An input or output parameter description of an ADVANCE block.

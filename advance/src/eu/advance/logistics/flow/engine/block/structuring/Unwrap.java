@@ -25,9 +25,8 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Extracts elements from a collection and dispatches them one-by-one.
@@ -47,7 +46,7 @@ public class Unwrap extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-        for (XElement element : AdvanceData.getList(get(IN))) {
+        for (XElement element : resolver().getList(get(IN))) {
             dispatch(OUT, element);
         }
     }

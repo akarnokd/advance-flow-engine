@@ -27,8 +27,7 @@ import java.util.regex.Pattern;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Test if the given regular expression matches the string.
@@ -54,7 +53,7 @@ public class RegexpMatches extends AdvanceBlock {
         String patternStr = get(PATTERN).content;
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(string);
-        dispatch(OUT, AdvanceData.create(matcher.matches()));
+        dispatch(OUT, resolver().create(matcher.matches()));
     }
     
 }

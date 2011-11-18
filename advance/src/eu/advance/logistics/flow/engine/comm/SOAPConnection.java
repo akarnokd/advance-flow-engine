@@ -25,7 +25,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Represents a SOAP connection.

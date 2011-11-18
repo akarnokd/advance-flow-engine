@@ -26,10 +26,10 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Create a collection from the inputs. Emits the collection when all inputs change.
@@ -50,10 +50,10 @@ public class Wrap extends AdvanceBlock {
     @Override
     protected void invoke() {
         TreeMap<String, XElement> treeMap = new TreeMap<String, XElement>();
-        for (AdvancePort port : getReactivePorts()) {
+        for (Port<XElement, AdvanceType> port : getReactivePorts()) {
             String name = port.name();
             treeMap.put(name, get(name));
         }
-        dispatch(OUT, AdvanceData.create(treeMap.values()));
+        dispatch(OUT, resolver().create(treeMap.values()));
     }
 }

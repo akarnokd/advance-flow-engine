@@ -23,8 +23,8 @@ package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Request for exporting a certificate from a keystore.

@@ -52,7 +52,7 @@ import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
  * The list and description of blocks.
@@ -82,7 +82,7 @@ public abstract class CCBlockList extends JFrame {
 	/** The filter. */
 	protected JTextField filter;
 	/** The block rows. */
-	protected final List<AdvanceBlockRegistryEntry> rows = Lists.newArrayList();
+	protected final List<BlockRegistryEntry> rows = Lists.newArrayList();
 	/**
 	 * Create the block list GUI.
 	 * @param labels the label manager
@@ -156,7 +156,7 @@ public abstract class CCBlockList extends JFrame {
 			Class<?>[] clss = { String.class, String.class, String.class, String.class };
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
-				AdvanceBlockRegistryEntry e = rows.get(rowIndex);
+				BlockRegistryEntry e = rows.get(rowIndex);
 				switch (columnIndex) {
 				case 0:
 					return e.id;
@@ -267,7 +267,7 @@ public abstract class CCBlockList extends JFrame {
 			/** The exception. */
 			Throwable t;
 			/** The registry list. */
-			List<AdvanceBlockRegistryEntry> result;
+			List<BlockRegistryEntry> result;
 			@Override
 			public void run() {
 				try {
@@ -299,7 +299,7 @@ public abstract class CCBlockList extends JFrame {
 		int idx = table.getSelectedRow();
 		if (idx >= 0) {
 			idx = table.convertRowIndexToModel(idx);
-			AdvanceBlockRegistryEntry e = rows.get(idx);
+			BlockRegistryEntry e = rows.get(idx);
 			description.setText(e.toString());
 		}
 	}

@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Get a value by the given key from the map or indicate if no such element exists.
@@ -52,7 +51,7 @@ public class GetValue extends AdvanceBlock {
     protected void invoke() {
         double val = getDouble(IN);
         value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+        dispatch(OUT, resolver().create(value));
     }
     
 }

@@ -32,10 +32,11 @@ import javax.swing.SwingUtilities;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.runtime.BlockSettings;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block which displays a single frame with a single titled button.
@@ -52,7 +53,7 @@ public class Alert extends AdvanceBlock {
 	/** The status indicator panel. */
 	protected JPanel panel;
 	@Override
-	public void init(AdvanceBlockSettings settings) {
+	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -93,7 +94,7 @@ public class Alert extends AdvanceBlock {
 	}
 	@Override
 	protected void invoke() {
-		final boolean b = AdvanceData.getBoolean(params.get(TRIGGER));
+		final boolean b = getBoolean(TRIGGER);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

@@ -26,8 +26,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.util.Base64;
 
 /**
@@ -49,7 +48,7 @@ public class DecodeBase64 extends AdvanceBlock {
     protected void invoke() {
         String in = getString(IN);
         try {
-        	dispatch(OUT, AdvanceData.create(new String(Base64.decode(in), "ISO-8859-1")));
+        	dispatch(OUT, resolver().create(new String(Base64.decode(in), "ISO-8859-1")));
         } catch (IOException ex) {
         	log(ex);
         }

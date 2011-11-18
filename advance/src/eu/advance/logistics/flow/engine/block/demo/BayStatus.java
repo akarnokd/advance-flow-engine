@@ -42,11 +42,11 @@ import com.google.common.collect.Lists;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.runtime.BlockSettings;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block which displays a single frame with a single titled button.
@@ -74,13 +74,13 @@ public class BayStatus extends AdvanceBlock {
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	@Override
-	public void init(AdvanceBlockSettings settings) {
+	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
-		if (settings.constantParams.containsKey(TITLE)) {
-			title.set(AdvanceData.getString(settings.constantParams.get(TITLE).value));
+		if (settings.constantValues.containsKey(TITLE)) {
+			title.set(resolver().getString(settings.constantValues.get(TITLE)));
 		}
-		if (settings.constantParams.containsKey(CRITICAL_LOAD_LIMIT)) {
-			criticalLoadLimit.set(AdvanceData.getInt(settings.constantParams.get(CRITICAL_LOAD_LIMIT).value));
+		if (settings.constantValues.containsKey(CRITICAL_LOAD_LIMIT)) {
+			criticalLoadLimit.set(resolver().getInt(settings.constantValues.get(CRITICAL_LOAD_LIMIT)));
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -186,16 +186,16 @@ public class BayStatus extends AdvanceBlock {
 	}
 	@Override
 	protected void invoke() {
-		title.set(AdvanceData.getString(params.get(TITLE)));
-		criticalLoadLimit.set(AdvanceData.getInt(params.get(CRITICAL_LOAD_LIMIT)));
-		final List<XElement> list = AdvanceData.getList(params.get(LOAD));
+		title.set(getString(TITLE));
+		criticalLoadLimit.set(getInt(CRITICAL_LOAD_LIMIT));
+		final List<XElement> list = resolver().getList(get(LOAD));
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				frame.setTitle(title.get());
 				values.clear();
 				for (XElement e : list) {
-					values.add(AdvanceData.getInt(e));
+					values.add(resolver().getInt(e));
 				}
 				graph.revalidate();
 				graph.repaint();

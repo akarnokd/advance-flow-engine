@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.demo;
 
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Utility class to create and manage the types of the demo.
@@ -64,7 +64,8 @@ public final class DemoTypes {
 	 */
 	public static XElement createTruck(Iterable<XElement> pallets) {
 		XElement e = new XElement("truck");
-		XElement palletCollection = AdvanceData.rename(AdvanceData.create(), "pallets");
+		AdvanceData r = new AdvanceData();
+		XElement palletCollection = AdvanceData.rename(r.create(), "pallets");
 		e.add(palletCollection);
 		for (XElement p : pallets) {
 			palletCollection.add(AdvanceData.rename(p, "item"));

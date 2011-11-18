@@ -27,7 +27,7 @@ import java.util.Map;
 
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The source port of the source object cannot be found.

@@ -58,7 +58,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Send and receive requests through HTTP or HTTPS,

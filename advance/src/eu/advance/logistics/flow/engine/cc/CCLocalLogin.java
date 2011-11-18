@@ -78,10 +78,12 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.impl.CheckedEngineControl;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * The Local Login dialog.
@@ -552,8 +554,9 @@ public class CCLocalLogin extends JDialog {
 		try {
 			engineConfig.initialize(XElement.parseXML(file), workDir);
 			
-			AdvanceCompilerSettings compilerSettings = engineConfig.createCompilerSettings();
-			AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
+			AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = engineConfig.createCompilerSettings();
+			AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
+					new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 			
 			AdvanceDataStore datastore = engineConfig.datastore();
 			if (datastore.queryUsers().isEmpty()) {

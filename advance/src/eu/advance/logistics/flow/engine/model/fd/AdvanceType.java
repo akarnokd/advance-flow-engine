@@ -32,9 +32,9 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.inference.Type;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.typesystem.XType;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The type parameter bound definition for a generic type parameter.

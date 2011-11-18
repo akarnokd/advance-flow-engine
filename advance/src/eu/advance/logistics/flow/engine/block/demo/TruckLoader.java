@@ -36,11 +36,11 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.runtime.BlockSettings;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *.
@@ -68,10 +68,10 @@ public class TruckLoader extends AdvanceBlock {
 	/** The capacity level. */
 	protected final AtomicInteger capacity = new AtomicInteger(5);
 	@Override
-	public void init(AdvanceBlockSettings settings) {
+	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
-		if (settings.constantParams.containsKey(CAPACITY)) {
-			capacity.set(AdvanceData.getInt(settings.constantParams.get(CAPACITY).value));
+		if (settings.constantValues.containsKey(CAPACITY)) {
+			capacity.set(resolver().getInt(settings.constantValues.get(CAPACITY)));
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

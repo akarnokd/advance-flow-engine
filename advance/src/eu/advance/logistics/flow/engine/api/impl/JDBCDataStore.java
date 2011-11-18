@@ -46,7 +46,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A JDBC based remote datastore.

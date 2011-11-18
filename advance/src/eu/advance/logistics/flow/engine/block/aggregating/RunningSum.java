@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Compute the sum of the elements within the collection which have the type of Integer or Real.
@@ -49,7 +48,7 @@ public class RunningSum extends AdvanceBlock {
     protected void invoke() {
         double val = getDouble(IN);
         value += val;
-        dispatch(OUT, AdvanceData.create(value));
+        dispatch(OUT, resolver().create(value));
     }
     
 }

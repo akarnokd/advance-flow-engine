@@ -26,9 +26,8 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns a new collection with the given value appended to its end.
@@ -52,9 +51,9 @@ public class AppendCollection extends AdvanceBlock {
     protected void invoke() {
         XElement element = get(ELEMENT);
         XElement collection = get(COLLECTION);
-        List<XElement> list = AdvanceData.getList(collection);
+        List<XElement> list = resolver().getList(collection);
         list.add(element);
-        dispatch(OUT, AdvanceData.create(list));
+        dispatch(OUT, resolver().create(list));
     }
     
 }

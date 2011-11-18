@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * An interface wrapping a blocking iterable which returns one or multiple values.

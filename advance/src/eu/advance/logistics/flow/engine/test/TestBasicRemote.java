@@ -34,9 +34,9 @@ import eu.advance.logistics.flow.engine.api.AdvanceEngineVersion;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteEngineControl;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 
 /**
  * Simple remote connection and basic API calls.
@@ -81,8 +81,8 @@ public final class TestBasicRemote {
 		System.out.println(result.success());
 
 		// start debugging a block
-		Closeable c = Reactive.observeOn(engine.debugBlock("realm", "blockId"), new DefaultEdtScheduler()).register(new Observer<AdvanceBlockDiagnostic>() {
-		   @Override public void next(AdvanceBlockDiagnostic value) {
+		Closeable c = Reactive.observeOn(engine.debugBlock("realm", "blockId"), new DefaultEdtScheduler()).register(new Observer<BlockDiagnostic>() {
+		   @Override public void next(BlockDiagnostic value) {
 		       System.out.println(value.state);
 		    }
 		   @Override public void error(Throwable t) {

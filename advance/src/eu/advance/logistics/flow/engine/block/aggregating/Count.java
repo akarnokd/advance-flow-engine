@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Counts the elements in the given collection.
@@ -48,7 +47,7 @@ public class Count extends AdvanceBlock {
     @Override
     protected void invoke() {
         count++;
-        dispatch(OUT, AdvanceData.create(count));
+        dispatch(OUT, resolver().create(count));
     }
     
 }

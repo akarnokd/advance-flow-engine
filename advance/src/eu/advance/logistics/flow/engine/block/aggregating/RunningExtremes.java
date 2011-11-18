@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Computes the smallest and largest values of the received inputs.
@@ -55,8 +54,8 @@ public class RunningExtremes extends AdvanceBlock {
         double val = getDouble(IN);
         min = Math.min(val, min);
         max = Math.max(val, max);
-        dispatch(MIN, AdvanceData.create(min));
-        dispatch(MAX, AdvanceData.create(max));
+        dispatch(MIN, resolver().create(min));
+        dispatch(MAX, resolver().create(max));
     }
     
 }

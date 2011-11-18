@@ -29,7 +29,7 @@ import java.util.Map;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The wire binds a concrete type and a parametric type which cannot be in subtype relation.

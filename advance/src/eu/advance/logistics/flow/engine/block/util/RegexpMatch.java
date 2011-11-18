@@ -30,9 +30,8 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Run a regular expression on the string and return a collection of the matched groups.
@@ -61,9 +60,9 @@ public class RegexpMatch extends AdvanceBlock {
         ArrayList<XElement> matches = Lists.newArrayList();
         while (matcher.find()) {
             final String group = matcher.group();
-            matches.add(AdvanceData.create(group));
+            matches.add(resolver().create(group));
         }
-        dispatch(GROUPS, AdvanceData.create(matches));
+        dispatch(GROUPS, resolver().create(matches));
     }
     
 }

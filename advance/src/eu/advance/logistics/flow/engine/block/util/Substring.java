@@ -25,9 +25,8 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Extract a substring from a string.
@@ -64,13 +63,13 @@ public class Substring extends AdvanceBlock {
         XElement toEl = get(TO);
         if (toEl == null) {
             if (fromEl == null) {
-                dispatch(OUT, AdvanceData.create(string));
+                dispatch(OUT, resolver().create(string));
             } else {
-                dispatch(OUT, AdvanceData.create(string.substring(Integer.parseInt(fromEl.content))));
+                dispatch(OUT, resolver().create(string.substring(Integer.parseInt(fromEl.content))));
             }
         } else {
             int from = fromEl == null ? 0 : Integer.parseInt(fromEl.content);
-            dispatch(OUT, AdvanceData.create(string.substring(from, Integer.parseInt(toEl.content))));
+            dispatch(OUT, resolver().create(string.substring(from, Integer.parseInt(toEl.content))));
         }
     }
     

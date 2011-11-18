@@ -26,8 +26,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.util.Strings;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The input or output parameter description of a flow composite block element.

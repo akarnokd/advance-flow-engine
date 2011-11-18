@@ -24,16 +24,19 @@ package eu.advance.logistics.flow.engine.api;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.runtime.Block;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
  * Base interface to support compiling and verifying flows.
  * @author akarnokd, 2011.10.04.
+ * @param <T> the runtime type of the dataflow
+ * @param <X> the type system type
+ * @param <C> the runtime context
  */
-public interface AdvanceFlowCompiler {
+public interface AdvanceFlowCompiler<T, X, C> {
 	/**
 	 * Verify the given flow.
 	 * @param flow outer composite block of the dataflow.
@@ -43,14 +46,15 @@ public interface AdvanceFlowCompiler {
 	/**
 	 * Compile the target composite block as flow. The flow
 	 * should pass the verification of the {@link #verify(AdvanceCompositeBlock)} call.
+	 * @param realm the target realm
 	 * @param flow the outer composite block of the dataflow.
 	 * @return the list of compiled concrete blocks
 	 */
-	List<AdvanceBlock> compile(@NonNull AdvanceCompositeBlock flow);
+	List<Block<T, X, C>> compile(String realm, @NonNull AdvanceCompositeBlock flow);
 	/**
 	 * Returns a list of supported block types.
 	 * @return the block types
 	 */
 	@NonNull 
-	List<AdvanceBlockRegistryEntry> blocks();
+	List<BlockRegistryEntry> blocks();
 }

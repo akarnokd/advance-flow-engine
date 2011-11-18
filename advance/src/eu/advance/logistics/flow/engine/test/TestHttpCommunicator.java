@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A simple mocked communicator which dispatches the requests directly to an {@code AdvanceHttpListener}.

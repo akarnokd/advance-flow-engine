@@ -29,10 +29,10 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Concatenate two collections.
@@ -53,15 +53,15 @@ public class ConcatCollection extends AdvanceBlock {
     protected void invoke() {
         TreeMap<String, XElement> collections = new TreeMap<String, XElement>();
         
-        for (AdvancePort port : getReactivePorts()) {
+        for (Port<XElement, AdvanceType> port : getReactivePorts()) {
             String name = port.name();
             collections.put(name, get(name));
         }
         LinkedList<XElement> result = Lists.newLinkedList();
         for (XElement collection : collections.values()) {
-            result.addAll(AdvanceData.getList(collection));
+            result.addAll(resolver().getList(collection));
         }
-        dispatch(OUT, AdvanceData.create(result));
+        dispatch(OUT, resolver().create(result));
     }
     
 }

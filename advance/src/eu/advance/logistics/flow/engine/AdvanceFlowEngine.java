@@ -68,8 +68,10 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.impl.HttpEngineControlListener;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The Advance Data Flow Engine main program.
@@ -122,8 +124,8 @@ public class AdvanceFlowEngine implements Runnable {
 		try {
 			XElement xconfig = XElement.parseXML(configFile);
 			config.initialize(xconfig, workDir);
-			AdvanceCompilerSettings compilerSettings = config.createCompilerSettings();
-			AdvanceCompiler compiler = new AdvanceCompiler(compilerSettings);
+			AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = config.createCompilerSettings();
+			AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 			control = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler, workDir) {
 				@Override
 				public void shutdown() throws IOException,

@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Returns the index of the last occurrence of the substring in the string.
@@ -58,6 +57,6 @@ public class LastIndexOf extends AdvanceBlock {
         	start = in.length();
         }
         
-        dispatch(OUT, AdvanceData.create(in.lastIndexOf(substring, start)));
+        dispatch(OUT, resolver().create(in.lastIndexOf(substring, start)));
     }
 }

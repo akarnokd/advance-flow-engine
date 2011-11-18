@@ -111,12 +111,12 @@ import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.cc.CCFiltering.FilterItem;
 import eu.advance.logistics.flow.engine.cc.CCFiltering.FilterOp;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XSerializables;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * The main window of the engine control center.
@@ -2747,7 +2747,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 						@Override
 						public void run() {
 							try {
-								AdvanceBlockRegistryEntry.serializeRegistry(engine.queryBlocks()).save(f);
+								BlockRegistryEntry.serializeRegistry(engine.queryBlocks()).save(f);
 							} catch (Throwable t) {
 								this.t = t;
 							}

@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.typesystem.XType;
 
 /**
  * Interface for providing support to resolve a schema URI into an XType.

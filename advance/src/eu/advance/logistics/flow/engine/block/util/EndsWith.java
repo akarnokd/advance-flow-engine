@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Check if the string ends with another string.
@@ -50,7 +49,7 @@ public class EndsWith extends AdvanceBlock {
     protected void invoke() {
         String value = getString(IN);
         String start = getString(SUFFIX);
-        dispatch(OUT, AdvanceData.create(value.endsWith(start)));
+        dispatch(OUT, resolver().create(value.endsWith(start)));
     }
     
 }

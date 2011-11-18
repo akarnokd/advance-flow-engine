@@ -29,11 +29,12 @@ import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockState;
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
+import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.BlockState;
+import eu.advance.logistics.flow.engine.runtime.Port;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Save the data into a local file, appending the received input at the end of file or overwriting the file.
@@ -55,20 +56,20 @@ public class LocalFileOutput extends AdvanceBlock {
     @Input("advance:string")
     protected static final String WRITE = "write";
     @Override
-    protected Observer<Void> runReactiveBlock(List<AdvancePort> reactivePorts) {
-        for (AdvancePort port : reactivePorts) {
+    protected Observer<Void> runReactiveBlock(List<Port<XElement, AdvanceType>> reactivePorts) {
+        for (Port<XElement, AdvanceType> port : reactivePorts) {
             if (APPEND.equals(port.name())) {
                 register(port, new InvokeObserver<XElement>() {
 
                     @Override
                     public void next(XElement value) {
-                        diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.START)));
+                        diagnostic.next(new BlockDiagnostic("", description().id, Option.some(BlockState.START)));
                         try {
                             FileWriter fw = new FileWriter(file, true);
                             fw.append(value.content);
                             fw.close();
                         } catch (Throwable t) {
-                            diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(t)));
+                            diagnostic.next(new BlockDiagnostic("", description().id, Option.<BlockState>error(t)));
                         }
                     }
                 });
@@ -77,13 +78,13 @@ public class LocalFileOutput extends AdvanceBlock {
 
                     @Override
                     public void next(XElement value) {
-                        diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.some(AdvanceBlockState.START)));
+                        diagnostic.next(new BlockDiagnostic("", description().id, Option.some(BlockState.START)));
                         try {
                             FileWriter fw = new FileWriter(file, false);
                             fw.append(value.content);
                             fw.close();
                         } catch (Throwable t) {
-                            diagnostic.next(new AdvanceBlockDiagnostic("", description().id, Option.<AdvanceBlockState>error(t)));
+                            diagnostic.next(new BlockDiagnostic("", description().id, Option.<BlockState>error(t)));
                         }
                     }
                 });

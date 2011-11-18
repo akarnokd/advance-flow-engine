@@ -24,26 +24,29 @@ package eu.advance.logistics.flow.engine;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.Block;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
  * The base interface for resolving blocks.
  * @author akarnokd, 2011.11.17.
+ * @param <T> the runtime type of the dataflow
+ * @param <X> the type system type
+ * @param <C> the runtime context
  */
-public interface AdvanceBlockResolver {
+public interface AdvanceBlockResolver<T, X, C> {
 	/**
 	 * Locate the block description in the repository (e.g., block-repository.xml).
 	 * @param id the block identifier
 	 * @return the block
 	 */
-	AdvanceBlockRegistryEntry lookup(@NonNull String id);
+	BlockRegistryEntry lookup(@NonNull String id);
 	/**
 	 * Create a concrete block by using the given settings.
 	 * @param id the block type identifier
 	 * @return the new block instance 
 	 */
-	AdvanceBlock create(@NonNull String id);
+	Block<T, X, C> create(@NonNull String id);
 	/** 
 	 * Returns a list of supported block ids.
 	 * @return the list of supported block ids 

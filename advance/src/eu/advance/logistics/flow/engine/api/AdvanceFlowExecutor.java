@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.runtime.Block;
 
 /**
  * Describes the ability to execute and terminate a list of blocks.
@@ -32,10 +32,10 @@ public interface AdvanceFlowExecutor {
 	 * Execute the given sequence of blocks.
 	 * @param blocks the sequence of blocks
 	 */
-	void run(Iterable<? extends AdvanceBlock> blocks);
+	void run(Iterable<? extends Block<?, ?, ?>> blocks);
 	/**
 	 * Terminate the given sequence of blocks.
 	 * @param blocks the sequence of blocks
 	 */
-	void done(Iterable<? extends AdvanceBlock> blocks);
+	void done(Iterable<? extends Block<?, ?, ?>> blocks);
 }

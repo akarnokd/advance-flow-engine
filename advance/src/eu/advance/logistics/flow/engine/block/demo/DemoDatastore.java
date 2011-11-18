@@ -28,7 +28,7 @@ import java.util.Random;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The demo datastore to manage pallets, bays, trucks and statistics.
