@@ -4,87 +4,90 @@
     <!-- Periodically emits the last value received on its 'in' parameter. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Timer" id="Timer" scheduler="IO" category="user-interface">
         <type-variable name="T"/>
-        <input id="delay" type="advance:integer"/>
-        <input id="in" type-variable="T"/>
+        <input id="delay" required="true" varargs="false" type="advance:integer"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
         <output id="out" type-variable="T"/>
     </block-description>
 
     <!-- Receive all unread email. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.EmailReceiveAll" id="___EmailReceiveAll" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Checks if the collection is empty. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.streaming.IsEmptyCollection" id="___IsEmptyCollection" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.streaming.IsEmptyCollection" id="IsEmptyCollection" scheduler="IO" category="streaming">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Re ceive an email. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.EmailReceive" id="___EmailReceive" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Block to calculate the running mean of incoming values. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Mean" id="Mean" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Receive multiple files from the data source. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPReceiveAll" id="___FTPReceiveAll" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Invoke a remote procedure call given by the name and emit the response. -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.SOAPInvoke" id="___SOAPInvoke" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Marshalls the given object into its XML string format. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Marshall" id="___Marshall" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns a new map with the given key-value pair added to the map -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.AppendMap" id="___AppendMap" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns the largest value from the collection along with the collection of its occurrence indexes. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MaxAll" id="___MaxAll" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Filter the values of the map via the XPath expression and return a map with only those elements where the filter matched the value -->
     <block-description class="eu.advance.logistics.flow.engine.block.filtering.FilterMapByValue" id="___FilterMapByValue" scheduler="IO" category="data-filtering">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert a string into a timestamp or indicate an error -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToTimestamp" id="___ToTimestamp" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Crates a collection with a single item -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.Singleton" id="___Singleton" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Creates a collection with the supplied single element. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Singleton" id="Singleton" scheduler="NOW" category="data-transformations">
         <type-variable name="T"/>
-        <input id="in" type-variable="T"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
         <output id="out" type="advance:collection">
             <type-argument type-variable="T"/>
         </output>
@@ -92,37 +95,37 @@
 
     <!-- Convert a string into a real or indicate an error. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToReal" id="___ToReal" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- The combined operation of insert and update operations, e.g., tries to insert a batch of new entries into the datastore or update an existing ones. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCReplaceAll" id="___JDBCReplaceAll" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Watch a local file or directory. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileWatch" id="___LocalFileWatch" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Split the collection into the given number of sub-collections evenly. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.SplitEven" id="___SplitEven" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Transform the given type via the supplied XSLT transformation and return the new structure. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.Transform" id="___Transform" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Removes all the elements equal to the supplied value and returns a new map without them, plus a collection of keys which had the specified value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RemoveValue" id="___RemoveValue" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
@@ -133,420 +136,464 @@
         </output>
     </block-description>
 
-    <!-- Extract a substring from a string -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.Substring" id="___Substring" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <!-- Extract a substring from a string. Default values of the from and to ports are the beginning and the end of the string respectively. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.util.Substring" id="Substring" scheduler="IO" category="string">
+        <input id="end" required="true" varargs="false" type="advance:string">
+            <default>
+                    <integer>-1</integer>
+            </default>
+        </input>
+        <input id="from" required="false" varargs="false" type="advance:integer"/>
+        <input id="start" required="true" varargs="false" type="advance:string"/>
+        <input id="string" required="true" varargs="false" type="advance:string"/>
+        <input id="to" required="false" varargs="false" type="advance:integer"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Issue a GET request to the given datasource and return the response value -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.WebGET" id="___WebGET" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Compute the smallest integer value which is larger than the given real value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Ceil" id="___Ceil" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Move/rename a set of files. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPMoveFiles" id="___FTPMoveFiles" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Inserts a new value into the datastore via the given SQL statement and fills in the parameters from the supplied map. If completed, the output is a map for the auto-generated keys if any. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCInsert" id="___JDBCInsert" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns an empty collection -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.EmptyMap" id="___EmptyMap" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Compute the largest integer value which is smaller than the given real value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Floor" id="___Floor" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert the string into a Base64 representation -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.EncodeBase64" id="___EncodeBase64" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.EncodeBase64" id="EncodeBase64" scheduler="NOW" category="string">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Returns the smallest value from the collection along with the collection of its occurrence indexes. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MinAll" id="___MinAll" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send and replace the given file to the ftp data source -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPReplace" id="___FTPReplace" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Concatenate two collections. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.streaming.ConcatCollection" id="___ConcatCollection" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.streaming.ConcatCollection" id="ConcatCollection" scheduler="IO" category="streaming">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="true" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
     <!-- Send a file to the given ftp data source. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPSend" id="___FTPSend" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Respond the given value via JMS and indicate when it completed. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.JMSRespond" id="___JMSRespond" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Delete a batch of entries from the given datastore by using the query and parameters. Returns the number of total elements deleted. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCDeleteAll" id="___JDBCDeleteAll" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns the largest value in the collection along with its last occurrence. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.Max" id="Max" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- A crontab block which signals the identifier of a task to be executed, based on the crontab-definition. -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.Crontab" id="___Crontab" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert a string into a boolean. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToBoolean" id="___ToBoolean" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Load a set of local files. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoadAll" id="___LocalFileLoadAll" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Filter the elements of the collection via the XPath expression and return a filtered collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.filtering.FilterCollection" id="___FilterCollection" scheduler="IO" category="data-filtering">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- List the contents of a local directory. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalDirList" id="___LocalDirList" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Removes the given value from the input collection and return a new collection with the number of items removed. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RemoveItem" id="___RemoveItem" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Displays a button which sends out an empty object. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Button" id="Button" scheduler="IO" category="user-interface">
-        <input id="title" type="advance:string"/>
+        <input id="title" required="true" varargs="false" type="advance:string"/>
         <output id="out" type="advance:object"/>
     </block-description>
 
     <!-- Updates multiple values at the same time with the given SQL query on the datasource and emits an update count once the batch update completes -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCUpdateAll" id="___JDBCUpdateAll" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- List emails in the specified email-account -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.EmailList" id="___EmailList" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Get the collection of keys where the given value is present -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.GetKeys" id="___GetKeys" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Counts the elements in the given collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.Count" id="Count" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Move/rename a local file -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileMove" id="___LocalFileMove" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Cast all values in the collection into the specified type. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.CastAll" id="___CastAll" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Buffers the incoming values into a collection within the given time window. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.BufferWithTime" id="___BufferWithTime" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+        <type-variable name="T"/>
+        <input id="element" required="true" varargs="false" type-variable="T"/>
+        <input id="size" required="true" varargs="false" type="advance:integer"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
-    <!-- Buffers the incoming values into a collection with a maximum size and forwards this collection once fully filled. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.streaming.BufferWithSize" id="___BufferWithSize" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <!-- Buffers the incoming values into a collection with a maximum size and forwards this collection. Forwards the collection only when fully filled (the default behaviour), unless eagerness is set. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.streaming.BufferWithSize" id="BufferWithSize" scheduler="IO" category="streaming">
+        <type-variable name="T"/>
+        <input id="eager" required="true" varargs="false" type="advance:boolean"/>
+        <input id="element" required="true" varargs="false" type-variable="T"/>
+        <input id="size" required="true" varargs="false" type="advance:integer"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
     <!-- Applies the XPath expression to the incoming value and only those are forwarded which maches it. -->
     <block-description class="eu.advance.logistics.flow.engine.block.filtering.Filter" id="___Filter" scheduler="IO" category="data-filtering">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert a value into string. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToString" id="___ToString" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Create a remote directory. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPCreateDir" id="___FTPCreateDir" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert a string into an integer or indicate an error -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToInteger" id="___ToInteger" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert the Base64 representation into a string. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.DecodeBase64" id="___DecodeBase64" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.DecodeBase64" id="DecodeBase64" scheduler="NOW" category="string">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Converts the elements of the collection into a new structure. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.FromCollection" id="___FromCollection" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Extracts the keys only from the supplied map -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.MapKeys" id="___MapKeys" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns an empty collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.EmptyCollection" id="___EmptyCollection" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns the smallest value in the collection along with its last occurrence. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.Min" id="Min" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Run a regular expression on the string and return a collection of the matched groups. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.RegexpMatch" id="___RegexpMatch" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.RegexpMatch" id="RegexpMatch" scheduler="NOW" category="string">
+        <input id="pattern" required="true" varargs="false" type="advance:string"/>
+        <input id="string" required="true" varargs="false" type="advance:string"/>
+        <output id="groups" type="advance:collection">
+            <type-argument type="advance:string"/>
+        </output>
     </block-description>
 
     <!-- Returns the index of the last occurrence of the substring in the string. -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.LastIndexOf" id="___LastIndexOf" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <input id="start" required="true" varargs="false" type="advance:integer">
+            <default>
+                    <integer>-1</integer>
+            </default>
+        </input>
+        <input id="substring" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:integer"/>
     </block-description>
 
     <!-- Check if the string starts with another string. -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.StartsWith" id="___StartsWith" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <input id="prefix" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Displays a input box where the user can send strings. -->
     <block-description class="eu.advance.logistics.flow.engine.block.InputBox" id="InputBox" scheduler="IO" category="user-interface">
-        <input id="title" type="advance:string"/>
+        <input id="title" required="true" varargs="false" type="advance:string"/>
         <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- The combined operation of insert and update operations, e.g., tries to insert a new entry into the datastore or update an existing one. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCReplace" id="___JDBCReplace" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Issues an SQL query into the datasource once a trigger object arrives and returns the resulting rows all at once mapping from column name to column value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCQueryAll" id="___JDBCQueryAll" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Applies the XPath expression to extract a value from the incoming value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Project" id="___Project" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- List the contents of the remote ftp directory when the trigger fires. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPList" id="___FTPList" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Checks if the map is empty. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.IsEmptyMap" id="___IsEmptyMap" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Move/rename a set of local files. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileMoveAll" id="___LocalFileMoveAll" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- R eceive a GET/POST message along with the information where to send the response -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.WebReceive" id="___WebReceive" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send an SMS to the given pager group with the supplied body. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.SMSSend" id="___SMSSend" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Computes the standard deviation of numerical elements of the supplied collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.STDDeviation" id="___STDDeviation" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Round the given value to the nearest integer by the 0.5 rule -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Round" id="___Round" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns the index of the first occurrence of the substring in the string. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.IndexOf" id="___IndexOf" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.IndexOf" id="IndexOf" scheduler="IO" category="string">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <input id="start" required="true" varargs="false" type="advance:integer">
+            <default>
+                    <integer>0</integer>
+            </default>
+        </input>
+        <input id="substring" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:integer"/>
     </block-description>
 
     <!-- Load the data from the local file. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoad" id="___LocalFileLoad" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Issues the given update SQL query into the datasource and fills in the query parameters from the supplied mapping from column name to column value. Once the update succeeded, a Boolean TRUE is emitted by the operator. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCUpdate" id="___JDBCUpdate" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Writes the incoming value to the console for debugging purposes -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.WriteLine" id="___WriteLine" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:object"/>
     </block-description>
 
     <!-- Watch the given remote directory or file and trigger an event if something happens to it. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPWatch" id="___FTPWatch" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Returns a new collection with the given value appended to its end -->
-    <block-description class="eu.advance.logistics.flow.engine.block.streaming.AppendCollection" id="___AppendCollection" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.streaming.AppendCollection" id="AppendCollection" scheduler="IO" category="streaming">
+        <type-variable name="T"/>
+        <input id="collection" required="true" varargs="false" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <input id="element" required="true" varargs="false" type-variable="T"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
     <!-- Respond with the given string and indicate when it completes -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.WebRespond" id="___WebRespond" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Merges two streams of values and emits each value one after another -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.Merge" id="___Merge" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Block to merge two streams of the same type. This block does not wait for all of its inputs to be ready. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Merge" id="Merge" scheduler="NOW">
         <type-variable name="T"/>
-        <input id="1" type-variable="T"/>
-        <input id="2" type-variable="T"/>
+        <input id="1" required="false" varargs="false" type-variable="T"/>
+        <input id="2" required="false" varargs="false" type-variable="T"/>
         <output id="out" type-variable="T"/>
     </block-description>
 
     <!-- Convert the string into lowercase -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.ToLowercase" id="___ToLowercase" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.ToLowercase" id="___ToLowercase" scheduler="NOW" category="string">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Converts all key-value pairs of the map into a collection of key value pairs. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.MapEntries" id="___MapEntries" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Test if the given regular expression matches the string -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.RegexpMatches" id="___RegexpMatches" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.RegexpMatches" id="RegexpMatches" scheduler="NOW" category="string">
+        <input id="pattern" required="true" varargs="false" type="advance:string"/>
+        <input id="string" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Split the source collection into equally sized sub-collections. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.SplitSize" id="___SplitSize" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send a set of files to the given ftp data source. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPSendAll" id="___FTPSendAll" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Reverses the element order within the collection -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.Reverse" id="___Reverse" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Block to reverse the elements of the input collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Reverse" id="Reverse" scheduler="NOW" category="data-transformations">
         <type-variable name="T"/>
-        <input id="in" type="advance:collection">
+        <input id="in" required="true" varargs="false" type="advance:collection">
             <type-argument type-variable="T"/>
         </input>
         <output id="out" type="advance:collection">
@@ -556,122 +603,126 @@
 
     <!-- Send an object via a SOAP message to the given endpoint -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.SOAPSend" id="___SOAPSend" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Check if the string ends with another string. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.EndsWith" id="___EndsWith" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.EndsWith" id="EndsWith" scheduler="NOW" category="string">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <input id="suffix" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Extracts an element from the collection given by the index. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.GetItem" id="___GetItem" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send an object via JMS message through the given channel and indicate when it completes. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.JMSSend" id="___JMSSend" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Block to retrieve a specific item from the input collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.GetItem" id="GetItem" scheduler="NOW">
         <type-variable name="T"/>
-        <input id="in" type="advance:collection">
+        <input id="in" required="true" varargs="false" type="advance:collection">
             <type-argument type-variable="T"/>
         </input>
-        <input id="index" type="advance:integer"/>
+        <input id="index" required="true" varargs="false" type="advance:integer"/>
         <output id="out" type-variable="T"/>
     </block-description>
 
     <!-- Queues the incoming messages and relays them one-by-one if the user clicks on the button. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Gate" id="Gate" scheduler="IO" category="user-interface">
         <type-variable name="T"/>
-        <input id="in" type-variable="T"/>
-        <input id="title" type="advance:string"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <input id="title" required="true" varargs="false" type="advance:string"/>
         <output id="out" type-variable="T"/>
     </block-description>
 
     <!-- Issue a POST request to the given datasource and return the response -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.WebPOST" id="___WebPOST" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert the string to uppercase. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.ToUppercase" id="___ToUppercase" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.ToUppercase" id="___ToUppercase" scheduler="NOW" category="string">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Cast the value into a different type. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Cast" id="___Cast" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Check if the substring is within the string. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.Contains" id="___Contains" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.Contains" id="Contains" scheduler="NOW" category="string">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="boolean" type="advance:boolean"/>
+        <output id="substring" type="advance:string"/>
     </block-description>
 
     <!-- Removes the given key from the map and returns a new map without that key and the value it contained -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RemoveKey" id="___RemoveKey" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send a response message to the given target and indicate when it completed. -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.SOAPRespond" id="___SOAPRespond" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Concatenate two maps. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.ConcatMap" id="___ConcatMap" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Save a set of files locally. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSaveAll" id="___LocalFileSaveAll" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Concatenate two strings. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.ConcatString" id="___ConcatString" scheduler="IO" category="string">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.util.ConcatString" id="ConcatString" scheduler="NOW" category="string">
+        <input id="in1" required="true" varargs="false" type="advance:string"/>
+        <input id="in2" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Displays a table with timestamps and the received data. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Log" id="Log" scheduler="IO" category="user-interface">
         <type-variable name="T"/>
-        <input id="in" type-variable="T"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <input id="title" required="false" varargs="false" type="advance:string"/>
         <output id="out" type-variable="T"/>
     </block-description>
 
     <!-- Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key -->
     <block-description class="eu.advance.logistics.flow.engine.block.filtering.FilterMapByKey" id="___FilterMapByKey" scheduler="IO" category="data-filtering">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Converts the key-value pairs via the two XPath expressions into a new structure. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.FromMap" id="___FromMap" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Compute the average of the integer or real values within the collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.Average" id="Average" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:collection">
+        <input id="in" required="true" varargs="false" type="advance:collection">
             <type-argument type="advance:real"/>
         </input>
         <output id="out" type="advance:real"/>
@@ -679,127 +730,134 @@
 
     <!-- Get a value by the given key from the map or indicate if no such element exists -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.GetValue" id="___GetValue" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Join two objects structurally and return the new structure. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.Join" id="___Join" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <type-variable name=" +T,+U">
+            <upper-bound type="T"/>
+            <upper-bound type="U"/>
+        </type-variable>
+        <input id="t" required="true" varargs="false" type-variable="T"/>
+        <input id="u" required="true" varargs="false" type-variable="U"/>
+        <output id="v" type-variable="V"/>
     </block-description>
 
     <!-- Remove the indexth element from the collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RemoveIndex" id="___RemoveIndex" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Extracts the values only from the supplied map -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.MapValues" id="___MapValues" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Relay a single given value only if the trigger value has arrived. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RelayIfTriggered" id="___RelayIfTriggered" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Unmarshalls the given string representation of an object back into its object form. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Unmarshall" id="___Unmarshall" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Remove a range from the source collection and return two new collections, one without the elements of the range, another with the elements of the range. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RemoveIndexRange" id="___RemoveIndexRange" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Receive the contents of a remote file when the trigger fires.  -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPReceive" id="___FTPReceive" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCQuery" id="___JDBCQuery" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Delete entries from the given datastore by using the query and parameters. Returns the number of elements deleted. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCDelete" id="___JDBCDelete" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Inserts a collection of values into the datastore via the given SQL statement and fills in the parameters from the supplied map. Once the batch insert is complete, the operator returns a collection with the auto generated keys for each of the input maps. -->
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCInsertAll" id="___JDBCInsertAll" scheduler="IO" category="db">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send a collection of objects one-by-one via JMS message through the given channel and indicate when it completes. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.JMSSendAll" id="___JMSSendAll" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Convert the given collection into the given map by using the XPath for the key selector. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.MapCollection" id="___MapCollection" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send an e-mail to the given email group with the supplied title and body. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.EmailSend" id="___EmailSend" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Uses the given XPath expression to generate the elements of the resulting collection from the structure of the input value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.ToCollection" id="___ToCollection" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Move/rename a remote file into. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPMoveFile" id="___FTPMoveFile" scheduler="IO" category="ftp">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Listen for a SOAP message as the given endpoint and return the submitted value along with the information where to respond to this message. -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.SOAPReceive" id="___SOAPReceive" scheduler="IO" category="web">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Remove the given key and value pair from the map and return the new map. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RemoveEntry" id="___RemoveEntry" scheduler="IO" category="streaming">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Creates a map with a single key-value pair. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.SingletonMap" id="___SingletonMap" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Receive a value from the JMS channel. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.JMSReceive" id="___JMSReceive" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Send an object via JMS and wait for the response. The XPath expression helps in pairing the sent and received messages. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.JMSQuery" id="___JMSQuery" scheduler="IO" category="comm">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
@@ -807,8 +865,8 @@
     <block-description class="eu.advance.logistics.flow.engine.block.SingletonMap" id="SingletonMap" scheduler="NOW" category="data-transformations">
         <type-variable name="K"/>
         <type-variable name="V"/>
-        <input id="key" type-variable="K"/>
-        <input id="value" type-variable="V"/>
+        <input id="key" required="true" varargs="false" type-variable="K"/>
+        <input id="value" required="true" varargs="false" type-variable="V"/>
         <output id="out" type="advance:map">
             <type-argument type-variable="K"/><type-argument type-variable="V"/>
         </output>
@@ -816,34 +874,171 @@
 
     <!-- Uses the XPath expressions to create the key-value pairs from the source value and convert it into the standard map representation. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.ToMap" id="___ToMap" scheduler="IO" category="data-transformations">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Remap the keys of the map via the given XPath expression. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Remap" id="___Remap" scheduler="IO" category="projection">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Compute the sum of the elements within the collection which have the type of Integer or Real. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.Sum" id="Sum" scheduler="IO" category="aggregation">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Dispatches its single input into two separate outputs. -->
     <block-description class="eu.advance.logistics.flow.engine.block.Dispatch" id="Dispatch" scheduler="NOW" category="data-transformations">
         <type-variable name="T"/>
-        <input id="in" type-variable="T"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
         <output id="out1" type-variable="T"/>
         <output id="out2" type-variable="T"/>
     </block-description>
 
     <!-- Save the data into a local file. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSave" id="___LocalFileSave" scheduler="IO" category="file">
-        <input id="in" type="advance:real"/>
+        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Creates a new full pallet with random destination once the trigger arrives. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.demo.FullPalletDispenser" id="FullPalletDispenser" scheduler="IO" category="demo">
+        <input id="trigger" required="true" varargs="false" type="advance:object"/>
+        <output id="full-pallet" type="advance:full-pallet"/>
+    </block-description>
+
+    <!-- A simple block which relays its input but has a value by default. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.WithDefault" id="WithDefault" scheduler="IO">
+        <input id="in" required="false" varargs="false" type="advance:string">
+            <default>
+                    <string>Hello world</string>
+            </default>
+        </input>
+        <output id="out" type="advance:string"/>
+    </block-description>
+
+    <!-- Superwises the incoming trucks and creates statistics. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.demo.HubManager" id="HubManager" scheduler="IO" category="demo">
+        <input id="critical-load-limit" required="true" varargs="false" type="advance:integer"/>
+        <input id="end-of-shift" required="true" varargs="false" type="advance:object"/>
+        <input id="truck" required="true" varargs="false" type="advance:truck"/>
+        <output id="critical-load-trigger" type="advance:boolean"/>
+        <output id="current-load" type="advance:collection">
+            <type-argument type="advance:integer"/>
+        </output>
+        <output id="throughput" type="advance:collection">
+            <type-argument type="advance:integer"/>
+        </output>
+    </block-description>
+
+    <!-- Displays a red rectangle if the trigger arrives. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.demo.Alert" id="Alert" scheduler="IO" category="demo">
+        <input id="alert" required="true" varargs="false" type="advance:boolean"/>
+    </block-description>
+
+    <!-- Creates a new half pallet with random destination once the trigger arrives. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.demo.HalfPalletDispenser" id="HalfPalletDispenser" scheduler="IO" category="demo">
+        <input id="trigger" required="true" varargs="false" type="advance:object"/>
+        <output id="half-pallet" type="advance:half-pallet"/>
+    </block-description>
+
+    <!-- Filter values by Javascript -->
+    <block-description class="eu.advance.logistics.flow.engine.block.Where" id="Where" scheduler="NOW" category="data-filtering">
+        <type-variable name="T"/>
+        <input id="input" required="true" varargs="false" type-variable="T"/>
+        <input id="script" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type-variable="T"/>
+    </block-description>
+
+    <!-- Collects pallets and sends out a truck once it is filled. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.demo.TruckLoader" id="TruckLoader" scheduler="IO" category="demo">
+        <input id="capacity" required="true" varargs="false" type="advance:integer"/>
+        <input id="pallet" required="true" varargs="false" type="advance:pallet"/>
+        <output id="truck" type="advance:truck"/>
+    </block-description>
+
+    <!-- Displays a bargraph of values. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.demo.BayStatus" id="BayStatus" scheduler="IO" category="demo">
+        <input id="critical-load-limit" required="true" varargs="false" type="advance:integer"/>
+        <input id="load" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:integer"/>
+        </input>
+        <input id="title" required="true" varargs="false" type="advance:string"/>
+    </block-description>
+
+    <!-- Block to merge many streams of the same type. This block does not wait for all of its inputs to be ready. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.MultiMerge" id="MultiMerge" scheduler="NOW">
+        <type-variable name="T"/>
+        <input id="in" required="false" varargs="true" type-variable="T"/>
+        <output id="out" type-variable="T"/>
+    </block-description>
+
+    <!-- Create a collection from the inputs. Emits the collection when all inputs change. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.structuring.Wrap" id="Wrap" scheduler="IO" category="data-transformations">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="true" type-variable="T"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
+    </block-description>
+
+    <!-- Save the data into a local file, appeding the received input at the end of the file with a timestamp. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.file.FileLogger" id="FileLogger" scheduler="IO" category="file">
+        <input id="append" required="true" varargs="false" type="advance:string"/>
+        <input id="path" required="true" varargs="false" type="advance:string"/>
+    </block-description>
+
+    <!-- Computes the smallest and largest values of the received inputs. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.RunningExtremes" id="RunningExtremes" scheduler="NOW" category="aggregation">
+        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <output id="max" type="advance:real"/>
+        <output id="min" type="advance:real"/>
+    </block-description>
+
+    <!-- Compute the sum of the elements within the collection which have the type of Integer or Real. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.RunningSum" id="Sum" scheduler="NOW" category="aggregation">
+        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Computes the running count, mean, variance and standard deviation of the input values. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.SimpleRunningStatistics" id="SimpleRunningStatistics" scheduler="IO" category="aggregation">
+        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <output id="count" type="advance:integer"/>
+        <output id="deviation" type="advance:real"/>
+        <output id="mean" type="advance:real"/>
+        <output id="variance" type="advance:real"/>
+    </block-description>
+
+    <!-- Save the data into a local file, appending the received input at the end of file or overwriting the file. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileOutput" id="LocalFileOutput" scheduler="IO" category="file">
+        <input id="append" required="true" varargs="false" type="advance:string"/>
+        <input id="path" required="true" varargs="false" type="advance:string"/>
+        <input id="write" required="true" varargs="false" type="advance:string"/>
+    </block-description>
+
+    <!-- Extracts elements from a collection and dispatches them one-by-one. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.structuring.Unwrap" id="Unwrap" scheduler="IO" category="data-transformations">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type-variable="T"/>
+    </block-description>
+
+    <!-- Parse a real from the received string. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ParseReal" id="ParseReal" scheduler="IO" category="projection">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Parse an int from the received string. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ParseInt" id="ParseInt" scheduler="IO" category="projection">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:integer"/>
     </block-description>
 
 </block-registry>
