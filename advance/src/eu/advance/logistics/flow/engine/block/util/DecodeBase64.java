@@ -35,7 +35,7 @@ import eu.advance.logistics.flow.engine.util.Base64;
  * Signature: DecodeBase64(string) -> string
  * @author szmarcell
  */
-@Block(id = "___DecodeBase64", category = "string", scheduler = "NOW", description = "Convert the Base64 representation into a string.")
+@Block(id = "DecodeBase64", category = "string", scheduler = "NOW", description = "Convert the Base64 representation into a string.")
 public class DecodeBase64 extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(DecodeBase64 .class.getName());

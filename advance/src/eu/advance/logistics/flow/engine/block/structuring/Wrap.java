@@ -18,8 +18,10 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.aggregating;
+package eu.advance.logistics.flow.engine.block.structuring;
 
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -27,29 +29,33 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import java.util.TreeMap;
 
 /**
- * Compute the sum of the elements within the collection which have the type of Integer or Real.
- * Signature: Sum(collection<object>) -> real
+ * Create a collection from the inputs. Emits the collection when all inputs change.
+ * Signature: Wrap(T*) -> Collection<T>
  * @author szmarcell
  */
-@Block(id = "Sum", category = "aggregation", scheduler = "IO", description = "Compute the sum of the elements within the collection which have the type of Integer or Real.")
-public class Sum extends AdvanceBlock {
+@Block(id = "Wrap", category = "data-transformations", scheduler = "IO", parameters = {"T"}, description = "Create a collection from the inputs. Emits the collection when all inputs change.")
+public class Wrap extends AdvanceBlock {
+
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Sum .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(Wrap.class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input(value = "?T", variable = true)
     protected static final String IN = "in";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
-    /** The running sum. */
-    private double value;
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value += val;
-        dispatch(OUT, AdvanceData.create(value));
+        TreeMap<String, XElement> treeMap = new TreeMap<String, XElement>();
+        for (AdvancePort port : getReactivePorts()) {
+            String name = port.name();
+            treeMap.put(name, get(name));
+        }
+        dispatch(OUT, AdvanceData.create(treeMap.values()));
     }
-    
 }

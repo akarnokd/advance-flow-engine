@@ -33,15 +33,18 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: BufferWithTime(t, integer) -> collection<t>
  * @author szmarcell
  */
-@Block(id = "___BufferWithTime", category = "streaming", scheduler = "IO", description = "Buffers the incoming values into a collection within the given time window.")
+@Block(id = "___BufferWithTime", category = "streaming", scheduler = "IO", parameters = "T", description = "Buffers the incoming values into a collection within the given time window.")
 public class BufferWithTime extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(BufferWithTime .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
+    /** In element. */
+    @Input("?T")
+    protected static final String ELEMENT = "element";
+    /** In size. */
+    @Input("advance:integer")
+    protected static final String SIZE = "size";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
     /** The running count. */
     private int count;
@@ -50,9 +53,6 @@ public class BufferWithTime extends AdvanceBlock {
     // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
     }
     
 }

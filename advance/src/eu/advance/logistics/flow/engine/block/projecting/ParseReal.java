@@ -18,38 +18,37 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.aggregating;
+package eu.advance.logistics.flow.engine.block.projecting;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Returns the largest value in the collection along with its last occurrence.
- * Signature: Max(collection<object>) -> (real, integer)
+ * Parse a real from the received string.
+ * Signature: ParseReal(string) -> int
  * @author szmarcell
  */
-@Block(id = "Max", category = "aggregation", scheduler = "IO", description = "Returns the largest value in the collection along with its last occurrence.")
-public class Max extends AdvanceBlock {
+@Block(id = "ParseReal", category = "projection", scheduler = "IO", description = "Parse a real from the received string.")
+public class ParseReal extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Max .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(ParseReal .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:string")
     protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running sum. */
-    private double value = Double.MIN_VALUE;
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = Math.max(val, value);
-        dispatch(OUT, AdvanceData.create(value));
+        dispatch(OUT, AdvanceData.create(getDouble(IN)));
     }
     
 }

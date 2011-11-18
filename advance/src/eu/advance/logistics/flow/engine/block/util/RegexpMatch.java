@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
+import com.google.common.collect.Lists;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -27,32 +28,41 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Run a regular expression on the string and return a collection of the matched groups.
  * Signature: RegexpMatch(string, string) -> collection<regexpgroup>
  * @author szmarcell
  */
-@Block(id = "___RegexpMatch", category = "string", scheduler = "IO", description = "Run a regular expression on the string and return a collection of the matched groups.")
+@Block(id = "RegexpMatch", category = "string", scheduler = "NOW", description = "Run a regular expression on the string and return a collection of the matched groups.")
 public class RegexpMatch extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(RegexpMatch .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    /** In string. */
+    @Input("advance:string")
+    protected static final String STRING = "string";
+    /** In pattern. */
+    @Input("advance:string")
+    protected static final String PATTERN = "pattern";
+    /** Out groups. */
+    @Output("advance:collection<advance:string>")
+    protected static final String GROUPS = "groups";
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+        String string = get(STRING).content;
+        String patternStr = get(PATTERN).content;
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(string);
+        ArrayList<XElement> matches = Lists.newArrayList();
+        while (matcher.find()) {
+            final String group = matcher.group();
+            matches.add(AdvanceData.create(group));
+        }
+        dispatch(GROUPS, AdvanceData.create(matches));
     }
     
 }

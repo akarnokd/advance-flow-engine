@@ -18,41 +18,37 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.aggregating;
+package eu.advance.logistics.flow.engine.block.projecting;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.api.core.AdvanceData;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Computes the standard deviation of numerical elements of the supplied collection.
- * Signature: STDDeviation(collection<object>) -> real
+ * Parse an int from the received string.
+ * Signature: ParseInt(string) -> int
  * @author szmarcell
  */
-@Block(id = "___STDDeviation", category = "aggregation", scheduler = "IO", description = "Computes the standard deviation of numerical elements of the supplied collection.")
-public class STDDeviation extends AdvanceBlock {
+@Block(id = "ParseInt", category = "projection", scheduler = "IO", description = "Parse an int from the received string.")
+public class ParseInt extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(STDDeviation .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(ParseInt .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:string")
     protected static final String IN = "in";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:integer")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+        dispatch(OUT, AdvanceData.create(getInt(IN)));
     }
     
 }

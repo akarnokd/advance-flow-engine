@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2012 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -27,28 +28,31 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
- * Counts the elements in the given collection.
- * Signature: Count(collection<t>) -> integer
+ * Compute the sum of the elements within the collection which have the type of Integer or Real.
+ * Signature: RunningSum(collection<object>) -> real
  * @author szmarcell
  */
-@Block(id = "Count", category = "aggregation", scheduler = "IO", description = "Counts the elements in the given collection.")
-public class Count extends AdvanceBlock {
+@Block(id = "Sum", category = "aggregation", scheduler = "NOW", description = "Compute the sum of the elements within the collection which have the type of Integer or Real.")
+public class RunningSum extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Count .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(RunningSum .class.getName());
     /** In. */
     @Input("advance:real")
     protected static final String IN = "in";
     /** Out. */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
+    /** The running sum. */
+    private double value;
     @Override
     protected void invoke() {
-        count++;
-        dispatch(OUT, AdvanceData.create(count));
+        double val = getDouble(IN);
+        value += val;
+        dispatch(OUT, AdvanceData.create(value));
     }
     
 }

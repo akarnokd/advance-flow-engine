@@ -33,26 +33,19 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: IsEmptyCollection(collection<t>) -> boolean
  * @author szmarcell
  */
-@Block(id = "___IsEmptyCollection", category = "streaming", scheduler = "IO", description = "Checks if the collection is empty.")
+@Block(id = "IsEmptyCollection", category = "streaming", scheduler = "IO", parameters = {"T"}, description = "Checks if the collection is empty.")
 public class IsEmptyCollection extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(IsEmptyCollection .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:collection<?T>")
     protected static final String IN = "in";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:boolean")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+        dispatch(OUT, AdvanceData.create(AdvanceData.getList(get(IN)).isEmpty()));
     }
     
 }

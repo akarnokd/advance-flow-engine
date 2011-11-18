@@ -33,26 +33,21 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
  * Signature: Join(t, u, schema<v>) -> v
  * @author szmarcell
  */
-@Block(id = "___Join", category = "data-transformations", scheduler = "IO", description = "Join two objects structurally and return the new structure.")
+@Block(id = "___Join", category = "data-transformations", scheduler = "IO", parameters = {"T", "U", "V +T,+U"}, description = "Join two objects structurally and return the new structure.")
 public class Join extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Join .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
+    /** In T. */
+    @Input("?T")
+    protected static final String IN_T = "t";
+    /** In U. */
+    @Input("?U")
+    protected static final String IN_U = "u";
     /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    @Output("?V")
+    protected static final String OUT = "v";
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
     }
     
 }

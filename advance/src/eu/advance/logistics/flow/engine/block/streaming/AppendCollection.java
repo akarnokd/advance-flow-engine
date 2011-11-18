@@ -27,32 +27,34 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import java.util.List;
 
 /**
  * Returns a new collection with the given value appended to its end.
  * Signature: AppendCollection(collection<t>, t) -> collection<t>
  * @author szmarcell
  */
-@Block(id = "___AppendCollection", category = "streaming", scheduler = "IO", description = "Returns a new collection with the given value appended to its end")
+@Block(id = "AppendCollection", category = "streaming", scheduler = "IO", parameters = {"T"}, description = "Returns a new collection with the given value appended to its end")
 public class AppendCollection extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(AppendCollection .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
+    /** In collection. */
+    @Input("advance:collection<?T>")
+    protected static final String COLLECTION = "collection";
+    /** In element. */
+    @Input("?T")
+    protected static final String ELEMENT = "element";
     /** Out. */
-    @Output("advance:real")
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, AdvanceData.create(value));
+        XElement element = get(ELEMENT);
+        XElement collection = get(COLLECTION);
+        List<XElement> list = AdvanceData.getList(collection);
+        list.add(element);
+        dispatch(OUT, AdvanceData.create(list));
     }
     
 }

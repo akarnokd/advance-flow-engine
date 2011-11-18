@@ -56,6 +56,8 @@ import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
 import eu.advance.logistics.flow.engine.cc.LabelManager;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceConstantPort;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 
 /**
@@ -69,6 +71,10 @@ public class Log extends AdvanceBlock {
 	/** In. */
     @Input("?T")
     private static final String IN = "in";
+
+    /** In. */
+    @Input(value = "advance:string", required = false)
+    private static final String TITLE = "title";
     /** Out. */
     @Output("?T")
     private static final String OUT = "out";
@@ -86,18 +92,22 @@ public class Log extends AdvanceBlock {
 	@Override
 	public void init(AdvanceBlockSettings settings) {
 		super.init(settings);
+                AdvancePort titlePort = getInput(TITLE);
+                final String title = titlePort instanceof AdvanceConstantPort 
+                        ? ((AdvanceConstantPort)titlePort).value.content 
+                        : settings.id;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				createGUI();
+				createGUI(title);
 			}
 		});
 	}
 	/**
 	 * Create the GUI.
 	 */
-	protected void createGUI() {
-		frame = new JInternalFrame(settings.id, true);
+	protected void createGUI(String title) {
+		frame = new JInternalFrame(title, true);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		rowcount = new JLabel("Rows: 0");
 		model = new AbstractTableModel() {
