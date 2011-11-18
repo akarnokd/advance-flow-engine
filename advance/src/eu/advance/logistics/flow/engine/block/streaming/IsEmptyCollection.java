@@ -25,15 +25,15 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 
 /**
  * Checks if the collection is empty.
  * Signature: IsEmptyCollection(collection<t>) -> boolean
  * @author szmarcell
  */
-@Block(id = "IsEmptyCollection", category = "streaming", scheduler = "IO", parameters = {"T"}, description = "Checks if the collection is empty.")
+@Block(id = "IsEmptyCollection", category = "streaming", scheduler = "IO", parameters = { "T" }, description = "Checks if the collection is empty.")
 public class IsEmptyCollection extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(IsEmptyCollection .class.getName());

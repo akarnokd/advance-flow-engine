@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.util;
+package eu.advance.logistics.flow.engine.block.aggregating;
 
 import java.util.logging.Logger;
 
@@ -29,28 +29,26 @@ import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 
 /**
- * Check if the substring is within the string.
- * Signature: Contains(string, string) -> boolean
+ * Counts the elements in the given collection.
+ * Signature: Count(collection<t>) -> integer
  * @author szmarcell
  */
-@Block(id = "Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string.")
-public class Contains extends AdvanceBlock {
+@Block(id = "Count", category = "aggregation", scheduler = "IO", description = "Counts the elements in the given collection.")
+public class Count extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Contains .class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(Count .class.getName());
     /** In. */
-    @Input("advance:string")
+    @Input("advance:real")
     protected static final String IN = "in";
-    /** Substring. */
-    @Output("advance:string")
-    protected static final String SUBSTRING = "substring";
     /** Out. */
-    @Output("advance:boolean")
-    protected static final String OUT = "boolean";
+    @Output("advance:real")
+    protected static final String OUT = "out";
+    /** The running count. */
+    private int count;
     @Override
     protected void invoke() {
-        String in1 = getString(IN);
-        String in2 = getString(SUBSTRING);
-        dispatch(OUT, AdvanceData.create(in1.contains(in2)));
+        count++;
+        dispatch(OUT, AdvanceData.create(count));
     }
     
 }

@@ -20,25 +20,23 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
-import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import java.util.TreeMap;
 
 /**
  * Create a collection from the inputs. Emits the collection when all inputs change.
  * Signature: Wrap(T*) -> Collection<T>
  * @author szmarcell
  */
-@Block(id = "Wrap", category = "data-transformations", scheduler = "IO", parameters = {"T"}, description = "Create a collection from the inputs. Emits the collection when all inputs change.")
+@Block(id = "Wrap", category = "data-transformations", scheduler = "IO", parameters = { "T" }, description = "Create a collection from the inputs. Emits the collection when all inputs change.")
 public class Wrap extends AdvanceBlock {
 
     /** The logger. */

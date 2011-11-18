@@ -21,14 +21,14 @@
 package eu.advance.logistics.flow.engine.block.util;
 
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 
 /**
  * Test if the given regular expression matches the string.

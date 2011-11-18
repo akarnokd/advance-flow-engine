@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 The Advance EU 7th Framework project consortium
+ * Copyright 2010-2013 The Advance EU 7th Framework project consortium
  *
  * This file is part of Advance.
  *
@@ -20,27 +20,25 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
-import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
+import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockDiagnostic;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockState;
+import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Save the data into a local file, appeding the received input at the end of the file with a timestamp.
@@ -49,8 +47,8 @@ import java.util.Date;
  */
 @Block(id = "FileLogger", category = "file", scheduler = "IO", description = "Save the data into a local file, appeding the received input at the end of the file with a timestamp.")
 public class FileLogger extends AdvanceBlock {
+	/** The datetime format. */
     private static final DateFormat DATETIME = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(FileLogger.class.getName());
     /** Filename input. */

@@ -490,11 +490,20 @@ public abstract class AdvanceBlock {
 	}
 	/**
 	 * Returns a XML parameter value.
+	 * <p>It checks for the {@code params} mapping first, and if that fails, it tries
+	 * the constant parameters of this block.</p>
 	 * @param name the parameter name
 	 * @return the value
 	 */
 	protected XElement get(String name) {
-		return params.get(name);
+		XElement p = params.get(name);
+		if (p == null) {
+			AdvanceConstantBlock cp = settings.constantParams.get(name);
+			if (cp != null) {
+				p = cp.value;
+			}
+		}
+		return p;
 	}
 	/**
 	 * Dispatches the output value to the given port.
@@ -544,4 +553,12 @@ public abstract class AdvanceBlock {
 	protected void set(String name, XElement value) {
 		dispatch(name, value);
 	}
+	/**
+	 * Register an observer on the given port and observe it on the preferred scheduler.
+	 * @param port the target port
+	 * @param observer the observer to register
+	 */
+    protected void register(AdvancePort port, Observer<XElement> observer) {
+        addCloseable(Reactive.observeOn(port, scheduler()).register(observer));
+    }
 }

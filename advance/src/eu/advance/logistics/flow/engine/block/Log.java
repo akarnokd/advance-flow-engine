@@ -92,10 +92,10 @@ public class Log extends AdvanceBlock {
 	@Override
 	public void init(AdvanceBlockSettings settings) {
 		super.init(settings);
-                AdvancePort titlePort = getInput(TITLE);
-                final String title = titlePort instanceof AdvanceConstantPort 
-                        ? ((AdvanceConstantPort)titlePort).value.content 
-                        : settings.id;
+        AdvancePort titlePort = getInput(TITLE);
+        final String title = titlePort instanceof AdvanceConstantPort 
+                ? ((AdvanceConstantPort)titlePort).value.content 
+                : settings.id;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -105,6 +105,7 @@ public class Log extends AdvanceBlock {
 	}
 	/**
 	 * Create the GUI.
+	 * @param title the title
 	 */
 	protected void createGUI(String title) {
 		frame = new JInternalFrame(title, true);
