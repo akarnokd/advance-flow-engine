@@ -47,7 +47,6 @@ import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePlugin;
 import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePluginDetails;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeOutputError;
@@ -65,6 +64,10 @@ import eu.advance.logistics.flow.engine.error.SourceToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
 import eu.advance.logistics.flow.engine.error.UnsetVarargsError;
+import eu.advance.logistics.flow.engine.inference.TypeInference;
+import eu.advance.logistics.flow.engine.inference.Relation;
+import eu.advance.logistics.flow.engine.inference.TypeKind;
+import eu.advance.logistics.flow.engine.inference.TypeRelation;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
@@ -73,17 +76,17 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockPort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockSettings;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceData;
 import eu.advance.logistics.flow.engine.model.rt.AdvancePort;
 import eu.advance.logistics.flow.engine.model.rt.AdvanceSchedulerPreference;
+import eu.advance.logistics.flow.engine.model.rt.AdvanceTypeFunctions;
 import eu.advance.logistics.flow.engine.util.Triplet;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
-import eu.advance.logistics.flow.engine.xml.typesystem.XRelation;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
 
@@ -403,7 +406,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		
 		AdvanceCompilationResult result = new AdvanceCompilationResult();
 		
-		LinkedList<TypeRelation> relations = Lists.newLinkedList();
+		LinkedList<Relation<AdvanceType, AdvanceBlockBind>> relations = Lists.newLinkedList();
 		
 		LinkedList<AdvanceCompositeBlock> blockRecursion = Lists.newLinkedList();
 		blockRecursion.add(enclosingBlock);
@@ -430,7 +433,7 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 
 			// build type relations
 			for (AdvanceBlockBind bb : validBindings) {
-				TypeRelation tr = new TypeRelation();
+				Relation<AdvanceType, AdvanceBlockBind> tr = new Relation<AdvanceType, AdvanceBlockBind>();
 				tr.wire = bb;
 				// evaluate source
 				if (cb.constants.containsKey(bb.sourceBlock)) {
@@ -467,9 +470,9 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					if (tr.left.typeVariable != null) {
 						for (AdvanceType t : tr.left.typeVariable.bounds) {
 							if (tr.left.typeVariable.isUpperBound) {
-								relations.add(new TypeRelation(t, tr.left, bb));
+								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(t, tr.left, bb));
 							} else {
-								relations.add(new TypeRelation(tr.left, t, bb));
+								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(tr.left, t, bb));
 							}
 						}
 					}
@@ -516,9 +519,9 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 					if (tr.right.typeVariable != null) {
 						for (AdvanceType t : tr.right.typeVariable.bounds) {
 							if (tr.right.typeVariable.isUpperBound) {
-								relations.add(new TypeRelation(t, tr.right, bb));
+								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(t, tr.right, bb));
 							} else {
-								relations.add(new TypeRelation(tr.right, t, bb));
+								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(tr.right, t, bb));
 							}
 						}
 					}
@@ -552,8 +555,9 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 		
 		// ---------------------------------------------------------------------------------
 		
-		AdvanceTypeInference typeInference = new AdvanceTypeInference(relations);
-		result.add(typeInference.infer());
+		TypeInference<AdvanceType, AdvanceBlockBind> typeInference = 
+				new TypeInference<AdvanceType, AdvanceBlockBind>(relations, new AdvanceTypeFunctions());
+		result.add(typeInference.infer(new AdvanceCompilationResult()));
 		if (result.wireTypes().size() > 0) {
 				
 			Deque<AdvanceType> types = Lists.newLinkedList();
@@ -567,12 +571,12 @@ public final class AdvanceCompiler implements AdvanceFlowCompiler, AdvanceFlowEx
 			}
 			while (!types.isEmpty()) {
 				AdvanceType t = types.removeFirst();
-				if (t.getKind() == AdvanceTypeKind.PARAMETRIC_TYPE) {
+				if (t.kind() == TypeKind.PARAMETRIC_TYPE) {
 					types.addAll(t.typeArguments);
 				} else 
-				if (t.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
+				if (t.kind() == TypeKind.CONCRETE_TYPE) {
 					for (Pair<XType, URI> xt : baseTypes) {
-						if (XSchema.compare(xt.first, t.type) == XRelation.EQUAL) {
+						if (XSchema.compare(xt.first, t.type) == TypeRelation.EQUAL) {
 							t.typeURI = xt.second;
 							break;
 						}

@@ -26,6 +26,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.inference.TypeRelation;
 
 /**
  * The XML naming record.
@@ -39,17 +40,17 @@ public class XName implements XComparable<XName> {
 	/** The other aliases for this capability under the given semantics. */
 	public Set<String> aliases;
 	@Override
-	public XRelation compareTo(XName o) {
+	public TypeRelation compareTo(XName o) {
 		if (name.equals(o.name) 
 				|| (o.aliases != null && o.aliases.contains(name)) 
 				|| (aliases != null && aliases.contains(o.name))) {
 			if (semantics != null && o.semantics != null) {
 				return semantics.compareTo(o.semantics);
 			}
-			return XRelation.EQUAL;
+			return TypeRelation.EQUAL;
 		}
 		
-		return XRelation.NONE;
+		return TypeRelation.NONE;
 	}
 	/**
 	 * Assign values from another instance.

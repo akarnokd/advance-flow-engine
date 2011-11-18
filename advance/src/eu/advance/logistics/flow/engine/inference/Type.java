@@ -19,17 +19,18 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.model.fd;
+package eu.advance.logistics.flow.engine.inference;
+
 
 /**
- * The enum representing the kind of an Advance type.
- * @author akarnokd, 2011.07.07.
+ * The base interface for a type.
+ * @author karnokd, 2011.11.18.
+ * @version $Revision 1.0$
  */
-public enum AdvanceTypeKind {
-	/** A concrete and exact type, e.g., advance:integer and such. */
-	CONCRETE_TYPE,
-	/** A concrete basetype with one or more generic type parameter, such as advance:collection. */
-	PARAMETRIC_TYPE,
-	/** An arbitrary type variable with optional type constraints. */
-	VARIABLE_TYPE
+public interface Type {
+	/**
+	 * Returns the kind of this type.
+	 * @return the type kind
+	 */
+	TypeKind kind();
 }

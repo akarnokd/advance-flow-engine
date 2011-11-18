@@ -19,13 +19,13 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.xml.typesystem;
+package eu.advance.logistics.flow.engine.inference;
 
 /**
  * The relation indicator.
  * @author akarnokd, 2011.03.09.
  */
-public enum XRelation {
+public enum TypeRelation {
 	/** In <code>A.compareTo(B)</code> A extends B. */
 	EXTENDS,
 	/** In <code>A.compareTo(B)</code> A = B. */

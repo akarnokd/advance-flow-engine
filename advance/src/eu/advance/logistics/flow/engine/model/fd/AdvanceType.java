@@ -21,15 +21,21 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.reactive4java.base.Action1;
+import hu.akarnokd.reactive4java.base.Pair;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.inference.Type;
+import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
 import eu.advance.logistics.flow.engine.xml.typesystem.XSerializable;
 import eu.advance.logistics.flow.engine.xml.typesystem.XType;
@@ -38,7 +44,7 @@ import eu.advance.logistics.flow.engine.xml.typesystem.XType;
  * The type parameter bound definition for a generic type parameter.
  * @author akarnokd, 2011.07.01.
  */
-public class AdvanceType implements XSerializable {
+public class AdvanceType implements Type, XSerializable {
 	/** The counter used for type variables. */
 	public int id;
 	/** Reference to another type parameter within the same set of declarations. */
@@ -51,6 +57,24 @@ public class AdvanceType implements XSerializable {
 	public XType type;
 	/** The type arguments used by the concrete type. */
 	public final List<AdvanceType> typeArguments = Lists.newArrayList();
+	/**
+	 * Set a type identifier on the given type.
+	 */
+	public static final Action1<Pair<AdvanceType, Set<AdvanceType>>> SET_TYPE_ID = new Action1<Pair<AdvanceType, Set<AdvanceType>>>() {
+		@Override
+		public void invoke(Pair<AdvanceType, Set<AdvanceType>> value) {
+			if (value.first.kind() == TypeKind.VARIABLE_TYPE) {
+				if (value.second.add(value.first)) {
+					value.first.id = value.second.size();
+				}
+			} else
+			if (value.first.kind() == TypeKind.PARAMETRIC_TYPE) {
+				for (AdvanceType ta : value.first.typeArguments) {
+					invoke(Pair.of(ta, value.second));
+				}
+			}
+		}
+	};
 	@Override
 	public String toString() {
 		if (typeURI != null) {
@@ -137,15 +161,15 @@ public class AdvanceType implements XSerializable {
 			at.save(destination.add("type-argument"));
 		}
 	}
-	/** @return the kind of this type. */
-	public AdvanceTypeKind getKind() {
+	@Override
+	public TypeKind kind() {
 		if (typeURI != null) {
 			if (typeArguments.isEmpty()) {
-				return AdvanceTypeKind.CONCRETE_TYPE;
+				return TypeKind.CONCRETE_TYPE;
 			}
-			return AdvanceTypeKind.PARAMETRIC_TYPE;
+			return TypeKind.PARAMETRIC_TYPE;
 		}
-		return AdvanceTypeKind.VARIABLE_TYPE;
+		return TypeKind.VARIABLE_TYPE;
 	}
 	/**
 	 * Creates a concrete (e.g., no type arguments or parametric type with the supplied base type and type arguments.

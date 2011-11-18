@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.xml.typesystem;
 
+import eu.advance.logistics.flow.engine.inference.TypeRelation;
+
 /**
  * The cardinality enum for an element.
  * @author akarnokd
@@ -52,13 +54,13 @@ public enum XCardinality {
 	 * @param n2 the second cardinality value
 	 * @return the relation
 	 */
-	public static XRelation compare(XCardinality n1, XCardinality n2) {
+	public static TypeRelation compare(XCardinality n1, XCardinality n2) {
 		if (n1 == n2) {
-			return XRelation.EQUAL;
+			return TypeRelation.EQUAL;
 		} else
 		if (n1.ordinal() < n2.ordinal()) {
-			return XRelation.SUPER;
+			return TypeRelation.SUPER;
 		}
-		return XRelation.EXTENDS;
+		return TypeRelation.EXTENDS;
 	}
 }

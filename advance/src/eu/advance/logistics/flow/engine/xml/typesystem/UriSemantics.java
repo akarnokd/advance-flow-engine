@@ -23,6 +23,8 @@ package eu.advance.logistics.flow.engine.xml.typesystem;
 
 import com.google.common.base.Objects;
 
+import eu.advance.logistics.flow.engine.inference.TypeRelation;
+
 /**
  * A basic URI semantics with only equivalence relation.
  * @author akarnokd, 2011.07.05.
@@ -38,13 +40,13 @@ public class UriSemantics implements XSemantics {
 		this.uri = uri;
 	}
 	@Override
-	public XRelation compareTo(XSemantics other) {
+	public TypeRelation compareTo(XSemantics other) {
 		if (other instanceof UriSemantics) {
 			if (Objects.equal(((UriSemantics) other).uri, uri)) {
-				return XRelation.EQUAL;
+				return TypeRelation.EQUAL;
 			}
 		}
-		return XRelation.NONE;
+		return TypeRelation.NONE;
 	}
 	@Override
 	public boolean equals(Object obj) {
