@@ -13,16 +13,24 @@
 				<advance-type-info>
 					<type-variable name="K"/>
 					<type-variable name="V"/>
-					<type type="advance:pair">
-						<type-argument type-variable="K"/>
-						<type-argument type-variable="V"/>
-					</type>
 				</advance-type-info>
 			</xs:appinfo>
 			<xs:documentation>A generic map of type-value pairs.</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="collection"/>
+		<!-- map extends collection<pair<k, v>> -->
+			<xs:extension base="collection">
+				<xs:annotation>
+					<xs:appinfo>
+						<advance-type-info>
+							<type type="advance:pair">
+								<type-argument type-variable="K"/>
+								<type-argument type-variable="V"/>
+							</type>
+						</advance-type-info>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 </xs:schema>
