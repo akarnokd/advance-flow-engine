@@ -43,7 +43,7 @@ import org.openide.util.NbBundle;
 import com.google.common.io.Closeables;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 public class BlockRegistryDataObject extends MultiDataObject {
     /** */

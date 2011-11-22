@@ -24,18 +24,16 @@ import eu.advance.logistics.flow.editor.diagram.FlowScene;
 import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import eu.advance.logistics.flow.engine.error.HasBinding;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
@@ -222,15 +220,15 @@ public final class EditorTopComponent extends TopComponent {
         return false;
     }
 
-    private void addInfo(final String wire, final AdvanceCompilationResult cr) {
+    private void addInfo(final AdvanceBlockBind wire, final AdvanceCompilationResult cr) {
         removeInfo();
         info = new JPanel();
         final JLabel label = new JLabel();
         AdvanceType type = cr.getType(wire);
-        List<AdvanceCompilationError> errors = cr.getErrors(wire);
+        List<AdvanceCompilationError> errors = cr.getErrors(wire.id);
 
         StringBuilder b = new StringBuilder();
-        b.append(wire);
+        b.append(wire.id);
         if (type == null) {
             b.append(": N/A");
         } else {
@@ -297,7 +295,9 @@ public final class EditorTopComponent extends TopComponent {
                 }
             }
             if (bind != null && cr != null) {
-                addInfo(bind.id, cr);
+                AdvanceBlockBind b = new AdvanceBlockBind();
+                b.id = bind.id;
+                addInfo(b, cr);
             } else {
                 removeInfo();
             }

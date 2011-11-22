@@ -91,22 +91,27 @@
                 <package>eu.advance.logistics.flow.engine.block.aggregating</package>
                 <package>eu.advance.logistics.flow.engine.block.comm</package>
                 <package>eu.advance.logistics.flow.engine.block.db</package>
+                <package>eu.advance.logistics.flow.engine.block.demo</package>
                 <package>eu.advance.logistics.flow.engine.block.file</package>
                 <package>eu.advance.logistics.flow.engine.block.filtering</package>
                 <package>eu.advance.logistics.flow.engine.block.projecting</package>
                 <package>eu.advance.logistics.flow.engine.block.streaming</package>
                 <package>eu.advance.logistics.flow.engine.block.structuring</package>
+                <package>eu.advance.logistics.flow.engine.block.test</package>
                 <package>eu.advance.logistics.flow.engine.block.util</package>
                 <package>eu.advance.logistics.flow.engine.block.web</package>
                 <package>eu.advance.logistics.flow.engine.cc</package>
                 <package>eu.advance.logistics.flow.engine.comm</package>
+                <package>eu.advance.logistics.flow.engine.compiler</package>
                 <package>eu.advance.logistics.flow.engine.error</package>
+                <package>eu.advance.logistics.flow.engine.inference</package>
                 <package>eu.advance.logistics.flow.engine.model</package>
                 <package>eu.advance.logistics.flow.engine.model.fd</package>
-                <package>eu.advance.logistics.flow.engine.model.rt</package>
+                <package>eu.advance.logistics.flow.engine.runtime</package>
                 <package>eu.advance.logistics.flow.engine.test</package>
+                <package>eu.advance.logistics.flow.engine.typesystem</package>
                 <package>eu.advance.logistics.flow.engine.util</package>
-                <package>eu.advance.logistics.flow.engine.xml.typesystem</package>
+                <package>eu.advance.logistics.flow.engine.xml</package>
                 <package>extra166y</package>
                 <package>hu.akarnokd.reactive4java.base</package>
                 <package>hu.akarnokd.reactive4java.interactive</package>

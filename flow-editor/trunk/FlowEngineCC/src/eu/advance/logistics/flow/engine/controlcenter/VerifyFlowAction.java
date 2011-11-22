@@ -43,10 +43,10 @@ import eu.advance.logistics.flow.engine.cc.CCDebugRow;
 import eu.advance.logistics.flow.engine.cc.CCValueDialog;
 import eu.advance.logistics.flow.engine.cc.CCWatchSettings;
 import eu.advance.logistics.flow.engine.cc.LabelManager;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 @ActionID(category = "RemoteFlowEngine",
 id = "eu.advance.logistics.flow.engine.controlcenter.VerifyFlowAction")

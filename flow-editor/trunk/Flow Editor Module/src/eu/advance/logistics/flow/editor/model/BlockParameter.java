@@ -93,6 +93,11 @@ public class BlockParameter implements Comparable<BlockParameter> {
         owner.removeParameter(this);
     }
 
+    @Override
+    public String toString() {
+        return getPath();
+    }
+    
     public enum Type {
 
         INPUT, OUTPUT

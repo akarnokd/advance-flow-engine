@@ -43,10 +43,10 @@ import eu.advance.logistics.flow.editor.undo.BlockMoved;
 import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockAdded;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceTypeKind;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *
@@ -115,7 +115,7 @@ public class ConstAddAction extends AbstractAction {
         AdvanceConstantBlock c = new AdvanceConstantBlock();
         c.id = parent.generateConstantId();
         AdvanceBlockParameterDescription d = target.getDescription();
-        if (d.type.getKind() == AdvanceTypeKind.CONCRETE_TYPE) {
+        if (d.type.kind() == TypeKind.CONCRETE_TYPE) {
             c.typeURI = d.type.typeURI;
             c.type = d.type.type;
         } else {

@@ -24,17 +24,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
@@ -42,18 +39,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.editor.model.BlockCategory;
-import eu.advance.logistics.flow.engine.AdvanceLocalSchemaResolver;
+import eu.advance.logistics.flow.engine.AdvanceDefaultSchemaResolver;
+import eu.advance.logistics.flow.engine.AdvanceSchemaResolver;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
-import eu.advance.logistics.flow.engine.xml.typesystem.XType;
+import eu.advance.logistics.flow.engine.typesystem.XType;
 
 /**
  *
@@ -69,7 +66,7 @@ public class BlockRegistry {
     private Map<AdvanceBlockDescription, BlockCategory> descriptions = Maps.newHashMap();
     private Map<String, AdvanceBlockDescription> types = Maps.newHashMap();
     private Map<String, XType> xtypes = Maps.newHashMap();
-    private AdvanceLocalSchemaResolver schemaResolver;
+    private AdvanceSchemaResolver schemaResolver;
     /** The local verification compiler. */
     private AdvanceFlowCompiler localVerify;
     private BlockRegistry() {
@@ -250,18 +247,9 @@ public class BlockRegistry {
 
     public XType resolveSchema(URI uri) {
         if (schemaResolver == null) {
-            List<String> schemaLocations = Lists.newArrayList();
-            File schemasDir = InstalledFileLocator.getDefault().locate("LocalEngine/schemas", "eu.advance.logistics.core", false);  // NOI18N
-            if (schemasDir != null && schemasDir.isDirectory()) {
-                try {
-                    schemaLocations.add(schemasDir.getCanonicalPath().replace('\\', '/'));
-                } catch (IOException ex) {
-                    schemaLocations.add(schemasDir.getAbsolutePath().replace('\\', '/'));
-                }
-            }
-            schemaResolver = new AdvanceLocalSchemaResolver(schemaLocations);
+            schemaResolver = new AdvanceDefaultSchemaResolver();
         }
-        return schemaResolver.resolve(uri);
+        return schemaResolver.resolve(uri.toString());
     }
     /**
      * Verify the flow with a local compiler.
