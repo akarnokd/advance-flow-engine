@@ -3,6 +3,27 @@ Advance Flow Editor + Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Editor Version 0.14.224 Notes
+-----------------------------
+
+- Fixed minor bug when binding a composite input to an inner composite input
+- Ability to define variable argument blocks
+- Display type of the composite input/output in the popup menu
+- Added more types to add/edit composite input/output
+- Ability to start binding two ports in the another direction, e.g., not just from output -> input, but the other way around
+- Ability to bind into an existing constant block (backwards only)
+- Other minor bug fixes
+
+Engine Version 0.14.223 Notes
+-----------------------------
+
+- Changed packaging of components.
+- Generalized the type system, type inference and blocks.
+- Fixed several inference and compiler bugs:
+  - Recursive types
+  - Composite block input/output types
+
+
 Editor Version 0.11.203 Notes
 -----------------------------
 
