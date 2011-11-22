@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Supplier;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -77,8 +76,8 @@ public final class TypeInference<T extends Type, W> {
 	public TypeInference(final Iterable<Relation<T, W>> relations,
 			final TypeFunctions<T> functions) {
 		this.functions = functions;
-		Iterables.addAll(this.relations, relations);
 		for (Relation<T, W> tr : relations) {
+			this.relations.add(tr);
 			wireRelations.add(new Relation<T, W>(tr));
 			setTypeId(tr.left);
 			setTypeId(tr.right);
@@ -174,8 +173,8 @@ public final class TypeInference<T extends Type, W> {
 								T ta1 = ebArgs.get(i);
 								T ta2 = rightArgs.get(i);
 								
-								T ta3 = functions.fresh();
-								functions.setId(ta3, typeSet);
+								T ta3 = functions.fresh("T");
+								setTypeId(ta3);
 								
 								btArgs.add(ta3);
 								
@@ -234,8 +233,8 @@ public final class TypeInference<T extends Type, W> {
 								T ta1 = ebArgs.get(i);
 								T ta2 = leftArgs.get(i);
 								
-								T ta3 = functions.fresh();
-								functions.setId(ta3, typeSet);
+								T ta3 = functions.fresh("T");
+								setTypeId(ta3);
 								
 								btArgs.add(ta3);
 								
@@ -387,7 +386,14 @@ public final class TypeInference<T extends Type, W> {
 			List<T> arguments2 = functions.arguments(ct2);
 			for (int i = 0; i < arguments.size(); i++) {
 				T ta = arguments.get(i);
-				arguments2.set(i, findConcreteType(ta));
+				
+				if (ta == type && type.kind() == TypeKind.VARIABLE_TYPE) {
+					T rt = functions.fresh("...");
+					setTypeId(rt);
+					arguments2.set(i, rt);
+				} else {
+					arguments2.set(i, findConcreteType(ta));
+				}
 			}
 			computedType = ct2;
 		}

@@ -75,6 +75,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockReference;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.Block;
@@ -438,7 +439,7 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 						AdvanceType at2 = new AdvanceType();
 						AdvanceConstantBlock constblock = cb.constants.get(bb.sourceBlock);
 						at2.typeURI = constblock.typeURI;
-						at2.type = schemaResolver().resolve(constblock.typeURI.toString());
+						resolve(at2);
 						typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
 						tr.left = at2;
 					} else {
@@ -463,15 +464,7 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 					}
 					tr.left = at.get(bb.sourceParameter);
 					// add bounds of left if any
-					if (tr.left.typeVariable != null) {
-						for (AdvanceType t : tr.left.typeVariable.bounds) {
-							if (tr.left.typeVariable.isUpperBound) {
-								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(t, tr.left, bb));
-							} else {
-								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(tr.left, t, bb));
-							}
-						}
-					}
+					addVariableBounds(tr.left, relations, bb);
 				} else
 				if (cb.composites.containsKey(bb.sourceBlock)) {
 					AdvanceCompositeBlock cb1 = cb.composites.get(bb.sourceBlock);
@@ -479,17 +472,25 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 							Triplet.of(cb1, "", bb.sourceParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
-						// construct a simple unbounded type variable
-						at = AdvanceType.fresh();
+						// FIXME
+						AdvanceCompositeBlockParameterDescription pin = cb1.outputs.get(bb.sourceParameter);
+						at = pin.type;
+						resolve(at);
+//						at = AdvanceType.fresh("T");
 						compositePortTypes.put(typePort, at);
 					}					
 					tr.left = at;
 				} else
 				if (!bb.hasSourceBlock() && cb.inputs.containsKey(bb.sourceParameter)) {
+					// SOURCE: enclosing composite input
 					Triplet<AdvanceCompositeBlock, String, String> typePort = Triplet.of(cb, "", bb.sourceParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
-						at = AdvanceType.fresh();
+						// FIXME
+						AdvanceCompositeBlockParameterDescription pin = cb.inputs.get(bb.sourceParameter);
+						at = pin.type;
+						resolve(at);
+//						at = AdvanceType.fresh("T");
 						compositePortTypes.put(typePort, at);
 					}					
 					tr.left = at;
@@ -512,15 +513,7 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 						typeMemory.put(bb.destinationBlock, at);
 					}
 					tr.right = at.get(bb.destinationParameter);
-					if (tr.right.typeVariable != null) {
-						for (AdvanceType t : tr.right.typeVariable.bounds) {
-							if (tr.right.typeVariable.isUpperBound) {
-								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(t, tr.right, bb));
-							} else {
-								relations.add(new Relation<AdvanceType, AdvanceBlockBind>(tr.right, t, bb));
-							}
-						}
-					}
+					addVariableBounds(tr.right, relations, bb);
 				} else
 				if (cb.composites.containsKey(bb.destinationBlock)) {
 					AdvanceCompositeBlock cb1 = cb.composites.get(bb.destinationBlock);
@@ -528,18 +521,26 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 							Triplet.of(cb1, "", bb.destinationParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
-						// construct a simple unbounded type variable
-						at = AdvanceType.fresh();
+						// FIXME
+						AdvanceCompositeBlockParameterDescription pin = cb1.inputs.get(bb.destinationParameter);
+						at = pin.type;
+						resolve(at);
+//						at = AdvanceType.fresh("T");
 						compositePortTypes.put(typePort, at);
 					}					
 					tr.right = at;
 					
 				} else
 				if (!bb.hasDestinationBlock() && cb.outputs.containsKey(bb.destinationParameter)) {
+					// DESTINATION: enclosing composite output
 					Triplet<AdvanceCompositeBlock, String, String> typePort = Triplet.of(cb, "", bb.destinationParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
-						at = AdvanceType.fresh();
+						// FIXME
+						AdvanceCompositeBlockParameterDescription pin = cb.outputs.get(bb.destinationParameter);
+						at = pin.type;
+						resolve(at);
+//						at = AdvanceType.fresh("T");
 						compositePortTypes.put(typePort, at);
 					}					
 					tr.right = at;
@@ -582,6 +583,25 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 		}
 		
 		return result;
+	}
+	/**
+	 * Add any type variable bounds to the relations.
+	 * @param type the target type
+	 * @param relations the list of type relations
+	 * @param bb the parent block bind
+	 */
+	private void addVariableBounds(AdvanceType type,
+			LinkedList<Relation<AdvanceType, AdvanceBlockBind>> relations,
+			AdvanceBlockBind bb) {
+		if (type.kind() == TypeKind.VARIABLE_TYPE) {
+			for (AdvanceType t : type.typeVariable.bounds) {
+				if (type.typeVariable.isUpperBound) {
+					relations.add(new Relation<AdvanceType, AdvanceBlockBind>(t, type, bb));
+				} else {
+					relations.add(new Relation<AdvanceType, AdvanceBlockBind>(type, t, bb));
+				}
+			}
+		}
 	}
 	/**
 	 * Verify the existence of blocks within the registry.

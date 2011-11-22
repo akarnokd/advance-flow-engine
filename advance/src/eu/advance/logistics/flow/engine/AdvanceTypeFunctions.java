@@ -107,8 +107,9 @@ public class AdvanceTypeFunctions implements TypeFunctions<AdvanceType> {
 		deque.add(type);
 		while (!deque.isEmpty()) {
 			AdvanceType t = deque.removeFirst();
-			if (type.kind() == TypeKind.VARIABLE_TYPE && memory.add(type)) {
-				type.id = memory.size();
+			TypeKind k = t.kind();
+			if (k == TypeKind.VARIABLE_TYPE && memory.add(t)) {
+				t.id = memory.size();
 			}
 			for (AdvanceType ta : t.typeArguments) {
 				deque.addFirst(ta);
@@ -122,15 +123,14 @@ public class AdvanceTypeFunctions implements TypeFunctions<AdvanceType> {
 	}
 
 	@Override
-	public AdvanceType fresh() {
-		return new AdvanceType();
+	public AdvanceType fresh(String name) {
+		return AdvanceType.fresh(name);
 	}
 
 	@Override
 	public AdvanceType copy(AdvanceType type) {
-		AdvanceType t = fresh();
+		AdvanceType t = fresh(type.typeVariableName);
 		t.typeVariable = type.typeVariable;
-		t.typeVariableName = type.typeVariableName;
 		t.type = type.type;
 		t.typeURI = type.typeURI;
 		t.typeArguments.addAll(type.typeArguments);

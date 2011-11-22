@@ -26,6 +26,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * A type wrapper for generic type-systems.
@@ -118,13 +119,14 @@ public class TypeWrapper<T> implements Type {
 	/**
 	 * Creates a fresh type variable with name T.
 	 * @param <T> the base type that represents the structure
+	 * @param name the type variable name
 	 * @return Construct a fresh type variable with name T.
 	 */
-	public static <T> TypeWrapper<T> fresh() {
+	public static <T> TypeWrapper<T> fresh(@Nullable String name) {
 		TypeWrapper<T> result = new TypeWrapper<T>();
-		result.variableName = "T";
+		result.variableName = name;
 		result.variable = new TypeWrapperVariable<T>();
-		result.variable.name = "T";
+		result.variable.name = name;
 		return result;
 	}
 	/**

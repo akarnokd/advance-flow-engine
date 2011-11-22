@@ -94,13 +94,15 @@ public class AdvanceType implements Type, XSerializable {
 		return result;
 	}
 	/**
-	 * @return Construct a fresh type variable with name T.
+	 * Create a fresh type variable with the given name.
+	 * @param name the type variable name
+	 * @return Construct a fresh type variable with name.
 	 */
-	public static AdvanceType fresh() {
+	public static AdvanceType fresh(String name) {
 		AdvanceType result = new AdvanceType();
-		result.typeVariableName = "T";
+		result.typeVariableName = name;
 		result.typeVariable = new AdvanceTypeVariable();
-		result.typeVariable.name = "T";
+		result.typeVariable.name = name;
 		return result;
 	}
 	/**

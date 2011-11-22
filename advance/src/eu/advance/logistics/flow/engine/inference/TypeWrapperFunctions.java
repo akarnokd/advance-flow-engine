@@ -48,8 +48,8 @@ public abstract class TypeWrapperFunctions<T> implements TypeFunctions<TypeWrapp
 		deque.add(type);
 		while (!deque.isEmpty()) {
 			TypeWrapper<T> t = deque.removeFirst();
-			if (type.kind() == TypeKind.VARIABLE_TYPE && memory.add(type)) {
-				type.id = memory.size();
+			if (t.kind() == TypeKind.VARIABLE_TYPE && memory.add(t)) {
+				t.id = memory.size();
 			}
 			for (TypeWrapper<T> ta : t.typeArguments) {
 				deque.addFirst(ta);
@@ -64,16 +64,15 @@ public abstract class TypeWrapperFunctions<T> implements TypeFunctions<TypeWrapp
 
 	@Override
 	public TypeWrapper<T> copy(TypeWrapper<T> type) {
-		TypeWrapper<T> t = fresh();
+		TypeWrapper<T> t = fresh(type.variableName);
 		t.variable = type.variable;
-		t.variableName = type.variableName;
 		t.base = type.base;
 		t.baseName = type.baseName;
 		t.typeArguments.addAll(type.typeArguments);
 		return t;
 	}
 	@Override
-	public TypeWrapper<T> fresh() {
-		return TypeWrapper.fresh();
+	public TypeWrapper<T> fresh(String name) {
+		return TypeWrapper.fresh(name);
 	}
 }
