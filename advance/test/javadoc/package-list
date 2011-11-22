@@ -19,7 +19,5 @@ eu.advance.logistics.flow.engine.comm
 eu.advance.logistics.flow.engine.error
 eu.advance.logistics.flow.engine.model
 eu.advance.logistics.flow.engine.model.fd
-eu.advance.logistics.flow.engine.model.rt
 eu.advance.logistics.flow.engine.test
 eu.advance.logistics.flow.engine.util
-eu.advance.logistics.flow.engine.xml.typesystem

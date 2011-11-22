@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +33,7 @@ import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.util.Strings;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.flow.engine.xml.XSerializable;
@@ -64,6 +67,8 @@ public class AdvanceCompositeBlock implements XSerializable {
 	public final List<AdvanceBlockBind> bindings = Lists.newArrayList();
 	/** The visual properties for the Flow Editor. */
 	public final AdvanceBlockVisuals visuals = new AdvanceBlockVisuals();
+	/** The definitions of various generic type parameters. */
+	public final Map<String, AdvanceTypeVariable> typeVariables = Maps.newLinkedHashMap();
 	/**
 	 * Load the contents from an XML element with a schema of <code>flow-description.xsd</code> and typed as {@code composite-block}.
 	 * @param source the root element
@@ -78,20 +83,6 @@ public class AdvanceCompositeBlock implements XSerializable {
 		}
 		Set<String> ids = Sets.newHashSet();
 		for (XElement e : source.children()) {
-			if (e.name.equals("input")) {
-				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
-				p.load(e);
-				if (inputs.put(p.id, p) != null) {
-					throw new DuplicateIdentifierException(e.getXPath(), p.id);
-				}
-			} else
-			if (e.name.equals("output")) {
-				AdvanceCompositeBlockParameterDescription p = new AdvanceCompositeBlockParameterDescription();
-				p.load(e);
-				if (outputs.put(p.id, p) != null) {
-					throw new DuplicateIdentifierException(e.getXPath(), p.id);
-				}
-			} else
 			if (e.name.equals("block")) {
 				AdvanceBlockReference p = new AdvanceBlockReference();
 				p.load(e);
@@ -123,6 +114,96 @@ public class AdvanceCompositeBlock implements XSerializable {
 			}
 		}
 		visuals.load(source);
+		
+		// manage type variables for the compisite inputs and outputs
+		Deque<AdvanceType> typeRefs = Lists.newLinkedList();
+		
+		Map<String, AdvanceType> sharedTypes = Maps.newHashMap();
+		
+		for (XElement tp : source.childrenWithName("type-variable")) {
+			AdvanceTypeVariable bpd = new AdvanceTypeVariable();
+			bpd.load(tp);
+			if (typeVariables.put(bpd.name, bpd) != null) {
+				throw new DuplicateIdentifierException(tp.getXPath(), bpd.name);
+			}
+			typeRefs.addAll(bpd.bounds);
+			AdvanceType st = new AdvanceType();
+			st.typeVariableName = bpd.name;
+			st.typeVariable = bpd;
+			sharedTypes.put(bpd.name, st);
+		}
+
+		while (!typeRefs.isEmpty()) {
+			AdvanceType tvb = typeRefs.pop();
+			if (tvb.typeVariableName != null) {
+				tvb.typeVariable = typeVariables.get(tvb.typeVariableName);
+				if (tvb.typeVariable == null) {
+					throw new MissingTypeVariableException(source.toString(), tvb.typeVariableName);
+				}
+			} else {
+				typeRefs.addAll(tvb.typeArguments);
+			}
+		}
+		LinkedList<AdvanceType> typeParams = Lists.newLinkedList();
+		
+		for (XElement inp : source.childrenWithName("input")) {
+			AdvanceCompositeBlockParameterDescription bpd = new AdvanceCompositeBlockParameterDescription();
+			bpd.load(inp);
+			if (inputs.put(bpd.id, bpd) != null) {
+				throw new DuplicateIdentifierException(inp.getXPath(), bpd.id);
+			}
+			// use the shared type object instead of an individual type
+			if (sharedTypes.containsKey(bpd.type.typeVariableName)) {
+				bpd.type = sharedTypes.get(bpd.type.typeVariableName);
+			}
+			typeParams.add(bpd.type);
+		}
+		for (XElement outp : source.childrenWithName("output")) {
+			AdvanceCompositeBlockParameterDescription bpd = new AdvanceCompositeBlockParameterDescription();
+			bpd.load(outp);
+			if (outputs.put(bpd.id, bpd) != null) {
+				throw new DuplicateIdentifierException(outp.getXPath(), bpd.id);
+			}
+			// use the shared type object instead of an individual type
+			if (sharedTypes.containsKey(bpd.type.typeVariableName)) {
+				bpd.type = sharedTypes.get(bpd.type.typeVariableName);
+			}
+			typeParams.add(bpd.type);
+		}
+		
+		while (!typeParams.isEmpty()) {
+			AdvanceType at = typeParams.removeFirst();
+			if (at.kind() == TypeKind.VARIABLE_TYPE && at.typeVariable == null) {
+				at.typeVariable = typeVariables.get(at.typeVariableName);
+				if (at.typeVariable == null) {
+					// FIXME for now, let's just create an unbounded type variable
+					at.typeVariable = new AdvanceTypeVariable();
+					at.typeVariable.name = at.typeVariableName;
+					typeVariables.put(at.typeVariableName, at.typeVariable);
+				}
+			} else
+			if (at.kind() == TypeKind.PARAMETRIC_TYPE) {
+				int i = 0;
+				for (AdvanceType ta : Lists.newArrayList(at.typeArguments)) {
+					if (ta.kind() == TypeKind.VARIABLE_TYPE) {
+						AdvanceType sv = sharedTypes.get(ta.typeVariableName);
+						if (sv == null) {
+							// FIXME for now, let's just create an unbounded type variable
+							sv = new AdvanceType();
+							sv.typeVariable = new AdvanceTypeVariable();
+							sv.typeVariableName = ta.typeVariableName;
+							sv.typeVariable.name = ta.typeVariableName;
+							sharedTypes.put(sv.typeVariableName, sv);
+//							throw new MissingTypeVariableException(source.toString(), ta.typeVariableName);
+						}
+						at.typeArguments.set(i, sv);
+					}
+					i++;
+				}
+				typeParams.addAll(at.typeArguments);
+			}
+		}
+		
 	}
 	@Override
 	public void save(XElement destination) {
@@ -132,6 +213,9 @@ public class AdvanceCompositeBlock implements XSerializable {
 			destination.set("keywords", Strings.join(keywords, ","));
 		} else {
 			destination.set("keywords", null);
+		}
+		for (AdvanceTypeVariable tv : typeVariables.values()) {
+			tv.save(destination.add("type-variable"));
 		}
 		for (AdvanceCompositeBlockParameterDescription item : inputs.values()) {
 			item.save(destination.add("input"));

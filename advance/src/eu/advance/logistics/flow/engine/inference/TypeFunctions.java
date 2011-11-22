@@ -76,10 +76,11 @@ public interface TypeFunctions<T extends Type> {
 	List<T> arguments(@NonNull T type);
 	/**
 	 * Create a fresh type variable.
+	 * @param name the type variable name
 	 * @return the new type variable
 	 */
 	@NonNull 
-	T fresh();
+	T fresh(@Nullable String name);
 	/**
 	 * Creates a copy of the given type.
 	 * @param type the source type
