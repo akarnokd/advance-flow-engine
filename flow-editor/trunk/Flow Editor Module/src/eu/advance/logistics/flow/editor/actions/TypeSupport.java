@@ -43,6 +43,9 @@ public class TypeSupport {
                         new TypeSupport("Real", "advance:real", Double.class),
                         new TypeSupport("String", "advance:string", String.class),
                         new TypeSupport("Timestamp", "advance:timestamp", Date.class),
+                        new TypeSupport("T", AdvanceType.fresh("T")),
+                        new TypeSupport("Collection<T>", AdvanceType.createType(new URI("advance:collection"), AdvanceType.fresh("T"))),
+                        new TypeSupport("Map<K, V>", AdvanceType.createType(new URI("advance:map"), AdvanceType.fresh("K"), AdvanceType.fresh("V"))),
                         new TypeSupport("Custom", null, null)
                     };
         } catch (Exception ex) {
@@ -84,6 +87,15 @@ public class TypeSupport {
         } else {
             displayName = desc;
         }
+    }
+    /**
+     * Create a type option from a description and a concrete ADVANCE type.
+     * @param desc the description to display
+     * @param type the type object
+     */
+    private TypeSupport(String desc, AdvanceType type) {
+        advanceType = type;
+        displayName = desc;
     }
 
     @Override

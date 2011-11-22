@@ -113,4 +113,11 @@ public class ConstantBlockWidget extends Widget {
     Widget getHeader() {
         return header;
     }
+    /**
+     * Returns the backing block associated with this constant.
+     * @return the backing block associated with this constant.
+     */
+    public ConstantBlock getBlock() {
+        return block;
+    }
 }

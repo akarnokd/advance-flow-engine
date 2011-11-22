@@ -30,7 +30,7 @@ import javax.swing.JComboBox;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
  *
@@ -64,7 +64,7 @@ class ParamListModel extends AbstractListModel implements ComboBoxModel {
         return data.size();
     }
 
-    void update(AdvanceBlockRegistryEntry entry) {
+    void update(BlockRegistryEntry entry) {
         int size = data.size();
         data.clear();
         fireIntervalRemoved(this, 0, size);

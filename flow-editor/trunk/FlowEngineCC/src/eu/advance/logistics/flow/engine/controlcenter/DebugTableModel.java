@@ -40,7 +40,7 @@ import com.google.common.io.Closeables;
 
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceParameterDiagnostic;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
 
 /**
  *
@@ -132,7 +132,7 @@ class DebugTableModel extends AbstractTableModel {
         String param;
     }
 
-    private class DebugObserver implements Observer<AdvanceParameterDiagnostic> {
+    private class DebugObserver implements Observer<PortDiagnostic> {
 
         private String realm;
         private String blockId;
@@ -146,7 +146,7 @@ class DebugTableModel extends AbstractTableModel {
         }
 
         @Override
-        public void next(final AdvanceParameterDiagnostic d) {
+        public void next(final PortDiagnostic d) {
             final Entry entry = new Entry();
             entry.realm = realm;
             entry.block = blockId;

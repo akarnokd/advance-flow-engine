@@ -79,6 +79,7 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
         if (desc.id == null || inputParameters.containsKey(desc.id)) {
             desc.id = generateId(inputParameters.keySet(), "in");
         }
+        param.setId(desc.id);
         addParameter(param);
         return param;
     }
@@ -92,6 +93,7 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
         if (desc.id == null || outputParameters.containsKey(desc.id)) {
             desc.id = generateId(outputParameters.keySet(), "out");
         }
+        param.setId(desc.id);
         addParameter(param);
         return param;
     }

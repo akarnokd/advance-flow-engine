@@ -30,7 +30,7 @@ import org.openide.windows.WindowManager;
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *

@@ -77,7 +77,7 @@ import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.editor.undo.BindRemoved;
 import eu.advance.logistics.flow.editor.undo.BlockRenamed;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import eu.advance.logistics.flow.engine.api.core.AdvanceData;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 
 /**
@@ -385,6 +385,15 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                     menu.add(new ParamRemoveAction(undoRedoSupport, pin));
                     menu.addSeparator();
                     menu.add(new ParamAddAction(undoRedoSupport, block, type));
+                    // display the parameter type
+                    if (pin.getDescription() != null && pin.getDescription().type != null) {
+                        menu.addSeparator();
+                        JMenuItem mtype = new JMenuItem();
+                        AdvanceType at = pin.getDescription().type;
+                        mtype.setText("Type: " + at);
+                        mtype.setEnabled(false);
+                        menu.add(mtype);
+                    }
                     return menu;
                 }
             }));

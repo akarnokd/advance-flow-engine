@@ -34,7 +34,7 @@ import org.openide.util.Exceptions;
 
 import com.google.common.collect.Lists;
 
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
  *
@@ -68,12 +68,12 @@ class BlockListModel extends AbstractListModel implements ComboBoxModel {
         return data.size();
     }
 
-    private void update(List<AdvanceBlockRegistryEntry> list) {
+    private void update(List<BlockRegistryEntry> list) {
         int size = data.size();
         data.clear();
         fireIntervalRemoved(this, 0, size);
         if (list != null) {
-            for (AdvanceBlockRegistryEntry entry : list) {
+            for (BlockRegistryEntry entry : list) {
                 data.add(new Entry(entry));
             }
             if (!data.isEmpty()) {
@@ -88,10 +88,10 @@ class BlockListModel extends AbstractListModel implements ComboBoxModel {
         final ProgressHandle ph = ProgressHandleFactory.createHandle("Retrieving block list...");
         ph.setInitialDelay(0);
         ph.start();
-        new SwingWorker<List<AdvanceBlockRegistryEntry>, Void>() {
+        new SwingWorker<List<BlockRegistryEntry>, Void>() {
 
             @Override
-            protected List<AdvanceBlockRegistryEntry> doInBackground() throws Exception {
+            protected List<BlockRegistryEntry> doInBackground() throws Exception {
                 return EngineController.getInstance().getEngine().queryBlocks();
             }
 
@@ -118,16 +118,16 @@ class BlockListModel extends AbstractListModel implements ComboBoxModel {
         return selection;
     }
     
-    public AdvanceBlockRegistryEntry getAdvanceBlockRegistryEntry() {
+    public BlockRegistryEntry getAdvanceBlockRegistryEntry() {
         return (selection != null) ? selection.target : null;
     }
 
     private static class Entry implements Comparable<Entry> {
 
-        private final AdvanceBlockRegistryEntry target;
+        private final BlockRegistryEntry target;
         private final String displayName;
 
-        private Entry(AdvanceBlockRegistryEntry blockRegistryEntry) {
+        private Entry(BlockRegistryEntry blockRegistryEntry) {
             this.target = blockRegistryEntry;
             this.displayName = target.displayName + " (" + target.clazz + ")";
         }

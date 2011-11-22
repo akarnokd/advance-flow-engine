@@ -38,7 +38,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 import eu.advance.logistics.flow.editor.palette.PaletteRootChildren;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceBlockRegistryEntry;
+import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
  * Operations.
@@ -101,9 +101,9 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
         file = InstalledFileLocator.getDefault().locate("LocalEngine/schemas/block-registry.xml", "eu.advance.logistics.core", false);  // NOI18N
         try {
             if (file == null) {
-                InputStream in = AdvanceBlockRegistryEntry.class.getResourceAsStream("/block-registry.xml");
+                InputStream in = BlockRegistryEntry.class.getResourceAsStream("/block-registry.xml");
                 if (in == null) {
-                    in = AdvanceBlockRegistryEntry.class.getResourceAsStream("/schemas/block-registry.xml");
+                    in = BlockRegistryEntry.class.getResourceAsStream("/schemas/block-registry.xml");
                 }
                 if (in != null) {
                     BlockRegistryDataObject.read(in);

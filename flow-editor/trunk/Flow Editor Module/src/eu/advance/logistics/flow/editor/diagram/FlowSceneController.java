@@ -36,9 +36,10 @@ import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
+import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.model.rt.AdvanceCompilationResult;
 
 /**
  *
@@ -263,7 +264,9 @@ class FlowSceneController implements FlowDescriptionListener {
             for (BlockBind bind : scene.getEdges()) {
                 Widget w = scene.findWidget(bind);
                 if (w instanceof BlockConnectionWidget) {
-                    AdvanceType at = compilationResult.getType(bind.id);
+                    AdvanceBlockBind bb = new AdvanceBlockBind();
+                    bb.id = bind.id;
+                    AdvanceType at = compilationResult.getType(bb);
                     List<AdvanceCompilationError> errors = compilationResult.getErrors(bind.id);
                     if (!errors.isEmpty()) {
                         ((BlockConnectionWidget) w).setError(true);

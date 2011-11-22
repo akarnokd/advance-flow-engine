@@ -32,7 +32,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.windows.WindowManager;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.xml.typesystem.XElement;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *
