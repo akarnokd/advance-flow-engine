@@ -20,16 +20,9 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
 import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -38,10 +31,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.Pool;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.comm.JDBCConnection;
+import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
+import eu.advance.logistics.flow.engine.xml.XElement;
+
 /**
  * Issues an SQL query into the datasource once a trigger object arrives and
  * returns the rows converted into a mapping from column name to column value.
- * Signature: JDBCQuery(trigger, datasource, string, schema<t>) ->map<string,
+ * Signature: JDBCQuery(trigger, datasource, string) ->map<string,
  * object>
  *
  * @author TTS
@@ -102,36 +104,43 @@ public class JDBCQuery extends AdvanceBlock {
     }
     
     private void execute() {
-        final AdvanceJDBCDataSource ds = new AdvanceJDBCDataSource();
-        ds.load(get(DATASOURCE));
-        final JDBCPoolManager pm = new JDBCPoolManager(ds);
-        JDBCConnection conn = null;
-        try {
-            conn = pm.create();
-        } catch (Exception ex) {
-            log(ex);
-        }
-        
-        if (conn != null) {
-            final String query = getString(QUERY);
-            
-            if (query != null) {
-                try {
-                    final Statement stm = conn.getConnection().createStatement();
-                   final ResultSet rs = stm.executeQuery(query);
-                    if (rs != null) {
-                        final ResultSetMetaData rsmd = rs.getMetaData();
-                        while (rs.next()) {
-                            dispatch(OUT, create(rs, rsmd));
-                        }
-                        rs.close();
-                    }
-                } catch (SQLException ex) {
-                    log(ex);
-                }
-            }
-
-        }
+    	
+    	try {
+    	
+    		String dataSourceStr = getString(DATASOURCE);
+    		
+	        final Pool<JDBCConnection> ds = this.settings.context.pools.get(
+	        		JDBCConnection.class, dataSourceStr);
+	        
+	        if (ds != null) {
+		        JDBCConnection conn = ds.get();
+		        try {
+		            final String query = getString(QUERY);
+		            
+		            if (query != null) {
+		                try {
+		                    final Statement stm = conn.getConnection().createStatement();
+		                    final ResultSet rs = stm.executeQuery(query);
+		                    if (rs != null) {
+		                        final ResultSetMetaData rsmd = rs.getMetaData();
+		                        while (rs.next()) {
+		                            dispatch(OUT, create(rs, rsmd));
+		                        }
+		                        rs.close();
+		                    }
+		                } catch (SQLException ex) {
+		                    log(ex);
+		                }
+		            }
+		        } finally {
+		        	ds.put(conn);
+		        }
+	        } else {
+	        	log(new IllegalArgumentException("No pool for JDBCConnection & " + dataSourceStr));
+	        }
+    	} catch (Exception ex) {
+    		log(ex);
+    	}
     }
 
     private XElement create(ResultSet rs, ResultSetMetaData rsmd) throws SQLException {
