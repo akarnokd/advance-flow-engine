@@ -69,7 +69,8 @@ public class AdvancePoolCreator implements
 	@Override
 	public Option<? extends Pool<?>> invoke(Class<?> param1, String param2) {
 		try {
-			if (param1.equals(java.sql.Connection.class) 
+			if (param1.equals(JDBCConnection.class)
+					|| param1.equals(java.sql.Connection.class) 
 					|| param1.equals(AdvanceJDBCDataSource.class)) {
 				AdvanceJDBCDataSource ds = datastore.queryJDBCDataSource(param2);
 				if (ds != null) {
