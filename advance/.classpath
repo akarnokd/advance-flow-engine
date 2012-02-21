@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="schemas"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_29"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_31_x86"/>
 	<classpathentry kind="lib" path="lib/annotations.jar" sourcepath="lib/annotations.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk16-146.jar" sourcepath="lib/bcprov-jdk16-146.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar" sourcepath="lib/commons-codec-1.4.jar"/>
@@ -12,17 +12,15 @@
 	<classpathentry kind="lib" path="lib/javamail.jar" sourcepath="lib/javamail.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen-1.1.3.jar" sourcepath="lib/jaxen-1.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/jms-1.1.jar" sourcepath="lib/jms-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/joda-time-1.6.2.jar" sourcepath="lib/joda-time-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/jsr166y.jar" sourcepath="lib/jsr166y.jar"/>
 	<classpathentry kind="lib" path="lib/jsr305.jar" sourcepath="lib/jsr305.jar"/>
 	<classpathentry kind="lib" path="lib/jxl5.jar" sourcepath="lib/jxl5.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar" sourcepath="lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="lib/monetdb-1.17-jdbc.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.16-bin.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/guava-10.0.jar" sourcepath="lib/guava-10.0.jar"/>
 	<classpathentry kind="lib" path="lib/j2ssh-0.2.9.jar" sourcepath="lib/j2ssh-0.2.9.jar"/>
-	<classpathentry kind="lib" path="lib/reactive4java-0.95.1.jar" sourcepath="lib/reactive4java-0.95.1.jar"/>
 	<classpathentry kind="lib" path="lib/advance_apt.jar" sourcepath="lib/advance_apt.jar"/>
+	<classpathentry kind="lib" path="lib/reactive4java-0.96.1.jar" sourcepath="lib/reactive4java-0.96.1.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-2.0.jar" sourcepath="lib/joda-time-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/guava-11.0.1.jar" sourcepath="lib/guava-11.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
