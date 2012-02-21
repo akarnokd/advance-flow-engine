@@ -58,6 +58,16 @@
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="type">
+				<xs:sequence>
+					<xs:element name='default' minOccurs="0" maxOccurs="1">
+						<xs:annotation><xs:documentation>The optional default parameter value.</xs:documentation></xs:annotation>
+						<xs:complexType>
+							<xs:sequence>
+								<xs:any processContents="lax"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
 				<xs:attribute name="id" type="xs:string" use="required">
 					<xs:annotation>
 						<xs:documentation>The unique (among other inputs of this block) identifier of the input parameter. This ID will be used by the block wiring within the flow description.</xs:documentation>
@@ -72,6 +82,12 @@
 					<xs:annotation>
 						<xs:documentation>The documentation link or text to explain this parameter.</xs:documentation>
 					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="required" type="xs:boolean" use="required">
+					<xs:annotation><xs:documentation>Is the input parameter required to be connected somewhere?</xs:documentation></xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="varargs" type="xs:boolean" use="required">
+					<xs:annotation><xs:documentation>Does this input represent a variable number of arguments numbered from 1 to N?</xs:documentation></xs:annotation>
 				</xs:attribute>
 			</xs:extension>
 		</xs:complexContent>

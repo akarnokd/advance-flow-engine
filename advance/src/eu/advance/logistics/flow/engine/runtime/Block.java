@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.runtime;
 
+import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Scheduler;
@@ -63,9 +64,9 @@ public abstract class Block<T, X, C> {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(Block.class);
 	/** The input ports. */
-	protected final Map<String, Port<T, X>> inputs = Maps.newHashMap();
+	protected final Map<String, Port<T, X>> inputs = Maps.newLinkedHashMap();
 	/** The output ports. */
-	protected final Map<String, ReactivePort<T, X>> outputs = Maps.newHashMap();
+	protected final Map<String, ReactivePort<T, X>> outputs = Maps.newLinkedHashMap();
 	/** The block diagnostic observable. */
 	protected DefaultObservable<BlockDiagnostic> diagnostic;
 	/** List of functions to close when the block is terminated via done(). */
@@ -73,7 +74,7 @@ public abstract class Block<T, X, C> {
 	/** The block execution context. */
 	protected BlockSettings<T, C> settings;
 	/** The current parameter map. */
-	protected final Map<String, T> params = Maps.newHashMap();
+	protected final Map<String, T> params = Maps.newLinkedHashMap();
 	/** 
 	 * Initialize the block input and output ports, prepare the diagnostic ports.
 	 * @param settings the block initialization settings
@@ -568,5 +569,23 @@ public abstract class Block<T, X, C> {
      */
     protected DataResolver<T> resolver() {
     	return settings.resolver;
+    }
+    /**
+     * Convenience method to register an independent observer for the given input port
+     * and call the given action once a value arrives.
+     * @param portName the port name
+     * @param nextAction the action to invoke on each values
+     */
+    protected void observeInput(String portName, final Action1<T> nextAction) {
+    	if (getInput(portName) instanceof ConstantPort<?, ?>) {
+    		nextAction.invoke(get(portName));
+    	} else {
+	    	addCloseable(Reactive.observeOn(getInput(portName), scheduler()).register(new InvokeObserver<T>() {
+	    		@Override
+	    		public void next(T value) {
+	    			nextAction.invoke(value);
+	    		}
+			}));
+    	}
     }
 }

@@ -130,4 +130,10 @@ public class LocalConnection implements FileAccess {
 			throw new IOException("Rename failed: " + file + " -> " + newName);
 		}
 	}
+	/**
+	 * @return Returns the base of this local connection (a directory or a file).
+	 */
+	public File file() {
+		return baseDir;
+	}
 }
