@@ -921,9 +921,13 @@
     </block-description>
 
     <!-- Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCQuery" id="___JDBCQuery" scheduler="IO" category="db">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCQuery" id="JDBCQuery" scheduler="IO" category="db">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="query" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:object"/>
+        </output>
     </block-description>
 
     <!-- Delete entries from the given datastore by using the query and parameters. Returns the number of elements deleted. -->
@@ -1039,6 +1043,27 @@
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSave" id="___LocalFileSave" scheduler="IO" category="file">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Stream the columns of a memory-mapped binary consignment representation. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentMMSource" id="ConsignmentMMSource" scheduler="IO" category="file">
+        <input id="columns" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:string"/>
+        </input>
+        <input id="directory" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:object"/>
+        </output>
+    </block-description>
+
+    <!-- Creates a collection from the variable parameters. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.test.CollectionOf" id="CollectionOf" scheduler="NOW">
+        <type-variable name="T"/>
+        <input id="in" required="false" varargs="true" type-variable="T"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
 </block-registry>

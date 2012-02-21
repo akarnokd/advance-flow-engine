@@ -37,7 +37,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
@@ -103,6 +102,7 @@ public class JDBCQuery extends AdvanceBlock {
        return new RunObserver();
     }
     
+    /** Execute. */
     private void execute() {
     	
     	try {
@@ -142,9 +142,15 @@ public class JDBCQuery extends AdvanceBlock {
     		log(ex);
     	}
     }
-
+    /**
+     * Create a row result XML.
+     * @param rs the resultset
+     * @param rsmd the metadata
+     * @return the xelement
+     * @throws SQLException on error
+     */
     private XElement create(ResultSet rs, ResultSetMetaData rsmd) throws SQLException {
-        final Map<XElement,XElement> data = new HashMap<XElement,XElement>();
+        final Map<XElement, XElement> data = new HashMap<XElement, XElement>();
         
         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
             XElement value = null;
@@ -177,6 +183,7 @@ public class JDBCQuery extends AdvanceBlock {
                 case java.sql.Types.VARCHAR:
                     value = resolver().create(rs.getString(i));
                     break;
+                default:
             }
             if (value != null) {
                 data.put(resolver().create(rsmd.getColumnName(i)), value);
