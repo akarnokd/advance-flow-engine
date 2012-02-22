@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified" attributeFormDefault="unqualified">
-    <xs:complexType name="Hub">
-        <xs:sequence>
-            <xs:element name="location" type="Location"/>
-        </xs:sequence>
+    <xs:complexType name="Location">
         <xs:attribute name="id" type="xs:integer"/>
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="postcode" type="xs:string"/>
+        <xs:attribute name="longitude" type="xs:double"/>
+        <xs:attribute name="latitude" type="xs:double"/>
     </xs:complexType>
 </xs:schema>

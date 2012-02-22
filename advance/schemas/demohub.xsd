@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 (http://www.altova.com) by MESMERiZE (MSM) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="collection.xsd"/>
+	<xs:include schemaLocation="pallet.xsd"/>
+	<xs:element name="demohub" type="demohub">
+		<xs:annotation>
+			<xs:documentation>Represents a truck.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="demohub">
+		<xs:annotation>
+			<xs:documentation>The bay base type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="pallets" type="collection">
+				<xs:annotation>
+					<xs:documentation>The collection of pallets contained in this bay.</xs:documentation>
+					<xs:appinfo>
+						<xs:advance-type-info>
+							<type type="collection">
+								<type-argument type="pallet"/>
+							</type>
+						</xs:advance-type-info>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="capacity-limit" type="xs:int" use="required">
+			<xs:annotation><xs:documentation>The capacity limit of the entire hub.</xs:documentation></xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>
