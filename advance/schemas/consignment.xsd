@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           elementFormDefault="qualified" attributeFormDefault="unqualified">
-    <xs:complexType name="Consignment">
-        <xs:annotation>
-            <xs:documentation>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="event.xsd"/>
+	<xs:include schemaLocation="flag.xsd"/>
+	<xs:complexType name="Consignment">
+		<xs:annotation>
+			<xs:documentation>
 			The consignment type as extracted from the database.
             </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="event" type="event" minOccurs="0" maxOccurs="unbounded">
-            </xs:element>
-            <xs:element name="flag" type="flag" minOccurs="0" maxOccurs="unbounded">
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute name="id" type="xs:integer"/>
-        <xs:attribute name="hubId" type="xs:integer"/>
-        <xs:attribute name="collectionDepotId" type="xs:integer"/>
-        <xs:attribute name="collectionLocationId" type="xs:integer"/>
-        <xs:attribute name="deliveryDepotId" type="xs:integer"/>
-        <xs:attribute name="deliveryLocationId" type="xs:integer"/>
-        <xs:attribute name="payingDepotId" type="xs:integer"/>
-        <xs:attribute name="palletCount" type="xs:integer"/>
-        <xs:attribute name="weight" type="xs:double"/>
-        <xs:attribute name="number" type="xs:string"/>
-        <xs:attribute name="volume" type="xs:double"/>
-    </xs:complexType>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="event" type="Event" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="flag" type="Flag" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:integer"/>
+		<xs:attribute name="hubId" type="xs:integer"/>
+		<xs:attribute name="collectionDepotId" type="xs:integer"/>
+		<xs:attribute name="collectionLocationId" type="xs:integer"/>
+		<xs:attribute name="deliveryDepotId" type="xs:integer"/>
+		<xs:attribute name="deliveryLocationId" type="xs:integer"/>
+		<xs:attribute name="payingDepotId" type="xs:integer"/>
+		<xs:attribute name="palletCount" type="xs:integer"/>
+		<xs:attribute name="weight" type="xs:double"/>
+		<xs:attribute name="number" type="xs:string"/>
+		<xs:attribute name="volume" type="xs:double"/>
+	</xs:complexType>
 </xs:schema>
