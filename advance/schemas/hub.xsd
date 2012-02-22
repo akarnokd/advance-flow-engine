@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           elementFormDefault="qualified" attributeFormDefault="unqualified">
-    <xs:complexType name="Hub">
-        <xs:sequence>
-            <xs:element name="location" type="Location"/>
-        </xs:sequence>
-        <xs:attribute name="id" type="xs:integer"/>
-        <xs:attribute name="name" type="xs:string"/>
-    </xs:complexType>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="location.xsd"/>
+	<xs:complexType name="Hub">
+		<xs:sequence>
+			<xs:element name="location" type="Location"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:integer"/>
+		<xs:attribute name="name" type="xs:string"/>
+	</xs:complexType>
 </xs:schema>

@@ -635,18 +635,26 @@ public class XElement /* implements Iterable<XElement> */ {
 		e.namespace = namespace;
 		e.content = content;
 		e.prefix = prefix;
-		e.userObject = userObject;
+
+		e.copyFrom(this);
 		
-		for (Map.Entry<XAttributeName, String> me : attributes.entrySet()) {
+		return e;
+	}
+	/**
+	 * Copy the attributes and child elements from the other element.
+	 * @param other the other element
+	 */
+	public void copyFrom(XElement other) {
+		userObject = other.userObject;
+		for (Map.Entry<XAttributeName, String> me : other.attributes.entrySet()) {
 			XAttributeName an = new XAttributeName(me.getKey().name, me.getKey().namespace, me.getKey().prefix);
-			e.attributes.put(an, me.getValue());
+			attributes.put(an, me.getValue());
 		}
 		for (XElement c : children) {
 			XElement c0 = c.copy();
-			c0.parent = e;
-			e.children.add(c0);
+			c0.parent = this;
+			children.add(c0);
 		}
-		return e;
 	}
 	/** @return the iterable for all children. */
 	@NonNull 

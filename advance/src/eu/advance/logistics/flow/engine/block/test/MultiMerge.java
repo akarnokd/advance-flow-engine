@@ -43,7 +43,9 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * A block that merges the incoming values of its parameters but without waiting for all of them.
  * @author akarnokd, 2011.07.01.
  */
-@Block(scheduler = "NOW", description = "Block to merge many streams of the same type. This block does not wait for all of its inputs to be ready.", parameters = { "T" })
+@Block(scheduler = "NOW", 
+description = "Block to merge many streams of the same type. This block does not wait for all of its inputs to be ready.", 
+parameters = { "T" })
 public class MultiMerge extends AdvanceBlock {
 	/** 1. */
     @Input(value = "?T", variable = true, required = false)
