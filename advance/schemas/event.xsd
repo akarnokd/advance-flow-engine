@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:complexType name="Event">
+        <xs:attribute name="id" type="xs:integer"/>
+        <xs:attribute name="consignmentId" type="xs:integer"/>
+        <xs:attribute name="eventType" type="xs:integer"/>
+        <xs:attribute name="timestamp" type="xs:dateTime"/>
+		<xs:attribute name="notes" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>
