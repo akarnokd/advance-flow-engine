@@ -60,6 +60,24 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- Negates the boolean value. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Not" id="Not" scheduler="NOW" category="projection">
+        <input id="in" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
+    </block-description>
+
+    <!-- Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value as an option. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCQueryOption" id="JDBCQueryOption" scheduler="IO" category="db">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="query" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance.option">
+            <type-argument type="advance:map">
+                <type-argument type="advance:string"/><type-argument type="advance:object"/>
+            </type-argument>
+        </output>
+    </block-description>
+
     <!-- Returns a new map with the given key-value pair added to the map -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.AppendMap" id="___AppendMap" scheduler="IO" category="streaming">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -72,14 +90,14 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
-    <!-- Filter the values of the map via the XPath expression and return a map with only those elements where the filter matched the value -->
-    <block-description class="eu.advance.logistics.flow.engine.block.filtering.FilterMapByValue" id="___FilterMapByValue" scheduler="IO" category="data-filtering">
+    <!-- Convert a string into a timestamp or indicate an error -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToTimestamp" id="___ToTimestamp" scheduler="IO" category="projection">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
-    <!-- Convert a string into a timestamp or indicate an error -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToTimestamp" id="___ToTimestamp" scheduler="IO" category="projection">
+    <!-- Filter the values of the map via the XPath expression and return a map with only those elements where the filter matched the value -->
+    <block-description class="eu.advance.logistics.flow.engine.block.filtering.FilterMapByValue" id="___FilterMapByValue" scheduler="IO" category="data-filtering">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
@@ -161,6 +179,18 @@
         <output id="out" type="advance:string"/>
     </block-description>
 
+    <!-- Selects the first child element with the supplied name. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.SelectChild" id="SelectChild" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <input id="name" required="true" varargs="false" type="advance:string"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="U"/>
+        </input>
+        <output id="out" type-variable="U"/>
+    </block-description>
+
     <!-- Extract a substring from a string. Default values of the from and to ports are the beginning and the end of the string respectively. -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.Substring" id="Substring" scheduler="IO" category="string">
         <input id="end" required="true" varargs="false" type="advance:string">
@@ -219,16 +249,16 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
-    <!-- Compute the largest integer value which is smaller than the given real value. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Floor" id="___Floor" scheduler="IO" category="projection">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
-    </block-description>
-
     <!-- Convert the string into a Base64 representation -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.EncodeBase64" id="EncodeBase64" scheduler="NOW" category="string">
         <input id="in" required="true" varargs="false" type="advance:string"/>
         <output id="out" type="advance:string"/>
+    </block-description>
+
+    <!-- Compute the largest integer value which is smaller than the given real value. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Floor" id="___Floor" scheduler="IO" category="projection">
+        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Displays a red rectangle if the trigger arrives. -->
@@ -311,6 +341,25 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- Aggregates the incoming SOME options until a NONE is detected and emits a regular collection of elements. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CollectOptions" id="CollectOptions" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type="advance:option">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
+    </block-description>
+
+    <!-- Relays the value if the paired boolean says true. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.RelayIf" id="RelayIf" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="condition" required="true" varargs="false" type="advance:boolean"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <output id="out" type-variable="T"/>
+    </block-description>
+
     <!-- Convert a string into a boolean. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToBoolean" id="___ToBoolean" scheduler="IO" category="projection">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -377,12 +426,6 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
-    <!-- Cast all values in the collection into the specified type. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CastAll" id="___CastAll" scheduler="IO" category="projection">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
-    </block-description>
-
     <!-- Buffers the incoming values into a collection with a maximum size and forwards this collection. Forwards the collection only when fully filled (the default behaviour), unless eagerness is set. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.BufferWithSize" id="BufferWithSize" scheduler="IO" category="streaming">
         <type-variable name="T"/>
@@ -402,6 +445,12 @@
         <output id="out" type="advance:collection">
             <type-argument type-variable="T"/>
         </output>
+    </block-description>
+
+    <!-- Cast all values in the collection into the specified type. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CastAll" id="___CastAll" scheduler="IO" category="projection">
+        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Applies the XPath expression to the incoming value and only those are forwarded which maches it. -->
@@ -432,6 +481,17 @@
     <block-description class="eu.advance.logistics.flow.engine.block.util.DecodeBase64" id="DecodeBase64" scheduler="NOW" category="string">
         <input id="in" required="true" varargs="false" type="advance:string"/>
         <output id="out" type="advance:string"/>
+    </block-description>
+
+    <!-- Takes a collection of values and emits each element as an option, followed by NONE. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.DispatchOptions" id="DispatchOptions" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type="advance:option">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
     <!-- Save the data into a local file, appeding the received input at the end of the file with a timestamp. -->
@@ -498,6 +558,12 @@
         <output id="out" type="advance:boolean"/>
     </block-description>
 
+    <!-- Negates the boolean value. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.IsWeekday" id="Not" scheduler="NOW" category="projection">
+        <input id="in" required="true" varargs="false" type="advance:timestamp"/>
+        <output id="out" type="advance:boolean"/>
+    </block-description>
+
     <!-- Displays a input box where the user can send strings. -->
     <block-description class="eu.advance.logistics.flow.engine.block.test.InputBox" id="InputBox" scheduler="IO" category="user-interface">
         <input id="title" required="true" varargs="false" type="advance:string"/>
@@ -508,6 +574,29 @@
     <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCReplace" id="___JDBCReplace" scheduler="IO" category="db">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Selects the all child element with the supplied name. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.SelectChildren" id="SelectChildren" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <input id="name" required="true" varargs="false" type="advance:string"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="U"/>
+        </input>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="U"/>
+        </output>
+    </block-description>
+
+    <!-- Extracts the contained value from the option if it has any. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.OptionValue" id="OptionValue" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type="advance:option">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type-variable="T"/>
     </block-description>
 
     <!-- Issues an SQL query into the datasource once a trigger object arrives and returns the resulting rows all at once mapping from column name to column value. -->
@@ -566,6 +655,19 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- Retrieves a batch of rows from the database and waits for a trigger to continue with the next set of rows. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCThrottledQuery" id="JDBCThrottledQuery" scheduler="IO" category="db">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="next" required="true" varargs="false" type="advance:boolean"/>
+        <input id="query" required="true" varargs="false" type="advance:string"/>
+        <input id="size" required="true" varargs="false" type="advance:integer"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="done" type="advance:boolean"/>
+        <output id="out" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:object"/>
+        </output>
+    </block-description>
+
     <!-- Computes the standard deviation of numerical elements of the supplied collection. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.STDDeviation" id="___STDDeviation" scheduler="IO" category="aggregation">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -590,6 +692,21 @@
         <output id="out" type="advance:integer"/>
     </block-description>
 
+    <!-- Retrieves and returns a batch of rows from the database and waits for a trigger to continue with the next set of rows. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCThrottledBatchQuery" id="JDBCThrottledBatchQuery" scheduler="IO" category="db">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="next" required="true" varargs="false" type="advance:boolean"/>
+        <input id="query" required="true" varargs="false" type="advance:string"/>
+        <input id="size" required="true" varargs="false" type="advance:integer"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="done" type="advance:boolean"/>
+        <output id="out" type="advance:collection">
+            <type-argument type="advance:map">
+                <type-argument type="advance:string"/><type-argument type="advance:object"/>
+            </type-argument>
+        </output>
+    </block-description>
+
     <!-- Load the data from the local file. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoad" id="___LocalFileLoad" scheduler="IO" category="file">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -605,6 +722,18 @@
     <!-- Writes the incoming value to the console for debugging purposes -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.WriteLine" id="___WriteLine" scheduler="IO" category="string">
         <input id="in" required="true" varargs="false" type="advance:object"/>
+    </block-description>
+
+    <!-- Stream the columns of a memory-mapped binary consignment representation. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentMMSource" id="ConsignmentMMSource" scheduler="IO" category="file">
+        <input id="columns" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:string"/>
+        </input>
+        <input id="directory" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:object"/>
+        </output>
     </block-description>
 
     <!-- Watch the given remote directory or file and trigger an event if something happens to it. -->
@@ -645,6 +774,21 @@
         <output id="out" type-variable="T"/>
     </block-description>
 
+    <!-- Computes the logical AND of all inputs. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.And" id="And" scheduler="NOW" category="projection">
+        <input id="in" required="true" varargs="true" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
+    </block-description>
+
+    <!-- Creates a type token from the supplied type instance. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CreateType" id="CreateType" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <output id="out" type="advance:type">
+            <type-argument type-variable="T"/>
+        </output>
+    </block-description>
+
     <!-- Convert the string into lowercase -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.ToLowercase" id="___ToLowercase" scheduler="NOW" category="string">
         <input id="in" required="true" varargs="false" type="advance:string"/>
@@ -681,6 +825,15 @@
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.SplitSize" id="___SplitSize" scheduler="IO" category="streaming">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Wraps the value into an option. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CreateOption" id="CreateOption" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <output id="out" type="advance:option">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
     <!-- Displays a bargraph of values. -->
@@ -728,6 +881,19 @@
         <output id="out" type="advance:boolean"/>
     </block-description>
 
+    <!-- Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertMapToObject" id="ConvertMapToObject" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="attributes" required="true" varargs="false" type="advance:boolean"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="T"/>
+        </input>
+        <input id="value" required="true" varargs="false" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:object"/>
+        </input>
+        <output id="out" type-variable="T"/>
+    </block-description>
+
     <!-- Extracts an element from the collection given by the index. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.GetItem" id="___GetItem" scheduler="IO" category="projection">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -772,6 +938,18 @@
         <output id="out" type-variable="T"/>
     </block-description>
 
+    <!-- Computes the logical OR of all inputs. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Or" id="Or" scheduler="NOW" category="projection">
+        <input id="in" required="true" varargs="true" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
+    </block-description>
+
+    <!-- Computes the logical XOR of the inputs. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Xor" id="Xor" scheduler="NOW" category="projection">
+        <input id="in" required="true" varargs="true" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
+    </block-description>
+
     <!-- Issue a POST request to the given datasource and return the response -->
     <block-description class="eu.advance.logistics.flow.engine.block.web.WebPOST" id="___WebPOST" scheduler="IO" category="web">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -784,17 +962,17 @@
         <output id="out" type="advance:string"/>
     </block-description>
 
-    <!-- Cast the value into a different type. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Cast" id="___Cast" scheduler="IO" category="projection">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
-    </block-description>
-
     <!-- Check if the substring is within the string. -->
     <block-description class="eu.advance.logistics.flow.engine.block.util.Contains" id="Contains" scheduler="NOW" category="string">
         <input id="in" required="true" varargs="false" type="advance:string"/>
         <output id="boolean" type="advance:boolean"/>
         <output id="substring" type="advance:string"/>
+    </block-description>
+
+    <!-- Cast the value into a different type. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Cast" id="___Cast" scheduler="IO" category="projection">
+        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <output id="out" type="advance:real"/>
     </block-description>
 
     <!-- Removes the given key from the map and returns a new map without that key and the value it contained -->
@@ -887,6 +1065,14 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- Selects the attribute from the value. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.SelectAttribute" id="SelectAttribute" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <input id="name" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:string"/>
+    </block-description>
+
     <!-- Relay a single given value only if the trigger value has arrived. -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RelayIfTriggered" id="___RelayIfTriggered" scheduler="IO" category="streaming">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -912,6 +1098,15 @@
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.RemoveIndexRange" id="___RemoveIndexRange" scheduler="IO" category="streaming">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Creates a collection from the variable parameters. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.test.CollectionOf" id="CollectionOf" scheduler="NOW">
+        <type-variable name="T"/>
+        <input id="in" required="false" varargs="true" type-variable="T"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
     <!-- Receive the contents of a remote file when the trigger fires.  -->
@@ -1001,6 +1196,23 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertMapsToObjects" id="ConvertMapToObject" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="attributes" required="true" varargs="false" type="advance:boolean"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="T"/>
+        </input>
+        <input id="value" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:map">
+                <type-argument type="advance:string"/><type-argument type="advance:object"/>
+            </type-argument>
+        </input>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
+    </block-description>
+
     <!-- Receive a value from the JMS channel. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.JMSReceive" id="___JMSReceive" scheduler="IO" category="comm">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -1043,85 +1255,6 @@
     <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSave" id="___LocalFileSave" scheduler="IO" category="file">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
-    </block-description>
-
-    <!-- Stream the columns of a memory-mapped binary consignment representation. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentMMSource" id="ConsignmentMMSource" scheduler="IO" category="file">
-        <input id="columns" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:string"/>
-        </input>
-        <input id="directory" required="true" varargs="false" type="advance:string"/>
-        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
-        <output id="out" type="advance:map">
-            <type-argument type="advance:string"/><type-argument type="advance:object"/>
-        </output>
-    </block-description>
-
-    <!-- Creates a collection from the variable parameters. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.test.CollectionOf" id="CollectionOf" scheduler="NOW">
-        <type-variable name="T"/>
-        <input id="in" required="false" varargs="true" type-variable="T"/>
-        <output id="out" type="advance:collection">
-            <type-argument type-variable="T"/>
-        </output>
-    </block-description>
-
-    <!-- Retrieves a batch of rows from the database and waits for a trigger to continue with the next set of rows. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCThrottledQuery" id="JDBCThrottledQuery" scheduler="IO" category="db">
-        <input id="datasource" required="true" varargs="false" type="advance:string"/>
-        <input id="next" required="true" varargs="false" type="advance:boolean"/>
-        <input id="query" required="true" varargs="false" type="advance:string"/>
-        <input id="size" required="true" varargs="false" type="advance:integer"/>
-        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
-        <output id="done" type="advance:boolean"/>
-        <output id="out" type="advance:map">
-            <type-argument type="advance:string"/><type-argument type="advance:object"/>
-        </output>
-    </block-description>
-
-    <!-- Retrieves and returns a batch of rows from the database and waits for a trigger to continue with the next set of rows. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.db.JDBCThrottledBatchQuery" id="JDBCThrottledBatchQuery" scheduler="IO" category="db">
-        <input id="datasource" required="true" varargs="false" type="advance:string"/>
-        <input id="next" required="true" varargs="false" type="advance:boolean"/>
-        <input id="query" required="true" varargs="false" type="advance:string"/>
-        <input id="size" required="true" varargs="false" type="advance:integer"/>
-        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
-        <output id="done" type="advance:boolean"/>
-        <output id="out" type="advance:collection">
-            <type-argument type="advance:map">
-                <type-argument type="advance:string"/><type-argument type="advance:object"/>
-            </type-argument>
-        </output>
-    </block-description>
-
-    <!-- Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertMapToObject" id="ConvertMapToObject" scheduler="NOW" category="projection">
-        <type-variable name="T"/>
-        <input id="attributes" required="true" varargs="false" type="advance:boolean"/>
-        <input id="type" required="true" varargs="false" type="advance:type">
-            <type-argument type-variable="T"/>
-        </input>
-        <input id="value" required="true" varargs="false" type="advance:map">
-            <type-argument type="advance:string"/><type-argument type="advance:object"/>
-        </input>
-        <output id="out" type-variable="T"/>
-    </block-description>
-
-    <!-- Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertMapsToObjects" id="ConvertMapToObject" scheduler="NOW" category="projection">
-        <type-variable name="T"/>
-        <input id="attributes" required="true" varargs="false" type="advance:boolean"/>
-        <input id="type" required="true" varargs="false" type="advance:type">
-            <type-argument type-variable="T"/>
-        </input>
-        <input id="value" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:map">
-                <type-argument type="advance:string"/><type-argument type="advance:object"/>
-            </type-argument>
-        </input>
-        <output id="out" type="advance:collection">
-            <type-argument type-variable="T"/>
-        </output>
     </block-description>
 
 </block-registry>

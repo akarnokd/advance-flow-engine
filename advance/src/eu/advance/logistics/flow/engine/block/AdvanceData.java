@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.block;
 
 import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
 
 import java.lang.reflect.Field;
@@ -789,5 +790,43 @@ public final class AdvanceData implements DataResolver<XElement> {
 	@Override
 	public List<URI> baseTypes() {
 		return BASE_TYPES;
+	}
+	/** The none option. */
+	private static final XElement NONE = new XElement("option");
+	/** @return creates a NONE option. */
+	public static XElement createNone() {
+		return NONE;
+	}
+	/**
+	 * Creates a some option of the given value.
+	 * @param value the value to wrap
+	 * @return the SOME option
+	 */
+	public static XElement createSome(XElement value) {
+		XElement some = new XElement("option");
+		some.add(rename(value, "value"));
+		return some;
+	}
+	/**
+	 * Returns the wrapped value from an option XML or none.
+	 * @param value the value to unwrap
+	 * @return the option
+	 */
+	public static Option<XElement> getOption(XElement value) {
+		if (value.children().size() == 1) {
+			return Option.some(value.children().get(0).copy());
+		}
+		return Option.none();
+	}
+	/**
+	 * Creates an XML option from the supplied option value.
+	 * @param value the optioned value
+	 * @return the XElement representing the option
+	 */
+	public static XElement createOption(Option<XElement> value) {
+		if (Option.isSome(value)) {
+			return createSome(value.value());
+		}
+		return NONE;
 	}
 }
