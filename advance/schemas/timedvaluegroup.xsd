@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="timedvaluegroup" type="timedvaluegroup"/>
+	<xs:complexType name="timedvaluegroup">
+		<xs:annotation>
+			<xs:documentation>Definition of a triplet consisting of a date, group key and numerical value.</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="timestamp" type="xs:dateTime" use="required">
+			<xs:annotation><xs:documentation>The timestamp.</xs:documentation></xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="group" type="xs:string" use="required">
+			<xs:annotation><xs:documentation>The group key.</xs:documentation></xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="value" type="xs:decimal" use="required">
+			<xs:annotation><xs:documentation>The group value.</xs:documentation></xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>

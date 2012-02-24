@@ -61,8 +61,9 @@ public class ConvertMapsToObjects extends AdvanceBlock {
 
 		XElement type = get(TYPE);
 		String elementNames = type.get("type");
-		if (elementNames.contains(":")) {
-			elementNames = elementNames.substring(elementNames.indexOf(':') + 1);
+		int idx = elementNames.indexOf(':');
+		if (idx > 0) {
+			elementNames = elementNames.substring(idx + 1);
 		}
 		
 		XElement coll = get(VALUE);

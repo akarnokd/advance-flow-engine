@@ -20,8 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
+import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.reactive.Observer;
-import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -36,6 +36,7 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
 import eu.advance.logistics.flow.engine.xml.XElement;
@@ -48,15 +49,15 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  *
  * @author TTS
  */
-@Block(id = "JDBCQuery", category = "db", 
+@Block(id = "JDBCQueryOption", category = "db", 
 scheduler = "IO", 
-description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value.")
-public class JDBCQuery extends AdvanceBlock {
+description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value as an option.")
+public class JDBCQueryOption extends AdvanceBlock {
 
     /**
      * The logger.
      */
-    protected static final Logger LOGGER = Logger.getLogger(JDBCQuery.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(JDBCQueryOption.class.getName());
     /**
      * In.
      */
@@ -75,7 +76,7 @@ public class JDBCQuery extends AdvanceBlock {
     /**
      * Out.
      */
-    @Output("advance:map<advance:string,advance:object>")
+    @Output("advance.option<advance:map<advance:string,advance:object>>")
     protected static final String OUT = "out";
 
     @Override
@@ -85,24 +86,19 @@ public class JDBCQuery extends AdvanceBlock {
     
     @Override
     public Observer<Void> run() {
-       addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
-
-            @Override
-            public void next(XElement value) {
-                if (resolver().getBoolean(value)) {
-                    execute();
-                }
-            }
-
-            @Override
-            public void error(Throwable ex) {
-            }
-
-            @Override
-            public void finish() {
-            }
-        }));
-       return new RunObserver();
+    	return new RunObserver() {
+    		@Override
+    		public void next(Void value) {
+		    	observeInput(TRIGGER, new Action1<XElement>() {
+		    		@Override
+		    		public void invoke(XElement value) {
+		                if (resolver().getBoolean(value)) {
+		                    execute();
+		                }
+		    		}    		
+		    	});
+	       }
+       };
     }
     
     /** Execute. */
@@ -127,8 +123,9 @@ public class JDBCQuery extends AdvanceBlock {
 		                    if (rs != null) {
 		                        final ResultSetMetaData rsmd = rs.getMetaData();
 		                        while (rs.next()) {
-		                            dispatch(OUT, create(resolver(), rs, rsmd));
+		                            dispatch(OUT, AdvanceData.createSome(create(resolver(), rs, rsmd)));
 		                        }
+		                        dispatch(OUT, AdvanceData.createNone());
 		                        rs.close();
 		                    }
 		                } catch (SQLException ex) {

@@ -34,6 +34,7 @@ import hu.akarnokd.reactive4java.reactive.Reactive;
 import java.io.Closeable;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -588,4 +589,19 @@ public abstract class Block<T, X, C> {
 			}));
     	}
     }
+    /**
+     * Returns a list of values from the variable argument ports.
+     * @param portName the port name (prefix)
+     * @return the list of values
+     */
+    protected List<T> varargs(String portName) {
+    	List<T> result = new ArrayList<T>(inputs.size());
+    	for (Port<T, X> p : inputs.values()) {
+    		if (p.name().startsWith(portName)) {
+    			result.add(get(p.name()));
+    		}
+    	}
+    	return result;
+    }
 }
+
