@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.block.prediction;
+package eu.advance.logistics.flow.engine.block.file;
 
 /**
  * The set of binary column types.

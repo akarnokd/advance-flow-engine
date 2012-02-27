@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.runtime;
 
+import hu.akarnokd.reactive4java.base.Action0;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
@@ -180,12 +181,19 @@ public abstract class Block<T, X, C> {
 	 * The observer returned by the run functions. 
 	 * Contains the default implementations for error() and finish() to perform a diagnostic report. 
 	 */
-	public class RunObserver implements Observer<Void> {
+	public class RunObserver implements Observer<Void>, Action1<Action0> {
+		/** The actions to execute on default. */
+		final List<Action0> actions = Lists.newArrayList();
 		@Override
 		public void next(Void value) {
-			// no operation in this case
+			for (Action0 a : actions) {
+				a.invoke();
+			}
 		}
-
+		@Override
+		public void invoke(Action0 value) {
+			actions.add(value);
+		}
 		@Override
 		public void error(Throwable ex) {
 			diagnostic.next(new BlockDiagnostic("", description().id, Option.<BlockState>error(ex)));
@@ -576,10 +584,34 @@ public abstract class Block<T, X, C> {
      * and call the given action once a value arrives.
      * @param portName the port name
      * @param nextAction the action to invoke on each values
+     * @param run the deferred runnable for constant actions
      */
-    protected void observeInput(String portName, final Action1<T> nextAction) {
+    protected void observeInput(final String portName, final Action1<T> nextAction, Action1<Action0> run) {
     	if (getInput(portName) instanceof ConstantPort<?, ?>) {
-    		nextAction.invoke(get(portName));
+    		run.invoke(new Action0() {
+    			@Override
+    			public void invoke() {
+    	    		nextAction.invoke(get(portName));
+    			}
+    		});
+    	} else {
+	    	addCloseable(Reactive.observeOn(getInput(portName), scheduler()).register(new InvokeObserver<T>() {
+	    		@Override
+	    		public void next(T value) {
+	    			nextAction.invoke(value);
+	    		}
+			}));
+    	}
+    }
+    /**
+     * Convenience method to register an independent observer for the given input port
+     * and call the given action once a value arrives.
+     * @param portName the port name
+     * @param nextAction the action to invoke on each values
+     */
+    protected void observeInput(final String portName, final Action1<T> nextAction) {
+    	if (getInput(portName) instanceof ConstantPort<?, ?>) {
+	    		nextAction.invoke(get(portName));
     	} else {
 	    	addCloseable(Reactive.observeOn(getInput(portName), scheduler()).register(new InvokeObserver<T>() {
 	    		@Override

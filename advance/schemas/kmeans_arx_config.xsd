@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="kmeans_arx_config" type="kmeans_arx_config">
+		<xs:annotation>
+			<xs:documentation>The K-means ARX model configuration block.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="kmeans_arx_config">
+		<xs:attribute name="model-order" type="xs:positiveInteger" use="required"/>
+		<xs:attribute name="cluster-count" type="xs:positiveInteger" use="required"/>
+		<xs:attribute name="max-iteration" type="xs:positiveInteger" use="required"/>
+		<xs:attribute name="horizon" type="xs:nonNegativeInteger" use="required"/>
+		<xs:attribute name="normalize" type="xs:boolean" use="required"/>
+		<xs:attribute name="split" type="xs:decimal" use="required">
+			<xs:annotation><xs:documentation>The ratio of training and test data.</xs:documentation></xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>

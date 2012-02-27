@@ -1340,4 +1340,42 @@ public class XElement /* implements Iterable<XElement> */ {
 			in.close();
 		}
 	}
+	/**
+	 * Returns the attribute as a double value.
+	 * @param name the attribute name
+	 * @return the value
+	 */
+	public double getDouble(String name) {
+		return Double.parseDouble(get(name));
+	}
+	/**
+	 * Returns the attribute as a double value or the default.
+	 * @param name the attribute name
+	 * @param defaultValue the default if the attribute is missing
+	 * @return the value
+	 */
+	public double getDouble(String name, double defaultValue) {
+		String v = get(name);
+		return v != null ? Double.parseDouble(v) : defaultValue;
+	}
+	/**
+	 * Returns the attribute as a double value.
+	 * @param name the attribute name
+	 * @param namespace the attribute namespace
+	 * @return the value
+	 */
+	public double getDouble(String name, String namespace) {
+		return Double.parseDouble(get(name));
+	}
+	/**
+	 * Returns the attribute as a double value or the default.
+	 * @param name the attribute name
+	 * @param namespace the attribute namespace
+	 * @param defaultValue the default if the attribute is missing
+	 * @return the value
+	 */
+	public double getDouble(String name, String namespace, double defaultValue) {
+		String v = get(name, namespace);
+		return v != null ? Double.parseDouble(v) : defaultValue;
+	}
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="arxmodel" type="arxmodel">
+		<xs:annotation>
+			<xs:documentation>Defines the parameters of an ARX model.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="arxmodel">
+		<xs:annotation><xs:documentation>The Autoregressive model with exogenous parameters settings.</xs:documentation></xs:annotation>
+		<xs:sequence>
+			<xs:element name="model-coefficient" type="xs:decimal" minOccurs="1" maxOccurs="unbounded">
+				<xs:annotation><xs:documentation>The model coefficient.</xs:documentation></xs:annotation>
+			</xs:element>
+			<xs:element name="external-coefficient" type="xs:decimal" minOccurs="1" maxOccurs="unbounded">
+				<xs:annotation><xs:documentation>The external coefficients.</xs:documentation></xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="external-count" type="xs:positiveInteger" use="required">
+			<xs:annotation><xs:documentation>The number of external parameters.</xs:documentation></xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="model-order" type="xs:positiveInteger" use="required">
+			<xs:annotation><xs:documentation>The model order.</xs:documentation></xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>
