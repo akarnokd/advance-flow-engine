@@ -1257,4 +1257,128 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- . -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARX" id="KMeansARXLearn" scheduler="IO" category="prediction">
+    </block-description>
+
+    <!-- K-means algorithm for classifying multiple time series. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARXLearn" id="KMeansARXLearn" scheduler="CPU" category="prediction">
+        <input id="config" required="true" varargs="false" type="advance:kmeans_arx_config"/>
+        <input id="data" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:timedvaluegroup"/>
+        </input>
+        <output id="classes" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:integer"/>
+        </output>
+        <output id="L1TestError" type="advance:real"/>
+        <output id="L1TrainError" type="advance:real"/>
+        <output id="L2TestError" type="advance:real"/>
+        <output id="L2TrainError" type="advance:real"/>
+        <output id="model" type="advance:collection">
+            <type-argument type="advance:arxmodel"/>
+        </output>
+    </block-description>
+
+    <!-- K-means ARX model configuration block. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARXConfig" id="KMeansARXConfig" scheduler="IO" category="prediction">
+        <input id="clusters" required="true" varargs="false" type="advance:integer"/>
+        <input id="horizon" required="true" varargs="false" type="advance:integer">
+            <default>
+                    <integer>10</integer>
+            </default>
+        </input>
+        <input id="maxIterations" required="true" varargs="false" type="advance:integer">
+            <default>
+                    <integer>10</integer>
+            </default>
+        </input>
+        <input id="order" required="true" varargs="false" type="advance:integer"/>
+        <input id="normalize" required="true" varargs="false" type="advance:boolean">
+            <default>
+                    <boolean>true</boolean>
+            </default>
+        </input>
+        <input id="split" required="true" varargs="false" type="advance:real">
+            <default>
+                    <real>0.75</real>
+            </default>
+        </input>
+        <output id="out" type="advance:kmeans_arx_config"/>
+    </block-description>
+
+    <!-- K-means algorithm for classifying multiple time series. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARXStreamLearn" id="KMeansARXStreamLearn" scheduler="IO" category="prediction">
+        <input id="config" required="true" varargs="false" type="advance:kmeans_arx_config"/>
+        <input id="dates" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="groups" required="true" varargs="false" type="advance:string"/>
+        <input id="last" required="true" varargs="false" type="advance:boolean"/>
+        <input id="values" required="true" varargs="false" type="advance:real"/>
+        <output id="L1TestError" type="advance:real"/>
+        <output id="L1TrainError" type="advance:real"/>
+        <output id="L2TestError" type="advance:real"/>
+        <output id="L2TrainError" type="advance:real"/>
+        <output id="model" type="advance:collection">
+            <type-argument type="advance:arxmodel"/>
+        </output>
+    </block-description>
+
+    <!-- Creates a record from a date, group and value triplets used by the K-means ARX learner. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.CreateTimedValueGroup" id="CreateTimedValueGroup" scheduler="NOW" category="prediction">
+        <input id="group" required="true" varargs="false" type="advance:string"/>
+        <input id="timestamp" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="value" required="true" varargs="false" type="advance:real"/>
+        <output id="out" type="advance:timedvaluegroup"/>
+    </block-description>
+
+    <!-- Predicts the subsequent values of an ARX model. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARXPredict" id="KMeansARXPredict" scheduler="CPU" category="prediction">
+        <input id="data" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:timedvalue"/>
+        </input>
+        <input id="horizon" required="true" varargs="false" type="advance:integer"/>
+        <input id="model" required="true" varargs="false" type="advance:arxmodel"/>
+        <input id="prediction" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:real"/>
+        </input>
+    </block-description>
+
+    <!-- Takes a reactive primary input and sends out the last value of the secondary input whenever the primary input fires. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.util.Repeat" id="Repeat" scheduler="NOW" category="prediction">
+    </block-description>
+
+    <!-- Remembers the last values of each input and fires the current values whenever one changes. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.util.Latest" id="Latest" scheduler="NOW" category="prediction">
+    </block-description>
+
+    <!-- Predicts the subsequent values of an ARX model. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARXPredictAll" id="KMeansARXPredict" scheduler="CPU" category="prediction">
+        <input id="class" required="true" varargs="false" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:integer"/>
+        </input>
+        <input id="data" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:timedvaluegroup"/>
+        </input>
+        <input id="horizon" required="true" varargs="false" type="advance:integer"/>
+        <input id="model" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:arxmodel"/>
+        </input>
+        <input id="prediction" required="true" varargs="false" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:collection">
+                <type-argument type="advance:real"/>
+            </type-argument>
+        </input>
+    </block-description>
+
+    <!-- Stream the columns of a memory-mapped binary consignment representation. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.file.ConsignmentMMSource" id="ConsignmentMMSource" scheduler="IO" category="file">
+        <input id="columns" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:string"/>
+        </input>
+        <input id="directory" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:object"/>
+        </output>
+    </block-description>
+
 </block-registry>

@@ -143,7 +143,7 @@ public class JDBCThrottledQuery extends AdvanceBlock {
 						addCloseable(scheduler().schedule(new Runnable() {
 							@Override
 							public void run() {
-								invoke();
+								JDBCThrottledQuery.this.invoke();
 							}
 						}));
 					}

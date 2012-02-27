@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.engine.block.prediction;
+package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Closeables;
@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -45,7 +44,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
-import eu.advance.logistics.flow.engine.block.file.MappedColumn;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
@@ -58,8 +56,6 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  */
 @Block(id = "ConsignmentMMSource", category = "file", scheduler = "IO", description = "Stream the columns of a memory-mapped binary consignment representation.")
 public class ConsignmentMMSource extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ConsignmentMMSource .class.getName());
     /** The base directory of the columns. */
     @Input("advance:string")
     protected static final String DIRECTORY = "directory";
@@ -105,7 +101,7 @@ public class ConsignmentMMSource extends AdvanceBlock {
 						addCloseable(scheduler().schedule(new Runnable() {
 							@Override
 							public void run() {
-								invoke();
+								ConsignmentMMSource.this.invoke();
 							}
 						}));
 					}

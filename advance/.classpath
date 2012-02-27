@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="lib/joda-time-2.0.jar" sourcepath="lib/joda-time-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/guava-11.0.1.jar" sourcepath="lib/guava-11.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.18-bin.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math-2.2.jar" sourcepath="lib/commons-math-2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
