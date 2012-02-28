@@ -20,38 +20,51 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Creates a map with a single key-value pair.
- * Signature: SingletonMap(t, u) -> map<t, u>
- * @author szmarcell
+ * Creates a map with a single key-value pair. Signature: SingletonMap(t, u) ->
+ * map<t, u>
+ *
+ * @author TTS
  */
-@Block(id = "___SingletonMap", category = "data-transformations", scheduler = "IO", description = "Creates a map with a single key-value pair.")
+@Block(id = "SingletonMap", category = "data-transformations", scheduler = "IO", description = "Creates a map with a single key-value pair.")
 public class SingletonMap extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(SingletonMap .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Singleton.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:object")
+    protected static final String KEY = "key";
+    /**
+     * In.
+     */
+    @Input("advance:object")
+    protected static final String value = "value";
+    /**
+     * Out.
+     */
+    @Output("advance:map")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final XElement keyElem = get(KEY);
+        final XElement valElem = get(KEY);
+        final Map<XElement, XElement> singleton = new HashMap<XElement, XElement>();
+        singleton.put(keyElem, valElem);
+
+        dispatch(OUT, resolver().create(singleton));
     }
-    
 }
