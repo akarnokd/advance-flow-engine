@@ -32,23 +32,23 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Returns the largest value from the collection along with the collection of
- * its occurrence indexes. Signature: MaxAll(collection<object>) -> (real,
- * collection<integer>)
+ * Returns the smallest real value from the collection along with the collection
+ * of its occurrence indexes. Signature: MinRealAll(collection<integer>) ->
+ * integer
  *
  * @author TTS
  */
-@Block(id = "MaxAll", category = "aggregation", scheduler = "IO", description = "Returns the largest value from the collection along with the collection of its occurrence indexes")
-public class MaxAll extends AdvanceBlock {
+@Block(id = "MinRealAll", category = "aggregation", scheduler = "IO", description = "Returns the smallest real value from the collection along with the collection of its occurrence indexes")
+public class MinRealAll extends AdvanceBlock {
 
     /**
      * The logger.
      */
-    protected static final Logger LOGGER = Logger.getLogger(MaxAll.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(MinRealAll.class.getName());
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<advance:real>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -64,35 +64,26 @@ public class MaxAll extends AdvanceBlock {
     @Override
     protected void invoke() {
         final List<XElement> position_array = new ArrayList<XElement>();
-        double max = Double.MIN_VALUE;
+        double min = Double.MAX_VALUE;
 
         final XElement xcollection = get(IN);
         final Iterator<XElement> it = xcollection.children().iterator();
         int count = 0;
         while (it.hasNext()) {
-            final XElement xelem = it.next();
+            final double curVal = settings.resolver.getDouble(it.next());
 
-            final double curVal;
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                curVal = settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                curVal = settings.resolver.getDouble(xelem);
-            } else {
-                curVal = 0.0;
-            }
-
-            if (curVal > max) {
-                max = curVal;
+            if (curVal < min) {
+                min = curVal;
                 position_array.clear();
                 position_array.add(resolver().create(count));
-            } else if (curVal == max) {
+            } else if (curVal == min) {
                 position_array.add(resolver().create(count));
             }
 
             count++;
         }
 
-        dispatch(OUT1, resolver().create(max));
+        dispatch(OUT1, resolver().create(min));
         dispatch(OUT2, resolver().create(position_array));
     }
 }

@@ -30,22 +30,22 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 import java.util.Iterator;
 
 /**
- * Compute the average of the integer or real values within the collection.
- * Signature: Average(collection<object>) -> real
+ * Returns the largest integer in the collection along with its last occurrence
+ * index. Signature: MaxReal(collection<integer>) -> integer
  *
  * @author TTS
  */
-@Block(id = "Average", category = "aggregation", scheduler = "IO", description = "Compute the average of the integer or real values within the collection")
-public class Average extends AdvanceBlock {
+@Block(id = "MaxReal", category = "aggregation", scheduler = "IO", description = "Returns the largest integer in the collection along with its last occurrence index")
+public class MaxReal extends AdvanceBlock {
 
     /**
      * The logger.
      */
-    protected static final Logger LOGGER = Logger.getLogger(Average.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(MaxReal.class.getName());
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<advance:real>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -55,24 +55,14 @@ public class Average extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        int count = 0;
-        double sum = 0.0;
+        double max = Double.MIN_VALUE;
 
         final XElement xcollection = get(IN);
         final Iterator<XElement> it = xcollection.children().iterator();
         while (it.hasNext()) {
-            final XElement xelem = it.next();
-
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                sum += settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                sum += settings.resolver.getDouble(xelem);
-            }
-
-            count++;
+            max = Math.max(max, settings.resolver.getDouble(it.next()));
         }
-        sum = (sum / ((double) count));
 
-        dispatch(OUT, resolver().create(sum));
+        dispatch(OUT, resolver().create(max));
     }
 }

@@ -26,29 +26,67 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Iterator;
 
 /**
  * Returns the smallest value in the collection along with its last occurrence.
  * Signature: Min(collection<object>) -> (real, integer)
- * @author szmarcell
+ *
+ * @author TTS
  */
-@Block(id = "Min", category = "aggregation", scheduler = "IO", description = "Returns the smallest value in the collection along with its last occurrence.")
+@Block(id = "Min", category = "aggregation", scheduler = "IO", description = "Returns the smallest value in the collection along with its last occurrence")
 public class Min extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Min .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Min.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<advance:object>")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running sum. */
-    private double value = Double.MAX_VALUE;
+    protected static final String OUT1 = "out1";
+    /**
+     * Out.
+     */
+    @Output("advance:integer")
+    protected static final String OUT2 = "out2";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = Math.min(val, value);
-        dispatch(OUT, resolver().create(value));
+        double min = Double.MAX_VALUE;
+        int lastPos = 0;
+
+        final XElement xcollection = get(IN);
+        final Iterator<XElement> it = xcollection.children().iterator();
+        int count = 0;
+        while (it.hasNext()) {
+            final XElement xelem = it.next();
+
+            if (xelem.name.equalsIgnoreCase("integer")) {
+                final int curr = settings.resolver.getInt(xelem);
+                if (curr <= min) {
+                    min = curr;
+                    lastPos = count;
+                }
+            } else if (xelem.name.equalsIgnoreCase("real")) {
+                final double curr = settings.resolver.getDouble(xelem);
+                if (curr >= min) {
+                    min = curr;
+                    lastPos = count;
+                }
+            }
+
+            count++;
+        }
+
+        dispatch(OUT1, resolver().create(min));
+        dispatch(OUT2, resolver().create(lastPos));
     }
-    
 }

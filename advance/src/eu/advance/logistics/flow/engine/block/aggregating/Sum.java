@@ -26,29 +26,49 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Iterator;
 
 /**
- * Compute the sum of the elements within the collection which have the type of Integer or Real.
- * Signature: Sum(collection<object>) -> real
- * @author szmarcell
+ * Compute the sum of the elements within the collection which have the type of
+ * Integer or Real. Signature: Sum(collection<object>) -> real
+ *
+ * @author TTS
  */
 @Block(id = "Sum", category = "aggregation", scheduler = "IO", description = "Compute the sum of the elements within the collection which have the type of Integer or Real.")
 public class Sum extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Sum .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Sum.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<advance:real>")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running sum. */
-    private double value;
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value += val;
-        dispatch(OUT, resolver().create(value));
+        double sum = 0;
+
+        final XElement xcollection = get(IN);
+        final Iterator<XElement> it = xcollection.children().iterator();
+        while (it.hasNext()) {
+            final XElement xelem = it.next();
+
+            if (xelem.name.equalsIgnoreCase("integer")) {
+                sum += settings.resolver.getInt(xelem);
+            } else if (xelem.name.equalsIgnoreCase("real")) {
+                sum += settings.resolver.getDouble(xelem);
+            }
+        }
+
+        dispatch(OUT, resolver().create(sum));
     }
-    
 }

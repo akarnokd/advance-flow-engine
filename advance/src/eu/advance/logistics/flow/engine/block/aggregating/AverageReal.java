@@ -30,22 +30,22 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 import java.util.Iterator;
 
 /**
- * Compute the average of the integer or real values within the collection.
- * Signature: Average(collection<object>) -> real
+ * Compute the average of the real values. Signature: AverageReal(collection<real>)
+ * -> real
  *
  * @author TTS
  */
-@Block(id = "Average", category = "aggregation", scheduler = "IO", description = "Compute the average of the integer or real values within the collection")
-public class Average extends AdvanceBlock {
+@Block(id = "AverageReal", category = "aggregation", scheduler = "IO", description = "Compute the average of the real values")
+public class AverageReal extends AdvanceBlock {
 
     /**
      * The logger.
      */
-    protected static final Logger LOGGER = Logger.getLogger(Average.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(AverageReal.class.getName());
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<advance:real>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -61,14 +61,7 @@ public class Average extends AdvanceBlock {
         final XElement xcollection = get(IN);
         final Iterator<XElement> it = xcollection.children().iterator();
         while (it.hasNext()) {
-            final XElement xelem = it.next();
-
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                sum += settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                sum += settings.resolver.getDouble(xelem);
-            }
-
+            sum += settings.resolver.getDouble(it.next());
             count++;
         }
         sum = (sum / ((double) count));

@@ -20,8 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -30,36 +28,37 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Returns the largest value from the collection along with the collection of
- * its occurrence indexes. Signature: MaxAll(collection<object>) -> (real,
- * collection<integer>)
+ * Returns the largest real value from the collection along with the collection
+ * of its occurrence indexes. Signature: MaxRealAll(collection<integer>) ->
+ * integer
  *
  * @author TTS
  */
-@Block(id = "MaxAll", category = "aggregation", scheduler = "IO", description = "Returns the largest value from the collection along with the collection of its occurrence indexes")
-public class MaxAll extends AdvanceBlock {
+@Block(id = "MaxRealAll", category = "aggregation", scheduler = "IO", description = "Returns the largest real value from the collection along with the collection of its occurrence indexes")
+public class MaxRealAll extends AdvanceBlock {
 
     /**
      * The logger.
      */
-    protected static final Logger LOGGER = Logger.getLogger(MaxAll.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(MaxRealAll.class.getName());
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<advance:real>")
     protected static final String IN = "in";
     /**
      * Out.
      */
     @Output("advance:real")
-    protected static final String OUT1 = "out1";
+    protected static final String MAX = "max";
     /**
      * Out.
      */
     @Output("advance:collection<advance:integer>")
-    protected static final String OUT2 = "out2";
+    protected static final String COLLECTION = "collection";
 
     @Override
     protected void invoke() {
@@ -70,16 +69,7 @@ public class MaxAll extends AdvanceBlock {
         final Iterator<XElement> it = xcollection.children().iterator();
         int count = 0;
         while (it.hasNext()) {
-            final XElement xelem = it.next();
-
-            final double curVal;
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                curVal = settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                curVal = settings.resolver.getDouble(xelem);
-            } else {
-                curVal = 0.0;
-            }
+            final double curVal = settings.resolver.getDouble(it.next());
 
             if (curVal > max) {
                 max = curVal;
@@ -92,7 +82,7 @@ public class MaxAll extends AdvanceBlock {
             count++;
         }
 
-        dispatch(OUT1, resolver().create(max));
-        dispatch(OUT2, resolver().create(position_array));
+        dispatch(MAX, resolver().create(max));
+        dispatch(COLLECTION, resolver().create(position_array));
     }
 }

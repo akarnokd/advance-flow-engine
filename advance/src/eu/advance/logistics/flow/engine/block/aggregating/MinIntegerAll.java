@@ -27,33 +27,34 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * Returns the largest value from the collection along with the collection of
- * its occurrence indexes. Signature: MaxAll(collection<object>) -> (real,
- * collection<integer>)
+ * Returns the smallest integer value from the collection along with the
+ * collection of its occurrence indexes. Signature:
+ * MinIntegerAll(collection<integer>) -> integer
  *
  * @author TTS
  */
-@Block(id = "MaxAll", category = "aggregation", scheduler = "IO", description = "Returns the largest value from the collection along with the collection of its occurrence indexes")
-public class MaxAll extends AdvanceBlock {
+@Block(id = "MinIntegerAll", category = "aggregation", scheduler = "IO", description = "Returns the smallest integer value from the collection along with the collection of its occurrence indexes")
+public class MinIntegerAll extends AdvanceBlock {
 
     /**
      * The logger.
      */
-    protected static final Logger LOGGER = Logger.getLogger(MaxAll.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(MinIntegerAll.class.getName());
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<advance:integer>")
     protected static final String IN = "in";
     /**
      * Out.
      */
-    @Output("advance:real")
+    @Output("advance:integer")
     protected static final String OUT1 = "out1";
     /**
      * Out.
@@ -63,36 +64,27 @@ public class MaxAll extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> position_array = new ArrayList<XElement>();
-        double max = Double.MIN_VALUE;
+        List<XElement> position_array = new ArrayList<XElement>();
+        int min = Integer.MAX_VALUE;
 
         final XElement xcollection = get(IN);
         final Iterator<XElement> it = xcollection.children().iterator();
         int count = 0;
         while (it.hasNext()) {
-            final XElement xelem = it.next();
+            final int curVal = settings.resolver.getInt(it.next());
 
-            final double curVal;
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                curVal = settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                curVal = settings.resolver.getDouble(xelem);
-            } else {
-                curVal = 0.0;
-            }
-
-            if (curVal > max) {
-                max = curVal;
+            if (curVal < min) {
+                min = curVal;
                 position_array.clear();
                 position_array.add(resolver().create(count));
-            } else if (curVal == max) {
+            } else if (curVal == min) {
                 position_array.add(resolver().create(count));
             }
 
             count++;
         }
 
-        dispatch(OUT1, resolver().create(max));
+        dispatch(OUT1, resolver().create(min));
         dispatch(OUT2, resolver().create(position_array));
     }
 }

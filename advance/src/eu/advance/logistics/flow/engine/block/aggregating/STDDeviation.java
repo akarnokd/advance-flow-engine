@@ -20,38 +20,71 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
- * Computes the standard deviation of numerical elements of the supplied collection.
- * Signature: STDDeviation(collection<object>) -> real
- * @author szmarcell
+ * Computes the standard deviation of numerical elements of the supplied
+ * collection. Signature: STDDeviation(collection<T>) -> real
+ *
+ * @author TTS
  */
-@Block(id = "___STDDeviation", category = "aggregation", scheduler = "IO", description = "Computes the standard deviation of numerical elements of the supplied collection.")
+@Block(id = "STDDeviation", category = "aggregation", scheduler = "IO", description = "Computes the standard deviation of numerical elements of the supplied collection")
 public class STDDeviation extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(STDDeviation .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(STDDeviation.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<? T>")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final XElement xcollection = get(IN);
+        final Iterator<XElement> it = xcollection.children().iterator();
+
+        /**
+         * Knuth method
+         */
+        double avg = 0.0;
+        double sum = 0.0;
+        double i = 0;
+        boolean first = true;
+        while (it.hasNext()) {
+            final XElement xelem = it.next();
+            double num = 0.0;
+            if (xelem.name.equalsIgnoreCase("real")) {
+                num = resolver().getDouble(xelem);
+            } else if (xelem.name.equalsIgnoreCase("integer")) {
+                num = (double) resolver().getInt(xelem);
+            }
+
+
+            if (first) {
+                avg = num;
+                first = false;
+            }
+
+            double newavg = avg + (num - avg) / (i + 1);
+            sum += (num - avg) * (num - newavg);
+            avg = newavg;
+            i++;
+        }
+
+        dispatch(OUT, resolver().create(Math.sqrt(sum / i)));
     }
-    
 }

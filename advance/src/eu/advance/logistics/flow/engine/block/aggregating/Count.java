@@ -20,34 +20,49 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
- * Counts the elements in the given collection.
- * Signature: Count(collection<t>) -> integer
- * @author szmarcell
+ * Counts the elements in the given collection. Signature: Count(collection<T>)
+ * -> integer
+ *
+ * @author TTS
  */
 @Block(id = "Count", category = "aggregation", scheduler = "IO", description = "Counts the elements in the given collection.")
 public class Count extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Count .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Count.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<?T>")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:integer")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
+
     @Override
     protected void invoke() {
-        count++;
+        int count = 0;
+        
+        final XElement xcollection = get(IN);
+        final Iterator<XElement> it = xcollection.children().iterator();
+        while (it.hasNext()) {
+            count++;
+            it.next();
+        }
+        
         dispatch(OUT, resolver().create(count));
     }
-    
 }
