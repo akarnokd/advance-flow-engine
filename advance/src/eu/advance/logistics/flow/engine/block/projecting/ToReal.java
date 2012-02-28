@@ -20,38 +20,54 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Convert a string into a real or indicate an error.
- * Signature: ToReal(string) -> (real, boolean)
- * @author szmarcell
+ * Convert a string into a real or indicate an error. Signature: ToReal(integer)
+ * -> (real, boolean)
+ *
+ * @author TTS
  */
-@Block(id = "___ToReal", category = "projection", scheduler = "IO", description = "Convert a string into a real or indicate an error.")
+@Block(id = "ToReal", category = "projection", scheduler = "IO", description = "Convert a string into a real or indicate an error")
 public class ToReal extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ToReal .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ToReal.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:string")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    protected static final String OUT_REAL = "out_real";
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
+    protected static final String OUT_STATUS = "out_status";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+       try {
+            final double res = Double.parseDouble(resolver().getString(get(IN)));
+
+            dispatch(OUT_REAL, resolver().create(res));
+            dispatch(OUT_STATUS, resolver().create(true));
+            
+        } catch (NumberFormatException ex) {
+            log(ex);
+            
+            dispatch(OUT_REAL, resolver().create(0));
+            dispatch(OUT_STATUS, resolver().create(false));
+        }
     }
-    
 }

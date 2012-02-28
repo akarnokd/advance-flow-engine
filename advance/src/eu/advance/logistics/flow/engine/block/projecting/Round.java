@@ -20,38 +20,38 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Round the given value to the nearest integer by the 0.5 rule.
- * Signature: Round(real) -> real
- * @author szmarcell
+ * Round the given value to the nearest integer by the 0.5 rule. Signature:
+ * Round(real) -> real
+ *
+ * @author TTS
  */
-@Block(id = "___Round", category = "projection", scheduler = "IO", description = "Round the given value to the nearest integer by the 0.5 rule")
+@Block(id = "Round", category = "projection", scheduler = "IO", description = "Round the given value to the nearest integer by the 0.5 rule")
 public class Round extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Round .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Round.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:real")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        dispatch(OUT, resolver().create(Math.round(getDouble(IN))));
     }
-    
 }

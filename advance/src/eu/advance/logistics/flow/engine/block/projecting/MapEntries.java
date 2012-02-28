@@ -20,38 +20,54 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Converts all key-value pairs of the map into a collection of key value pairs.
  * Signature: MapEntries(map<t, u>) -> collection<pair<t, u>>
- * @author szmarcell
+ *
+ * @author TTS
  */
-@Block(id = "___MapEntries", category = "projection", scheduler = "IO", description = "Converts all key-value pairs of the map into a collection of key value pairs.")
+@Block(id = "MapEntries", category = "projection", scheduler = "IO", description = "Converts all key-value pairs of the map into a collection of key value pairs")
 public class MapEntries extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(MapEntries .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(MapEntries.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:collection")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map = resolver().getMap(get(IN));
+        final Set<XElement> keys = map.keySet();
+
+        final List<XElement> result = new ArrayList<XElement>();
+        for (XElement key : keys) {
+
+            final XElement xelem = ((AdvanceData) resolver()).createPair(key, map.get(key));
+            result.add(xelem);
+        }
+
+        dispatch(OUT, resolver().create(result));
     }
-    
 }

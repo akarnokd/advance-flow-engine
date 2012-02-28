@@ -20,38 +20,54 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Get a value by the given key from the map or indicate if no such element exists.
- * Signature: GetValue(map<t, u>, t) -> (u, boolean)
- * @author szmarcell
+ * Get a value by the given key from the map or indicate if no such element
+ * exists. Signature: GetValue(map<t, u>, t) -> (u, boolean)
+ *
+ * @author TTS
  */
-@Block(id = "___GetValue", category = "projection", scheduler = "IO", description = "Get a value by the given key from the map or indicate if no such element exists")
+@Block(id = "GetValue", category = "projection", scheduler = "IO", description = "Get a value by the given key from the map or indicate if no such element exists")
 public class GetValue extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(GetValue .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(GetValue.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map")
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
+    @Input("advance:object")
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
+    @Output("advance:object")
+    protected static final String OUT_VALUE = "out_value";
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
+    protected static final String OUT_STATUS = "out_status";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map = resolver().getMap(get(IN1));
+        final XElement obj = map.get(get(IN2));
+
+        dispatch(OUT_VALUE, resolver().create(obj));
+        dispatch(OUT_STATUS, resolver().create((obj != null)));
     }
-    
 }

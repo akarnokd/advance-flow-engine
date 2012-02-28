@@ -20,38 +20,59 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.logging.Logger;
 
 /**
- * Convert a string into a timestamp or indicate an error.
- * Signature: ToTimestamp(string) -> (timestamp, boolean)
- * @author szmarcell
+ * Convert a string into a timestamp or indicate an error. Signature:
+ * ToTimestamp(string) -> (timestamp, boolean)
+ *
+ * @author TTS
  */
-@Block(id = "___ToTimestamp", category = "projection", scheduler = "IO", description = "Convert a string into a timestamp or indicate an error")
+@Block(id = "ToTimestamp", category = "projection", scheduler = "IO", description = "Convert a string into a timestamp or indicate an error")
 public class ToTimestamp extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ToTimestamp .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ToTimestamp.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:string")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    /**
+     * Out.
+     */
+    @Output("advance:timestamp")
+    protected static final String OUT_TIMESTAMP = "out_timestamp";
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
+    protected static final String OUT_STATUS = "out_status";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final XElement xelem = get(IN);
+
+        try {
+            final Date res = XElement.parseDateTime(resolver().getString(xelem));
+
+            dispatch(OUT_TIMESTAMP, resolver().create(res));
+            dispatch(OUT_STATUS, resolver().create(true));
+
+        } catch (ParseException ex) {
+            log(ex);
+            
+            dispatch(OUT_TIMESTAMP, resolver().create(new Date()));
+            dispatch(OUT_STATUS, resolver().create(false));
+        }
     }
-    
 }

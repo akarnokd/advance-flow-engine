@@ -20,38 +20,61 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
- * Get the collection of keys where the given value is present.
- * Signature: GetKeys(map<t, u>, u) -> collection<t>
- * @author szmarcell
+ * Get the collection of keys where the given value is present. Signature:
+ * GetKeys(map<t, u>, u) -> collection<t>
+ *
+ * @author TTS
  */
-@Block(id = "___GetKeys", category = "projection", scheduler = "IO", description = "Get the collection of keys where the given value is present")
+@Block(id = "GetKeys", category = "projection", scheduler = "IO", description = "Get the collection of keys where the given value is present")
 public class GetKeys extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(GetKeys .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(GetKeys.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map")
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
+    @Input("advance:object")
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
+    @Output("advance:collection")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final List<XElement> result = new ArrayList<XElement>();
+
+        final Map<XElement, XElement> map = resolver().getMap(get(IN1));
+        final Set<XElement> keySet = map.keySet();
+        final XElement objElem = get(IN2);
+        for (XElement key : keySet) {
+            final XElement value = map.get(key);
+
+            if (value.equals(objElem)) {
+                result.add(key);
+            }
+        }
+
+        dispatch(OUT, resolver().create(result));
     }
-    
 }

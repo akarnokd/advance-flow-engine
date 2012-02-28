@@ -20,38 +20,40 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Marshalls the given object into its XML string format.
- * Signature: Marshall(t) -> string
- * @author szmarcell
+ * Marshalls the given object into its XML string format. Signature: Marshall(t)
+ * -> string
+ *
+ * @author TTS
  */
-@Block(id = "___Marshall", category = "projection", scheduler = "IO", description = "Marshalls the given object into its XML string format.")
+@Block(id = "Marshall", category = "projection", scheduler = "IO", description = "Marshalls the given object into its XML string format")
 public class Marshall extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Marshall .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Marshall.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:object")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:string")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final String val = resolver().getString(get(IN));
+        
+        dispatch(OUT, resolver().create(val));
     }
-    
 }

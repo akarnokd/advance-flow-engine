@@ -20,38 +20,38 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
  * Compute the largest integer value which is smaller than the given real value.
  * Signature: Floor(real) -> integer
- * @author szmarcell
+ *
+ * @author TTS
  */
-@Block(id = "___Floor", category = "projection", scheduler = "IO", description = "Compute the largest integer value which is smaller than the given real value.")
+@Block(id = "Floor", category = "projection", scheduler = "IO", description = "Compute the largest integer value which is smaller than the given real value")
 public class Floor extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Floor .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Floor.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:real")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:integer")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        dispatch(OUT, resolver().create((int) Math.floor(getDouble(IN))));
     }
-    
 }
