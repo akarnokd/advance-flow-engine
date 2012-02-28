@@ -20,38 +20,45 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Crates a collection with a single item.
- * Signature: Singleton(t) -> collection<t>
- * @author szmarcell
+ * Crates a collection with a single item. Signature: Singleton(t) ->
+ * collection<t>
+ *
+ * @author TTS
  */
-@Block(id = "___Singleton", category = "data-transformations", scheduler = "IO", description = "Crates a collection with a single item")
+@Block(id = "Singleton", category = "data-transformations", scheduler = "IO", description = "Crates a collection with a single item")
 public class Singleton extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Singleton .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Singleton.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:object")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:collection")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final XElement elem = get(IN);
+        final List<XElement> singleton = new ArrayList<XElement>();
+        singleton.add(elem);
+        
+        dispatch(OUT, resolver().create(singleton));
     }
-    
 }
