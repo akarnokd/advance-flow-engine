@@ -27,8 +27,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -38,7 +36,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.runtime.DataResolver;
 import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
@@ -108,8 +105,7 @@ public class JDBCQueryOption extends AdvanceBlock {
     	
     		String dataSourceStr = getString(DATASOURCE);
     		
-	        final Pool<JDBCConnection> ds = this.settings.context.pools.get(
-	        		JDBCConnection.class, dataSourceStr);
+	        final Pool<JDBCConnection> ds = getPool(JDBCConnection.class, dataSourceStr);
 	        
 	        if (ds != null) {
 		        JDBCConnection conn = ds.get();
@@ -119,14 +115,22 @@ public class JDBCQueryOption extends AdvanceBlock {
 		            if (query != null) {
 		                try {
 		                    final Statement stm = conn.getConnection().createStatement();
-		                    final ResultSet rs = stm.executeQuery(query);
-		                    if (rs != null) {
-		                        final ResultSetMetaData rsmd = rs.getMetaData();
-		                        while (rs.next()) {
-		                            dispatch(OUT, AdvanceData.createSome(create(resolver(), rs, rsmd)));
-		                        }
-		                        dispatch(OUT, AdvanceData.createNone());
-		                        rs.close();
+		                    try {
+			                    final ResultSet rs = stm.executeQuery(query);
+			                    try {
+				                    if (rs != null) {
+				                        final ResultSetMetaData rsmd = rs.getMetaData();
+				                        while (rs.next()) {
+				                            dispatch(OUT, AdvanceData.createSome(JDBCConverter.create(resolver(), rs, rsmd)));
+				                        }
+				                        dispatch(OUT, AdvanceData.createNone());
+				                        rs.close();
+				                    }
+			                    } finally {
+			                    	rs.close();
+			                    }
+		                    } finally {
+		                    	stm.close();
 		                    }
 		                } catch (SQLException ex) {
 		                    log(ex);
@@ -141,54 +145,5 @@ public class JDBCQueryOption extends AdvanceBlock {
     	} catch (Exception ex) {
     		log(ex);
     	}
-    }
-    /**
-     * Create a row result XML.
-     * @param resolver the data resolver
-     * @param rs the resultset
-     * @param rsmd the metadata
-     * @return the xelement
-     * @throws SQLException on error
-     */
-    public static XElement create(DataResolver<XElement> resolver, ResultSet rs, ResultSetMetaData rsmd) throws SQLException {
-        final Map<XElement, XElement> data = new HashMap<XElement, XElement>();
-        
-        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-            XElement value = null;
-            
-            switch (rsmd.getColumnType(i)) {
-                case java.sql.Types.BOOLEAN:
-                    value = resolver.create(rs.getBoolean(i));
-                    break;
-                case java.sql.Types.INTEGER:
-                    value = resolver.create(rs.getInt(i));
-                    break;
-                case java.sql.Types.DOUBLE:
-                    value = resolver.create(rs.getDouble(i));
-                    break;
-                case java.sql.Types.DATE:
-                    value = resolver.create(rs.getDate(i));
-                    break;
-                case java.sql.Types.BIGINT:
-                    value = resolver.create(rs.getBigDecimal(i));
-                    break;
-                case java.sql.Types.FLOAT:
-                    value = resolver.create(rs.getFloat(i));
-                    break;
-                case java.sql.Types.TIME:
-                    value = resolver.create(rs.getTime(i));
-                    break;
-                case java.sql.Types.TIMESTAMP:
-                    value = resolver.create(rs.getTimestamp(i));
-                    break;
-                default:
-                    value = resolver.create(rs.getString(i));
-            }
-            if (value != null) {
-                data.put(resolver.create(rsmd.getColumnName(i)), value);
-            }
-        }
-        
-        return resolver.create(data);
     }
 }

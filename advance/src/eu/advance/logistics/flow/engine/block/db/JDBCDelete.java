@@ -20,6 +20,11 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
+import java.sql.PreparedStatement;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -27,11 +32,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Delete entries from the given datastore by using the query and parameters.
@@ -60,7 +60,7 @@ public class JDBCDelete extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map")
+    @Input("advance:map<advance:string,advance:object>")
     protected static final String MAP = "map";
     /**
      * Out.
@@ -73,75 +73,48 @@ public class JDBCDelete extends AdvanceBlock {
         JDBCConnection conn = null;
         try {
             final String dataSourceStr = getString(DATASOURCE);
-            final Pool<JDBCConnection> ds = this.settings.context.pools.get(JDBCConnection.class, dataSourceStr);
+            final Pool<JDBCConnection> ds = getPool(JDBCConnection.class, dataSourceStr);
             conn = ds.get();
-            ds.put(conn);
+            try {
+                final String query = getString(QUERY);
+                final Map<XElement, XElement> paramMap = resolver().getMap(get(MAP));
+
+                if (query != null) {
+                    try {
+                        final Set<XElement> keySet = paramMap.keySet();
+                        final String[] columns = new String[keySet.size()];
+
+                        //retrieve columns names
+                        int count = 0;
+                        for (XElement e : keySet) {
+                            columns[count] = resolver().getString(e);
+                            count++;
+                        }
+
+                        final PreparedStatement pstm = conn.getConnection().prepareStatement(query, columns);
+
+                        // basing on types fill the prepared_statement
+                        int paramCount = 1;
+                        for (XElement e : keySet) {
+                            paramCount = JDBCConverter.convert(resolver(), paramMap.get(e), pstm, paramCount);
+                        }
+
+                        final int res = pstm.executeUpdate();
+                        conn.commit();
+                        dispatch(OUT, resolver().create(res));
+                        return;
+                    } catch (Exception ex) {
+                    	conn.rollbackSilently();
+                        log(ex);
+                    }
+                }
+            	
+            } finally {
+            	ds.put(conn);
+            }
         } catch (Exception ex) {
             log(ex);
         }
-
-        if (conn != null) {
-            final String query = getString(QUERY);
-            final Map<XElement, XElement> param_map = resolver().getMap(get(MAP));
-
-            if (query != null) {
-                try {
-                    final Set<XElement> keySet = param_map.keySet();
-                    final String[] columns = new String[keySet.size()];
-
-                    //retrieve columns names
-                    int count = 0;
-                    for (XElement e : keySet) {
-                        columns[count] = resolver().getString(e);
-                        count++;
-                    }
-
-                    final PreparedStatement pstm = conn.getConnection().prepareStatement(query, columns);
-
-                    // basing on types fill the prepared_statement
-                    int param_count = 1;
-                    for (XElement e : keySet) {
-                        param_count = convert(param_map.get(e), pstm, param_count);
-                    }
-
-                    final int res = pstm.executeUpdate();
-
-                    dispatch(OUT, resolver().create(res));
-                    return;
-                } catch (Exception ex) {
-                    log(ex);
-                }
-            }
-        }
-
-        dispatch(OUT, resolver().create(0));
     }
 
-    private int convert(XElement value, PreparedStatement pstm, int counter) throws Exception {
-
-        final String val = value.name;
-        if (val.equalsIgnoreCase("integer")) {
-            pstm.setInt(counter, resolver().getInt(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("integer")) {
-            pstm.setDouble(counter, resolver().getDouble(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("boolean")) {
-            pstm.setBoolean(counter, resolver().getBoolean(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("timestamp")) {
-            pstm.setTimestamp(counter, new Timestamp(resolver().getTimestamp(value).getTime()));
-            counter++;
-        } else if (val.equalsIgnoreCase("bigdecimal")) {
-            pstm.setBigDecimal(counter, resolver().getBigDecimal(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("float")) {
-            pstm.setFloat(counter, resolver().getFloat(value));
-            counter++;
-        } else {
-            throw new Exception("Unknown parameter type " + val);
-        }
-
-        return counter;
-    }
 }

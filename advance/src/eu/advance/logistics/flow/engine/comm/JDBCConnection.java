@@ -22,6 +22,9 @@
 package eu.advance.logistics.flow.engine.comm;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+
+import org.slf4j.LoggerFactory;
 
 /**
  * Wraps a java.sql.Connection and provides some useful methods.
@@ -43,5 +46,22 @@ public class JDBCConnection {
 	 */
 	public Connection getConnection() {
 		return conn;
+	}
+	/**
+	 * Commit the current transaction.
+	 * @throws SQLException on error
+	 */
+	public void commit() throws SQLException {
+		conn.commit();
+	}
+	/**
+	 * Roll back the current transaction without throwing exception.
+	 */
+	public void rollbackSilently() {
+		try {
+			conn.rollback();
+		} catch (SQLException ex) {
+			LoggerFactory.getLogger(JDBCConnection.class).error(ex.toString(), ex);
+		}
 	}
 }

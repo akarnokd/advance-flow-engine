@@ -20,6 +20,12 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
+import java.sql.PreparedStatement;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -27,12 +33,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Delete a batch of entries from the given datastore by using the query and
@@ -61,10 +61,10 @@ public class JDBCDeleteAll extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection")
+    @Input("advance:collection<advance:map<advance:string,advance:object>>")
     protected static final String LIST = "collection";
     /**
-     * Out.
+     * The total number of updates.
      */
     @Output("advance:integer")
     protected static final String OUT = "out";
@@ -83,34 +83,27 @@ public class JDBCDeleteAll extends AdvanceBlock {
 
         if (conn != null) {
             final String query = getString(QUERY);
-            final List<XElement> param_list = resolver().getList(get(LIST));
+            final List<XElement> paramList = resolver().getList(get(LIST));
 
             if (query != null) {
                 try {
 
+                    final PreparedStatement pstm = conn.getConnection().prepareStatement(query);
                     int results = 0;
-                    for (XElement el : param_list) {
+                    for (XElement el : paramList) {
 
-                        final Map<XElement, XElement> param_map = resolver().getMap(el);
-                        final Set<XElement> keySet = param_map.keySet();
-                        final String[] columns = new String[keySet.size()];
-
-                        //retrieve columns names
-                        int count = 0;
-                        for (XElement e : keySet) {
-                            columns[count] = resolver().getString(e);
-                            count++;
-                        }
-
-                        final PreparedStatement pstm = conn.getConnection().prepareStatement(query, columns);
+                        final Map<XElement, XElement> paramMap = resolver().getMap(el);
+                        final Set<XElement> keySet = paramMap.keySet();
 
                         // basing on types fill the prepared_statement
-                        int param_count = 1;
+                        int paramCount = 1;
                         for (XElement e : keySet) {
-                            param_count = convert(param_map.get(e), pstm, param_count);
+                            paramCount = JDBCConverter.convert(resolver(), paramMap.get(e), pstm, paramCount);
+                            pstm.addBatch();
                         }
-
-                        results += pstm.executeUpdate();
+                    }
+                    for (int i : pstm.executeBatch()) {
+                    	results += i > 0 ? i : 0;
                     }
 
                     dispatch(OUT, resolver().create(results));
@@ -122,33 +115,5 @@ public class JDBCDeleteAll extends AdvanceBlock {
         }
 
         dispatch(OUT, resolver().create(0));
-    }
-
-    private int convert(XElement value, PreparedStatement pstm, int counter) throws Exception {
-
-        final String val = value.name;
-        if (val.equalsIgnoreCase("integer")) {
-            pstm.setInt(counter, resolver().getInt(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("integer")) {
-            pstm.setDouble(counter, resolver().getDouble(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("boolean")) {
-            pstm.setBoolean(counter, resolver().getBoolean(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("timestamp")) {
-            pstm.setTimestamp(counter, new Timestamp(resolver().getTimestamp(value).getTime()));
-            counter++;
-        } else if (val.equalsIgnoreCase("bigdecimal")) {
-            pstm.setBigDecimal(counter, resolver().getBigDecimal(value));
-            counter++;
-        } else if (val.equalsIgnoreCase("float")) {
-            pstm.setFloat(counter, resolver().getFloat(value));
-            counter++;
-        } else {
-            throw new Exception("Unknown parameter type " + val);
-        }
-
-        return counter;
     }
 }

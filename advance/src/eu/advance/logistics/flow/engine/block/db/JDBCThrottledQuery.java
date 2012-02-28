@@ -268,7 +268,7 @@ public class JDBCThrottledQuery extends AdvanceBlock {
 		int row = 0;
 		try {
 			while (rs.next() && row < batchSize) {
-				dispatch(OUT, JDBCQuery.create(resolver(), rs, rsm));
+				dispatch(OUT, JDBCConverter.create(resolver(), rs, rsm));
 				row++;
 			}
 			if (row < batchSize) {

@@ -32,7 +32,8 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "Marshall", category = "projection", scheduler = "IO", description = "Marshalls the given object into its XML string format")
+@Block(id = "Marshall", category = "projection", scheduler = "IO", 
+description = "Marshalls the given object into its XML string format")
 public class Marshall extends AdvanceBlock {
 
     /**
@@ -52,8 +53,6 @@ public class Marshall extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final String val = resolver().getString(get(IN));
-        
-        dispatch(OUT, resolver().create(val));
+        dispatch(OUT, resolver().create(get(IN).toString()));
     }
 }

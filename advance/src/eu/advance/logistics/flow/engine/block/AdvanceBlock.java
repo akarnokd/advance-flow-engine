@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.block;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.Block;
 import eu.advance.logistics.flow.engine.xml.XElement;
@@ -30,4 +33,16 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * @author akarnokd, 2011.06.22.
  */
 public abstract class AdvanceBlock extends Block<XElement, AdvanceType, AdvanceRuntimeContext> {
+	/**
+	 * Convenience method to ask for a specific type of pooled objects.
+	 * @param <T> the pooled object type
+	 * @param clazz the class of the object
+	 * @param id the identifier within the pooled objects
+	 * @return the pool or null if no such pool exists
+	 * @throws Exception if the pool initialization fails
+	 */
+	@Nullable
+	public <T> Pool<T> getPool(@NonNull Class<T> clazz, @NonNull String id) throws Exception {
+		return this.settings.context.pools.get(clazz, id);
+	}
 }

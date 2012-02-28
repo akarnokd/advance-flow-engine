@@ -18,47 +18,32 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
+
 package eu.advance.logistics.flow.engine.block.structuring;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
- * Crates a collection with a single item. Signature: Singleton(t) ->
- * collection<t>
- *
- * @author TTS
+ * Creates a collection with a single element.
+ * @author akarnokd, 2011.11.04.
  */
-@Block(id = "Singleton", category = "data-transformations", scheduler = "IO", description = "Crates a collection with a single item")
+@Block(scheduler = "NOW", parameters = { "T" }, 
+description = "Creates a collection with the supplied single element.",
+category = "data-transformations")
 public class Singleton extends AdvanceBlock {
+	/** In. */
+    @Input("?T")
+    private static final String IN = "in";
+    /** Out. */
+    @Output("advance:collection<?T>")
+    private static final String OUT = "out";
 
-    /**
-     * The logger.
-     */
-    protected static final Logger LOGGER = Logger.getLogger(Singleton.class.getName());
-    /**
-     * In.
-     */
-    @Input("advance:object")
-    protected static final String IN = "in";
-    /**
-     * Out.
-     */
-    @Output("advance:collection")
-    protected static final String OUT = "out";
+	@Override
+	protected void invoke() {
+		dispatch(OUT, resolver().create(get(IN)));
+	}
 
-    @Override
-    protected void invoke() {
-        final XElement elem = get(IN);
-        final List<XElement> singleton = new ArrayList<XElement>();
-        singleton.add(elem);
-        
-        dispatch(OUT, resolver().create(singleton));
-    }
 }

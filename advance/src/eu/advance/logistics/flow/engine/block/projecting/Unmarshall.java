@@ -20,38 +20,48 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import java.io.StringReader;
 import java.util.logging.Logger;
+
+import javax.xml.stream.XMLStreamException;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Unmarshalls the given string representation of an object back into its object form.
- * Signature: Unmarshall(string, schema<t>) -> t
+ * Signature: Unmarshall(string, type&lt;t>) -> t
  * @author szmarcell
  */
-@Block(id = "___Unmarshall", category = "projection", scheduler = "IO", description = "Unmarshalls the given string representation of an object back into its object form.")
+@Block(id = "Unmarshall", category = "projection", 
+scheduler = "IO", 
+description = "Unmarshalls the given string representation of an object back into its object form.",
+parameters = { "T" }
+)
 public class Unmarshall extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Unmarshall .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:string")
     protected static final String IN = "in";
+    /** The type constructor. */
+    @Input("advance:type<?T>")
+    protected static final String TYPE = "type";
     /** Out. */
-    @Output("advance:real")
+    @Output("?T")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
     // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+    	try {
+    		XElement e = XElement.parseXML(new StringReader(getString(IN)));
+    		dispatch(OUT, e);
+    	} catch (XMLStreamException ex) {
+    		log(ex);
+    	}
     }
     
 }
