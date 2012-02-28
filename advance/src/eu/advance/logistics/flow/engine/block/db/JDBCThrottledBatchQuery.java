@@ -272,7 +272,7 @@ public class JDBCThrottledBatchQuery extends AdvanceBlock {
 		List<XElement> result = Lists.newLinkedList();
 		try {
 			while (rs.next() && row < batchSize) {
-				result.add(JDBCQuery.create(resolver(), rs, rsm));
+				result.add(JDBCConverter.create(resolver(), rs, rsm));
 				row++;
 			}
 		} catch (SQLException ex) {

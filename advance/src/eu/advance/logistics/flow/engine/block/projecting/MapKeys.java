@@ -37,7 +37,11 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "MapKeys", category = "projection", scheduler = "IO", description = "Extracts the keys only from the supplied map")
+@Block(id = "MapKeys", category = "projection", 
+scheduler = "IO", 
+description = "Extracts the keys only from the supplied map",
+parameters = { "K", "V" }
+)
 public class MapKeys extends AdvanceBlock {
 
     /**
@@ -47,12 +51,12 @@ public class MapKeys extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map")
+    @Input("advance:map<?K, ?V>")
     protected static final String IN = "in";
     /**
      * Out.
      */
-    @Output("advance:collection")
+    @Output("advance:collection<?K>")
     protected static final String OUT = "out";
 
     @Override
@@ -61,7 +65,7 @@ public class MapKeys extends AdvanceBlock {
         final Set<XElement> keys = map.keySet();
         
         final List<XElement> result = new ArrayList<XElement>();
-        for(XElement key : keys){
+        for (XElement key : keys) {
             result.add(key);
         }
         
