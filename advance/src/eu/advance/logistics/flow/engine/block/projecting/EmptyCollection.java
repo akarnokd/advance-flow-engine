@@ -20,38 +20,65 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
- * Returns an empty collection.
- * Signature: EmptyCollection(trigger) -> collection<t>
- * @author szmarcell
+ * Returns an empty collection. Signature: EmptyCollection(trigger) ->
+ * collection<t>
+ *
+ * @author TTS
  */
-@Block(id = "___EmptyCollection", category = "projection", scheduler = "IO", description = "Returns an empty collection.")
+@Block(id = "EmptyCollection", category = "projection", scheduler = "IO", description = "Returns an empty collection")
 public class EmptyCollection extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(EmptyCollection .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(EmptyCollection.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:boolean")
+    protected static final String TRIGGER = "trigger";
+    /**
+     * Out.
+     */
+    @Output("advance:collection")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        // called on trigger
     }
-    
+
+    @Override
+    public Observer<Void> run() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+
+            @Override
+            public void next(XElement value) {
+                if (resolver().getBoolean(value)) {
+                    dispatch(OUT, resolver().create(new ArrayList<XElement>()));
+                }
+            }
+
+            @Override
+            public void error(Throwable ex) {
+            }
+
+            @Override
+            public void finish() {
+            }
+        }));
+
+        return new RunObserver();
+    }
 }

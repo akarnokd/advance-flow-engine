@@ -20,38 +20,54 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Convert a string into an integer or indicate an error.
- * Signature: ToInteger(string) -> (integer, boolean)
- * @author szmarcell
+ * Convert a string into an integer or indicate an error. Signature:
+ * ToInteger(string) -> (integer, boolean)
+ *
+ * @author TTS
  */
-@Block(id = "___ToInteger", category = "projection", scheduler = "IO", description = "Convert a string into an integer or indicate an error")
+@Block(id = "ToInteger", category = "projection", scheduler = "IO", description = "Convert a string into an integer or indicate an error")
 public class ToInteger extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ToInteger .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ToInteger.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:string")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    /**
+     * Out.
+     */
+    @Output("advance:integer")
+    protected static final String OUT_INTEGER = "out_integer";
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
+    protected static final String OUT_STATUS = "out_status";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        try {
+            final int res = Integer.parseInt(resolver().getString(get(IN)));
+
+            dispatch(OUT_INTEGER, resolver().create(res));
+            dispatch(OUT_STATUS, resolver().create(true));
+            
+        } catch (NumberFormatException ex) {
+            log(ex);
+            
+            dispatch(OUT_INTEGER, resolver().create(0));
+            dispatch(OUT_STATUS, resolver().create(false));
+        }
     }
-    
 }

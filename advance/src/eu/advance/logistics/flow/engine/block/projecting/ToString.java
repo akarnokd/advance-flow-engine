@@ -20,38 +20,37 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Convert a value into string.
- * Signature: ToString(object) -> string
- * @author szmarcell
+ * Convert a value into string. Signature: ToString(object) -> string
+ *
+ * @author TTS
  */
-@Block(id = "___ToString", category = "projection", scheduler = "IO", description = "Convert a value into string.")
+@Block(id = "ToString", category = "projection", scheduler = "IO", description = "Convert a value into string")
 public class ToString extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ToString .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ToString.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:object")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:string")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        dispatch(OUT, resolver().create(resolver().getString(get(IN))));
     }
-    
 }

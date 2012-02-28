@@ -20,38 +20,44 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Collection;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Extracts the values only from the supplied map.
- * Signature: MapValues(map<t, u>) -> collection<u>
- * @author szmarcell
+ * Extracts the values only from the supplied map. Signature: MapValues(map<t,
+ * u>) -> collection<u>
+ *
+ * @author TTS
  */
-@Block(id = "___MapValues", category = "projection", scheduler = "IO", description = "Extracts the values only from the supplied map")
+@Block(id = "MapValues", category = "projection", scheduler = "IO", description = "Extracts the values only from the supplied map")
 public class MapValues extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(MapValues .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(MapKeys.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:collection")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map = resolver().getMap(get(IN));
+        final Collection<XElement> result = map.values();
+        
+        dispatch(OUT, resolver().create(result));
     }
-    
 }

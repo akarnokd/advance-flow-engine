@@ -20,38 +20,37 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Convert a string into a boolean.
- * Signature: ToBoolean(string) -> boolean
- * @author szmarcell
+ * Convert a string into a boolean. Signature: ToBoolean(string) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "___ToBoolean", category = "projection", scheduler = "IO", description = "Convert a string into a boolean.")
+@Block(id = "ToBoolean", category = "projection", scheduler = "IO", description = "Convert a string into a boolean")
 public class ToBoolean extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ToBoolean .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ToBoolean.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:string")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        dispatch(OUT, resolver().create(Boolean.parseBoolean(resolver().getString(get(IN)))));
     }
-    
 }

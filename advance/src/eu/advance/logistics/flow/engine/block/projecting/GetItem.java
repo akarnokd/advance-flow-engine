@@ -20,38 +20,53 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Extracts an element from the collection given by the index.
- * Signature: GetItem(collection<t>, integer) -> integer
- * @author szmarcell
+ * Extracts an element from the collection given by the index. Signature:
+ * GetItem(collection<? T>, integer) -> integer
+ *
+ * @author TTS
  */
-@Block(id = "___GetItem", category = "projection", scheduler = "IO", description = "Extracts an element from the collection given by the index.")
+@Block(id = "GetItem", category = "projection", scheduler = "IO", description = "Extracts an element from the collection given by the index")
 public class GetItem extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(GetItem .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(GetItem.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<? T>")
+    protected static final String COLLECTION = "collection";
+    /**
+     * In.
+     */
+    @Input("advance:integer")
+    protected static final String INDEX = "index";
+    /**
+     * Out.
+     */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final List<XElement> xcollection = resolver().getList(get(COLLECTION));
+        final int key = getInt(INDEX);
+
+        if ((key > 0) && (key < xcollection.size())) {
+            dispatch(OUT, resolver().create(xcollection.get(key)));
+        } else {
+            dispatch(OUT, resolver().createObject());
+
+        }
     }
-    
 }
