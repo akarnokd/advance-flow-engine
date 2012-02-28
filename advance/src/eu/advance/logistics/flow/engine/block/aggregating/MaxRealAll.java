@@ -20,15 +20,16 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.List;
+import java.util.logging.Logger;
+
+import com.google.common.collect.Lists;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Returns the largest real value from the collection along with the collection
@@ -62,27 +63,32 @@ public class MaxRealAll extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> position_array = new ArrayList<XElement>();
-        double max = Double.MIN_VALUE;
-
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        int count = 0;
-        while (it.hasNext()) {
-            final double curVal = settings.resolver.getDouble(it.next());
-
-            if (curVal > max) {
-                max = curVal;
-                position_array.clear();
-                position_array.add(resolver().create(count));
-            } else if (curVal == max) {
-                position_array.add(resolver().create(count));
-            }
-
-            count++;
-        }
-
-        dispatch(MAX, resolver().create(max));
-        dispatch(COLLECTION, resolver().create(position_array));
+    	List<Integer> positions = Lists.newArrayList();
+    	
+    	double max = 0;
+    	int count = 0;
+    	
+    	for (XElement e : resolver().getItems(get(IN))) {
+			double v = resolver().getDouble(e);
+    		
+    		if (count == 0 || max < v) {
+    			max = v;
+    			positions.clear();
+    		}
+    		if (max == v) {
+    			positions.add(count);
+    		}
+    		
+    		count++;
+    	}
+    	
+    	if (count > 0) {
+    		dispatch(MAX, resolver().create(max));
+    	}
+    	List<XElement> xpos = Lists.newLinkedList();
+    	for (Integer idx : positions) {
+    		xpos.add(resolver().create(idx));
+    	}
+        dispatch(COLLECTION, resolver().create(xpos));
     }
 }

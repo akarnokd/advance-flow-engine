@@ -27,7 +27,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
 
 /**
  * Compute the average of the integer values. Signature:
@@ -35,7 +34,8 @@ import java.util.Iterator;
  *
  * @author TTS
  */
-@Block(id = "AverageInteger", category = "aggregation", scheduler = "IO", description = "Compute the average of the integer values")
+@Block(id = "AverageInteger", category = "aggregation", scheduler = "IO", 
+description = "Compute the average of the integer values")
 public class AverageInteger extends AdvanceBlock {
 
     /**
@@ -57,15 +57,12 @@ public class AverageInteger extends AdvanceBlock {
     protected void invoke() {
         int count = 0;
         double sum = 0.0;
-        
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        while (it.hasNext()) {
-            sum += (double) settings.resolver.getInt(it.next());
-            count++;
+
+        for (XElement e : resolver().getItems(get(IN))) {
+        	sum += resolver().getInt(e);
+        	count++;
         }
-        sum = (sum / ((double) count));
         
-        dispatch(OUT, resolver().create(sum));
+        dispatch(OUT, resolver().create(sum / count));
     }
 }

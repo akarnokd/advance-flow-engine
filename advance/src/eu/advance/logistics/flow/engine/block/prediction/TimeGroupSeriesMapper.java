@@ -75,7 +75,7 @@ public class TimeGroupSeriesMapper {
 					rowset.put(group, ridx);
 				}
 				
-				Map<Integer, Double> row = datamap.get(group);
+				Map<Integer, Double> row = datamap.get(ridx);
 				if (row == null) {
 					row = Maps.newHashMap();
 					datamap.put(ridx, row);

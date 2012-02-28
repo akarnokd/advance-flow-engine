@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
 import eu.advance.logistics.flow.engine.xml.XElement;
 
@@ -104,7 +105,7 @@ public final class JDBCConverter {
     public static int convert(DataResolver<XElement> resolver, 
     		XElement value, PreparedStatement pstm, int counter) throws SQLException {
 
-        final String val = value.name;
+        final String val = AdvanceData.realName(value).first;
         if (val.equalsIgnoreCase("integer")) {
             pstm.setInt(counter, resolver.getInt(value));
             counter++;

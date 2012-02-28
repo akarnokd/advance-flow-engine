@@ -124,7 +124,7 @@ public class CheckedDataStore implements AdvanceDataStore {
 			allow |= datastore.hasUserRight(userName, realm, r);
 		}
 		if (!allow) {
-			AdvanceAccessDenied e = new AdvanceAccessDenied(expected.toString());
+			AdvanceAccessDenied e = new AdvanceAccessDenied(Arrays.toString(expected));
 			LOG.error(e.toString(), e);
 			throw e;
 		}

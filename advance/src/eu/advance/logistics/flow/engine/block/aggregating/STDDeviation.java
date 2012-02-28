@@ -20,13 +20,16 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.reactive4java.base.Pair;
+
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
-import java.util.logging.Logger;
 
 /**
  * Computes the standard deviation of numerical elements of the supplied
@@ -34,7 +37,8 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "STDDeviation", category = "aggregation", scheduler = "IO", description = "Computes the standard deviation of numerical elements of the supplied collection")
+@Block(id = "STDDeviation", category = "aggregation", scheduler = "IO", 
+description = "Computes the standard deviation of numerical elements of the supplied collection")
 public class STDDeviation extends AdvanceBlock {
 
     /**
@@ -44,7 +48,7 @@ public class STDDeviation extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<? T>")
+    @Input("advance:collection<advance:object>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -54,37 +58,30 @@ public class STDDeviation extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
+    	int n = 0;
+    	double mean = 0d;
+    	double m2 = 0d;
+    	
+    	for (XElement e : resolver().getItems(get(IN))) {
+    		Pair<String, String> rn = AdvanceData.realName(e);
+    		double v = 0.0;
+    		if ("integer".equals(rn)) {
+    			v = resolver().getInt(e);
+    		} else
+    		if ("real".equals(rn)) {
+    			v = resolver().getDouble(e);
+    		} else {
+    			continue;
+    		}
+    		n++;
+    		
+    		double delta = v - mean;
+    		mean = mean + delta / n;
+    		if (n > 1) {
+    			m2 = m2 + delta * (v - mean);
+    		}
+    	}
 
-        /**
-         * Knuth method
-         */
-        double avg = 0.0;
-        double sum = 0.0;
-        double i = 0;
-        boolean first = true;
-        while (it.hasNext()) {
-            final XElement xelem = it.next();
-            double num = 0.0;
-            if (xelem.name.equalsIgnoreCase("real")) {
-                num = resolver().getDouble(xelem);
-            } else if (xelem.name.equalsIgnoreCase("integer")) {
-                num = (double) resolver().getInt(xelem);
-            }
-
-
-            if (first) {
-                avg = num;
-                first = false;
-            }
-
-            double newavg = avg + (num - avg) / (i + 1);
-            sum += (num - avg) * (num - newavg);
-            avg = newavg;
-            i++;
-        }
-
-        dispatch(OUT, resolver().create(Math.sqrt(sum / i)));
+        dispatch(OUT, resolver().create(Math.sqrt(m2 / n)));
     }
 }

@@ -20,14 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
+import java.util.Collections;
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Creates a map with a single key-value pair. Signature: SingletonMap(t, u) ->
@@ -35,7 +34,10 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "SingletonMap", category = "data-transformations", scheduler = "IO", description = "Creates a map with a single key-value pair.")
+@Block(id = "SingletonMap", category = "data-transformations", 
+scheduler = "IO", description = "Creates a map with a single key-value pair.",
+parameters = { "K", "V" }
+)
 public class SingletonMap extends AdvanceBlock {
 
     /**
@@ -45,26 +47,21 @@ public class SingletonMap extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:object")
+    @Input("?K")
     protected static final String KEY = "key";
     /**
      * In.
      */
-    @Input("advance:object")
-    protected static final String value = "value";
+    @Input("?V")
+    protected static final String VALUE = "value";
     /**
      * Out.
      */
-    @Output("advance:map")
+    @Output("advance:map<?K, ?V>")
     protected static final String OUT = "out";
 
     @Override
     protected void invoke() {
-        final XElement keyElem = get(KEY);
-        final XElement valElem = get(KEY);
-        final Map<XElement, XElement> singleton = new HashMap<XElement, XElement>();
-        singleton.put(keyElem, valElem);
-
-        dispatch(OUT, resolver().create(singleton));
+        dispatch(OUT, resolver().create(Collections.singletonMap(get(KEY), get(VALUE))));
     }
 }
