@@ -20,32 +20,31 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
- * Compute the average of the integer or real values within the collection.
- * Signature: Average(collection<object>) -> real
+ * Computes the standard deviation of the collection of integers. Signature:
+ * STDDeviationInteger(collection<integer>) -> real
  *
  * @author TTS
  */
-@Block(id = "Average", category = "aggregation", scheduler = "IO", description = "Compute the average of the integer or real values within the collection")
-public class Average extends AdvanceBlock {
+@Block(id = "STDDeviationInteger", category = "aggregation", scheduler = "IO", description = "Computes the standard deviation of the collection of integers")
+public class STDDeviationInteger extends AdvanceBlock {
 
     /**
      * The logger.
      */
-    protected static final Logger LOGGER = Logger.getLogger(Average.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(STDDeviationInteger.class.getName());
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<advance:integer>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -55,24 +54,30 @@ public class Average extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        int count = 0;
-        double sum = 0.0;
-
         final XElement xcollection = get(IN);
         final Iterator<XElement> it = xcollection.children().iterator();
-        while (it.hasNext()) {
-            final XElement xelem = it.next();
 
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                sum += settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                sum += settings.resolver.getDouble(xelem);
+        /**
+         * Knuth method
+         */
+        double avg = 0.0;
+        double sum = 0.0;
+        double i = 0;
+        boolean first = true;
+        while (it.hasNext()) {
+            final double num = (double) resolver().getInt(it.next());
+            
+            if (first) {
+                avg = num;
+                first = false;
             }
 
-            count++;
+            double newavg = avg + (num - avg) / (i + 1);
+            sum += (num - avg) * (num - newavg);
+            avg = newavg;
+            i++;
         }
-        sum = (sum / ((double) count));
 
-        dispatch(OUT, resolver().create(sum));
+        dispatch(OUT, resolver().create(Math.sqrt(sum / i)));
     }
 }

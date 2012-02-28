@@ -26,32 +26,73 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * Returns the smallest value from the collection along with the collection of its occurrence indexes.
- * Signature: MinAll(collection<integer>) -> (real, collection<integer>)
- * @author szmarcell
+ * Returns the smallest value from the collection along with the collection of
+ * its occurrence indexes. Signature: MinAll(collection<object>) -> (real,
+ * collection<integer>)
+ *
+ * @author TTS
  */
-@Block(id = "___MinAll", category = "aggregation", scheduler = "IO", description = "Returns the smallest value from the collection along with the collection of its occurrence indexes.")
+@Block(id = "MinAll", category = "aggregation", scheduler = "IO", description = "Returns the smallest value from the collection along with the collection of its occurrence indexes")
 public class MinAll extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(MinAll .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(MinAll.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<advance:object>")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    protected static final String OUT1 = "out1";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<advance:integer>")
+    protected static final String OUT2 = "out2";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final List<XElement> position_array = new ArrayList<XElement>();
+        double min = Double.MAX_VALUE;
+
+        final XElement xcollection = get(IN);
+        final Iterator<XElement> it = xcollection.children().iterator();
+        int count = 0;
+        while (it.hasNext()) {
+            final XElement xelem = it.next();
+
+            final double curVal;
+            if (xelem.name.equalsIgnoreCase("integer")) {
+                curVal = settings.resolver.getInt(xelem);
+            } else if (xelem.name.equalsIgnoreCase("real")) {
+                curVal = settings.resolver.getDouble(xelem);
+            } else {
+                curVal = 0.0;
+            }
+
+            if (curVal < min) {
+                min = curVal;
+                position_array.clear();
+                position_array.add(resolver().create(count));
+            } else if (curVal == min) {
+                position_array.add(resolver().create(count));
+            }
+
+            count++;
+        }
+
+        dispatch(OUT1, resolver().create(min));
+        dispatch(OUT2, resolver().create(position_array));
     }
-    
 }
