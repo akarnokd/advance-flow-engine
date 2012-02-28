@@ -27,7 +27,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
 
 /**
  * Compute the average of the real values. Signature: AverageReal(collection<real>)
@@ -58,14 +57,11 @@ public class AverageReal extends AdvanceBlock {
         int count = 0;
         double sum = 0.0;
 
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        while (it.hasNext()) {
-            sum += settings.resolver.getDouble(it.next());
-            count++;
+        for (XElement e : resolver().getItems(get(IN))) {
+        	sum += resolver().getDouble(e);
+        	count++;
         }
-        sum = (sum / ((double) count));
-
-        dispatch(OUT, resolver().create(sum));
+        
+        dispatch(OUT, resolver().create(sum / count));
     }
 }

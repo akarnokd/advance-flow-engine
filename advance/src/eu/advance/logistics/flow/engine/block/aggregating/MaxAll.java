@@ -20,16 +20,19 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.reactive4java.base.Pair;
+
+import java.util.List;
 import java.util.logging.Logger;
+
+import com.google.common.collect.Lists;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Returns the largest value from the collection along with the collection of
@@ -38,7 +41,8 @@ import java.util.List;
  *
  * @author TTS
  */
-@Block(id = "MaxAll", category = "aggregation", scheduler = "IO", description = "Returns the largest value from the collection along with the collection of its occurrence indexes")
+@Block(id = "MaxAll", category = "aggregation", scheduler = "IO", 
+description = "Returns the largest value from the collection along with the collection of its occurrence indexes")
 public class MaxAll extends AdvanceBlock {
 
     /**
@@ -63,36 +67,41 @@ public class MaxAll extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> position_array = new ArrayList<XElement>();
-        double max = Double.MIN_VALUE;
-
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        int count = 0;
-        while (it.hasNext()) {
-            final XElement xelem = it.next();
-
-            final double curVal;
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                curVal = settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                curVal = settings.resolver.getDouble(xelem);
-            } else {
-                curVal = 0.0;
-            }
-
-            if (curVal > max) {
-                max = curVal;
-                position_array.clear();
-                position_array.add(resolver().create(count));
-            } else if (curVal == max) {
-                position_array.add(resolver().create(count));
-            }
-
-            count++;
-        }
-
-        dispatch(OUT1, resolver().create(max));
-        dispatch(OUT2, resolver().create(position_array));
+    	List<Integer> positions = Lists.newArrayList();
+    	
+    	double max = 0;
+    	int count = 0;
+    	
+    	for (XElement e : resolver().getItems(get(IN))) {
+    		Pair<String, String> rn = AdvanceData.realName(e);
+    		double v = 0.0;
+    		if ("integer".equals(rn)) {
+    			v = resolver().getInt(e);
+    		} else
+    		if ("real".equals(rn)) {
+    			v = resolver().getDouble(e);
+    		} else {
+    			continue;
+    		}
+    		
+    		if (count == 0 || max < v) {
+    			max = v;
+    			positions.clear();
+    		}
+    		if (max == v) {
+    			positions.add(count);
+    		}
+    		
+    		count++;
+    	}
+    	
+    	if (count > 0) {
+    		dispatch(OUT1, resolver().create(max));
+    	}
+    	List<XElement> xpos = Lists.newLinkedList();
+    	for (Integer idx : positions) {
+    		xpos.add(resolver().create(idx));
+    	}
+        dispatch(OUT2, resolver().create(xpos));
     }
 }

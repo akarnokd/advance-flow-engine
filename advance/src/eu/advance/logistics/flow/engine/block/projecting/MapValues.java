@@ -35,7 +35,10 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "MapValues", category = "projection", scheduler = "IO", description = "Extracts the values only from the supplied map")
+@Block(id = "MapValues", category = "projection", 
+scheduler = "IO", description = "Extracts the values only from the supplied map",
+parameters = { "K", "V" }
+)
 public class MapValues extends AdvanceBlock {
 
     /**
@@ -45,12 +48,12 @@ public class MapValues extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map")
+    @Input("advance:map<?K, ?V>")
     protected static final String IN = "in";
     /**
      * Out.
      */
-    @Output("advance:collection")
+    @Output("advance:collection<?V>")
     protected static final String OUT = "out";
 
     @Override

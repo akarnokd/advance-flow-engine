@@ -20,14 +20,16 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.reactive4java.base.Pair;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
 
 /**
  * Compute the average of the integer or real values within the collection.
@@ -35,7 +37,8 @@ import java.util.Iterator;
  *
  * @author TTS
  */
-@Block(id = "Average", category = "aggregation", scheduler = "IO", description = "Compute the average of the integer or real values within the collection")
+@Block(id = "Average", category = "aggregation", 
+scheduler = "IO", description = "Compute the average of the integer or real values within the collection")
 public class Average extends AdvanceBlock {
 
     /**
@@ -58,21 +61,24 @@ public class Average extends AdvanceBlock {
         int count = 0;
         double sum = 0.0;
 
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        while (it.hasNext()) {
-            final XElement xelem = it.next();
-
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                sum += settings.resolver.getInt(xelem);
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                sum += settings.resolver.getDouble(xelem);
-            }
-
-            count++;
+        final XElement xc = get(IN);
+        for (XElement e : resolver().getItems(xc)) {
+        	Pair<String, String> rn = AdvanceData.realName(e);
+        	if ("integer".equals(rn.first)) {
+            	sum += resolver().getInt(e);
+                count++;
+        	} else
+        	if ("real".equals(rn.first)) {
+            	sum += resolver().getDouble(e);
+                count++;
+        	} else {
+        		String s = resolver().getString(e);
+        		if (s.matches("\\d+(\\.d+)?")) {
+                	sum += resolver().getDouble(e);
+                    count++;
+        		}
+        	}
         }
-        sum = (sum / ((double) count));
-
-        dispatch(OUT, resolver().create(sum));
+        dispatch(OUT, resolver().create(sum / count));
     }
 }

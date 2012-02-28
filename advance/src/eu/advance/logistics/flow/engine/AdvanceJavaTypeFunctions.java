@@ -50,7 +50,11 @@ public class AdvanceJavaTypeFunctions extends
 		if (t2.isAssignableFrom(t1)) {
 			return second;
 		}
-		return TypeWrapper.from(null);
+		TypeWrapper<Class<?>> tw = TypeWrapper.from(null);
+		tw.base = Object.class;
+		tw.baseName = Object.class.getName();
+		
+		return tw;
 	}
 
 	@Override
@@ -70,7 +74,7 @@ public class AdvanceJavaTypeFunctions extends
 		if (t2.isAssignableFrom(t1)) {
 			return first;
 		}
-		return TypeWrapper.from(null);
+		return null;
 	}
 
 	@Override

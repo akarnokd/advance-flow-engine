@@ -137,10 +137,12 @@ public class TypeWrapper<T> implements Type {
 	 * @return the wrapped type
 	 */
 	@NonNull
-	public static <T> TypeWrapper<T> from(@NonNull T baseType) {
+	public static <T> TypeWrapper<T> from(@Nullable T baseType) {
 		TypeWrapper<T> result = new TypeWrapper<T>();
-		result.base = baseType;
-		result.baseName = baseType.toString();
+		if (baseType != null) {
+			result.base = baseType;
+			result.baseName = baseType.toString();
+		}
 		return result;
 	}
 }

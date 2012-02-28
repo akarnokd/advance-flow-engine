@@ -712,7 +712,7 @@
     </block-description>
 
     <!-- Creates a map with a single key-value pair. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.structuring.SingletonMap" id="SingletonMap" scheduler="NOW" category="data-transformations">
+    <block-description class="eu.advance.logistics.flow.engine.block.structuring.SingletonMap" id="SingletonMap" scheduler="IO" category="data-transformations">
         <type-variable name="K"/>
         <type-variable name="V"/>
         <input id="key" required="true" varargs="false" type-variable="K"/>
@@ -1159,7 +1159,7 @@
     <!-- Computes the standard deviation of numerical elements of the supplied collection -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.STDDeviation" id="STDDeviation" scheduler="IO" category="aggregation">
         <input id="in" required="true" varargs="false" type="advance:collection">
-            <type-argument type-variable="T"/>
+            <type-argument type="advance:object"/>
         </input>
         <output id="out" type="advance:real"/>
     </block-description>
@@ -1437,8 +1437,14 @@
 
     <!-- Extracts the values only from the supplied map -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.MapValues" id="MapValues" scheduler="IO" category="projection">
-        <input id="in" required="true" varargs="false" type="advance:map"/>
-        <output id="out" type="advance:collection"/>
+        <type-variable name="K"/>
+        <type-variable name="V"/>
+        <input id="in" required="true" varargs="false" type="advance:map">
+            <type-argument type-variable="K"/><type-argument type-variable="V"/>
+        </input>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="V"/>
+        </output>
     </block-description>
 
     <!-- Selects the attribute from the value. -->

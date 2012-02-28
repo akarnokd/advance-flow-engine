@@ -67,7 +67,7 @@ public final class BlockDiagnostic implements XSerializable {
 	 * @param state the block state
 	 */
 	public BlockDiagnostic(String realm, String blockId, Option<BlockState> state) {
-		this.blockId = realm;
+		this.realm = realm;
 		this.blockId = blockId;
 		this.state = state;
 	}

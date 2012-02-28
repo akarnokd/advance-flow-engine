@@ -20,17 +20,16 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.List;
 import java.util.logging.Logger;
+
+import com.google.common.collect.Lists;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Returns the smallest integer value from the collection along with the
@@ -64,27 +63,32 @@ public class MinIntegerAll extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        List<XElement> position_array = new ArrayList<XElement>();
-        int min = Integer.MAX_VALUE;
-
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        int count = 0;
-        while (it.hasNext()) {
-            final int curVal = settings.resolver.getInt(it.next());
-
-            if (curVal < min) {
-                min = curVal;
-                position_array.clear();
-                position_array.add(resolver().create(count));
-            } else if (curVal == min) {
-                position_array.add(resolver().create(count));
-            }
-
-            count++;
-        }
-
-        dispatch(OUT1, resolver().create(min));
-        dispatch(OUT2, resolver().create(position_array));
+    	List<Integer> positions = Lists.newArrayList();
+    	
+    	int min = 0;
+    	int count = 0;
+    	
+    	for (XElement e : resolver().getItems(get(IN))) {
+			int v = resolver().getInt(e);
+    		
+    		if (count == 0 || min > v) {
+    			min = v;
+    			positions.clear();
+    		}
+    		if (min == v) {
+    			positions.add(count);
+    		}
+    		
+    		count++;
+    	}
+    	
+    	if (count > 0) {
+    		dispatch(OUT1, resolver().create(min));
+    	}
+    	List<XElement> xpos = Lists.newLinkedList();
+    	for (Integer idx : positions) {
+    		xpos.add(resolver().create(idx));
+    	}
+        dispatch(OUT2, resolver().create(xpos));
     }
 }

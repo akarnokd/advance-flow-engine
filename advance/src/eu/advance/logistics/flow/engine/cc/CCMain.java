@@ -2626,9 +2626,10 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 						} else {
 							if (b == null) {
 								GUIUtils.infoMessage(frame, format("Realm %s was empty.", rname));
+							} else {
+								showFlow(frame, b, rname);
+								doDownloadFlowAction(frame, realms);
 							}
-							showFlow(frame, b, rname);
-							doDownloadFlowAction(frame, realms);
 						}
 					}
 				}).execute();
@@ -3655,7 +3656,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				try {
 					fe.run();
 				} catch (Throwable t) {
-
+					this.t = t;
 				}
 			}
 			@Override

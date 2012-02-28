@@ -158,16 +158,18 @@ public class AdvanceFlowEngine implements Runnable {
 			AdvanceKeyStore aks = config.keystores.get(config.listener.serverKeyStore);
 			if (aks == null) {
 				LOG.error("Missing server keystore " + config.listener.serverKeyStore);
+				return;
+			}
+			AdvanceKeyStore aks2 = config.keystores.get(config.listener.clientKeyStore);
+			if (aks2 == null) {
+				LOG.error("Missing client keystore " + config.listener.clientKeyStore);
+				return;
 			}
 			KeystoreManager smgr = new KeystoreManager();
 			smgr.load(aks.location, aks.password());
 			
 			KeyStore sks = KeystoreManager.singleKey(smgr.getKeyStore(), config.listener.serverKeyAlias, config.listener.serverKeyPassword);
 			
-			AdvanceKeyStore aks2 = config.keystores.get(config.listener.clientKeyStore);
-			if (aks2 == null) {
-				LOG.error("Missing client keystore " + config.listener.clientKeyStore);
-			}
 			KeystoreManager cmgr = new KeystoreManager();
 			cmgr.load(aks2.location, aks2.password());
 	

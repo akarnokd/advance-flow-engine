@@ -46,7 +46,7 @@ public class AdvanceHttpAuthentication implements HasPassword {
 	@NonNull
 	public String name;
 	/** The password for the basic authentication or the key password for certificate credentials. */
-	@NonNull
+	@Nullable
 	private char[] password;
 	@Override
 	public char[] password() {

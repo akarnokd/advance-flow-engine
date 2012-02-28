@@ -20,13 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
-import java.util.logging.Logger;
 
 /**
  * Computes the standard deviation of the collection of integers. Signature:
@@ -54,30 +54,21 @@ public class STDDeviationInteger extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
+    	int n = 0;
+    	double mean = 0d;
+    	double m2 = 0d;
+    	
+    	for (XElement e : resolver().getItems(get(IN))) {
+    		double v = resolver().getInt(e);
+    		n++;
+    		
+    		double delta = v - mean;
+    		mean = mean + delta / n;
+    		if (n > 1) {
+    			m2 = m2 + delta * (v - mean);
+    		}
+    	}
 
-        /**
-         * Knuth method
-         */
-        double avg = 0.0;
-        double sum = 0.0;
-        double i = 0;
-        boolean first = true;
-        while (it.hasNext()) {
-            final double num = (double) resolver().getInt(it.next());
-            
-            if (first) {
-                avg = num;
-                first = false;
-            }
-
-            double newavg = avg + (num - avg) / (i + 1);
-            sum += (num - avg) * (num - newavg);
-            avg = newavg;
-            i++;
-        }
-
-        dispatch(OUT, resolver().create(Math.sqrt(sum / i)));
+        dispatch(OUT, resolver().create(Math.sqrt(m2 / n)));
     }
 }
