@@ -20,22 +20,26 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * Returns the largest value in the collection along with its last occurrence.
- * Signature: Max(collection<object>) -> (real, integer)
+ * Signature: Max(collection<t>) -> (real, integer)
  *
  * @author TTS
  */
-@Block(id = "Max", category = "aggregation", scheduler = "IO", description = "Returns the largest value in the collection along with its last occurrence")
+@Block(id = "Max", 
+	category = "aggregation", 
+	scheduler = "IO", 
+	description = "Returns the largest value in the collection along with its last occurrence", 
+	parameters = { "T" }
+)
 public class Max extends AdvanceBlock {
 
     /**
@@ -45,7 +49,7 @@ public class Max extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<?T>")
     protected static final String IN = "in";
     /**
      * Out.

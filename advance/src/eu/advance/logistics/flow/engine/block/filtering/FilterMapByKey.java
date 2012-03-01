@@ -26,32 +26,72 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.xml.sax.InputSource;
 
 /**
- * Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key.
- * Signature: FilterMapByKey(map<t, u>, xpath) -> map<t, u>
- * @author szmarcell
+ * Filter the keys of the map via the XPath expression and return a map with
+ * only those elements where the filter matched the key. Signature:
+ * FilterMapByKey(map<t, u>, xpath) -> map<t, u>
+ *
+ * @author TTS
  */
-@Block(id = "___FilterMapByKey", category = "data-filtering", scheduler = "IO", description = "Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key")
+@Block(id = "FilterMapByKey", 
+	category = "data-filtering", 
+	scheduler = "IO", 
+	description = "Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key", 
+	parameters = { "K", "V" } 
+)
 public class FilterMapByKey extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(FilterMapByKey .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Filter.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
+    protected static final String MAP = "map";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String PATH = "path";
+    /**
+     * Out.
+     */
+    @Output("advance:map<?K, ?V>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+    
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final XPath xpath = XPathFactory.newInstance().newXPath();
+        final InputSource inputSource = new InputSource(new StringReader(resolver().getString(get(PATH))));
+        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+        final Set<XElement> keysSet = map.keySet();
+        
+        final Map<XElement, XElement> result = new HashMap<XElement, XElement>();
+        for (XElement key : keysSet) {
+            
+            try {
+                final String expression = resolver().getString(key);
+                xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+                
+                result.put(key, map.get(key));
+            } catch (XPathExpressionException ex) {
+                log(ex);
+            }
+        }
+        
+        dispatch(OUT, resolver().create(result));
     }
-    
 }

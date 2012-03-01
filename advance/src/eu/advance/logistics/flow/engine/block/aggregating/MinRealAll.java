@@ -20,21 +20,19 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.google.common.collect.Lists;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Returns the smallest real value from the collection along with the collection
- * of its occurrence indexes. Signature: MinRealAll(collection<integer>) ->
- * integer
+ * of its occurrence indexes. Signature: MinRealAll(collection<real>) ->
+ * collection<integer>
  *
  * @author TTS
  */
@@ -64,10 +62,10 @@ public class MinRealAll extends AdvanceBlock {
     @Override
     protected void invoke() {
     	List<Integer> positions = Lists.newArrayList();
-    	
+
     	double min = 0;
-    	int count = 0;
-    	
+        int count = 0;
+
     	for (XElement e : resolver().getItems(get(IN))) {
 			double v = resolver().getDouble(e);
     		
@@ -77,13 +75,13 @@ public class MinRealAll extends AdvanceBlock {
     		}
     		if (min == v) {
     			positions.add(count);
-    		}
-    		
-    		count++;
-    	}
-    	
+            }
+
+            count++;
+        }
+
     	if (count > 0) {
-    		dispatch(OUT1, resolver().create(min));
+        dispatch(OUT1, resolver().create(min));
     	}
     	List<XElement> xpos = Lists.newLinkedList();
     	for (Integer idx : positions) {

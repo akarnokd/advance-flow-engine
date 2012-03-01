@@ -30,11 +30,16 @@ import java.util.logging.Logger;
 
 /**
  * Extracts an element from the collection given by the index. Signature:
- * GetItem(collection<? T>, integer) -> integer
+ * GetItem(collection<t>, integer) -> integer
  *
  * @author TTS
  */
-@Block(id = "GetItem", category = "projection", scheduler = "IO", description = "Extracts an element from the collection given by the index")
+@Block(id = "GetItem", 
+	category = "projection", 
+	scheduler = "IO", 
+	description = "Extracts an element from the collection given by the index", 
+	parameters = { "T" }
+)
 public class GetItem extends AdvanceBlock {
 
     /**
@@ -44,7 +49,7 @@ public class GetItem extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<? T>")
+    @Input("advance:collection<?T>")
     protected static final String COLLECTION = "collection";
     /**
      * In.

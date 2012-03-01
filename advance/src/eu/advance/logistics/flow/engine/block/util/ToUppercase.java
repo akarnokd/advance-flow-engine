@@ -20,32 +20,37 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Convert the string to uppercase.
- * Signature: ToUppercase(string) -> string
- * @author szmarcell
+ * Convert the string to uppercase. Signature: ToUppercase(string) -> string
+ *
+ * @author TTS
  */
-@Block(id = "___ToUppercase", category = "string", scheduler = "NOW", description = "Convert the string to uppercase.")
+@Block(id = "ToUppercase", category = "string", scheduler = "NOW", description = "Convert the string to uppercase")
 public class ToUppercase extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ToUppercase .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ToUppercase.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:string")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String value = getString(IN);
-        dispatch(OUT, resolver().create(value.toUpperCase()));
+        dispatch(OUT, resolver().create(getString(IN).toUpperCase()));
     }
-    
 }

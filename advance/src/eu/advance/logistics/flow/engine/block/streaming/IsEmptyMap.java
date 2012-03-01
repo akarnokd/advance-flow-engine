@@ -20,38 +20,42 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Checks if the map is empty.
- * Signature: IsEmptyMap(map<t, u>) -> boolean
- * @author szmarcell
+ * Checks if the map is empty. Signature: IsEmptyMap(map<t, u>) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "___IsEmptyMap", category = "streaming", scheduler = "IO", description = "Checks if the map is empty.")
+@Block(id = "IsEmptyMap", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Checks if the map is empty", 
+	parameters = { "K", "V" }
+)
 public class IsEmptyMap extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(IsEmptyMap .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(IsEmptyMap.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        dispatch(OUT, resolver().create(resolver().getMap(get(IN)).isEmpty()));
     }
-    
 }

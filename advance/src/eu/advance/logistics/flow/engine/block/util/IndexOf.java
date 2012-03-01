@@ -20,41 +20,52 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
  * Returns the index of the first occurrence of the substring in the string.
  * Signature: IndexOf(string, string, integer) -> integer
- * @author szmarcell
+ *
+ * @author TTS
  */
-@Block(id = "IndexOf", category = "string", scheduler = "IO", description = "Returns the index of the first occurrence of the substring in the string.")
+@Block(id = "IndexOf", category = "string", scheduler = "IO", description = "Returns the index of the first occurrence of the substring in the string")
 public class IndexOf extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(IndexOf .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(IndexOf.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String IN = "in";
-    /** In. */
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String SUBSTRING = "substring";
-    /** In. */
+    protected static final String IN2 = "in2";
+    /**
+     * In.
+     */
     @Input(value = "advance:integer", defaultConstant = "<integer>0</integer>")
-    protected static final String START = "start";
-    /** Out. */
+    protected static final String IN3 = "in3";
+    /**
+     * Out.
+     */
     @Output("advance:integer")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String in = getString(IN);
-        String substring = getString(SUBSTRING);
-        int start = getInt(START);
-        
+        final String in = getString(IN1);
+        final String substring = getString(IN2);
+        final int start = getInt(IN3);
+
         dispatch(OUT, resolver().create(in.indexOf(substring, start)));
     }
-    
 }

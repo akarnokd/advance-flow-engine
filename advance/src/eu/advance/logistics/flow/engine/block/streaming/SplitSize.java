@@ -20,38 +20,75 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Split the source collection into equally sized sub-collections.
- * Signature: SplitSize(collection<t>, integer) -> collection<collection<t>> 
- * @author szmarcell
+ * Split the source collection into equally sized sub-collections. Signature:
+ * SplitSize(collection<t>, integer) -> collection<collection<t>>
+ *
+ * @author TTS
  */
-@Block(id = "___SplitSize", category = "streaming", scheduler = "IO", description = "Split the source collection into equally sized sub-collections.")
+@Block(id = "SplitSize", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Split the source collection into equally sized sub-collections", 
+	parameters = { "T" }
+)
 public class SplitSize extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(SplitSize .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(SplitEven.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<?T>")
+    protected static final String COLLECTION = "collection";
+    /**
+     * In.
+     */
+    @Input("advance:integer")
+    protected static final String SIZE = "size";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<collection<?T>>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final List<XElement> list = resolver().getList(get(COLLECTION));
+        final int subSize = getInt(SIZE);
+
+        final int size = list.size();
+        if (subSize > size) {
+            log(new IllegalArgumentException());
+            return;
+        }
+
+        final ArrayList<XElement> result = new ArrayList<XElement>();
+
+        int currEl = 0;
+        ArrayList<XElement> currList = new ArrayList<XElement>();
+        for (XElement el : list) {
+            if (currEl < subSize) {
+                currList.add(el);
+                currEl++;
+            } else {
+                result.add(resolver().create(currList));
+                currList = new ArrayList<XElement>();
+                currEl = 0;
+            }
+        }
+
+        dispatch(OUT, resolver().create(result));
     }
-    
 }

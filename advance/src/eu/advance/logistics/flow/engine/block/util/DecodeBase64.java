@@ -20,38 +20,44 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.util.Base64;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
- * Convert the Base64 representation into a string.
- * Signature: DecodeBase64(string) -> string
- * @author szmarcell
+ * Convert the Base64 representation into a string. Signature:
+ * DecodeBase64(string) -> string
+ *
+ * @author TTS
  */
 @Block(id = "DecodeBase64", category = "string", scheduler = "NOW", description = "Convert the Base64 representation into a string.")
 public class DecodeBase64 extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(DecodeBase64 .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(DecodeBase64.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:string")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String in = getString(IN);
         try {
-        	dispatch(OUT, resolver().create(new String(Base64.decode(in), "ISO-8859-1")));
+            dispatch(OUT, resolver().create(new String(Base64.decode(getString(IN)), "ISO-8859-1")));
         } catch (IOException ex) {
-        	log(ex);
+            log(ex);
         }
     }
-    
 }

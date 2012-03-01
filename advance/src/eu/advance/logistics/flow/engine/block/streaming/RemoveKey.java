@@ -20,38 +20,55 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Removes the given key from the map and returns a new map without that key and the value it contained.
- * Signature: RemoveKey(map<t, u>, t) -> (map<t, u>, u)
- * @author szmarcell
+ * Removes the given key from the map and returns a new map without that key and
+ * the value it contained. Signature: RemoveKey(map<t, u>, t) -> (map<t, u>, u)
+ *
+ * @author TTS
  */
-@Block(id = "___RemoveKey", category = "streaming", scheduler = "IO", description = "Removes the given key from the map and returns a new map without that key and the value it contained")
+@Block(id = "RemoveKey", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Removes the given key from the map and returns a new map without that key and the value it contained", 
+	parameters = { "K", "V" }
+)
 public class RemoveKey extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RemoveKey .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RemoveKey.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
+    protected static final String MAP = "map";
+    /**
+     * In.
+     */
+    @Input("advance:?K")
+    protected static final String KEY = "key";
+    /**
+     * Out.
+     */
+    @Output("advance:map<?K, ?V>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+        final XElement key = get(KEY);
+
+        map.remove(key);
+
+        dispatch(OUT, resolver().create(map));
     }
-    
 }

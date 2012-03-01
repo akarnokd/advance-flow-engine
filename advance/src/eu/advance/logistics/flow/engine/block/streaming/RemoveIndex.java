@@ -20,38 +20,57 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Remove the indexth element from the collection.
- * Signature: RemoveIndex(collection<t>, integer) -> collection<t>
- * @author szmarcell
+ * Remove the indexth element from the collection. Signature:
+ * RemoveIndex(collection<t>, integer) -> collection<t>
+ *
+ * @author TTS
  */
-@Block(id = "___RemoveIndex", category = "streaming", scheduler = "IO", description = "Remove the indexth element from the collection.")
+@Block(id = "RemoveIndex", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Remove the indexth element from the collection", 
+	parameters = { "T" }
+)
 public class RemoveIndex extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RemoveIndex .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RemoveValue.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<?T>")
+    protected static final String COLLECTION = "collection";
+    /**
+     * In.
+     */
+    @Input("advance:integer")
+    protected static final String INDEX = "INDEX";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final List<XElement> list = resolver().getList(get(COLLECTION));
+        final int index = getInt(INDEX);
+
+        if ((index >= 0) && (index < list.size())) {
+            list.remove(index);
+        }
+
+        dispatch(OUT, resolver().create(list));
     }
-    
 }

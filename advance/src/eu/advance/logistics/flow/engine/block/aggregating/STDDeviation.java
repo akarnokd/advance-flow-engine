@@ -20,16 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import hu.akarnokd.reactive4java.base.Pair;
-
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.base.Pair;
+import java.util.logging.Logger;
 
 /**
  * Computes the standard deviation of numerical elements of the supplied
@@ -37,8 +35,12 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  *
  * @author TTS
  */
-@Block(id = "STDDeviation", category = "aggregation", scheduler = "IO", 
-description = "Computes the standard deviation of numerical elements of the supplied collection")
+@Block(id = "STDDeviation", 
+	category = "aggregation", 
+	scheduler = "IO",
+	description = "Computes the standard deviation of numerical elements of the supplied collection", 
+	parameters = { "T" }
+)
 public class STDDeviation extends AdvanceBlock {
 
     /**
@@ -48,7 +50,7 @@ public class STDDeviation extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<?T>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -58,29 +60,28 @@ public class STDDeviation extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-    	int n = 0;
-    	double mean = 0d;
-    	double m2 = 0d;
-    	
-    	for (XElement e : resolver().getItems(get(IN))) {
-    		Pair<String, String> rn = AdvanceData.realName(e);
-    		double v = 0.0;
-    		if ("integer".equals(rn)) {
-    			v = resolver().getInt(e);
-    		} else
-    		if ("real".equals(rn)) {
-    			v = resolver().getDouble(e);
-    		} else {
-    			continue;
-    		}
-    		n++;
-    		
-    		double delta = v - mean;
-    		mean = mean + delta / n;
-    		if (n > 1) {
-    			m2 = m2 + delta * (v - mean);
-    		}
-    	}
+        int n = 0;
+        double mean = 0d;
+        double m2 = 0d;
+
+        for (XElement e : resolver().getItems(get(IN))) {
+            Pair<String, String> rn = AdvanceData.realName(e);
+            double v = 0.0;
+            if ("integer".equals(rn)) {
+                v = resolver().getInt(e);
+            } else if ("real".equals(rn)) {
+                v = resolver().getDouble(e);
+            } else {
+                continue;
+            }
+            n++;
+
+            double delta = v - mean;
+            mean = mean + delta / n;
+            if (n > 1) {
+                m2 = m2 + delta * (v - mean);
+            }
+        }
 
         dispatch(OUT, resolver().create(Math.sqrt(m2 / n)));
     }

@@ -38,7 +38,12 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "MapEntries", category = "projection", scheduler = "IO", description = "Converts all key-value pairs of the map into a collection of key value pairs")
+@Block(id = "MapEntries", 
+	category = "projection", 
+	scheduler = "IO", 
+	description = "Converts all key-value pairs of the map into a collection of key value pairs", 
+	parameters = { "K", "V" }
+)
 public class MapEntries extends AdvanceBlock {
 
     /**
@@ -48,12 +53,12 @@ public class MapEntries extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map")
+    @Input("advance:map<?K, ?V>")
     protected static final String IN = "in";
     /**
      * Out.
      */
-    @Output("advance:collection")
+    @Output("advance:collection<advance:pair<?K, ?V>>")
     protected static final String OUT = "out";
 
     @Override

@@ -36,11 +36,16 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 /**
  * Delete entries from the given datastore by using the query and parameters.
  * Returns the number of elements deleted. Signature: JDBCUpdate(datasource,
- * string, map<string, object>) -> boolean
+ * string, map<k, v>) -> integer
  *
  * @author TTS
  */
-@Block(id = "JDBCDelete", category = "db", scheduler = "IO", description = "Delete entries from the given datastore by using the query and parameters. Returns the number of elements deleted")
+@Block(id = "JDBCDelete", 
+	category = "db", 
+	scheduler = "IO", 
+	description = "Delete entries from the given datastore by using the query and parameters. Returns the number of elements deleted", 
+	parameters = { "K", "V" } 
+)
 public class JDBCDelete extends AdvanceBlock {
 
     /**
@@ -60,7 +65,7 @@ public class JDBCDelete extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map<advance:string,advance:object>")
+    @Input("advance:map<?K,?V>")
     protected static final String MAP = "map";
     /**
      * Out.
@@ -104,17 +109,16 @@ public class JDBCDelete extends AdvanceBlock {
                         dispatch(OUT, resolver().create(res));
                         return;
                     } catch (Exception ex) {
-                    	conn.rollbackSilently();
+                        conn.rollbackSilently();
                         log(ex);
                     }
                 }
-            	
+
             } finally {
-            	ds.put(conn);
+                ds.put(conn);
             }
         } catch (Exception ex) {
             log(ex);
         }
     }
-
 }

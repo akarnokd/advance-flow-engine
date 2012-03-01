@@ -20,38 +20,78 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
- * Removes all the elements equal to the supplied value and returns a new map without them, plus a collection of keys which had the specified value.
+ * Removes all the elements equal to the supplied value and returns a new map
+ * without them, plus a collection of keys which had the specified value.
  * Signature: RemoveValue(map<t, u>, u) -> (map<t, u>, collection<t>)
- * @author szmarcell
+ *
+ * @author TTS
  */
-@Block(id = "___RemoveValue", category = "streaming", scheduler = "IO", description = "Removes all the elements equal to the supplied value and returns a new map without them, plus a collection of keys which had the specified value.")
+@Block(id = "RemoveValue", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Removes all the elements equal to the supplied value and returns a new map without them, plus a collection of keys which had the specified value", 
+	parameters = { "K", "V" }
+)
 public class RemoveValue extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RemoveValue .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RemoveValue.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
+    protected static final String MAP = "map";
+    /**
+     * In.
+     */
+    @Input("advance:?V")
+    protected static final String VALUE = "value";
+    /**
+     * Out.
+     */
+    @Output("advance:map<?K, ?V>")
+    protected static final String OUT_MAP = "out_map";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<?K>")
+    protected static final String OUT_KEYS = "out_keys";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+        final XElement value = get(VALUE);
+
+        final List<XElement> keysList = new ArrayList<XElement>();
+        if (map.containsValue(value)) {
+
+            final Set<XElement> keySet = map.keySet();
+            XElement key = null;
+            for (XElement keyVal : keySet) {
+                final XElement obj = map.get(keyVal);
+
+                if (obj.equals(value)) {
+                    map.remove(key);
+                    keysList.add(key);
+                }
+            }
+        }
+
+        dispatch(OUT_MAP, resolver().create(map));
+        dispatch(OUT_KEYS, resolver().create(keysList));
     }
-    
 }

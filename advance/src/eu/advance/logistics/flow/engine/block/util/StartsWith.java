@@ -20,36 +20,46 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Check if the string starts with another string.
- * Signature: StartsWith(string, string) -> boolean
- * @author szmarcell
+ * Check if the string starts with another string. Signature: StartsWith(string,
+ * string) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "___StartsWith", category = "string", scheduler = "IO", description = "Check if the string starts with another string.")
+@Block(id = "StartsWith", category = "string", scheduler = "IO", description = "Check if the string starts with another string")
 public class StartsWith extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(StartsWith .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(StartsWith.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String IN = "in";
-    /** In. */
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String PREFIX = "prefix";
-    /** Out. */
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
     @Output("advance:boolean")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String value = getString(IN);
-        String start = getString(PREFIX);
+        final String value = getString(IN1);
+        final String start = getString(IN2);
+        
         dispatch(OUT, resolver().create(value.startsWith(start)));
     }
-    
 }

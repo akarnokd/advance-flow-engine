@@ -20,13 +20,12 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.logging.Logger;
 
 /**
  * Compute the average of the integer values. Signature:
@@ -57,10 +56,10 @@ public class AverageInteger extends AdvanceBlock {
     protected void invoke() {
         int count = 0;
         double sum = 0.0;
-
+        
         for (XElement e : resolver().getItems(get(IN))) {
         	sum += resolver().getInt(e);
-        	count++;
+            count++;
         }
         
         dispatch(OUT, resolver().create(sum / count));

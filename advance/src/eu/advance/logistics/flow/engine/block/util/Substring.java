@@ -20,57 +20,80 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.logging.Logger;
 
 /**
- * Extract a substring from a string.
- * Default values of the from and to ports are the beginning and the end of the string respectively.
- * Signature: Substring(string, integer, integer) -> string
- * @author szmarcell
+ * Extract a substring from a string. Signature: Substring(string, integer,
+ * integer) -> string
+ *
+ * @author TTS
  */
-@Block(id = "Substring", category = "string", scheduler = "IO", description = "Extract a substring from a string. Default values of the from and to ports are the beginning and the end of the string respectively.")
+@Block(id = "Substring", category = "string", scheduler = "IO", description = "Extract a substring from a string")
 public class Substring extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Substring .class.getName());
-    /** In string. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Substring.class.getName());
+    /**
+     * In string.
+     */
     @Input("advance:string")
     protected static final String STRING = "string";
-    /** In from. */
+    /**
+     * In from.
+     */
     @Input(value = "advance:integer", required = false)
     protected static final String FROM = "from";
-    /** In to. */
+    /**
+     * In to.
+     */
     @Input(value = "advance:integer", required = false)
     protected static final String TO = "to";
-    /** In. */
-    @Input("advance:string")
-    protected static final String START = "start";
-    /** In. */
-    @Input(value = "advance:string", defaultConstant = "<integer>-1</integer>")
-    protected static final String END = "end";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:string")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String string = getString(STRING);
-        XElement fromEl = get(FROM);
-        XElement toEl = get(TO);
-        if (toEl == null) {
-            if (fromEl == null) {
-                dispatch(OUT, resolver().create(string));
+        final String string = getString(STRING);
+        final XElement fromEl = get(FROM);
+        final XElement toEl = get(TO);
+        
+        try {
+            
+            if (toEl == null) {
+                if (fromEl == null) {
+                    dispatch(OUT, resolver().create(string));
+                } else {
+                    final String fromStr = resolver().getString(fromEl);
+                    final int fromI = Integer.getInteger(fromStr);
+                    dispatch(OUT, resolver().create(string.substring(fromI)));
+
+                }
             } else {
-                dispatch(OUT, resolver().create(string.substring(Integer.parseInt(fromEl.content))));
+                final String toStr = resolver().getString(toEl);
+                final int toI = Integer.getInteger(toStr);
+
+                if (fromEl == null) {
+                    dispatch(OUT, resolver().create(string.substring(0, toI)));
+                } else {
+                    final String fromStr = resolver().getString(fromEl);
+                    final int fromI = Integer.getInteger(fromStr);
+
+                    dispatch(OUT, resolver().create(string.substring(fromI, toI)));
+                }
             }
-        } else {
-            int from = fromEl == null ? 0 : Integer.parseInt(fromEl.content);
-            dispatch(OUT, resolver().create(string.substring(from, Integer.parseInt(toEl.content))));
+            
+        } catch (NumberFormatException ex) {
+            log(ex);
         }
     }
-    
 }

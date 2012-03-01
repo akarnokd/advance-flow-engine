@@ -35,7 +35,12 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "EmptyMap", category = "projection", scheduler = "IO", description = "Returns an empty collection")
+@Block(id = "EmptyMap", 
+	category = "projection", 
+	scheduler = "IO", 
+	description = "Returns an empty collection", 
+	parameters = { "K", "V" }
+)
 public class EmptyMap extends AdvanceBlock {
 
     /**
@@ -50,7 +55,7 @@ public class EmptyMap extends AdvanceBlock {
     /**
      * Out.
      */
-    @Output("advance:map")
+    @Output("advance:map<?K, ?V>")
     protected static final String OUT = "out";
 
     @Override

@@ -20,27 +20,32 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Writes the incoming value to the console for debugging purposes.
- * Signature: WriteLine(t)
- * @author szmarcell
+ * Writes the incoming value to the console for debugging purposes. Signature:
+ * WriteLine(t)
+ *
+ * @author TTS
  */
-@Block(id = "___WriteLine", category = "string", scheduler = "IO", description = "Writes the incoming value to the console for debugging purposes")
+@Block(id = "WriteLine", category = "string", scheduler = "IO", description = "Writes the incoming value to the console for debugging purposes")
 public class WriteLine extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(WriteLine .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(WriteLine.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:object")
     protected static final String IN = "in";
+
     @Override
     protected void invoke() {
-    	System.out.println(get(IN));
+        System.out.println(resolver().getString(get(IN)));
     }
-    
 }

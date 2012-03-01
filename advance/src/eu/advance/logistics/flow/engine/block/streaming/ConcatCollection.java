@@ -20,48 +20,50 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.LinkedList;
-import java.util.TreeMap;
-import java.util.logging.Logger;
-
-import com.google.common.collect.Lists;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.runtime.Port;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Concatenate two collections.
- * Signature: ConcatCollection(collection<t>, collection<t>) -> collection<t>
- * @author szmarcell
+ * Concatenate two collections. Signature: ConcatCollection(collection<t>,
+ * collection<t>) -> collection<t>
+ *
+ * @author TTS
  */
-@Block(id = "ConcatCollection", category = "streaming", scheduler = "IO", parameters = { "T" }, description = "Concatenate two collections.")
+@Block(id = "ConcatCollection", category = "streaming", scheduler = "IO", description = "Concatenate two collections")
 public class ConcatCollection extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ConcatCollection .class.getName());
-    /** In. */
-    @Input(value = "advance:collection<?T>", variable = true)
-    protected static final String IN = "in";
-    /** Out. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ConcatCollection.class.getName());
+    /**
+     * In.
+     */
+    @Input(value = "advance:collection<?T>")
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
+    @Input(value = "advance:collection<?T>")
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
     @Output("advance:collection<?T>")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        TreeMap<String, XElement> collections = new TreeMap<String, XElement>();
+        final List<XElement> list1 = resolver().getList(get(IN1));
+        final List<XElement> list2 = resolver().getList(get(IN2));
         
-        for (Port<XElement, AdvanceType> port : getReactivePorts()) {
-            String name = port.name();
-            collections.put(name, get(name));
-        }
-        LinkedList<XElement> result = Lists.newLinkedList();
-        for (XElement collection : collections.values()) {
-            result.addAll(resolver().getList(collection));
-        }
-        dispatch(OUT, resolver().create(result));
+        list1.addAll(list2);
+        
+        dispatch(OUT, resolver().create(list1));
     }
-    
 }

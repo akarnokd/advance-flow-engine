@@ -20,13 +20,12 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
-import java.util.Collections;
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.Collections;
+import java.util.logging.Logger;
 
 /**
  * Creates a map with a single key-value pair. Signature: SingletonMap(t, u) ->
@@ -34,10 +33,9 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  *
  * @author TTS
  */
-@Block(id = "SingletonMap", category = "data-transformations", 
+@Block(id = "SingletonMap", category = "data-transformations",
 scheduler = "IO", description = "Creates a map with a single key-value pair.",
-parameters = { "K", "V" }
-)
+parameters = { "K", "V" })
 public class SingletonMap extends AdvanceBlock {
 
     /**

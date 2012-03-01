@@ -20,38 +20,59 @@
  */
 package eu.advance.logistics.flow.engine.block.filtering;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.io.StringReader;
+import java.util.logging.Logger;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.xml.sax.InputSource;
 
 /**
- * Applies the XPath expression to the incoming value and only those are forwarded which maches it.
- * Signature: Filter(t, xpath) -> t
- * @author szmarcell
+ * AApplies the XPath expression to the incoming value and only those are
+ * forwarded which maches it. Signature: Filter(t, xpath) -> t
+ *
+ * @author TTS
  */
-@Block(id = "___Filter", category = "data-filtering", scheduler = "IO", description = "Applies the XPath expression to the incoming value and only those are forwarded which maches it.")
+@Block(id = "Filter", category = "data-filtering", scheduler = "IO", description = "Applies the XPath expression to the incoming value and only those are forwarded which maches it")
 public class Filter extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Filter .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Filter.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:object")
+    protected static final String OBJECT = "object";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String PATH = "path";
+    /**
+     * Out.
+     */
+    @Output("advance:object")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final XPath xpath = XPathFactory.newInstance().newXPath();
+        final InputSource inputSource = new InputSource(new StringReader(resolver().getString(get(PATH))));
+        final String expression = resolver().getString(get(OBJECT));
+
+        try {
+            final String result = (String) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+
+            dispatch(OUT, resolver().create(result));
+        } catch (XPathExpressionException ex) {
+            log(ex);
+        }
     }
-    
 }

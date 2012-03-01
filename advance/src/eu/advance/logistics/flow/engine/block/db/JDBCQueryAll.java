@@ -43,11 +43,16 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * Issues an SQL query into the datasource once a trigger object arrives and
  * returns the resulting rows all at once mapping from column name to column
  * value. Signature: JDBCQueryAll(trigger, datasource, string) ->
- * collection<map<string, object>>
+ * collection<map<k, v>>
  *
  * @author TTS
  */
-@Block(id = "JDBCQueryAll", category = "db", scheduler = "IO", description = "Issues an SQL query into the datasource once a trigger object arrives and returns the resulting rows all at once mapping from column name to column value.")
+@Block(id = "JDBCQueryAll", 
+	category = "db", 
+	scheduler = "IO", 
+	description = "Issues an SQL query into the datasource once a trigger object arrives and returns the resulting rows all at once mapping from column name to column value.", 
+	parameters = { "K", "V" }
+)
 public class JDBCQueryAll extends AdvanceBlock {
 
     /**
@@ -72,7 +77,7 @@ public class JDBCQueryAll extends AdvanceBlock {
     /**
      * Out.
      */
-    @Output("advance:collection<advance:map<advance:string,advance:object>>")
+    @Output("advance:collection<advance:map<?K, ?V>>")
     protected static final String OUT = "out";
 
     @Override

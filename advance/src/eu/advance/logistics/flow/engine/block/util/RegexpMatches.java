@@ -20,40 +20,48 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Test if the given regular expression matches the string.
- * Signature: RegexpMatches(string, string) -> boolean
- * @author szmarcell
+ * Test if the given regular expression matches the string. Signature:
+ * RegexpMatches(string, string) -> boolean
+ *
+ * @author TTS
  */
 @Block(id = "RegexpMatches", category = "string", scheduler = "NOW", description = "Test if the given regular expression matches the string")
 public class RegexpMatches extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RegexpMatches .class.getName());
-    /** In string. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RegexpMatches.class.getName());
+    /**
+     * In string.
+     */
     @Input("advance:string")
-    protected static final String STRING = "string";
-    /** In pattern. */
+    protected static final String IN1 = "in1";
+    /**
+     * In pattern.
+     */
     @Input("advance:string")
-    protected static final String PATTERN = "pattern";
-    /** Out. */
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
     @Output("advance:boolean")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String string = get(STRING).content;
-        String patternStr = get(PATTERN).content;
-        Pattern pattern = Pattern.compile(patternStr);
-        Matcher matcher = pattern.matcher(string);
+        final Pattern pattern = Pattern.compile(getString(IN2));
+        final Matcher matcher = pattern.matcher(getString(IN1));
+
         dispatch(OUT, resolver().create(matcher.matches()));
     }
-    
 }

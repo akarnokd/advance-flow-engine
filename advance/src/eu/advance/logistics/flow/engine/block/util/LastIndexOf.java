@@ -20,43 +20,56 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
  * Returns the index of the last occurrence of the substring in the string.
- * Signature: LastIndex_of(string, string, integer) -> integer
- * @author szmarcell
+ * Signature: LastIndexOf(string, string, integer) -> integer
+ *
+ * @author TTS
  */
-@Block(id = "___LastIndexOf", category = "string", scheduler = "IO", description = "Returns the index of the last occurrence of the substring in the string.")
+@Block(id = "LastIndexOf", category = "string", scheduler = "IO", description = "Returns the index of the last occurrence of the substring in the string")
 public class LastIndexOf extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(LastIndexOf .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(LastIndexOf.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String IN = "in";
-    /** In. */
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String SUBSTRING = "substring";
-    /** In. */
+    protected static final String IN2 = "in2";
+    /**
+     * In.
+     */
     @Input(value = "advance:integer", defaultConstant = "<integer>-1</integer>")
-    protected static final String START = "start";
-    /** Out. */
+    protected static final String IN3 = "in3";
+    /**
+     * Out.
+     */
     @Output("advance:integer")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String in = getString(IN);
-        String substring = getString(SUBSTRING);
-        int start = getInt(START);
-        if (start < 0) {
-        	start = in.length();
-        }
+        final String in = getString(IN1);
+        final String substring = getString(IN2);
         
+        int start = getInt(IN3);
+        if (start < 0) {
+            start = in.length();
+        }
+
         dispatch(OUT, resolver().create(in.lastIndexOf(substring, start)));
     }
 }

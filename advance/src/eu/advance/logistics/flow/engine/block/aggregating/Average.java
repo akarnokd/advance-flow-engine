@@ -20,16 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import hu.akarnokd.reactive4java.base.Pair;
-
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.base.Pair;
+import java.util.logging.Logger;
 
 /**
  * Compute the average of the integer or real values within the collection.
@@ -37,8 +35,12 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  *
  * @author TTS
  */
-@Block(id = "Average", category = "aggregation", 
-scheduler = "IO", description = "Compute the average of the integer or real values within the collection")
+@Block(id = "Average", 
+	category = "aggregation", 
+	scheduler = "IO", 
+	description = "Compute the average of the integer or real values within the collection", 
+	parameters = { "T" }
+)
 public class Average extends AdvanceBlock {
 
     /**
@@ -48,7 +50,7 @@ public class Average extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<?T>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -75,8 +77,8 @@ public class Average extends AdvanceBlock {
         		String s = resolver().getString(e);
         		if (s.matches("\\d+(\\.d+)?")) {
                 	sum += resolver().getDouble(e);
-                    count++;
-        		}
+            count++;
+        }
         	}
         }
         dispatch(OUT, resolver().create(sum / count));
