@@ -43,16 +43,11 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * and fills in the parameters from the supplied map. Once the batch insert is
  * complete, the operator returns a collection with the auto generated keys for
  * each of the input maps. Signature: JDBCUpdateAll(datasource, string,
- * map<k, v>) -> collection<map<k, v>>
+ * map<string, object>) -> collection<map<string, object>>
  *
  * @author TTS
  */
-@Block(id = "JDBCInsertAll", 
-	category = "db", 
-	scheduler = "IO", 
-	description = "Inserts a collection of values into the datastore via the given SQL statement and fills in the parameters from the supplied map. Once the batch insert is complete, the operator returns a collection with the auto generated keys for each of the input maps", 
-	parameters = { "K", "V" }
-)
+@Block(id = "JDBCInsertAll", category = "db", scheduler = "IO", description = "Inserts a collection of values into the datastore via the given SQL statement and fills in the parameters from the supplied map. Once the batch insert is complete, the operator returns a collection with the auto generated keys for each of the input maps")
 public class JDBCInsertAll extends AdvanceBlock {
 
     /**
@@ -72,12 +67,12 @@ public class JDBCInsertAll extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<advance:map<?K, ?V>>")
+    @Input("advance:collection<advance:map<advance:string,advance:object>>")
     protected static final String LIST = "collection";
     /**
      * The auto-generated keys if any.
      */
-    @Output("advance:collection<advance:map<?K, ?V>>")
+    @Output("advance:collection<advance:map<advance:string,advance:object>>")
     protected static final String OUT = "out";
 
     @Override

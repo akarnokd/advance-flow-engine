@@ -39,16 +39,11 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * Inserts a new value into the datastore via the given SQL statement and fills
  * in the parameters from the supplied map. If completed, the output is a map
  * for the auto-generated keys if any. Signature: JDBCInsert(datasource, string,
- * map<k, v>) -> map<k, v>
+ * map<string, object>) -> boolean
  *
  * @author TTS
  */
-@Block(id = "JDBCInsert", 
-	category = "db", 
-	scheduler = "IO", 
-	description = "Issues the given update SQL query into the datasource and fills in the query parameters from the supplied mapping from column name to column value. Once the update succeeded, a Boolean TRUE is emitted by the operator", 
-	parameters = { "K", "V" }
-)
+@Block(id = "JDBCInsert", category = "db", scheduler = "IO", description = "Issues the given update SQL query into the datasource and fills in the query parameters from the supplied mapping from column name to column value. Once the update succeeded, a Boolean TRUE is emitted by the operator")
 public class JDBCInsert extends AdvanceBlock {
 
     /**
@@ -68,12 +63,12 @@ public class JDBCInsert extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map<?K, ?V>")
+    @Input("advance:map<advance:string,advance:object>")
     protected static final String MAP = "map";
     /**
      * Out.
      */
-    @Output("advance:map<?K, ?V>")
+    @Output("advance:map<advance:string,advance:object>")
     protected static final String OUT = "out";
 
     @Override

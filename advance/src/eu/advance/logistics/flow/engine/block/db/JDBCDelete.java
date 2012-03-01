@@ -43,8 +43,7 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 @Block(id = "JDBCDelete", 
 	category = "db", 
 	scheduler = "IO", 
-	description = "Delete entries from the given datastore by using the query and parameters. Returns the number of elements deleted", 
-	parameters = { "K", "V" } 
+	description = "Delete entries from the given datastore by using the query and parameters. Returns the number of elements deleted" 
 )
 public class JDBCDelete extends AdvanceBlock {
 
@@ -65,7 +64,7 @@ public class JDBCDelete extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map<?K,?V>")
+    @Input("advance:map<advance:string,advance:object>")
     protected static final String MAP = "map";
     /**
      * Out.

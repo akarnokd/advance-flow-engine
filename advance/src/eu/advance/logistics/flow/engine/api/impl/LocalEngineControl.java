@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.File;
@@ -49,6 +50,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.api.ds.AdvancePortSpecification;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceSchemaRegistryEntry;
@@ -651,4 +653,30 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			throws IOException, AdvanceControlException {
 		return realmVerifications.get(realm);
 	}
+	@Override
+	public List<AdvancePortSpecification> queryPorts(String realm)
+			throws IOException, AdvanceControlException {
+		// FIXME Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Observable<XElement> receivePort(String realm, String portId)
+			throws IOException, AdvanceControlException {
+		// FIXME Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void sendPort(String realm,
+			Iterable<Pair<String, XElement>> portValues) throws IOException,
+			AdvanceControlException {
+		// FIXME Auto-generated method stub
+		
+	}
+	@Override
+	public void sendPort(String realm, String portId, XElement value)
+			throws IOException, AdvanceControlException {
+		// FIXME Auto-generated method stub
+		
+	}
+
 }

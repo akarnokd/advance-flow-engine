@@ -20,13 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
-import java.util.logging.Logger;
 
 /**
  * Returns the largest integer in the collection along with its last occurrence
@@ -34,7 +34,10 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "MaxReal", category = "aggregation", scheduler = "IO", description = "Returns the largest integer in the collection along with its last occurrence index")
+@Block(id = "MaxReal", 
+category = "aggregation", 
+scheduler = "IO", 
+description = "Returns the largest integer in the collection along with its last occurrence index")
 public class MaxReal extends AdvanceBlock {
 
     /**
@@ -57,9 +60,8 @@ public class MaxReal extends AdvanceBlock {
         double max = Double.MIN_VALUE;
 
         final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        while (it.hasNext()) {
-            max = Math.max(max, settings.resolver.getDouble(it.next()));
+        for (XElement e : resolver().getItems(xcollection)) {
+            max = Math.max(max, resolver().getDouble(e));
         }
 
         dispatch(OUT, resolver().create(max));

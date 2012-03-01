@@ -39,54 +39,54 @@ import java.util.logging.Logger;
 @Block(id = "MaxRealAll", category = "aggregation", scheduler = "IO", description = "Returns the largest real value from the collection along with the collection of its occurrence indexes")
 public class MaxRealAll extends AdvanceBlock {
 
-    /**
-     * The logger.
-     */
-    protected static final Logger LOGGER = Logger.getLogger(MaxRealAll.class.getName());
-    /**
-     * In.
-     */
-    @Input("advance:collection<advance:real>")
-    protected static final String IN = "in";
-    /**
-     * Out.
-     */
-    @Output("advance:real")
-    protected static final String MAX = "max";
-    /**
-     * Out.
-     */
-    @Output("advance:collection<advance:integer>")
-    protected static final String COLLECTION = "collection";
+	/**
+	 * The logger.
+	 */
+	protected static final Logger LOGGER = Logger.getLogger(MaxRealAll.class.getName());
+	/**
+	 * In.
+	 */
+	@Input("advance:collection<advance:real>")
+	protected static final String IN = "in";
+	/**
+	 * Out.
+	 */
+	@Output("advance:real")
+	protected static final String MAX = "max";
+	/**
+	 * Out.
+	 */
+	@Output("advance:collection<advance:integer>")
+	protected static final String COLLECTION = "collection";
 
-    @Override
-    protected void invoke() {
-    	List<Integer> positions = Lists.newArrayList();
+	@Override
+	protected void invoke() {
+		List<Integer> positions = Lists.newArrayList();
 
-    	double max = 0;
-        int count = 0;
+		double max = 0;
+		int count = 0;
 
-    	for (XElement e : resolver().getItems(get(IN))) {
+		for (XElement e : resolver().getItems(get(IN))) {
 			double v = resolver().getDouble(e);
-    		
-    		if (count == 0 || max < v) {
-    			max = v;
-    			positions.clear();
-    		}
-    		if (max == v) {
-    			positions.add(count);
-            }
 
-            count++;
-        }
+			if (count == 0 || max < v) {
+				max = v;
+				positions.clear();
+			}
+			if (max == v) {
+				positions.add(count);
+			}
 
-    	if (count > 0) {
-        dispatch(MAX, resolver().create(max));
-    	}
-    	List<XElement> xpos = Lists.newLinkedList();
-    	for (Integer idx : positions) {
-    		xpos.add(resolver().create(idx));
-    	}
-        dispatch(COLLECTION, resolver().create(xpos));
-    }
+			count++;
+		}
+
+		if (count > 0) {
+			dispatch(MAX, resolver().create(max));
+		}
+		List<XElement> xpos = Lists.newLinkedList();
+		for (Integer idx : positions) {
+			xpos.add(resolver().create(idx));
+		}
+		dispatch(COLLECTION, resolver().create(xpos));
+	}
 }
