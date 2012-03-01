@@ -20,19 +20,16 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import hu.akarnokd.reactive4java.base.Pair;
-
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.google.common.collect.Lists;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.base.Pair;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Returns the smallest value from the collection along with the collection of
@@ -41,7 +38,12 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  *
  * @author TTS
  */
-@Block(id = "MinAll", category = "aggregation", scheduler = "IO", description = "Returns the smallest value from the collection along with the collection of its occurrence indexes")
+@Block(id = "MinAll", 
+	category = "aggregation", 
+	scheduler = "IO", 
+	description = "Returns the smallest value from the collection along with the collection of its occurrence indexes", 
+	parameters = { "T" }
+)
 public class MinAll extends AdvanceBlock {
 
     /**
@@ -51,7 +53,7 @@ public class MinAll extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<advance:object>")
+    @Input("advance:collection<?T>")
     protected static final String IN = "in";
     /**
      * Out.
@@ -67,10 +69,10 @@ public class MinAll extends AdvanceBlock {
     @Override
     protected void invoke() {
     	List<Integer> positions = Lists.newArrayList();
-    	
+
     	double min = 0;
-    	int count = 0;
-    	
+        int count = 0;
+
     	for (XElement e : resolver().getItems(get(IN))) {
     		Pair<String, String> rn = AdvanceData.realName(e);
     		double v = 0.0;
@@ -79,23 +81,23 @@ public class MinAll extends AdvanceBlock {
     		} else
     		if ("real".equals(rn)) {
     			v = resolver().getDouble(e);
-    		} else {
+            } else {
     			continue;
-    		}
-    		
+            }
+
     		if (count == 0 || min > v) {
     			min = v;
     			positions.clear();
     		}
     		if (min == v) {
     			positions.add(count);
-    		}
-    		
-    		count++;
-    	}
-    	
+            }
+
+            count++;
+        }
+
     	if (count > 0) {
-    		dispatch(OUT1, resolver().create(min));
+        dispatch(OUT1, resolver().create(min));
     	}
     	List<XElement> xpos = Lists.newLinkedList();
     	for (Integer idx : positions) {

@@ -20,38 +20,74 @@
  */
 package eu.advance.logistics.flow.engine.block.filtering;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.xml.sax.InputSource;
 
 /**
- * Filter the elements of the collection via the XPath expression and return a filtered collection.
- * Signature: FilterCollection(collection<t>, xpath) -> collection<t>
- * @author szmarcell
+ * Filter the elements of the collection via the XPath expression and return a
+ * filtered collection. Signature: FilterCollection(collection<t>, xpath) ->
+ * collection<t>
+ *
+ * @author TTS
  */
-@Block(id = "___FilterCollection", category = "data-filtering", scheduler = "IO", description = "Filter the elements of the collection via the XPath expression and return a filtered collection.")
+@Block(id = "FilterCollection", 
+	category = "data-filtering", 
+	scheduler = "IO", 
+	description = "Filter the elements of the collection via the XPath expression and return a filtered collection.", 
+	parameters = { "T" } 
+)
 public class FilterCollection extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(FilterCollection .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Filter.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<?T>")
+    protected static final String COLLECTION = "collection";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String PATH = "path";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final XPath xpath = XPathFactory.newInstance().newXPath();
+        final InputSource inputSource = new InputSource(new StringReader(resolver().getString(get(PATH))));
+        final List<XElement> collection = resolver().getList(get(COLLECTION));
+
+        final List<XElement> result = new ArrayList<XElement>();
+        for (XElement xel : collection) {
+            try {
+                final String expression = resolver().getString(xel);
+                final String value = (String) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+
+                result.add(resolver().create(value));
+            } catch (XPathExpressionException ex) {
+                log(ex);
+            }
+        }
+
+        dispatch(OUT, resolver().create(result));
     }
-    
 }

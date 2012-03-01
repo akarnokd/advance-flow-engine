@@ -20,38 +20,72 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Remove the given key and value pair from the map and return the new map.
  * Signature: RemoveEntry(map<t, u>, t, u) -> (map<t, u>, boolean)
- * @author szmarcell
+ *
+ * @author TTS
  */
-@Block(id = "___RemoveEntry", category = "streaming", scheduler = "IO", description = "Remove the given key and value pair from the map and return the new map.")
+@Block(id = "RemoveEntry", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Remove the given key and value pair from the map and return the new map.", 
+	parameters = { "K", "V" }
+)
 public class RemoveEntry extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RemoveEntry .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RemoveEntry.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
+    protected static final String MAP = "map";
+    /**
+     * In.
+     */
+    @Input("advance:?K")
+    protected static final String KEY = "key";
+    /**
+     * In.
+     */
+    @Input("advance:?V")
+    protected static final String VALUE = "value";
+    /**
+     * Out.
+     */
+    @Output("advance:map<?K, ?V>")
+    protected static final String OUT_MAP = "out_map";
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
+    protected static final String OUT_STATUS = "out_status";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+        final XElement key = get(KEY);
+        final XElement value = get(KEY);
+
+        boolean status = false;
+        final XElement assObj = map.get(key);
+        if (assObj.equals(value)) {
+            status = true;
+            map.remove(key);
+        }
+
+        dispatch(OUT_MAP, resolver().create(map));
+        dispatch(OUT_STATUS, resolver().create(status));
     }
-    
 }

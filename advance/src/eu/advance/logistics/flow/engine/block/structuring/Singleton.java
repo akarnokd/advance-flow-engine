@@ -18,7 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-
 package eu.advance.logistics.flow.engine.block.structuring;
 
 import eu.advance.logistics.annotations.Block;
@@ -28,22 +27,27 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Creates a collection with a single element.
+ *
  * @author akarnokd, 2011.11.04.
  */
-@Block(scheduler = "NOW", parameters = { "T" }, 
+@Block(scheduler = "NOW", parameters = { "T" },
 description = "Creates a collection with the supplied single element.",
 category = "data-transformations")
 public class Singleton extends AdvanceBlock {
-	/** In. */
+
+    /**
+     * In.
+     */
     @Input("?T")
     private static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:collection<?T>")
     private static final String OUT = "out";
 
-	@Override
-	protected void invoke() {
-		dispatch(OUT, resolver().create(get(IN)));
-	}
-
+    @Override
+    protected void invoke() {
+        dispatch(OUT, resolver().create(get(IN)));
+    }
 }

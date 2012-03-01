@@ -20,38 +20,57 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Returns a new map with the given key-value pair added to the map.
- * Signature: AppendMap(map<t, u>, t, u) ->map<t, u>
- * @author szmarcell
+ * Returns a new map with the given key-value pair added to the map. Signature:
+ * AppendMap(map<t, u>, t, u) -> map<t, u>
+ *
+ * @author TTS
  */
-@Block(id = "___AppendMap", category = "streaming", scheduler = "IO", description = "Returns a new map with the given key-value pair added to the map")
+@Block(id = "AppendMap", category = "streaming", scheduler = "IO",
+        description = "Returns a new map with the given key-value pair added to the map", parameters = { "K", "V" })
 public class AppendMap extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(AppendMap .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(AppendMap.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
+    protected static final String MAP = "map";
+    /**
+     * In.
+     */
+    @Input("?K")
+    protected static final String KEY = "key";
+    /**
+     * In.
+     */
+    @Input("?V")
+    protected static final String VALUE = "in3";
+    /**
+     * Out.
+     */
+    @Output("advance:map<?K, ?V>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+        final XElement key = get(KEY);
+        final XElement value = get(VALUE);
+
+        map.put(key, value);
+
+        dispatch(OUT, resolver().create(map));
     }
-    
 }

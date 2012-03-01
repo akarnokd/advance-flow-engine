@@ -20,36 +20,42 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Concatenate two strings.
- * Signature: ConcatString(string, string) -> string
- * @author szmarcell
+ * Concatenate two strings. Signature: ConcatString(string, string) -> string
+ *
+ * @author TTS
  */
-@Block(id = "ConcatString", category = "string", scheduler = "NOW", description = "Concatenate two strings.")
+@Block(id = "ConcatString", category = "string", scheduler = "NOW", description = "Concatenate two strings")
 public class ConcatString extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ConcatString .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ConcatString.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
     protected static final String IN1 = "in1";
-    /** In. */
+    /**
+     * In.
+     */
     @Input("advance:string")
     protected static final String IN2 = "in2";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:string")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String in1 = getString(IN1);
-        String in2 = getString(IN2);
-        dispatch(OUT, resolver().create(in1 + in2));
+        dispatch(OUT, resolver().create(getString(IN1) + getString(IN2)));
     }
-    
 }

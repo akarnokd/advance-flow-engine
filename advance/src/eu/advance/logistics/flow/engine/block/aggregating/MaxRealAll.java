@@ -20,16 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.google.common.collect.Lists;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Returns the largest real value from the collection along with the collection
@@ -64,10 +62,10 @@ public class MaxRealAll extends AdvanceBlock {
     @Override
     protected void invoke() {
     	List<Integer> positions = Lists.newArrayList();
-    	
+
     	double max = 0;
-    	int count = 0;
-    	
+        int count = 0;
+
     	for (XElement e : resolver().getItems(get(IN))) {
 			double v = resolver().getDouble(e);
     		
@@ -77,13 +75,13 @@ public class MaxRealAll extends AdvanceBlock {
     		}
     		if (max == v) {
     			positions.add(count);
-    		}
-    		
-    		count++;
-    	}
-    	
+            }
+
+            count++;
+        }
+
     	if (count > 0) {
-    		dispatch(MAX, resolver().create(max));
+        dispatch(MAX, resolver().create(max));
     	}
     	List<XElement> xpos = Lists.newLinkedList();
     	for (Integer idx : positions) {

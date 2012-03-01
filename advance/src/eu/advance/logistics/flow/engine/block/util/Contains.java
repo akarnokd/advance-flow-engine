@@ -20,36 +20,46 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Check if the substring is within the string.
- * Signature: Contains(string, string) -> boolean
- * @author szmarcell
+ * Check if the substring is within the string. Signature: Contains(string,
+ * string) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string.")
+@Block(id = "Contains", category = "string", scheduler = "NOW", description = "Check if the substring is within the string")
 public class Contains extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Contains .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Contains.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String IN = "in";
-    /** Substring. */
+    protected static final String IN1 = "in1";
+    /**
+     * Substring.
+     */
     @Output("advance:string")
-    protected static final String SUBSTRING = "substring";
-    /** Out. */
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
     @Output("advance:boolean")
     protected static final String OUT = "boolean";
+
     @Override
     protected void invoke() {
-        String in1 = getString(IN);
-        String in2 = getString(SUBSTRING);
+        final String in1 = getString(IN1);
+        final String in2 = getString(IN2);
+        
         dispatch(OUT, resolver().create(in1.contains(in2)));
     }
-    
 }

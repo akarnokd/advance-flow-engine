@@ -20,49 +20,55 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.ArrayList;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.google.common.collect.Lists;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Run a regular expression on the string and return a collection of the matched groups.
- * Signature: RegexpMatch(string, string) -> collection<regexpgroup>
- * @author szmarcell
+ * Run a regular expression on the string and return a collection of the matched
+ * groups. Signature: RegexpMatch(string, string) -> collection<string>
+ *
+ * @author TTS
  */
-@Block(id = "RegexpMatch", category = "string", scheduler = "NOW", description = "Run a regular expression on the string and return a collection of the matched groups.")
+@Block(id = "RegexpMatch", category = "string", scheduler = "NOW", description = "Run a regular expression on the  string and return a collection of the matched groups")
 public class RegexpMatch extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RegexpMatch .class.getName());
-    /** In string. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RegexpMatch.class.getName());
+    /**
+     * In string.
+     */
     @Input("advance:string")
-    protected static final String STRING = "string";
-    /** In pattern. */
+    protected static final String IN1 = "in1";
+    /**
+     * In pattern.
+     */
     @Input("advance:string")
-    protected static final String PATTERN = "pattern";
-    /** Out groups. */
+    protected static final String IN2 = "in2";
+    /**
+     * Out groups.
+     */
     @Output("advance:collection<advance:string>")
-    protected static final String GROUPS = "groups";
+    protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String string = get(STRING).content;
-        String patternStr = get(PATTERN).content;
-        Pattern pattern = Pattern.compile(patternStr);
-        Matcher matcher = pattern.matcher(string);
-        ArrayList<XElement> matches = Lists.newArrayList();
+        final Pattern pattern = Pattern.compile(getString(IN2));
+        final Matcher matcher = pattern.matcher(getString(IN1));
+        
+        final ArrayList<XElement> result = new ArrayList<XElement>();
         while (matcher.find()) {
-            final String group = matcher.group();
-            matches.add(resolver().create(group));
+            result.add(resolver().create(matcher.group()));
         }
-        dispatch(GROUPS, resolver().create(matches));
+        
+        dispatch(OUT, resolver().create(result));
     }
-    
 }

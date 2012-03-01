@@ -39,94 +39,102 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 /**
  * Issues an SQL query into the datasource once a trigger object arrives and
  * returns the rows converted into a mapping from column name to column value.
- * Signature: JDBCQuery(trigger, datasource, string, schema<t>) ->map<string,
- * object>
+ * Signature: JDBCQuery(trigger, datasource, string) ->map<k,
+ * v>
  *
  * @author TTS
  */
-@Block(id = "JDBCQuery", category = "db", scheduler = "IO", description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value.")
+@Block(id = "JDBCQuery", 
+	category = "db", 
+	scheduler = "IO", 
+	description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value.", 
+	parameters = { "K", "V" }
+)
 public class JDBCQuery extends AdvanceBlock {
 
-	/**
-	 * The logger.
-	 */
-	protected static final Logger LOGGER = Logger.getLogger(JDBCQuery.class.getName());
-	/**
-	 * In.
-	 */
-	@Input("advance:boolean")
-	protected static final String TRIGGER = "trigger";
-	/**
-	 * In.
-	 */
-	@Input("advance:string")
-	protected static final String DATASOURCE = "datasource";
-	/**
-	 * In.
-	 */
-	@Input("advance:string")
-	protected static final String QUERY = "query";
-	/**
-	 * Out.
-	 */
-	@Output("advance:map<advance:string,advance:object>")
-	protected static final String OUT = "out";
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(JDBCQuery.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:boolean")
+    protected static final String TRIGGER = "trigger";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String DATASOURCE = "datasource";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String QUERY = "query";
+    /**
+     * Out.
+     */
+    @Output("advance:map<?K, ?V>")
+    protected static final String OUT = "out";
 
-	@Override
-	protected void invoke() {
-		// called on trigger
-	}
+    @Override
+    protected void invoke() {
+        // called on trigger
+    }
 
-	@Override
-	public Observer<Void> run() {
-		addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+    @Override
+    public Observer<Void> run() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
 
-			@Override
-			public void next(XElement value) {
-				if (resolver().getBoolean(value)) {
-					execute();
-				}
-			}
+            @Override
+            public void next(XElement value) {
+                if (resolver().getBoolean(value)) {
+                    execute();
+                }
+            }
 
-			@Override
-			public void error(Throwable ex) {
-			}
+            @Override
+            public void error(Throwable ex) {
+            }
 
-			@Override
-			public void finish() {
-			}
-		}));
+            @Override
+            public void finish() {
+            }
+        }));
 
-		return new RunObserver();
-	}
-	/** Execute the query. */
-	private void execute() {
-		JDBCConnection conn = null;
-		try {
-			final String dataSourceStr = getString(DATASOURCE);
-			final Pool<JDBCConnection> ds = getPool(JDBCConnection.class, dataSourceStr);
-			conn = ds.get();
-			try {
-				final String query = getString(QUERY);
-				final Statement stm = conn.getConnection().createStatement();
-				try {
-					final ResultSet rs = stm.executeQuery(query);
-					try {
-						final ResultSetMetaData rsmd = rs.getMetaData();
-						while (rs.next()) {
-							dispatch(OUT, JDBCConverter.create(resolver(), rs, rsmd));
-						}
-					} finally {
-						rs.close();
-					}
-				} finally {
-					stm.close();
-				}
-			} finally {
-				ds.put(conn);
-			}
-		} catch (Exception ex) {
-			log(ex);
-		}
-	}
+        return new RunObserver();
+    }
+
+    /**
+     * Execute the query.
+     */
+    private void execute() {
+        JDBCConnection conn = null;
+        try {
+            final String dataSourceStr = getString(DATASOURCE);
+            final Pool<JDBCConnection> ds = getPool(JDBCConnection.class, dataSourceStr);
+            conn = ds.get();
+            try {
+                final String query = getString(QUERY);
+                final Statement stm = conn.getConnection().createStatement();
+                try {
+                    final ResultSet rs = stm.executeQuery(query);
+                    try {
+                        final ResultSetMetaData rsmd = rs.getMetaData();
+                        while (rs.next()) {
+                            dispatch(OUT, JDBCConverter.create(resolver(), rs, rsmd));
+                        }
+                    } finally {
+                        rs.close();
+                    }
+                } finally {
+                    stm.close();
+                }
+            } finally {
+                ds.put(conn);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
 }

@@ -20,38 +20,85 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Remove a range from the source collection and return two new collections, one without the elements of the range, another with the elements of the range.
- * Signature: RemoveIndexRange(collection<t>, integer, integer) -> (collection<t>, collection<t>)
- * @author szmarcell
+ * Remove a range from the source collection and return two new collections, one
+ * without the elements of the range, another with the elements of the range.
+ * Signature: RemoveIndexRange(collection<t>, integer, integer) ->
+ * (collection<t>, collection<t>)
+ *
+ * @author TTS
  */
-@Block(id = "___RemoveIndexRange", category = "streaming", scheduler = "IO", description = "Remove a range from the source collection and return two new collections, one without the elements of the range, another with the elements of the range.")
+@Block(id = "RemoveIndexRange", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Remove a range from the source collection and return two new collections, one without the elements of the range, another with the elements of the range", 
+	parameters = { "T" }
+)
 public class RemoveIndexRange extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RemoveIndexRange .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RemoveValue.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<?T>")
+    protected static final String COLLECTION = "collection";
+    /**
+     * In.
+     */
+    @Input("advance:integer")
+    protected static final String START = "start";
+    /**
+     * In.
+     */
+    @Input("advance:integer")
+    protected static final String END = "end";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<?T>")
+    protected static final String OUT_COLLECTION = "out_collection";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<?T>")
+    protected static final String OUT_REMOVED = "out_removed";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final List<XElement> list = resolver().getList(get(COLLECTION));
+        final int start = getInt(START);
+        final int end = getInt(END);
+
+        if ((start < 0) || (end > list.size()) || (end < start)) {
+            log(new IllegalArgumentException());
+            return;
+        }
+
+        final List<XElement> newList = new ArrayList<XElement>();
+        final List<XElement> exctracted = new ArrayList<XElement>();
+        for (int i = 0, n = list.size(); i < n; i++) {
+            final XElement el = list.get(i);
+
+            if ((i >= start) && (i <= end)) {
+                exctracted.add(el);
+            } else {
+                newList.add(el);
+            }
+        }
+
+        dispatch(OUT_COLLECTION, resolver().create(newList));
+        dispatch(OUT_REMOVED, resolver().create(exctracted));
     }
-    
 }

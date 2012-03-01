@@ -20,38 +20,75 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Removes the given value from the input collection and return a new collection with the number of items removed.
- * Signature: RemoveItem(collection<t>, t) -> (collection<t>, integer)
- * @author szmarcell
+ * Removes the given value from the input collection and return a new collection
+ * with the number of items removed. Signature: RemoveItem(collection<t>, t) ->
+ * (collection<t>, integer)
+ *
+ * @author TTS
  */
-@Block(id = "___RemoveItem", category = "streaming", scheduler = "IO", description = "Removes the given value from the input collection and return a new collection with the number of items removed.")
+@Block(id = "RemoveItem", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Removes the given value from the input collection and return a new collection with the number of items removed", 
+	parameters = { "T" }
+)
 public class RemoveItem extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(RemoveItem .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
-    protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(RemoveValue.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:collection<?T>")
+    protected static final String COLLECTION = "collection";
+    /**
+     * In.
+     */
+    @Input("?T")
+    protected static final String VALUE = "value";
+    /**
+     * Out.
+     */
+    @Output("advance:collection<?T>")
+    protected static final String OUT_COLLECTION = "out_collection";
+    /**
+     * Out.
+     */
+    @Output("advance:integer")
+    protected static final String OUT_COUNT = "out_count";
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final List<XElement> list = resolver().getList(get(COLLECTION));
+        final XElement value = get(VALUE);
+
+        int count = 0;
+        if (list.contains(value)) {
+
+            int index = 0;
+            for (XElement el : list) {
+                if (el.equals(value)) {
+                    list.remove(index);
+                    count++;
+                }
+                
+                index++;
+            }
+        }
+
+
+        dispatch(OUT_COLLECTION, resolver().create(list));
+        dispatch(OUT_COLLECTION, resolver().create(count));
     }
-    
 }

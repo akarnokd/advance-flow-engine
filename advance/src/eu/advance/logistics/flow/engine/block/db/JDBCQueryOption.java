@@ -41,14 +41,16 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 /**
  * Issues an SQL query into the datasource once a trigger object arrives and
  * returns the rows converted into a mapping from column name to column value.
- * Signature: JDBCQuery(trigger, datasource, string) ->map<string,
- * object>
+ * Signature: JDBCQuery(trigger, datasource, string) ->map<k, v>
  *
  * @author TTS
  */
-@Block(id = "JDBCQueryOption", category = "db", 
-scheduler = "IO", 
-description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value as an option.")
+@Block(id = "JDBCQueryOption", 
+	category = "db", 
+	scheduler = "IO", 
+	description = "Issues an SQL query into the datasource once a trigger object arrives and returns the rows converted into a mapping from column name to column value as an option.", 
+	parameters = { "K", "V" }
+)
 public class JDBCQueryOption extends AdvanceBlock {
 
     /**
@@ -73,7 +75,7 @@ public class JDBCQueryOption extends AdvanceBlock {
     /**
      * Out.
      */
-    @Output("advance.option<advance:map<advance:string,advance:object>>")
+    @Output("advance.option<advance:map<?K, ?V>>")
     protected static final String OUT = "out";
 
     @Override

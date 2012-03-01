@@ -20,36 +20,46 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Check if the string ends with another string.
- * Signature: EndsWith(string, string) -> boolean
- * @author szmarcell
+ * Check if the string ends with another string. Signature: EndsWith(string,
+ * string) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "EndsWith", category = "string", scheduler = "NOW", description = "Check if the string ends with another string.")
+@Block(id = "EndsWith", category = "string", scheduler = "NOW", description = "Check if the string ends with another string")
 public class EndsWith extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(EndsWith .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(EndsWith.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String IN = "in";
-    /** In. */
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
     @Input("advance:string")
-    protected static final String SUFFIX = "suffix";
-    /** Out. */
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
     @Output("advance:boolean")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        String value = getString(IN);
-        String start = getString(SUFFIX);
+        final String value = getString(IN1);
+        final String start = getString(IN2);
+
         dispatch(OUT, resolver().create(value.endsWith(start)));
     }
-    
 }

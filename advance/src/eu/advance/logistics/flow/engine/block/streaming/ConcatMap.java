@@ -20,38 +20,54 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Concatenate two maps.
- * Signature: ConcatMap(map<t, u>, map<t, u>) -> map<t, u>
- * @author szmarcell
+ * Concatenate two maps. Signature: ConcatMap(map<t, u>, map<t, u>) -> map<t, u>
+ *
+ * @author TTS
  */
-@Block(id = "___ConcatMap", category = "streaming", scheduler = "IO", description = "Concatenate two maps.")
+@Block(id = "ConcatMap", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Concatenate two maps", 
+	parameters = { "K", "V" }
+)
 public class ConcatMap extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ConcatMap .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(ConcatMap.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
+    protected static final String IN1 = "in1";
+    /**
+     * In.
+     */
+    @Input("advance:map<?K, ?V>")
+    protected static final String IN2 = "in2";
+    /**
+     * Out.
+     */
+    @Output("advance:map<?K, ?V>")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        final Map<XElement, XElement> map1 = resolver().getMap(get(IN1));
+        final Map<XElement, XElement> map2 = resolver().getMap(get(IN2));
+
+        map1.putAll(map2);
+
+        dispatch(OUT, resolver().create(map1));
     }
-    
 }

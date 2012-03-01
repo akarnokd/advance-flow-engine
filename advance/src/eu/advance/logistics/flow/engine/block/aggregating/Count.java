@@ -34,7 +34,12 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "Count", category = "aggregation", scheduler = "IO", description = "Counts the elements in the given collection.")
+@Block(id = "Count", 
+	category = "aggregation", 
+	scheduler = "IO", 
+	description = "Counts the elements in the given collection.", 
+	parameters = { "T" } 
+)
 public class Count extends AdvanceBlock {
 
     /**

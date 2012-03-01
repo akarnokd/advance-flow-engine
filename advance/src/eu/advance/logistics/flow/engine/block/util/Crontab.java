@@ -20,38 +20,77 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Logger;
+import org.jcrontab.data.CalendarBuilder;
+import org.jcrontab.data.CrontabEntryBean;
+import org.jcrontab.data.CrontabEntryException;
+import org.jcrontab.data.CrontabParser;
 
 /**
- * A crontab block which signals the identifier of a task to be executed, based on the crontab-definition.
- * Signature: Crontab(crontab-definition) -> string
- * @author szmarcell
+ * A crontab block which signals the identifier of a task to be executed, based
+ * on the crontab-definition. Signature: Crontab(string) -> string
+ *
+ * @author TTS
  */
-@Block(id = "___Crontab", category = "string", scheduler = "IO", description = "A crontab block which signals the identifier of a task to be executed, based on the crontab-definition.")
+@Block(id = "Crontab", category = "string", scheduler = "IO", description = "A crontab block which signals the identifier of a task to be executed, based on the crontab-definition.")
 public class Crontab extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Crontab .class.getName());
-    /** In. */
-    @Input("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(Crontab.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:string")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /**
+     * Out.
+     */
+    @Output("advance:string")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        try {
+            final CrontabParser parser = new CrontabParser();
+            final CrontabEntryBean bean = parser.marshall(resolver().getString(get(IN)));
+            final CalendarBuilder builder = new CalendarBuilder();
+            final Date zeroDate = new Date();
+
+            final Timer timer = new Timer(true);
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    // verify the contab
+                    final Date now = new Date();
+                    final long unixNow = now.getTime();
+                    final Date date = builder.buildCalendar(bean, zeroDate);
+                    final long unixDate = date.getTime();
+
+                    final long delta = unixNow - unixDate;
+                    // if that CrontabEntryBean is to be executed in this minute 
+                    if ((delta > 0) && (delta < 1000)) {
+                        //dispatch the taks
+                        dispatch(OUT, resolver().create(bean.getMethodName()));
+                    }
+
+                    // blocca il timer ??
+                    timer.cancel();
+                }
+            }, 60 * 1000); //ogni minuto
+
+
+        } catch (CrontabEntryException ex) {
+            log(ex);
+        }
     }
-    
 }

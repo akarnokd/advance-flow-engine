@@ -34,7 +34,12 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "GetValue", category = "projection", scheduler = "IO", description = "Get a value by the given key from the map or indicate if no such element exists")
+@Block(id = "GetValue", 
+	category = "projection", 
+	scheduler = "IO", 
+	description = "Get a value by the given key from the map or indicate if no such element exists", 
+	parameters = { "K", "V" } 
+)
 public class GetValue extends AdvanceBlock {
 
     /**
@@ -44,17 +49,17 @@ public class GetValue extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map")
-    protected static final String IN1 = "in1";
+    @Input("advance:map<?K, ?V>")
+    protected static final String MAP = "map";
     /**
      * In.
      */
-    @Input("advance:object")
-    protected static final String IN2 = "in2";
+    @Input("?K")
+    protected static final String KEY = "key";
     /**
      * Out.
      */
-    @Output("advance:object")
+    @Output("?V")
     protected static final String OUT_VALUE = "out_value";
     /**
      * Out.
@@ -64,8 +69,8 @@ public class GetValue extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final Map<XElement, XElement> map = resolver().getMap(get(IN1));
-        final XElement obj = map.get(get(IN2));
+        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+        final XElement obj = map.get(get(KEY));
 
         dispatch(OUT_VALUE, resolver().create(obj));
         dispatch(OUT_STATUS, resolver().create((obj != null)));

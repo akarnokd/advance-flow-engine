@@ -20,31 +20,43 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import java.util.logging.Logger;
 
 /**
- * Checks if the collection is empty.
- * Signature: IsEmptyCollection(collection<t>) -> boolean
- * @author szmarcell
+ * Checks if the collection is empty. Signature:
+ * IsEmptyCollection(collection<t>) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "IsEmptyCollection", category = "streaming", scheduler = "IO", parameters = { "T" }, description = "Checks if the collection is empty.")
+@Block(id = "IsEmptyCollection", 
+	category = "streaming", 
+	scheduler = "IO", 
+	description = "Checks if the collection is empty", 
+	parameters = { "T" } 
+)
 public class IsEmptyCollection extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(IsEmptyCollection .class.getName());
-    /** In. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(IsEmptyCollection.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:collection<?T>")
     protected static final String IN = "in";
-    /** Out. */
+    /**
+     * Out.
+     */
     @Output("advance:boolean")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
         dispatch(OUT, resolver().create(resolver().getList(get(IN)).isEmpty()));
     }
-    
 }

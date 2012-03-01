@@ -36,7 +36,12 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "EmptyCollection", category = "projection", scheduler = "IO", description = "Returns an empty collection")
+@Block(id = "EmptyCollection", 
+	category = "projection", 
+	scheduler = "IO", 
+	description = "Returns an empty collection", 
+	parameters = { "T" }
+)
 public class EmptyCollection extends AdvanceBlock {
 
     /**
@@ -51,7 +56,7 @@ public class EmptyCollection extends AdvanceBlock {
     /**
      * Out.
      */
-    @Output("advance:collection")
+    @Output("advance:collection<?T>")
     protected static final String OUT = "out";
 
     @Override

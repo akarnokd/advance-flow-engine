@@ -20,40 +20,56 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Returns a new collection with the given value appended to its end.
- * Signature: AppendCollection(collection<t>, t) -> collection<t>
- * @author szmarcell
+ * Returns a new collection with the given value appended to its end. Signature:
+ * AppendCollection(collection<t>, t) -> collection<t>
+ *
+ * @author TTS
  */
-@Block(id = "AppendCollection", category = "streaming", scheduler = "IO", parameters = { "T" }, description = "Returns a new collection with the given value appended to its end")
+@Block(
+		id = "AppendCollection",
+		category = "streaming", 
+		scheduler = "IO", 
+		description = "Returns a new collection with the given value appended to its end", 
+		parameters = { "T" }
+)
 public class AppendCollection extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(AppendCollection .class.getName());
-    /** In collection. */
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(AppendCollection.class.getName());
+    /**
+     * In.
+     */
     @Input("advance:collection<?T>")
     protected static final String COLLECTION = "collection";
-    /** In element. */
+    /**
+     * In.
+     */
     @Input("?T")
-    protected static final String ELEMENT = "element";
-    /** Out. */
+    protected static final String VALUE = "value";
+    /**
+     * Out.
+     */
     @Output("advance:collection<?T>")
     protected static final String OUT = "out";
+
     @Override
     protected void invoke() {
-        XElement element = get(ELEMENT);
-        XElement collection = get(COLLECTION);
-        List<XElement> list = resolver().getList(collection);
+        final XElement element = get(COLLECTION);
+        final List<XElement> list = resolver().getList(get(VALUE));
+        
         list.add(element);
+        
         dispatch(OUT, resolver().create(list));
     }
-    
 }

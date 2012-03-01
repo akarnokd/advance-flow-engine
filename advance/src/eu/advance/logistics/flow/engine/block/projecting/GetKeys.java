@@ -37,7 +37,12 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "GetKeys", category = "projection", scheduler = "IO", description = "Get the collection of keys where the given value is present")
+@Block(id = "GetKeys", 
+	category = "projection", 
+	scheduler = "IO", 
+	description = "Get the collection of keys where the given value is present", 
+	parameters = { "K", "V" } 
+)
 public class GetKeys extends AdvanceBlock {
 
     /**
@@ -47,26 +52,26 @@ public class GetKeys extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:map")
-    protected static final String IN1 = "in1";
+    @Input("advance:map<?K, ?V>")
+    protected static final String MAP = "map";
     /**
      * In.
      */
-    @Input("advance:object")
-    protected static final String IN2 = "in2";
+    @Input("?V")
+    protected static final String VALUE = "value";
     /**
      * Out.
      */
-    @Output("advance:collection")
+    @Output("advance:collection<?K>")
     protected static final String OUT = "out";
 
     @Override
     protected void invoke() {
         final List<XElement> result = new ArrayList<XElement>();
 
-        final Map<XElement, XElement> map = resolver().getMap(get(IN1));
+        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
         final Set<XElement> keySet = map.keySet();
-        final XElement objElem = get(IN2);
+        final XElement objElem = get(VALUE);
         for (XElement key : keySet) {
             final XElement value = map.get(key);
 
