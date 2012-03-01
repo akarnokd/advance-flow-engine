@@ -24,6 +24,7 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -72,15 +73,17 @@ public class Min extends AdvanceBlock {
         int count = 0;
         while (it.hasNext()) {
             final XElement xelem = it.next();
+            
+            String n = AdvanceData.realName(xelem).first;
 
-            if (xelem.name.equalsIgnoreCase("integer")) {
-                final int curr = settings.resolver.getInt(xelem);
+            if (n.equalsIgnoreCase("integer")) {
+                final int curr = resolver().getInt(xelem);
                 if (curr <= min) {
                     min = curr;
                     lastPos = count;
                 }
-            } else if (xelem.name.equalsIgnoreCase("real")) {
-                final double curr = settings.resolver.getDouble(xelem);
+            } else if (n.equalsIgnoreCase("real")) {
+                final double curr = resolver().getDouble(xelem);
                 if (curr >= min) {
                     min = curr;
                     lastPos = count;

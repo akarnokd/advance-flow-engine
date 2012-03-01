@@ -20,13 +20,15 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.logging.Logger;
+
+import com.google.common.collect.Iterables;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
-import java.util.logging.Logger;
 
 /**
  * Counts the elements in the given collection. Signature: Count(collection<T>)
@@ -59,15 +61,8 @@ public class Count extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        int count = 0;
-        
         final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        while (it.hasNext()) {
-            count++;
-            it.next();
-        }
-        
+        int count = Iterables.size(resolver().getItems(xcollection));
         dispatch(OUT, resolver().create(count));
     }
 }

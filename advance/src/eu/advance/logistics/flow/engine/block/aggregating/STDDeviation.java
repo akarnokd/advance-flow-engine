@@ -67,9 +67,9 @@ public class STDDeviation extends AdvanceBlock {
         for (XElement e : resolver().getItems(get(IN))) {
             Pair<String, String> rn = AdvanceData.realName(e);
             double v = 0.0;
-            if ("integer".equals(rn)) {
+            if ("integer".equals(rn.first)) {
                 v = resolver().getInt(e);
-            } else if ("real".equals(rn)) {
+            } else if ("real".equals(rn.first)) {
                 v = resolver().getDouble(e);
             } else {
                 continue;

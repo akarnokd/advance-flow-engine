@@ -41,12 +41,7 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  *
  * @author TTS
  */
-@Block(id = "JDBCDeleteAll", 
-	category = "db", 
-	scheduler = "IO", 
-	description = "Delete a batch of entries from the given datastore by using the query and parameters. Returns the number of total elements deleted", 
-	parameters = { "K", "V" }
-)
+@Block(id = "JDBCDeleteAll", category = "db", scheduler = "IO", description = "Delete a batch of entries from the given datastore by using the query and parameters. Returns the number of total elements deleted")
 public class JDBCDeleteAll extends AdvanceBlock {
 
     /**
@@ -66,7 +61,7 @@ public class JDBCDeleteAll extends AdvanceBlock {
     /**
      * In.
      */
-    @Input("advance:collection<advance:map<?K, ?V>>")
+    @Input("advance:collection<advance:map<advance:string,advance:object>>")
     protected static final String LIST = "collection";
     /**
      * The total number of updates.

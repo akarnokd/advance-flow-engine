@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceGenerateKey;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
+import eu.advance.logistics.flow.engine.api.ds.AdvancePortSpecification;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceSchemaRegistryEntry;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
@@ -308,4 +310,38 @@ public interface AdvanceEngineControl {
 	 */
 	@Nullable 
 	AdvanceCompilationResult queryCompilationResult(@NonNull String realm) throws IOException, AdvanceControlException;
+	/**
+	 * Retrieves the list of available global input and output ports of the given realm's flow description.
+	 * @param realm the target realm
+	 * @return the list of ports
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user is not allowed to read a flow
+	 */
+	List<AdvancePortSpecification> queryPorts(@NonNull String realm) throws IOException, AdvanceControlException;
+	/**
+	 * Sends a value to the specified realm's input port.
+	 * @param realm the target realm
+	 * @param portId the port identifier of an input port returned by the queryPorts() method.
+	 * @param value the value to send
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right to access the realm/ports
+	 */
+	void sendPort(@NonNull String realm, String portId, XElement value) throws IOException, AdvanceControlException;
+	/**
+	 * Sends a sequence of values to the same or multiple ports in a batch.
+	 * @param realm the target realm
+	 * @param portValues the sequence of port id and value XML pairs
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right to access the realm/ports
+	 */
+	void sendPort(@NonNull String realm, Iterable<Pair<String, XElement>> portValues) throws IOException, AdvanceControlException;
+	/**
+	 * Observe the output of the specified port in the given realm.
+	 * @param realm the target realm
+	 * @param portId the port identifier of an input port returned by the queryPorts() method.
+	 * @return the observable which will send out the values
+	 * @throws IOException if a network error occurs
+	 * @throws AdvanceControlException if the user has no right to access the realm/ports
+	 */
+	Observable<XElement> receivePort(@NonNull String realm, String portId) throws IOException, AdvanceControlException;
 }
