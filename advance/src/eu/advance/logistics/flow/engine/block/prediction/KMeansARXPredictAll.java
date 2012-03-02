@@ -32,6 +32,7 @@ import com.google.common.collect.Maps;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.util.Triplet;
 import eu.advance.logistics.flow.engine.xml.XElement;
@@ -40,7 +41,7 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * The prediction calculator for the K-means ARX model for multiple groups.
  * @author karnokd, 2012.02.27.
  */
-@Block(id = "KMeansARXPredict", 
+@Block(id = "KMeansARXPredictAll", 
 category = "prediction", scheduler = "CPU", 
 description = "Predicts the subsequent values of an ARX model.")
 public class KMeansARXPredictAll extends AdvanceBlock {
@@ -57,7 +58,7 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 	@Input("advance:integer")
 	protected static final String HORIZON = "horizon";
 	/** Map for group to prediction list. */
-	@Input("advance:map<advance:string, advance:collection<advance:real>>")
+	@Output("advance:map<advance:string, advance:collection<advance:real>>")
 	protected static final String PREDICTION = "prediction";
 	@Override
 	protected void invoke() {

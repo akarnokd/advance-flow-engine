@@ -73,7 +73,7 @@ public class JDBCQueryOption extends AdvanceBlock {
     /**
      * Out.
      */
-    @Output("advance.option<advance:map<advance:string,advance:object>>")
+    @Output("advance:option<advance:map<advance:string,advance:object>>")
     protected static final String OUT = "out";
 
     @Override

@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.block.util;
+package eu.advance.logistics.flow.engine.block.projecting;
 
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.reactive.Observer;
@@ -27,6 +27,8 @@ import hu.akarnokd.reactive4java.reactive.Observer;
 import java.util.concurrent.atomic.AtomicReference;
 
 import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
 
@@ -35,16 +37,21 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * @author karnokd, 2012.02.27.
  */
 @Block(id = "Latest", 
-category = "prediction", scheduler = "NOW", 
-description = "Remembers the last values of each input and fires the current values whenever one changes.")
+category = "projection", scheduler = "NOW", 
+description = "Remembers the last values of each input and fires the current values whenever one changes.",
+parameters = { "T", "U" })
 public class Latest extends AdvanceBlock {
 	/** The primary in. */
+	@Input("?T")
 	protected static final String IN1 = "in1";
 	/** The secondary in. */
+	@Input("?U")
 	protected static final String IN2 = "in2";
 	/** The primary out. */
+	@Output("?T")
 	protected static final String OUT1 = "out1";
 	/** The secondar out. */
+	@Output("?U")
 	protected static final String OUT2 = "out2";
 	/** The last value. */
 	protected final AtomicReference<XElement> ref1 = new AtomicReference<XElement>();
