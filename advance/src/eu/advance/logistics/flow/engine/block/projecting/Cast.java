@@ -29,29 +29,29 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Cast the value into a different type.
- * Signature: Cast(t, schema<u>) -> u
+ * Signature: Cast(t, type&lt;u>) -> u
  * @author szmarcell
  */
-@Block(id = "___Cast", category = "projection", scheduler = "IO", description = "Cast the value into a different type.")
+@Block(id = "Cast", category = "projection", 
+scheduler = "NOW", description = "Cast the value into a different type.",
+parameters = { "T", "U" }
+)
 public class Cast extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Cast .class.getName());
     /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
+    @Input("?T")
+    protected static final String VALUE = "value";
     /** Out. */
-    @Output("advance:real")
+    @Input("advance:type<?U>")
+    protected static final String TYPE = "type";
+    /** The output. */
+    @Output("?U")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+    	// FIXME verify input structure?!
+    	dispatch(OUT, get(VALUE));
     }
     
 }

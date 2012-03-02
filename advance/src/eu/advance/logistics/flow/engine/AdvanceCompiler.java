@@ -122,6 +122,7 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 		for (URI u : settings.resolver.baseTypes()) {
 			baseTypes.add(Pair.of(res.resolve(u.toString()), u));
 		}
+		handlePlugins();
 	}
 	@Override
 	public List<Block<T, X, C>> compile(String realm, AdvanceCompositeBlock flow) {

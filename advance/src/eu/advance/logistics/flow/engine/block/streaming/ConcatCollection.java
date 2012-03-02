@@ -34,7 +34,9 @@ import java.util.logging.Logger;
  *
  * @author TTS
  */
-@Block(id = "ConcatCollection", category = "streaming", scheduler = "IO", description = "Concatenate two collections")
+@Block(id = "ConcatCollection", category = "streaming", scheduler = "IO", 
+description = "Concatenate two collections",
+parameters = { "T" })
 public class ConcatCollection extends AdvanceBlock {
 
     /**

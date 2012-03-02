@@ -35,6 +35,7 @@ import com.google.common.collect.Maps;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
 
@@ -56,7 +57,7 @@ public class KMeansARXPredict extends AdvanceBlock {
 	@Input("advance:integer")
 	protected static final String HORIZON = "horizon";
 	/** The collection of predicted values for the next timestamps. */
-	@Input("advance:collection<advance:real>")
+	@Output("advance:collection<advance:real>")
 	protected static final String PREDICTION = "prediction";
 	@Override
 	protected void invoke() {

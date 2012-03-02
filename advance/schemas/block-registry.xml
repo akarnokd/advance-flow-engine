@@ -66,9 +66,9 @@
         </input>
         <input id="horizon" required="true" varargs="false" type="advance:integer"/>
         <input id="model" required="true" varargs="false" type="advance:arxmodel"/>
-        <input id="prediction" required="true" varargs="false" type="advance:collection">
+        <output id="prediction" type="advance:collection">
             <type-argument type="advance:real"/>
-        </input>
+        </output>
     </block-description>
 
     <!-- Filter the values of the map via the XPath expression and return a map with only those elements where the filter matched the value -->
@@ -843,7 +843,7 @@
         <input id="datasource" required="true" varargs="false" type="advance:string"/>
         <input id="query" required="true" varargs="false" type="advance:string"/>
         <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
-        <output id="out" type="advance.option">
+        <output id="out" type="advance:option">
             <type-argument type="advance:map">
                 <type-argument type="advance:string"/><type-argument type="advance:object"/>
             </type-argument>
@@ -997,6 +997,7 @@
 
     <!-- Concatenate two collections -->
     <block-description class="eu.advance.logistics.flow.engine.block.streaming.ConcatCollection" id="ConcatCollection" scheduler="IO" category="streaming">
+        <type-variable name="T"/>
         <input id="in1" required="true" varargs="false" type="advance:collection">
             <type-argument type-variable="T"/>
         </input>
@@ -1183,7 +1184,13 @@
     </block-description>
 
     <!-- Remembers the last values of each input and fires the current values whenever one changes. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.Latest" id="Latest" scheduler="NOW" category="prediction">
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Latest" id="Latest" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="in1" required="true" varargs="false" type-variable="T"/>
+        <input id="in2" required="true" varargs="false" type-variable="U"/>
+        <output id="out1" type-variable="T"/>
+        <output id="out2" type-variable="U"/>
     </block-description>
 
     <!-- Displays a input box where the user can send strings. -->
@@ -1461,9 +1468,14 @@
     </block-description>
 
     <!-- Cast the value into a different type. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Cast" id="___Cast" scheduler="IO" category="projection">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Cast" id="Cast" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="U"/>
+        </input>
+        <input id="value" required="true" varargs="false" type-variable="T"/>
+        <output id="out" type-variable="U"/>
     </block-description>
 
     <!-- Check if the substring is within the string -->
@@ -1487,7 +1499,7 @@
     </block-description>
 
     <!-- Predicts the subsequent values of an ARX model. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARXPredictAll" id="KMeansARXPredict" scheduler="CPU" category="prediction">
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.KMeansARXPredictAll" id="KMeansARXPredictAll" scheduler="CPU" category="prediction">
         <input id="class" required="true" varargs="false" type="advance:map">
             <type-argument type="advance:string"/><type-argument type="advance:integer"/>
         </input>
@@ -1498,11 +1510,11 @@
         <input id="model" required="true" varargs="false" type="advance:collection">
             <type-argument type="advance:arxmodel"/>
         </input>
-        <input id="prediction" required="true" varargs="false" type="advance:map">
+        <output id="prediction" type="advance:map">
             <type-argument type="advance:string"/><type-argument type="advance:collection">
                 <type-argument type="advance:real"/>
             </type-argument>
-        </input>
+        </output>
     </block-description>
 
     <!-- Concatenate two maps -->
