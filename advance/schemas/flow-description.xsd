@@ -122,9 +122,9 @@
 							<xs:documentation>The constant identifier used by the bindings.</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
-					<xs:attribute name="type" type="xs:anyURI" use="required">
+					<xs:attribute name="type" type="xs:string" use="required">
 						<xs:annotation>
-							<xs:documentation>The schema describing the constant output</xs:documentation>
+							<xs:documentation>The type of the constant in form advance:string or advance:collection&lt;advance:string></xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
 					<xs:attribute name="displayname" type="xs:string" use="optional">

@@ -74,7 +74,9 @@ public class XType implements XComparable<XType> {
 								continue primary;
 							}
 						}
-					}					
+					}
+					// we don't have any recursive type on the other side
+					continue primary;
 				}
 			}
 			inner:

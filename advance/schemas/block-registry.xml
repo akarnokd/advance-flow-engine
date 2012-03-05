@@ -1054,6 +1054,23 @@
         <output id="out2" type="advance:integer"/>
     </block-description>
 
+    <!-- Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertOptionMapToObject" id="ConvertOptionMapToObject" scheduler="NOW" category="projection">
+        <type-variable name="T"/>
+        <input id="attributes" required="true" varargs="false" type="advance:boolean"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="T"/>
+        </input>
+        <input id="value" required="true" varargs="false" type="advance:option">
+            <type-argument type="advance:map">
+                <type-argument type="advance:string"/><type-argument type="advance:object"/>
+            </type-argument>
+        </input>
+        <output id="out" type="advance:option">
+            <type-argument type-variable="T"/>
+        </output>
+    </block-description>
+
     <!-- Compute the sum of the elements within the collection which have the type of Integer or Real. -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.RunningSum" id="Sum" scheduler="NOW" category="aggregation">
         <input id="in" required="true" varargs="false" type="advance:real"/>

@@ -26,6 +26,7 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.reactive.Observer;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
@@ -48,6 +49,7 @@ import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePluginDetail
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
 import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.error.ConstantBlockTypeSyntaxError;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeInputError;
 import eu.advance.logistics.flow.engine.error.DestinationToCompositeOutputError;
@@ -437,12 +439,15 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 				if (cb.constants.containsKey(bb.sourceBlock)) {
 					Map<String, AdvanceType> at = typeMemory.get(bb.sourceBlock);
 					if (at == null) {
-						AdvanceType at2 = new AdvanceType();
 						AdvanceConstantBlock constblock = cb.constants.get(bb.sourceBlock);
-						at2.typeURI = constblock.typeURI;
-						resolve(at2);
-						typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
-						tr.left = at2;
+						try {
+							AdvanceType at2 = constblock.getAdvanecType();
+							resolve(at2);
+							typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
+							tr.left = at2;
+						} catch (URISyntaxException ex) {
+							throw new AssertionError(ex);
+						}
 					} else {
 						tr.left = at.get("");
 					}
@@ -652,8 +657,16 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 				inputPort = cb.inputs.get(bb.sourceParameter);
 			} else
 			if (cb.constants.containsKey(bb.sourceBlock)) {
-				input = cb.constants.get(bb.sourceBlock);
-				inputPort = ""; // default as constants have only a single output
+				AdvanceConstantBlock acb = cb.constants.get(bb.sourceBlock);
+				try {
+					acb.getAdvanecType();
+					input = acb;
+					inputPort = ""; // default as constants have only a single output
+				} catch (URISyntaxException ex) {
+					result.addError(new ConstantBlockTypeSyntaxError(acb.id, acb.typeString));
+					continue;
+				}
+				
 			} else
 			if (cb.blocks.containsKey(bb.sourceBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.sourceBlock);
