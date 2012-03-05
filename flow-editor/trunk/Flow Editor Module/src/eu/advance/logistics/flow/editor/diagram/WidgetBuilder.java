@@ -81,7 +81,11 @@ class WidgetBuilder {
                     return super.keyPressed(widget, event);
                 }
             });
-            widget.getHeader().setToolTipText("Type: " + simpleBlock.description.id);
+            StringBuilder b = new StringBuilder();
+            b.append("<html>");
+            b.append("<b>").append(block.getTooltip()).append("</b>");
+            b.append("<br>Type: ").append(simpleBlock.description.id);
+            widget.getHeader().setToolTipText(b.toString());
         } else if (block instanceof CompositeBlock) {
             final CompositeBlock compositeBlock = (CompositeBlock) block;
             widget.setNodeImage(ImageUtilities.loadImage("eu/advance/logistics/flow/editor/palette/images/block.png"));

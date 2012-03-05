@@ -46,6 +46,8 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
     protected CompositeBlock parent;
     protected String id;
     private Point location;
+    /** The tooltip to display. */
+    protected String tooltip;
 
     public FlowDescription getFlowDiagram() {
         return parent.getFlowDiagram();
@@ -186,5 +188,18 @@ public abstract class AbstractBlock implements Comparable<AbstractBlock> {
             }
         }
         return generateId(keys, base + "#");
+    }
+    /**
+     * Set the tooltip to display.
+     * @param tt the tooltip
+     */
+    public void setTooltip(String tt) {
+        this.tooltip = tt;
+    }
+    /**
+     * @return the tooltip to display
+     */
+    public String getTooltip() {
+        return tooltip;
     }
 }
