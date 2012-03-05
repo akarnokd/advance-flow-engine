@@ -52,6 +52,8 @@ public class AdvanceBlockDescription implements XSerializable {
 	/** Optional reference to the documentation of this block. May point to a Wiki page. */
 	@Nullable
 	public URI documentation;
+	/** A short description of the block. */
+	public String tooltip;
 	/** The keywords associated with this block type. */
 	public final List<String> keywords = Lists.newArrayList();
 	/** The category for this block. */
@@ -91,6 +93,7 @@ public class AdvanceBlockDescription implements XSerializable {
 		this.inputs.putAll(other.inputs);
 		this.outputs.putAll(other.outputs);
 		this.typeVariables.putAll(other.typeVariables);
+		this.tooltip = other.tooltip;
 	}
 	/**
 	 * Load the contents from an XML element with a schema of <code>block-description.xsd</code>.
@@ -108,6 +111,8 @@ public class AdvanceBlockDescription implements XSerializable {
 				throw new RuntimeException(ex);
 			}
 		}
+		tooltip = root.get("tooltip");
+		
 		String kw = root.get("keywords");
 		if (kw != null) {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
@@ -199,6 +204,7 @@ public class AdvanceBlockDescription implements XSerializable {
 		destination.set("id", id);
 		destination.set("displayname", displayName);
 		destination.set("documentation", documentation);
+		destination.set("tooltip", tooltip);
 		if (keywords.size() > 0) {
 			destination.set("keywords", Strings.join(keywords, ","));
 		} else {
@@ -258,6 +264,7 @@ public class AdvanceBlockDescription implements XSerializable {
 		result.displayName = displayName;
 		result.category = category;
 		result.documentation = documentation;
+		result.tooltip = tooltip;
 		result.keywords.addAll(keywords);
 		result.typeVariables.putAll(typeVariables);
 		

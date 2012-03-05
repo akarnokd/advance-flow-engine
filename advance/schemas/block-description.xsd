@@ -51,6 +51,11 @@
 				<xs:documentation>The category for this block.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="tooltip" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>A short textual description of the block.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="input">
 		<xs:annotation>
