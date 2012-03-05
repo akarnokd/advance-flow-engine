@@ -35,7 +35,7 @@ import eu.advance.logistics.flow.editor.model.SimpleBlock;
  *
  * @author TTS
  */
-class SimpleBlockNode extends AbstractNode implements FlowDescriptionListener {
+public class SimpleBlockNode extends AbstractNode implements FlowDescriptionListener {
 
     private SimpleBlock block;
 
@@ -72,5 +72,11 @@ class SimpleBlockNode extends AbstractNode implements FlowDescriptionListener {
     public void destroy() throws IOException {
         super.destroy();
         block = null;
+    }
+    /**
+     * @return the referenced block
+     */
+    public SimpleBlock getBlock() {
+        return block;
     }
 }

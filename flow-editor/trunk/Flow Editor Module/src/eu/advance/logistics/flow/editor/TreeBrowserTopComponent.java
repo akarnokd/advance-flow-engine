@@ -34,6 +34,14 @@ import org.openide.windows.TopComponent;
 
 import eu.advance.logistics.flow.editor.model.FlowDescription;
 import eu.advance.logistics.flow.editor.tree.FlowDescriptionNode;
+import eu.advance.logistics.flow.editor.tree.SimpleBlockNode;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.windows.WindowManager;
 
@@ -54,7 +62,11 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
 
     private ExplorerManager explorerManager = new ExplorerManager();
     private BeanTreeView treeView = new BeanTreeView();
-
+    /** The block tip displayed on node selection. */
+    protected JLabel blockTip;
+    /** The search/filter box. */
+    protected JTextField search;
+    /** Initializes the component. */
     public TreeBrowserTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(TreeBrowserTopComponent.class, "CTL_TreeBrowserTopComponent"));
@@ -65,7 +77,41 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
         //explorerManager.setRootContext(new AbstractNode(new PaletteRootChildren()));
         //treeView.setRootVisible(false);
         add(treeView, BorderLayout.CENTER);
+        blockTip = new JLabel();
+        
+        blockTip.setVisible(false);
+        
+        add(blockTip, BorderLayout.SOUTH);
+        search = new JTextField();
+        
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
+        searchPanel.add(search, BorderLayout.CENTER);
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        
+        add(searchPanel, BorderLayout.NORTH);
 
+        explorerManager.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
+                    Node[] nodes = (Node[])evt.getNewValue();
+                    if (nodes.length == 1) {
+                        Node n = nodes[0];
+                        if (n instanceof SimpleBlockNode) {
+                            SimpleBlockNode bn = (SimpleBlockNode)n;
+                            blockTip.setText("<html><p>" + XElement.sanitize(bn.getBlock().getTooltip()) + "</p></html>");
+                            blockTip.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+                            blockTip.setVisible(true);
+                            return;
+                        }
+                    } 
+                    blockTip.setText(null);
+                    blockTip.setBorder(null);
+                    blockTip.setVisible(false);
+                }
+            }
+        });
     }
 
     /** This method is called from within the constructor to
