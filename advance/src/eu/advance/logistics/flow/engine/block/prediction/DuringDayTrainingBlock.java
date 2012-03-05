@@ -159,7 +159,7 @@ public class DuringDayTrainingBlock extends AdvanceBlock {
                 conn = p.get();
                 parse(attributesSet, conn.file());
             } catch (Exception ex) {
-                Logger.getGlobal().log(Level.SEVERE, null, ex);
+                Logger.getLogger(DuringDayTrainingBlock.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 if (p != null && conn != null) {
                     p.put(conn);
