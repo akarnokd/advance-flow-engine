@@ -43,7 +43,7 @@ public class XCapability implements XComparable<XCapability> {
 	public XType complexType;
 	@Override
 	public TypeRelation compareTo(XCapability o) {
-		return compareTo(o, new HashSet<XType>());
+		return compareTo(o, new XTypeRecursionTracker());
 	}
 	/**
 	 * Compare two capabilities in respect to the given type memory to
@@ -52,7 +52,7 @@ public class XCapability implements XComparable<XCapability> {
 	 * @param memory the type memory
 	 * @return the relation
 	 */
-	public TypeRelation compareTo(XCapability o, Set<XType> memory) {
+	public TypeRelation compareTo(XCapability o, XTypeRecursionTracker memory) {
 		int equal = 0;
 		int ext = 0;
 		int sup = 0;

@@ -38,7 +38,7 @@ public class XType implements XComparable<XType> {
 	public final List<XCapability> capabilities = new ArrayList<XCapability>();
 	@Override
 	public TypeRelation compareTo(XType o) {
-		return compareTo(o, new HashSet<XType>());
+		return compareTo(o, new XTypeRecursionTracker());
 	}
 	/**
 	 * @return Create a copy of this XType object.
@@ -54,35 +54,50 @@ public class XType implements XComparable<XType> {
 	 * @param memory the memory to keep track the traversed types
 	 * @return the relation
 	 */
-	public TypeRelation compareTo(XType o, Set<XType> memory) {
-		memory.add(this);
+	public TypeRelation compareTo(XType o, XTypeRecursionTracker memory) {
+		memory.enterFirst(this);
+		memory.enterSecond(o);
 		int equal = 0;
 		int ext = 0;
 		int sup = 0;
+		primary:
 		for (XCapability c0 : capabilities) {
-			// FIXME recursive type check terrible
-			if (c0.complexType == null || !memory.contains(c0.complexType)) {
-				inner:
-				for (XCapability c1 : o.capabilities) {
-					// the same member?
-					if (c0.name.compareTo(c1.name) != TypeRelation.NONE) {
-						switch (c0.compareTo(c1, memory)) {
-						case EQUAL:
-							equal++;
-							break inner;
-						case EXTENDS:
-							ext++;
-							break inner;
-						case SUPER:
-							sup++;
-							break inner;
-						default:
+			if (c0.complexType != null) {
+				int fidx = memory.indexFirst(c0.complexType);
+				// is this a recursive call?
+				if (fidx >= 0) {
+					for (XCapability c1 : o.capabilities) {
+						if (c1.complexType != null) {
+							int sidx = memory.indexSecond(c1.complexType);
+							if (sidx == fidx) {
+								equal++;
+								continue primary;
+							}
 						}
+					}					
+				}
+			}
+			inner:
+			for (XCapability c1 : o.capabilities) {
+				// the same member?
+				if (c0.name.compareTo(c1.name) != TypeRelation.NONE) {
+					switch (c0.compareTo(c1, memory)) {
+					case EQUAL:
+						equal++;
+						break inner;
+					case EXTENDS:
+						ext++;
+						break inner;
+					case SUPER:
+						sup++;
+						break inner;
+					default:
 					}
 				}
 			}
 		}
-		memory.remove(this);
+		memory.leaveFirst();
+		memory.leaveSecond();
 		// common
 		int all = equal + ext + sup;
 		if (all < capabilities.size()
