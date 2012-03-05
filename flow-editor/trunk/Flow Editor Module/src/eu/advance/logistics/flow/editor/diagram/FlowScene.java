@@ -284,7 +284,9 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
         }
         BlockWidget widget = new BlockWidget(this, scheme);
         mainLayer.addChild(widget);
-
+        
+        widget.setToolTipText(node.getTooltip());
+        
         widget.getHeader().getActions().addAction(createObjectHoverAction());
         widget.getActions().addAction(createSelectAction());
         widget.getActions().addAction(moveAction);
@@ -340,6 +342,7 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                     }
                 }, EnumSet.<InplaceEditorProvider.ExpansionDirection>of(InplaceEditorProvider.ExpansionDirection.RIGHT)));
 
+        
         return widget;
     }
 

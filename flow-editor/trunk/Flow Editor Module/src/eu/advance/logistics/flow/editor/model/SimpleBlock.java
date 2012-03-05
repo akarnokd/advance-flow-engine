@@ -38,6 +38,8 @@ public class SimpleBlock extends AbstractBlock {
     public SimpleBlock(String id, AdvanceBlockDescription desc) {
         this.id = id;
         this.description = desc;
+        
+        setTooltip(desc.tooltip);
 
         for (AdvanceBlockParameterDescription param : desc.inputs.values()) {
             inputParameters.put(param.id, new BlockParameter(this, param, BlockParameter.Type.INPUT));
