@@ -36,13 +36,16 @@ import org.openide.util.lookup.Lookups;
 
 import eu.advance.logistics.flow.editor.model.BlockCategory;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author TTS
  */
 public class BlockCategoryNode extends AbstractNode implements PropertyChangeListener {
-
+    /**
+     * Constructs a node.
+     */
     public BlockCategoryNode(BlockCategory category) {
         super(new BlockCategoryChildren(category), Lookups.singleton(category));
         updateDisplayName();
@@ -52,8 +55,11 @@ public class BlockCategoryNode extends AbstractNode implements PropertyChangeLis
 
     private void updateDisplayName() {
         BlockCategory category = getLookup().lookup(BlockCategory.class);
+        
+        BlockCategoryChildren bcc = (BlockCategoryChildren) getChildren();
+        
         setDisplayName(String.format("%s (%d)", category.getName(),
-                category.getTypes().size()));
+                bcc.pattern == null ? category.getTypes().size() : getChildren().getNodesCount()));
     }
 
     @Override
@@ -82,7 +88,9 @@ public class BlockCategoryNode extends AbstractNode implements PropertyChangeLis
     private static class BlockCategoryChildren extends Children.Keys<AdvanceBlockDescription> {
 
         private BlockCategory category;
-
+        /** The pattern for filtering. */
+        protected Pattern pattern;
+        
         private BlockCategoryChildren(BlockCategory category) {
             this.category = category;
         }
@@ -100,8 +108,18 @@ public class BlockCategoryNode extends AbstractNode implements PropertyChangeLis
         }
 
         void update() {
-            List<AdvanceBlockDescription> list = new ArrayList<AdvanceBlockDescription>(
-                    category.getTypes());
+            List<AdvanceBlockDescription> list = new ArrayList<AdvanceBlockDescription>();
+            for (AdvanceBlockDescription bd : category.getTypes()) {
+                if (pattern == null) {
+                    list.add(bd);
+                } else
+                if (pattern.matcher(bd.id.toUpperCase()).matches()) {
+                    list.add(bd);
+                } else
+                if (pattern.matcher(bd.tooltip.toUpperCase()).matches()) {
+                    list.add(bd);
+                }
+            }
             Collections.sort(list, new Comparator<AdvanceBlockDescription>() {
 
                 @Override
@@ -124,5 +142,10 @@ public class BlockCategoryNode extends AbstractNode implements PropertyChangeLis
         protected Node[] createNodes(AdvanceBlockDescription key) {
             return new Node[]{new BlockNode(key)};
         }
+    }
+    public void setPattern(Pattern pattern) {
+        ((BlockCategoryChildren)getChildren()).pattern = pattern;
+        ((BlockCategoryChildren)getChildren()).update();
+        updateDisplayName();
     }
 }
