@@ -62,13 +62,20 @@ import org.openide.windows.WindowManager;
  * @author TTS
  */
 public class BlockNode extends AbstractNode {
-
+    /** The short block description text.*/
+    protected String blockDesc;
     public BlockNode(AdvanceBlockDescription block) {
         super(Children.LEAF, Lookups.fixed(new Object[]{new DropAction(block)}));
         setIconBaseWithExtension("eu/advance/logistics/flow/editor/palette/images/block.png");
         setDisplayName(block.displayName);
+        blockDesc = block.tooltip;
     }
-
+    /**
+     * @return the short block description
+     */
+    public String blockDesc() {
+        return blockDesc;
+    }
     @Override
     public Transferable drag() throws IOException {
         return NodeTransfer.transferable(this, NodeTransfer.DND_COPY_OR_MOVE);

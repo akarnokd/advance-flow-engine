@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import eu.advance.logistics.flow.editor.palette.BlockNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +40,15 @@ import org.openide.windows.TopComponent;
 
 import eu.advance.logistics.flow.editor.palette.PaletteRootChildren;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import org.openide.nodes.Node;
 
 /**
  * Operations.
@@ -58,7 +68,10 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
 
     private ExplorerManager explorerManager = new ExplorerManager();
     private BeanTreeView treeView = new BeanTreeView();
-
+    /** The block tip displayed on node selection. */
+    protected JLabel blockTip;
+    /** The search/filter box. */
+    protected JTextField search;
     public OperationsPaletteTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(OperationsPaletteTopComponent.class, "CTL_OperationsPaletteTopComponent"));
@@ -71,6 +84,44 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
         explorerManager.setRootContext(new AbstractNode(new PaletteRootChildren()));
         treeView.setRootVisible(false);
         add(treeView);
+        
+        blockTip = new JLabel();
+        
+        blockTip.setVisible(false);
+        
+        add(blockTip, BorderLayout.SOUTH);
+        search = new JTextField();
+        
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
+        searchPanel.add(search, BorderLayout.CENTER);
+        
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        
+        add(searchPanel, BorderLayout.NORTH);
+
+        explorerManager.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
+                    Node[] nodes = (Node[])evt.getNewValue();
+                    if (nodes.length == 1) {
+                        Node n = nodes[0];
+                        if (n instanceof BlockNode) {
+                            BlockNode bn = (BlockNode)n;
+                            blockTip.setText("<html><p>" + XElement.sanitize(bn.blockDesc()) + "</p></html>");
+                            blockTip.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+                            blockTip.setVisible(true);
+                            return;
+                        }
+                    } 
+                    blockTip.setText(null);
+                    blockTip.setBorder(null);
+                    blockTip.setVisible(false);
+                }
+            }
+        });
+
     }
 
     @Override
