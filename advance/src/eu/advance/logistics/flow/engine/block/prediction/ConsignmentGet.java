@@ -126,9 +126,9 @@ public class ConsignmentGet extends AdvanceBlock {
                 Date dateAfter = getTimestamp(DATE_AFTER);
                 Date dateBefore = getTimestamp(DATE_BEFORE);
                 if (dateAfter != null && dateBefore != null) {
-                    PreparedStatement ps1 = (PreparedStatement) conn.getConnection().prepareStatement(QUERY_1);
-                    PreparedStatement ps2 = (PreparedStatement) conn.getConnection().prepareStatement(QUERY_2);
-                    PreparedStatement ps3 = (PreparedStatement) conn.getConnection().prepareStatement(QUERY_3);
+                    PreparedStatement ps1 = conn.getConnection().prepareStatement(QUERY_1);
+                    PreparedStatement ps2 = conn.getConnection().prepareStatement(QUERY_2);
+                    PreparedStatement ps3 = conn.getConnection().prepareStatement(QUERY_3);
                     ps1.setDate(1, new java.sql.Date(dateAfter.getTime()));
                     ps1.setDate(2, new java.sql.Date(dateBefore.getTime()));
                     ResultSet rs = ps1.executeQuery();
