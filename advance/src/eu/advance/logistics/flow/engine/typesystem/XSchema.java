@@ -991,5 +991,11 @@ public final class XSchema {
 //		System.out.println(XSchema.parse(XElement.parseXML("schemas/collection.xsd"), resolver));
 //		System.out.println(XSchema.parse(XElement.parseXML("schemas/pair.xsd"), resolver));
 		System.out.println(XSchema.parse(XElement.parseXML("schemas/map.xsd"), resolver));
+		
+		XElement type = XElement.parseXML("schemas/type.xsd");
+		
+		XType xt = XSchema.parse(type, resolver);
+		
+		System.out.println(XSchema.compare(xt, xt));
 	}
 }
