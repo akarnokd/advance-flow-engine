@@ -152,6 +152,7 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
                 if (!block.keywords().isEmpty()) {
                 	pw.print(" keywords=\"" + block.keywords() + "\"");
                 }
+                pw.print(" tooltip=\"" + sanitize(block.description()) + "\""); 
                 pw.println(">");
                 HashSet<String> parameters = new HashSet<String>();
                 for (String parameter : block.parameters()) {
@@ -248,6 +249,40 @@ public class BlockDescriptionGenerator extends AbstractProcessor {
 
         return true;
     }
+	/**
+	 * Converts all sensitive characters to its HTML entity equivalent.
+	 * @param s the string to convert, can be null
+	 * @return the converted string, or an empty string
+	 */
+	public static String sanitize(String s) {
+		if (s != null) {
+			StringBuilder b = new StringBuilder(s.length());
+			for (int i = 0, count = s.length(); i < count; i++) {
+				char c = s.charAt(i);
+				switch (c) {
+				case '<':
+					b.append("&lt;");
+					break;
+				case '>':
+					b.append("&gt;");
+					break;
+				case '\'':
+					b.append("&#39;");
+					break;
+				case '"':
+					b.append("&quot;");
+					break;
+				case '&':
+					b.append("&amp;");
+					break;
+				default:
+					b.append(c);
+				}
+			}
+			return b.toString();
+		}
+		return "";
+	}
     /**
      * Returns the type representation.
      * @param type the type
