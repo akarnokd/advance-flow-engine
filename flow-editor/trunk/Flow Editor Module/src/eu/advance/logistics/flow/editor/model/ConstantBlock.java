@@ -66,7 +66,10 @@ public class ConstantBlock extends AbstractBlock {
 
     public String getValueAsString() {
         if (constant != null) {
-            return constant.value.content;
+            if (constant.value.content != null) {
+                return constant.value.content;
+            }
+            return constant.typeString;
         }
         return org.openide.util.NbBundle.getBundle(ConstantBlock.class).getString("NO_VALUE");
     }

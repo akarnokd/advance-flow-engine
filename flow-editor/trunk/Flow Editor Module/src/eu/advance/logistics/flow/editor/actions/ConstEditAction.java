@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.actions;
 
+import eu.advance.logistics.flow.editor.BlockRegistry;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -29,8 +30,12 @@ import org.openide.util.NbBundle;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockChanged;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.net.URISyntaxException;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -50,16 +55,35 @@ public class ConstEditAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        AdvanceConstantBlock newConstant;
         AdvanceConstantBlock currentConstant = target.getConstant();
-        String content = EditSupport.edit(currentConstant.value.content, currentConstant.typeURI);
-        if (content == null) {
-            return;
+        try {
+            AdvanceType at = currentConstant.getAdvanecType();
+            if (AdvanceData.TYPE.equals(at.typeURI)) {
+                XElement value = EditType.edit(currentConstant.value);
+                if (value == null) {
+                    return;
+                }
+                newConstant = clone(target.getConstant());
+                newConstant.typeString = EditType.createTypeConstructor(value);
+                newConstant.value = value;
+            } else {
+                String content = EditSupport.edit(currentConstant.value.content, at.typeURI);
+                if (content == null) {
+                    return;
+                }
+                newConstant = clone(target.getConstant());
+                newConstant.value.content = content;
+            }
+            undoRedoSupport.start();
+            target.setConstant(newConstant);
+            undoRedoSupport.commit(new ConstantBlockChanged(target, currentConstant, newConstant));
+
+            target.getFlowDiagram().setCompilationResult(BlockRegistry.getInstance()
+            .verify(target.getFlowDiagram().build()));
+        } catch (URISyntaxException ex) {
+            Exceptions.printStackTrace(ex);
         }
-        AdvanceConstantBlock newConstant = clone(target.getConstant());
-        newConstant.value.content = content;
-        undoRedoSupport.start();
-        target.setConstant(newConstant);
-        undoRedoSupport.commit(new ConstantBlockChanged(target, currentConstant, newConstant));
     }
 
     private static AdvanceConstantBlock clone(AdvanceConstantBlock source) {

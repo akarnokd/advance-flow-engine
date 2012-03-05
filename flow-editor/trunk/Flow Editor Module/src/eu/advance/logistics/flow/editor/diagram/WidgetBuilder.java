@@ -47,6 +47,7 @@ import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
 import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *
@@ -166,7 +167,7 @@ class WidgetBuilder {
         AdvanceBlockParameterDescription d = param.getDescription();
         StringBuilder sb = new StringBuilder();
         sb.append("<html>");
-        sb.append(param.getDescription().type.toString()).append("<br>");
+        sb.append(XElement.sanitize(param.getDescription().type.toString())).append("<br>");
         if (d.displayName != null) {
             sb.append("<b>").append(d.displayName).append("</b><br>");
         }
