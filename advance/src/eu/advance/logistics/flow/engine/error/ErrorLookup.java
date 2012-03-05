@@ -65,6 +65,7 @@ public final class ErrorLookup {
 		MissingVarargsError.register(ERROR_LOOKUP);
 		NonVarargsError.register(ERROR_LOOKUP);
 		UnsetVarargsError.register(ERROR_LOOKUP);
+		ConstantBlockTypeSyntaxError.register(ERROR_LOOKUP);
 	}
 	/**
 	 * Locate the error via its simple class name.

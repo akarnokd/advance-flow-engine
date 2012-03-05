@@ -260,6 +260,8 @@ public final class AdvanceData implements DataResolver<XElement> {
 	public static final URI PAIR = uri("advance:pair");
 	/** A map. */
 	public static final URI WRAPPER = uri("advance:wrapper");
+	/** A type constructor. */
+	public static final URI TYPE = uri("advance:type");
 	// TODO ------------------------------------------------------------------
 	// TODO only for the duration of the demo!
 	/** A type constructor. */

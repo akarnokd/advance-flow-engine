@@ -44,7 +44,7 @@ public class AdvanceConstantBlock implements XSerializable {
 	public String id;
 	/** The content type of this block. */
 	@NonNull
-	public URI typeURI;
+	public String typeString;
 	/** The type. */
 	@NonNull
 	public XType type;
@@ -69,14 +69,7 @@ public class AdvanceConstantBlock implements XSerializable {
 	public void load(XElement source) {
 		id = source.get("id");
 		displayName = source.get("displayname");
-		String t = source.get("type");
-		if (t != null) {
-			try {
-				typeURI = new URI(t);
-			} catch (URISyntaxException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
+		typeString = source.get("type");
 		documentation = source.get("documentation");
 		String kw = source.get("keywords");
 		if (kw != null) {
@@ -88,7 +81,7 @@ public class AdvanceConstantBlock implements XSerializable {
 	@Override
 	public void save(XElement destination) {
 		destination.set("id", id);
-		destination.set("type", typeURI);
+		destination.set("type", typeString);
 		destination.set("documentation", documentation);
 		if (keywords.size() > 0) {
 			destination.set("keywords", Strings.join(keywords, ","));
@@ -98,4 +91,64 @@ public class AdvanceConstantBlock implements XSerializable {
 		destination.add(value.copy());
 		visuals.save(destination);
 	}
+	/**
+	 * Parse the type string into an advance type declaration.
+	 * @return the advance type
+	 * @throws URISyntaxException if any of the string uri's is malformed
+	 */
+	public AdvanceType getAdvanecType() throws URISyntaxException {
+		AdvanceType at = new AdvanceType();
+		
+        List<String> tokens = Lists.newArrayList();
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < typeString.length(); i++) {
+            char c = typeString.charAt(i);
+            if (c == ',' || c == '<' || c == '>') {
+                tokens.add(b.toString().trim());
+                b.setLength(0);
+                tokens.add(String.valueOf(c));
+            } else {
+                b.append(c);
+            }
+        }
+        if (b.length() > 0) {
+            tokens.add(b.toString());
+        }
+        // uri[<uri[<...>][,uri[<...>]]>]
+        
+        at.typeURI = new URI(tokens.get(0));
+        
+        if (tokens.size() > 3 && tokens.get(1).equals("<")) {
+            parseURIList(at, tokens.subList(2, tokens.size()));
+        }
+		
+		
+		return at;
+	}
+	/**
+	 * Parses the token sequence into a list of type arguments.
+	 * @param argsFor the parent
+	 * @param tokens the list of remaining tokens
+	 * @throws URISyntaxException if the type URI is malformed
+	 */
+    static void parseURIList(AdvanceType argsFor, List<String> tokens) throws URISyntaxException {
+        int i = 0;
+        do {
+        	AdvanceType at = new AdvanceType();
+        	argsFor.typeArguments.add(at);
+        	at.typeURI = new URI(tokens.get(i));
+            if (tokens.size() > i + 1) {
+                final String tok = tokens.get(i + 1);
+                if (tok.equals("<")) {
+                    parseURIList(at, tokens.subList(i + 2, tokens.size()));
+                } else
+                if (tok.equals(">")) {
+                    break;
+                } else {
+                    i++;
+                }
+                   
+            } 
+        } while (i < tokens.size());
+    }
 }
