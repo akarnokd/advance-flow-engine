@@ -150,7 +150,7 @@ class FlowDescriptionIO {
                 aConstantBlock.id = cb.getId();
                 //aConstantBlock.displayName = null;
                 //aConstantBlock.documentation = null;
-                aConstantBlock.typeURI = cb.getConstant().typeURI;
+                aConstantBlock.typeString = cb.getConstant().typeString;
                 aConstantBlock.type = cb.getConstant().type;
                 aConstantBlock.value = cb.getConstant().value;
                 saveLocation(aConstantBlock.keywords, aConstantBlock.visuals, block);

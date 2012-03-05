@@ -24,12 +24,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.swing.AbstractAction;
 
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 import eu.advance.logistics.flow.editor.BlockRegistry;
@@ -43,10 +41,14 @@ import eu.advance.logistics.flow.editor.undo.BlockMoved;
 import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockAdded;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
+import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.net.URISyntaxException;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -116,22 +118,38 @@ public class ConstAddAction extends AbstractAction {
         c.id = parent.generateConstantId();
         AdvanceBlockParameterDescription d = target.getDescription();
         if (d.type.kind() == TypeKind.CONCRETE_TYPE) {
-            c.typeURI = d.type.typeURI;
+            c.typeString = d.type.typeURI.toString();
             c.type = d.type.type;
         } else {
-            try {
-                c.typeURI = new URI(constantURI);
-            } catch (URISyntaxException ex) {
-                Exceptions.printStackTrace(ex);
+            if (constantURI != null) {
+                c.typeString = constantURI;
+            } else {
+                c.typeString = d.type.typeURI.toString();
             }
-            c.type = BlockRegistry.getInstance().resolveSchema(c.typeURI);
         }
-        c.value = new XElement(c.typeURI.getSchemeSpecificPart());
-        c.value.content = "";
-        c.value.content = EditSupport.edit(c.value.content, c.typeURI);
-        return c.value.content != null ? c : null;
-    }
+        try {
+            AdvanceType at = c.getAdvanecType();
+            if (c.type != null) {
+                c.type = BlockRegistry.getInstance().resolveSchema(at.typeURI);
+            }
+            if (at.typeURI.equals(AdvanceData.TYPE)) {
+                c.value = EditType.edit(c.value);
 
+                if (c.value != null) {
+                    c.typeString = EditType.createTypeConstructor(c.value);
+                    return c;
+                }
+            } else {
+                c.value = new XElement(at.typeURI.getSchemeSpecificPart());
+                c.value.content = "";
+                c.value.content = EditSupport.edit(c.value.content, at.typeURI);
+                return c.value.content != null ? c : null;
+            }
+        } catch (URISyntaxException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return null;
+    }
     public static String convertToXml(AdvanceConstantBlock c) {
         XElement temp = new XElement("constant");
         c.save(temp);

@@ -437,7 +437,12 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                     } else
                     if (AdvanceData.TIMESTAMP.equals(at.typeURI)) {
                         s = "Timestamp";
+                    } else
+                    if (AdvanceData.TYPE.equals(at.typeURI)) {
+                        s = "Type";
                     }
+
+                    
                     if (s != null) {
                         menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, s, null));
                     } else {
@@ -446,8 +451,10 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
                         menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Real", "advance:real"));
                         menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "String", "advance:string"));
                         menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Timestamp", "advance:timestamp"));
+                        menu.add(new ConstAddAction(undoRedoSupport, FlowScene.this, parent, pin, "Type", null));
                     }
-                    menu.addSeparator();;
+                    
+                    menu.addSeparator();
                     
                     JMenuItem typeInfo = new JMenuItem("Type: " + at.toString());
                     typeInfo.setEnabled(false);
