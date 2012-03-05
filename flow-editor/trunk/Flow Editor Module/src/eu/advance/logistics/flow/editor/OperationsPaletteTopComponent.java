@@ -20,7 +20,9 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import eu.advance.logistics.flow.editor.palette.BlockCategoryNode;
 import eu.advance.logistics.flow.editor.palette.BlockNode;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,12 +41,18 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 import eu.advance.logistics.flow.editor.palette.PaletteRootChildren;
+import eu.advance.logistics.flow.editor.util.Util;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -72,6 +80,9 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
     protected JLabel blockTip;
     /** The search/filter box. */
     protected JTextField search;
+    /**
+     * Initialize the component.
+     */
     public OperationsPaletteTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(OperationsPaletteTopComponent.class, "CTL_OperationsPaletteTopComponent"));
@@ -91,10 +102,30 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
         
         add(blockTip, BorderLayout.SOUTH);
         search = new JTextField();
+        search.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doFilter();
+            }
+        });
         
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
         searchPanel.add(search, BorderLayout.CENTER);
+        
+        JButton collapseAll = new JButton("-");
+        collapseAll.setPreferredSize(new Dimension(25, 25));
+        searchPanel.add(collapseAll, BorderLayout.EAST);
+        collapseAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doCollapseAll();
+            }
+        });
+        collapseAll.setBorder(null);
+        collapseAll.setToolTipText("Collapse all");
+        
+        search.setToolTipText("Type your search pattern here. Use * and ? for wildcards unless you want exact match.");
         
         searchPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         
@@ -184,5 +215,50 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
     void readProperties(java.util.Properties p) {
 //        String version = p.getProperty("version");
         // TODO read your settings according to their version
+    }
+    /**
+     * Perform the node filtering.
+     */
+    void doFilter() {
+        
+        String text = search.getText();
+        Pattern p;
+        if (text.isEmpty()) {
+            p = null;
+        } else {
+            p = Pattern.compile(Util.wildcardToRegex(text));
+        }
+        
+        Node rn = explorerManager.getRootContext();
+        
+        for (Node n0 : rn.getChildren().getNodes()) {
+            if (n0 instanceof BlockCategoryNode) {
+                BlockCategoryNode bcn = (BlockCategoryNode)n0;
+                bcn.setPattern(p);
+            }
+        }
+        if (p != null) {
+            Node n1 = null;
+            for (Node n0 : rn.getChildren().getNodes()) {
+                 treeView.expandNode(n0);
+                 if (n0.getChildren().getNodesCount() > 0 && n1 == null) {
+                     n1 = n0.getChildren().getNodeAt(0);
+                 }
+            }
+            if (n1 != null) {
+                try {
+                    explorerManager.setSelectedNodes(new Node[] { n1 });
+                } catch (PropertyVetoException ex) {
+                    // ignored
+                }
+            }
+        }
+    }
+    /** Collapse all tree nodes. */
+    void doCollapseAll() {
+        Node rn = explorerManager.getRootContext();
+        for (Node n0 : rn.getChildren().getNodes()) {
+             treeView.collapseNode(n0);
+        }        
     }
 }
