@@ -9,24 +9,16 @@
             <public-packages>
                 <package>com.google.common.annotations</package>
                 <package>com.google.common.base</package>
+                <package>com.google.common.base.internal</package>
                 <package>com.google.common.cache</package>
                 <package>com.google.common.collect</package>
                 <package>com.google.common.eventbus</package>
+                <package>com.google.common.hash</package>
                 <package>com.google.common.io</package>
+                <package>com.google.common.math</package>
                 <package>com.google.common.net</package>
                 <package>com.google.common.primitives</package>
                 <package>com.google.common.util.concurrent</package>
-                <package>com.mysql.jdbc</package>
-                <package>com.mysql.jdbc.exceptions</package>
-                <package>com.mysql.jdbc.exceptions.jdbc4</package>
-                <package>com.mysql.jdbc.integration.c3p0</package>
-                <package>com.mysql.jdbc.integration.jboss</package>
-                <package>com.mysql.jdbc.interceptors</package>
-                <package>com.mysql.jdbc.jdbc2.optional</package>
-                <package>com.mysql.jdbc.jmx</package>
-                <package>com.mysql.jdbc.log</package>
-                <package>com.mysql.jdbc.profiler</package>
-                <package>com.mysql.jdbc.util</package>
                 <package>com.sshtools.ant</package>
                 <package>com.sshtools.common.authentication</package>
                 <package>com.sshtools.common.automate</package>
@@ -94,6 +86,7 @@
                 <package>eu.advance.logistics.flow.engine.block.demo</package>
                 <package>eu.advance.logistics.flow.engine.block.file</package>
                 <package>eu.advance.logistics.flow.engine.block.filtering</package>
+                <package>eu.advance.logistics.flow.engine.block.prediction</package>
                 <package>eu.advance.logistics.flow.engine.block.projecting</package>
                 <package>eu.advance.logistics.flow.engine.block.streaming</package>
                 <package>eu.advance.logistics.flow.engine.block.structuring</package>
@@ -112,9 +105,17 @@
                 <package>eu.advance.logistics.flow.engine.typesystem</package>
                 <package>eu.advance.logistics.flow.engine.util</package>
                 <package>eu.advance.logistics.flow.engine.xml</package>
+                <package>eu.advance.logistics.prediction.support</package>
+                <package>eu.advance.logistics.prediction.support.attributes</package>
+                <package>eu.advance.logistics.prediction.support.collections</package>
+                <package>eu.advance.logistics.prediction.support.filters</package>
+                <package>eu.advance.logistics.prediction.support.series</package>
+                <package>eu.advance.logistics.prediction.support.series.keys</package>
+                <package>eu.advance.logistics.prediction.support.utils</package>
                 <package>extra166y</package>
                 <package>hu.akarnokd.reactive4java.base</package>
                 <package>hu.akarnokd.reactive4java.interactive</package>
+                <package>hu.akarnokd.reactive4java.query</package>
                 <package>hu.akarnokd.reactive4java.reactive</package>
                 <package>hu.akarnokd.reactive4java.swing</package>
                 <package>hu.akarnokd.reactive4java.test</package>
@@ -151,6 +152,47 @@
                 <package>org.apache.commons.codec.net</package>
                 <package>org.apache.commons.logging</package>
                 <package>org.apache.commons.logging.impl</package>
+                <package>org.apache.commons.math</package>
+                <package>org.apache.commons.math.analysis</package>
+                <package>org.apache.commons.math.analysis.integration</package>
+                <package>org.apache.commons.math.analysis.interpolation</package>
+                <package>org.apache.commons.math.analysis.polynomials</package>
+                <package>org.apache.commons.math.analysis.solvers</package>
+                <package>org.apache.commons.math.complex</package>
+                <package>org.apache.commons.math.dfp</package>
+                <package>org.apache.commons.math.distribution</package>
+                <package>org.apache.commons.math.estimation</package>
+                <package>org.apache.commons.math.exception</package>
+                <package>org.apache.commons.math.exception.util</package>
+                <package>org.apache.commons.math.fraction</package>
+                <package>org.apache.commons.math.genetics</package>
+                <package>org.apache.commons.math.geometry</package>
+                <package>org.apache.commons.math.linear</package>
+                <package>org.apache.commons.math.ode</package>
+                <package>org.apache.commons.math.ode.events</package>
+                <package>org.apache.commons.math.ode.jacobians</package>
+                <package>org.apache.commons.math.ode.nonstiff</package>
+                <package>org.apache.commons.math.ode.sampling</package>
+                <package>org.apache.commons.math.optimization</package>
+                <package>org.apache.commons.math.optimization.direct</package>
+                <package>org.apache.commons.math.optimization.fitting</package>
+                <package>org.apache.commons.math.optimization.general</package>
+                <package>org.apache.commons.math.optimization.linear</package>
+                <package>org.apache.commons.math.optimization.univariate</package>
+                <package>org.apache.commons.math.random</package>
+                <package>org.apache.commons.math.special</package>
+                <package>org.apache.commons.math.stat</package>
+                <package>org.apache.commons.math.stat.clustering</package>
+                <package>org.apache.commons.math.stat.correlation</package>
+                <package>org.apache.commons.math.stat.descriptive</package>
+                <package>org.apache.commons.math.stat.descriptive.moment</package>
+                <package>org.apache.commons.math.stat.descriptive.rank</package>
+                <package>org.apache.commons.math.stat.descriptive.summary</package>
+                <package>org.apache.commons.math.stat.inference</package>
+                <package>org.apache.commons.math.stat.ranking</package>
+                <package>org.apache.commons.math.stat.regression</package>
+                <package>org.apache.commons.math.transform</package>
+                <package>org.apache.commons.math.util</package>
                 <package>org.apache.commons.net</package>
                 <package>org.apache.commons.net.bsd</package>
                 <package>org.apache.commons.net.chargen</package>
@@ -311,7 +353,6 @@
                 <package>org.bouncycastle.x509.examples</package>
                 <package>org.bouncycastle.x509.extension</package>
                 <package>org.bouncycastle.x509.util</package>
-                <package>org.gjt.mm.mysql</package>
                 <package>org.jaxen</package>
                 <package>org.jaxen.dom</package>
                 <package>org.jaxen.dom4j</package>
@@ -359,16 +400,16 @@
                 <binary-origin>release/modules/ext/j2ssh-0.2.9.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/reactive4java-0.95.1.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/reactive4java-0.95.1.jar</binary-origin>
+                <runtime-relative-path>ext/mysql-connector-java-5.1.18-bin.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/mysql-connector-java-5.1.18-bin.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/annotations.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/annotations.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/mysql-connector-java-5.1.16-bin.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/mysql-connector-java-5.1.16-bin.jar</binary-origin>
+                <runtime-relative-path>ext/guava-11.0.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/guava-11.0.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jxl5.jar</runtime-relative-path>
@@ -379,12 +420,16 @@
                 <binary-origin>release/modules/ext/jsr166y.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/joda-time-1.6.2.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/joda-time-1.6.2.jar</binary-origin>
+                <runtime-relative-path>ext/advance-prediction-lib.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/advance-prediction-lib.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/guava-10.0.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/guava-10.0.jar</binary-origin>
+                <runtime-relative-path>ext/reactive4java-0.96.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/reactive4java-0.96.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/joda-time-2.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/joda-time-2.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/httpclient-4.1.2.jar</runtime-relative-path>
@@ -429,6 +474,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/monetdb-1.17-jdbc.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/monetdb-1.17-jdbc.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/commons-math-2.2.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-math-2.2.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
