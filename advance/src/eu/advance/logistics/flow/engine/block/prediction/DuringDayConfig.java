@@ -165,16 +165,17 @@ public class DuringDayConfig {
         TestSet ts = new TestSet();
 
         TestSet testSet = new TestSet();
-        testSet.DurationIsFoldTime = durationIsFoldTime;
-        testSet._targetDepotIDs = targetDepotIDs;
-        testSet._wekaClassifier = WekaClassifierName.getOrCreate(wekaClassifier);
-        testSet._targetType = TestSet.getTargetType(targetType);
-        testSet._valueType = TestSet.getValueType(valueType);
+        testSet.durationIsFoldTime = durationIsFoldTime;
+        testSet.targetDepotIDs = targetDepotIDs;
+        testSet.wekaClassifier = WekaClassifierName.getOrCreate(wekaClassifier);
+        testSet.targetType = TestSet.getTargetType(targetType);
+        testSet.valueType = TestSet.getValueType(valueType);
 
         // Create primary (and only) series, pointing towards the choice of event
         testSet.primarySeries = new SourceSeries();
         testSet.primarySeries.attributeFlags = CumulativeSeriesAttributes.Flag_DateTime | CumulativeSeriesAttributes.Flag_Target;
         testSet.primarySeries.eventName = events[0];
+        testSet.primarySeries.attributes = selectedAttributesProvider.createDefault();
         
         boolean includeEmbedded = false;
         Map<String, SelectedAttributes> attributesMap = selectedAttributesProvider.load();
@@ -182,7 +183,7 @@ public class DuringDayConfig {
         testSet.secondarySeries = new SourceSeries[events.length - 1];
         for (int i = 1; i < events.length; i++) {
             TreeMapStrStr lookupKey = new TreeMapStrStr();
-            lookupKey.put("Cls", testSet._wekaClassifier.shortName);
+            lookupKey.put("Cls", testSet.wekaClassifier.shortName);
             lookupKey.put("Duration", testSet.DurationStr());
             lookupKey.put("MultiDepot", testSet.MultiDepotStr());
             lookupKey.put("Event", events[i]);
@@ -191,10 +192,10 @@ public class DuringDayConfig {
             SourceSeries series = new SourceSeries();
             testSet.secondarySeries[i] = series;
             System.out.println("get attributes for " + lookupKey);
-            series.Attributes = attributesMap.get(lookupKey.toString());
-            if (series.Attributes == null) {
+            series.attributes = attributesMap.get(lookupKey.toString());
+            if (series.attributes == null) {
                 System.out.println("Using defaults attributes!");
-                series.Attributes = selectedAttributesProvider.createDefault();
+                series.attributes = selectedAttributesProvider.createDefault();
             }
             series.eventName = events[i];
             series.attributePrefix = events[i].substring(0, 1);
@@ -210,12 +211,12 @@ public class DuringDayConfig {
         // Init the generators for test and training times
         int[] testTimes = Time.IntTimeToMinsInDay(new int[]{1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000});
         if (durationIsFoldTime) {
-            testSet._minsInDay = IntGenerator.CreateReturnArray(testTimes);
+            testSet.minsInDay = IntGenerator.CreateReturnArray(testTimes);
         } else {
             int minsBuffer = 60;
             int min = CollectionUtils.Min(testTimes) - minsBuffer;
             int max = CollectionUtils.Max(testTimes) + minsBuffer;
-            testSet._minsInDay = IntGenerator.CreateGenerateUniqueRandomWithinRange(min, max, testTimes.length);
+            testSet.minsInDay = IntGenerator.CreateGenerateUniqueRandomWithinRange(min, max, testTimes.length);
         }
         // disable to reduce memory usage
         //testSet._testSetMinsInDayGenerator = IntGenerator.CreateReturnArray(TestTimes);
