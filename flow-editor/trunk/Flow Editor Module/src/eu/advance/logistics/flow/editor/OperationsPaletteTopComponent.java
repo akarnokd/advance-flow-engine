@@ -36,6 +36,7 @@ import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -231,11 +232,10 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
         
         Node rn = explorerManager.getRootContext();
         
-        for (Node n0 : rn.getChildren().getNodes()) {
-            if (n0 instanceof BlockCategoryNode) {
-                BlockCategoryNode bcn = (BlockCategoryNode)n0;
-                bcn.setPattern(p);
-            }
+        final Children children = rn.getChildren();
+        if (children instanceof PaletteRootChildren) {
+            PaletteRootChildren prc = (PaletteRootChildren)children;
+            prc.setPattern(p);
         }
         if (p != null) {
             Node n1 = null;

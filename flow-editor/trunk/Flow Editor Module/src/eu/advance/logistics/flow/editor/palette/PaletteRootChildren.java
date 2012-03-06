@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.palette;
 
+import com.google.common.collect.Lists;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -33,13 +34,19 @@ import org.openide.util.WeakListeners;
 
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.editor.model.BlockCategory;
+import eu.advance.logistics.flow.editor.palette.BlockCategoryNode.BlockCategoryChildren;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author TTS
  */
 public class PaletteRootChildren extends Children.Keys<BlockCategory> implements PropertyChangeListener {
-
+    /** The filter pattern for the children. */
+    protected Pattern pattern;
+    /**
+     * Constructor.
+     */
     public PaletteRootChildren() {
         BlockRegistry registry = BlockRegistry.getInstance();
         registry.addPropertyChangeListener(WeakListeners.propertyChange(this, registry));
@@ -47,7 +54,18 @@ public class PaletteRootChildren extends Children.Keys<BlockCategory> implements
 
     @Override
     protected Node[] createNodes(BlockCategory key) {
-        return new Node[]{new BlockCategoryNode(key)};
+        BlockCategoryNode n = new BlockCategoryNode(key);
+        n.setPattern(pattern);
+        Children c = n.getChildren();
+        if (c instanceof BlockCategoryChildren) {
+            BlockCategoryChildren bcc = (BlockCategoryChildren)c;
+            if (pattern == null || bcc.getNodesCount() > 0) {
+                return new Node[]{ n };
+            } else {
+                return new Node[0];
+            }
+        }
+        return new Node[]{ n };
     }
 
     @Override
@@ -62,7 +80,7 @@ public class PaletteRootChildren extends Children.Keys<BlockCategory> implements
         setKeys(Collections.<BlockCategory>emptySet());
     }
 
-    private void update() {
+    public void update() {
         List<BlockCategory> list = new ArrayList<BlockCategory>(
                 BlockRegistry.getInstance().getCategories());
         Collections.sort(list);
@@ -91,4 +109,16 @@ public class PaletteRootChildren extends Children.Keys<BlockCategory> implements
             update();
         }
     }
+    /**
+     * Sets the pattern.
+     */
+    public void setPattern(Pattern pattern) {
+        this.pattern = pattern;
+        update();
+    }
+    /** Retrieves the current pattern. */
+    public Pattern getPattern() {
+        return pattern;
+    }
+    
 }
