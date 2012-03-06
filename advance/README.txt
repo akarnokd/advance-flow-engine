@@ -3,6 +3,22 @@ Advance Flow Editor + Engine README
 
 Higly volatile development. Expect frequent changes, refactorings and so on.
 
+Editor Version 0.15.256 (2012-03-06) Notes
+------------------------------------------
+
+- Added filter options to the block palette
+- Added tooltips to blocks
+- Added type-constant editor
+- Added short description for blocks under the block palette and flow tree panel.
+
+Engine Version 0.15.256 Notes
+-----------------------------
+
+- Additional block implementations
+- Fixed recursive type comparison issues
+- Fixed various bugs
+- Added tooltip attribute to the block-description
+
 Editor Version 0.14.224 Notes
 -----------------------------
 
