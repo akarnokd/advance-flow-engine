@@ -43,11 +43,14 @@ import java.util.regex.Pattern;
  * @author TTS
  */
 public class BlockCategoryNode extends AbstractNode implements PropertyChangeListener {
+    /** The block category. */
+    protected final BlockCategory category;
     /**
      * Constructs a node.
      */
     public BlockCategoryNode(BlockCategory category) {
         super(new BlockCategoryChildren(category), Lookups.singleton(category));
+        this.category = category;
         updateDisplayName();
         setIconBaseWithExtension("eu/advance/logistics/flow/editor/palette/images/" + category.getImage());
         category.addPropertyChangeListener(WeakListeners.propertyChange(this, category));
@@ -85,7 +88,7 @@ public class BlockCategoryNode extends AbstractNode implements PropertyChangeLis
         }
     }
 
-    private static class BlockCategoryChildren extends Children.Keys<AdvanceBlockDescription> {
+    public static class BlockCategoryChildren extends Children.Keys<AdvanceBlockDescription> {
 
         private BlockCategory category;
         /** The pattern for filtering. */
@@ -143,9 +146,23 @@ public class BlockCategoryNode extends AbstractNode implements PropertyChangeLis
             return new Node[]{new BlockNode(key)};
         }
     }
+    /**
+     * Sets the Regex pattern to filter the children of this node.
+     * @param pattern the pattern
+     */
     public void setPattern(Pattern pattern) {
         ((BlockCategoryChildren)getChildren()).pattern = pattern;
         ((BlockCategoryChildren)getChildren()).update();
         updateDisplayName();
+    }
+    /**
+     * @return the filter pattern or null
+     */
+    public Pattern getPattern() {
+        return ((BlockCategoryChildren)getChildren()).pattern;
+    }
+    /** @return the category of this node. */
+    public BlockCategory getCategory() {
+        return category;
     }
 }
