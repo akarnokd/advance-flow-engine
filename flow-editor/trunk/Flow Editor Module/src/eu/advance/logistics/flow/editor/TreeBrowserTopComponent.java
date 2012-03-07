@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor;
 
+import com.google.common.collect.Lists;
 import java.awt.BorderLayout;
 
 
@@ -33,16 +34,24 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 import eu.advance.logistics.flow.editor.model.FlowDescription;
+import eu.advance.logistics.flow.editor.tree.CompositeBlockNode.CompositeBlockChildren;
 import eu.advance.logistics.flow.editor.tree.FlowDescriptionNode;
 import eu.advance.logistics.flow.editor.tree.SimpleBlockNode;
+import eu.advance.logistics.flow.editor.util.Util;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.Children;
 import org.openide.windows.WindowManager;
 
 /**
@@ -83,6 +92,13 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
         
         add(blockTip, BorderLayout.SOUTH);
         search = new JTextField();
+        search.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doFilter();
+            }
+        });
+        search.setToolTipText("Type your search pattern here and press ENTER. Use * and ? for wildcards unless you want exact match.");
         
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
@@ -152,5 +168,33 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
 
     static TreeBrowserTopComponent getDefault() {
         return (TreeBrowserTopComponent) WindowManager.getDefault().findTopComponent("TreeBrowserTopComponent");
+    }
+    /** Filter the tree. */
+    void doFilter() {
+        Node rn = explorerManager.getRootContext();
+        
+        String text = search.getText();
+        Pattern p;
+        if (text.isEmpty()) {
+            p = null;
+        } else {
+            p = Pattern.compile(Util.wildcardToRegex(text));
+        }
+
+        Children c = rn.getChildren();
+        if (c instanceof CompositeBlockChildren) {
+            CompositeBlockChildren bc = (CompositeBlockChildren)c;
+            bc.setPattern(p);
+        }
+        
+        if (p != null) {
+            LinkedList<Node> nodes = Lists.newLinkedList();
+            nodes.add(rn);
+            while (!nodes.isEmpty()) {
+                Node n0 = nodes.removeFirst();
+                treeView.expandNode(n0);
+                nodes.addAll(Arrays.asList(n0.getChildren().getNodes()));
+            }
+        }
     }
 }

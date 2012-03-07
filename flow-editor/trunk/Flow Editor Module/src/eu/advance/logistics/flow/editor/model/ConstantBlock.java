@@ -73,7 +73,10 @@ public class ConstantBlock extends AbstractBlock {
         }
         return org.openide.util.NbBundle.getBundle(ConstantBlock.class).getString("NO_VALUE");
     }
-
+    @Override
+    public String toString() {
+        return getTypeAsString() + "=" + getValueAsString();
+    }
     @Override
     public void destroy() {
         if (parent != null) {
