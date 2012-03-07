@@ -126,7 +126,7 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
         collapseAll.setBorder(null);
         collapseAll.setToolTipText("Collapse all");
         
-        search.setToolTipText("Type your search pattern here. Use * and ? for wildcards unless you want exact match.");
+        search.setToolTipText("Type your search pattern here and press ENTER. Use * and ? for wildcards unless you want exact match.");
         
         searchPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         

@@ -35,18 +35,19 @@ import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionChange;
 import eu.advance.logistics.flow.editor.model.FlowDescriptionListener;
 import eu.advance.logistics.flow.editor.model.SimpleBlock;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author TTS
  */
-class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener {
+public class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener {
 
     private CompositeBlock block;
     private String htmlDisplayName;
 
     protected CompositeBlockNode(CompositeBlock block) {
-        super(new Ch(block));
+        super(new CompositeBlockChildren(block));
         this.block = block;
         setIconBaseWithExtension("eu/advance/logistics/flow/editor/palette/images/block.png");
         updateName();
@@ -72,7 +73,7 @@ class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener
     }
 
     private void updateMyChildren() {
-        ((Ch) getChildren()).update();
+        ((CompositeBlockChildren) getChildren()).update();
     }
 
     @Override
@@ -128,16 +129,23 @@ class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener
         super.destroy();
         block = null;
     }
-
-    private static class Ch extends org.openide.nodes.Children.Keys<AbstractBlock> {
+    /**
+     * The children of a composite block.
+     */
+    public static class CompositeBlockChildren extends org.openide.nodes.Children.Keys<AbstractBlock> {
 
         private CompositeBlock block;
-
-        private Ch(CompositeBlock block) {
+        /** The optional filtering pattern. */
+        protected Pattern pattern;
+        /**
+         * Constructor.
+         */
+        private CompositeBlockChildren(CompositeBlock block) {
             this.block = block;
         }
 
         private void update() {
+            setKeys(Collections.<AbstractBlock>emptySet());
             List<AbstractBlock> list = Lists.newArrayList(block.getChildren());
             Collections.sort(list);
             setKeys(list);
@@ -158,14 +166,59 @@ class CompositeBlockNode extends AbstractNode implements FlowDescriptionListener
         @Override
         protected Node[] createNodes(AbstractBlock key) {
             if (key instanceof CompositeBlock) {
-                return new Node[]{new CompositeBlockNode((CompositeBlock) key)};
+                CompositeBlockNode cbn = new CompositeBlockNode((CompositeBlock) key);
+                CompositeBlockChildren bc = (CompositeBlockChildren)cbn.getChildren();
+                bc.setPattern(pattern);
+                if (pattern == null || bc.getNodesCount() > 0) {
+                    return new Node[]{ cbn };
+                }
             } else if (key instanceof SimpleBlock) {
-                return new Node[]{new SimpleBlockNode((SimpleBlock) key)};
+                final SimpleBlock bk = (SimpleBlock) key;
+                final SimpleBlockNode b = new SimpleBlockNode(bk);
+                
+                boolean r = false;
+                if (pattern == null) {
+                    r = true;
+                } else {
+                    if (pattern.matcher(bk.getId().toUpperCase()).matches()) {
+                        r = true;
+                    } else
+                    if (pattern.matcher(bk.getTooltip().toUpperCase()).matches()) {
+                        r = true;
+                    }
+                }
+                if (r) {
+                    return new Node[]{ b };
+                }
             } else if (key instanceof ConstantBlock) {
-                return new Node[]{new ConstantBlockNode((ConstantBlock) key)};
-            } else {
-                return new Node[0];
+                final ConstantBlock bk = (ConstantBlock) key;
+                final ConstantBlockNode b = new ConstantBlockNode(bk);
+                boolean r = false;
+                if (pattern == null) {
+                    r = true;
+                } else {
+                    String s = bk.toString().toUpperCase();
+                    r = pattern.matcher(s).matches();
+                }                
+                if (r) {
+                    return new Node[]{ b };
+                }
             }
+            return new Node[0];
+        }
+        /**
+         * Set the filtering pattern.
+         * @param pattern the filtering pattern
+         */
+        public void setPattern(Pattern pattern) {
+            this.pattern = pattern;
+            update();
+        }
+        /**
+         * @return the current filtering.
+         */
+        public Pattern getPattern() {
+            return pattern;
         }
     }
 }
