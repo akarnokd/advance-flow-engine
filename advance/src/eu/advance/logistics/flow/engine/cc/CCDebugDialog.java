@@ -29,6 +29,7 @@ import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 import hu.akarnokd.reactive4java.swing.DefaultEdtScheduler;
+import hu.akarnokd.reactive4java.util.CachedThreadPoolScheduler;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -86,7 +87,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
-import eu.advance.logistics.flow.engine.util.CachedThreadPoolScheduler;
 import eu.advance.logistics.flow.engine.util.Triplet;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.flow.engine.xml.XSerializables;

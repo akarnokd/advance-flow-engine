@@ -24,9 +24,10 @@ package eu.advance.logistics.flow.engine.api;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.core.AdvanceRealmRuntime;
 import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
+import eu.advance.logistics.flow.engine.inference.Type;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.runtime.Block;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 
 /**
@@ -36,7 +37,7 @@ import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
  * @param <X> the type system type
  * @param <C> the runtime context
  */
-public interface AdvanceFlowCompiler<T, X, C> {
+public interface AdvanceFlowCompiler<T, X extends Type, C> {
 	/**
 	 * Verify the given flow.
 	 * @param flow outer composite block of the dataflow.
@@ -50,7 +51,7 @@ public interface AdvanceFlowCompiler<T, X, C> {
 	 * @param flow the outer composite block of the dataflow.
 	 * @return the list of compiled concrete blocks
 	 */
-	List<Block<T, X, C>> compile(String realm, @NonNull AdvanceCompositeBlock flow);
+	AdvanceRealmRuntime<T, X, C> compile(String realm, @NonNull AdvanceCompositeBlock flow);
 	/**
 	 * Returns a list of supported block types.
 	 * @return the block types

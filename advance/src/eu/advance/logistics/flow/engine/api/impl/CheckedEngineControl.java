@@ -311,26 +311,20 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	@Override
 	public List<AdvancePortSpecification> queryPorts(String realm)
 			throws IOException, AdvanceControlException {
-		// FIXME Auto-generated method stub
-		return null;
+		check(realm, AdvanceUserRealmRights.IO);
+		return control.queryPorts(realm);
 	}
 	@Override
 	public Observable<XElement> receivePort(String realm, String portId)
 			throws IOException, AdvanceControlException {
-		// FIXME Auto-generated method stub
-		return null;
+		check(realm, AdvanceUserRealmRights.IO);
+		return control.receivePort(realm, portId);
 	}
 	@Override
 	public void sendPort(String realm,
 			Iterable<Pair<String, XElement>> portValues) throws IOException,
 			AdvanceControlException {
-		// FIXME Auto-generated method stub
-		
-	}
-	@Override
-	public void sendPort(String realm, String portId, XElement value)
-			throws IOException, AdvanceControlException {
-		// FIXME Auto-generated method stub
-		
+		check(realm, AdvanceUserRealmRights.IO);
+		control.sendPort(realm, portValues);
 	}
 }

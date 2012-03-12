@@ -386,6 +386,7 @@ public class AdvanceEngineConfig {
 		compilerSettings.context.pools = pools();
 		compilerSettings.pluginManager = pluginManager;
 		compilerSettings.resolver = new AdvanceData();
+		compilerSettings.typeFunctions = new AdvanceTypeFunctions();
 		return compilerSettings;
 	}
 }

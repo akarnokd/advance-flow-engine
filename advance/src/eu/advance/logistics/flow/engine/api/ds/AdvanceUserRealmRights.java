@@ -37,5 +37,7 @@ public enum AdvanceUserRealmRights {
 	/** Update the flow within the realm. */
 	WRITE,
 	/** Debug the flow within the realm. */
-	DEBUG
+	DEBUG,
+	/** Send or receive global inputs or outputs. */
+	IO
 }

@@ -319,15 +319,6 @@ public interface AdvanceEngineControl {
 	 */
 	List<AdvancePortSpecification> queryPorts(@NonNull String realm) throws IOException, AdvanceControlException;
 	/**
-	 * Sends a value to the specified realm's input port.
-	 * @param realm the target realm
-	 * @param portId the port identifier of an input port returned by the queryPorts() method.
-	 * @param value the value to send
-	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user has no right to access the realm/ports
-	 */
-	void sendPort(@NonNull String realm, String portId, XElement value) throws IOException, AdvanceControlException;
-	/**
 	 * Sends a sequence of values to the same or multiple ports in a batch.
 	 * @param realm the target realm
 	 * @param portValues the sequence of port id and value XML pairs

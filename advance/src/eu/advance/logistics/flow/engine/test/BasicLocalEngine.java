@@ -41,6 +41,7 @@ import eu.advance.logistics.flow.engine.AdvanceCompilerSettings;
 import eu.advance.logistics.flow.engine.AdvanceDefaultBlockResolver;
 import eu.advance.logistics.flow.engine.AdvanceEngineConfig;
 import eu.advance.logistics.flow.engine.AdvancePluginManager;
+import eu.advance.logistics.flow.engine.AdvanceTypeFunctions;
 import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
@@ -207,6 +208,7 @@ public final class BasicLocalEngine {
 		// without plugins
 		compilerSettings.pluginManager = new AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext>("");
 		compilerSettings.resolver = new AdvanceData();
+		compilerSettings.typeFunctions = new AdvanceTypeFunctions();
 		AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
 				new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 
