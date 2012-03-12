@@ -22,12 +22,16 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -176,7 +180,9 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		} else
 		if ("debug-parameter".equals(function)) {
 			final String realm = request.get("realm");
-			return AdvanceXMLExchange.multiple(Reactive.select(ctrl.debugParameter(request.get("realm"), request.get("block-id"), request.get("port")), new Func1<PortDiagnostic, XElement>() {
+			return AdvanceXMLExchange.multiple(Reactive.select(
+					ctrl.debugParameter(request.get("realm"), request.get("block-id"), request.get("port")), 
+					new Func1<PortDiagnostic, XElement>() {
 				@Override
 				public XElement invoke(PortDiagnostic param1) {
 					param1.realm = realm;
@@ -199,6 +205,20 @@ public class HttpEngineControlListener implements AdvanceHttpListener {
 		} else
 		if ("query-compilation-result".equals(function)) {
 			return AdvanceXMLExchange.single(XSerializables.storeItem("compilation-result", ctrl.queryCompilationResult(request.get("realm"))));
+		} else
+		if ("query-ports".equals(function)) {
+			return AdvanceXMLExchange.single(XSerializables.storeList("ports", "port", ctrl.queryPorts(request.get("realm"))));
+		} else
+		if ("send-port".equals(function)) {
+			String realm = request.get("realm");
+			List<Pair<String, XElement>> values = Lists.newArrayList();
+			for (XElement se : request.childrenWithName("entry")) {
+				values.add(Pair.of(se.get("port"), se.children().get(0)));
+			}
+			ctrl.sendPort(realm, values);
+		} else
+		if ("receive-port".equals(function)) {
+			return AdvanceXMLExchange.multiple(ctrl.receivePort(request.get("realm"), request.get("port")));
 		} else {
 			// try datastore
 			return datastoreListener.dispatch(request, userName);

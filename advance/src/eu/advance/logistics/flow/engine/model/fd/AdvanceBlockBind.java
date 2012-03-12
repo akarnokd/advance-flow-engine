@@ -22,7 +22,6 @@
 package eu.advance.logistics.flow.engine.model.fd;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.flow.engine.xml.XSerializable;
 
@@ -37,14 +36,14 @@ public class AdvanceBlockBind implements XSerializable {
 	/** The parent composite block. */
 	@NonNull
 	public AdvanceCompositeBlock parent;
-	/** The source block identifier for the binding. If {@code null}, the source-parameter refers to the enclosing composite-block's input parameter. */
-	@Nullable
+	/** The source block identifier for the binding. If {@code ""}, the source-parameter refers to the enclosing composite-block's input parameter. */
+	@NonNull
 	public String sourceBlock;
 	/** The source parameter identifier of the source-block or the enclosing composite-block's input parameter. */
 	@NonNull
 	public String sourceParameter;
-	/** The destination block identifier for the binding. If {@code null}, the destination-parameter refers to the enclosing composite-block's output parameter. */
-	@Nullable
+	/** The destination block identifier for the binding. If {@code ""}, the destination-parameter refers to the enclosing composite-block's output parameter. */
+	@NonNull
 	public String destinationBlock;
 	/** The destination parameter identifier of the destination-block or the enclosing composite-block's output parameter. */
 	@NonNull
@@ -56,9 +55,9 @@ public class AdvanceBlockBind implements XSerializable {
 	@Override
 	public void load(XElement root) {
 		id = root.get("id");
-		sourceBlock = root.get("source-block");
+		sourceBlock = root.get("source-block", "");
 		sourceParameter = root.get("source-parameter");
-		destinationBlock = root.get("destination-block");
+		destinationBlock = root.get("destination-block", "");
 		destinationParameter = root.get("destination-parameter");
 	}
 	@Override

@@ -48,6 +48,7 @@ import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePlugin;
 import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePluginDetails;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
+import eu.advance.logistics.flow.engine.api.core.AdvanceRealmRuntime;
 import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.error.ConstantBlockTypeSyntaxError;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;
@@ -68,6 +69,8 @@ import eu.advance.logistics.flow.engine.error.SourceToCompositeOutputError;
 import eu.advance.logistics.flow.engine.error.SourceToInputBindingError;
 import eu.advance.logistics.flow.engine.error.UnsetVarargsError;
 import eu.advance.logistics.flow.engine.inference.Relation;
+import eu.advance.logistics.flow.engine.inference.Type;
+import eu.advance.logistics.flow.engine.inference.TypeFunctions;
 import eu.advance.logistics.flow.engine.inference.TypeInference;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.inference.TypeRelation;
@@ -98,7 +101,7 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  * @param <X> the type system type
  * @param <C> the runtime context
  */
-public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X, C>, AdvanceFlowExecutor {
+public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowCompiler<T, X, C>, AdvanceFlowExecutor {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceCompiler.class);
 	/** The cache for schema uri to types. */
@@ -125,12 +128,6 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 			baseTypes.add(Pair.of(res.resolve(u.toString()), u));
 		}
 		handlePlugins();
-	}
-	@Override
-	public List<Block<T, X, C>> compile(String realm, AdvanceCompositeBlock flow) {
-		List<Block<T, X, C>> result = Lists.newArrayList();
-		compile(realm, flow, result);
-		return result;
 	}
 	@Override
 	public List<BlockRegistryEntry> blocks() {
@@ -211,22 +208,185 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 	public Map<SchedulerPreference, Scheduler> schedulers() {
 		return settings.schedulers;
 	}
+	@Override
+	public AdvanceRealmRuntime<T, X, C> compile(String realm, AdvanceCompositeBlock flow) {
+		AdvanceRealmRuntime<T, X, C> result = new AdvanceRealmRuntime<T, X, C>();
+		compile(realm, flow, result);
+		bindGlobals(flow, result);
+		return result;
+	}
+	/**
+	 * Find the block inputs and outputs which connect to a global port.
+	 * @param flow the global flow description
+	 * @param runtime the compiled runtime, without the globals
+	 */
+	protected void bindGlobals(AdvanceCompositeBlock flow, 
+			AdvanceRealmRuntime<T, X, C> runtime) {
+		for (AdvanceCompositeBlockParameterDescription in : flow.inputs.values()) {
+			List<Port<T, X>> ports = runtime.inputs.get(in.id);
+			if (ports == null) {
+				ports = Lists.newArrayList();
+				runtime.inputs.put(in.id, ports);
+			}
+			X commonSubType = null;
+			for (Block<T, X, C> block : runtime.blocks) {
+				for (Port<T, X> inPort : block.inputs()) {
+					if (findGlobalInput(block, inPort.name(), in.id)) {
+						ports.add(block.getInput(inPort.name()));
+						// FIXME port type is the declared type for now
+						X pt = inPort.type();
+						if (commonSubType == null) {
+							commonSubType = pt;
+						} else {
+							commonSubType = settings.typeFunctions.union(pt, commonSubType);
+						}
+					}
+				}
+			}
+			// FIXME port type is the declared type for now
+			if (commonSubType != null) {
+				runtime.inputTypes.put(in.id, commonSubType);
+			}
+		}
+		for (AdvanceCompositeBlockParameterDescription out : flow.outputs.values()) {
+			for (Block<T, X, C> block : runtime.blocks) {
+				for (Port<T, X> outPort : block.outputs()) {
+					if (findGlobalOutput(block, outPort.name(), out.id)) {
+						Port<T, X> old = runtime.outputs.put(out.id, outPort);
+						if (old != null) {
+							throw new AssertionError("Multiple global outputs found?! Current: " + outPort + " | Old = " + old);
+						}
+						// FIXME  port type is the declared type for now
+						runtime.outputTypes.put(out.id, outPort.type());
+					}
+				}				
+			}
+		}
+	}
+	/**
+	 * The output search triplet of parent, target block and target port.
+	 * @author karnokd, 2012.03.12.
+	 */
+	static class OutputSearch {
+		/** The parent composite. */
+		AdvanceCompositeBlock parent;
+		/** The current target port. */
+		String targetBlock;
+		/** The current target port. */
+		String targetPort;
+		/**
+		 * Construct an output search object from parameters.
+		 * @param parent the parent composite
+		 * @param targetBlock the current target block id
+		 * @param targetPort the target port id
+		 * @return the search object
+		 */
+		static OutputSearch of(AdvanceCompositeBlock parent, String targetBlock, String targetPort) {
+			OutputSearch result = new OutputSearch();
+			
+			return result;
+		}
+	}
+	/**
+	 * Check if a the blocks output parameter is wired to a global output port.
+	 * @param block the block where to start the search
+	 * @param port the output port name
+	 * @param globalIn the global port name at the end.
+	 * @return true if the block and port leads into the given global output.
+	 */
+	protected boolean findGlobalOutput(Block<T, X, C> block, String port, String globalIn) {
+		OutputSearch location = OutputSearch.of(block.parent(), block.id(), port);
+		LinkedList<OutputSearch> search = Lists.newLinkedList();
+		search.add(location);
+		while (!search.isEmpty()) {
+			location = search.removeFirst();
+			
+			for (AdvanceBlockBind bb : location.parent.bindings) {
+				if (bb.sourceBlock.equals(location.targetBlock) && bb.sourceParameter.equals(location.targetPort)) {
+					// we found it
+					if (location.parent.parent == null 
+							&& !bb.hasDestinationBlock()
+							&& globalIn.equals(bb.destinationParameter)) {
+						return true;
+					}
+					// points to a composite on the same level, worth exploring
+					if (location.parent.composites.containsKey(bb.destinationBlock)) {
+						// enter into a composite block
+						search.add(OutputSearch.of(
+								location.parent.composites.get(bb.destinationBlock),
+								"", bb.destinationParameter));
+					}
+					// connects to the output of the current composite
+					if (!bb.hasDestinationBlock()) {
+						search.add(OutputSearch.of(location.parent.parent, location.parent.id, bb.destinationParameter));
+					}
+				}
+			}
+		}		
+		return false;
+	}	
+	/**
+	 * Check if the block's input parameter is wired to a global input port by
+	 * traversing the graph of bindings.
+	 * @param block the block to test
+	 * @param port the input port name on the block
+	 * @param globalIn the id of the global input port
+	 * @return true if the given port on the block points to the given global input
+	 */
+	protected boolean findGlobalInput(Block<T, X, C> block, String port, String globalIn) {
+		AdvanceCompositeBlock parent = block.parent();
+		String targetBlock = block.id();
+		String targetPort = port;
+		
+		outer:
+		while (!Thread.currentThread().isInterrupted()) {
+			for (AdvanceBlockBind bb : parent.bindings) {
+				if (bb.destinationBlock.equals(targetBlock) 
+						&& bb.destinationParameter.equals(targetPort)) {
+					if (parent.parent == null 
+							&& globalIn.equals(bb.sourceParameter) 
+							&& !bb.hasSourceBlock()) {
+						return true;
+					}
+					// enter a composite block (on the same level) from behind
+					if (parent.composites.containsKey(bb.sourceBlock)) {
+						parent = parent.composites.get(bb.sourceBlock);
+						targetBlock = "";
+						targetPort = bb.sourceParameter;
+						continue outer;
+					}
+					// leave the composite block in the input side
+					if (parent.inputs.containsKey(bb.sourceParameter) && !bb.hasSourceBlock()) {
+						targetBlock = parent.id;
+						targetPort = bb.sourceBlock;
+						parent = parent.parent;
+						continue outer;
+					}
+					// connects to a constant or another block, done
+					break;
+				}
+			}
+			// no bindings found
+			break;
+		}
+		return false;
+	}
 	/**
 	 * Compile the composite block.
 	 * @param realm the realm where the flow is compiled into
 	 * @param root the flow description
 	 * @param flow the entire compiled flow model
 	 */
-	public void compile(String realm,
+	protected void compile(String realm,
 			AdvanceCompositeBlock root, 
-			List<Block<T, X, C>> flow
+			AdvanceRealmRuntime<T, X, C> flow
 			) {
 		List<Block<T, X, C>> currentLevelBlocks = Lists.newArrayList();
 		try {
 			for (AdvanceCompositeBlock cb : root.composites.values()) {
 				compile(realm, cb, flow);
 			}
-			// current level blocks
+			// current level blocks, find constants and init
 			for (AdvanceBlockReference br : root.blocks.values()) {
 				Map<String, T> consts = Maps.newHashMap();
 				
@@ -256,17 +416,17 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 				Block<T, X, C> ab = blockResolver().create(br.type);
 				ab.init(blockSettings);
 				
-				flow.add(ab);
+				flow.blocks.add(ab);
 				currentLevelBlocks.add(ab);
 			}
 			// bind
 			if (root.parent == null) {
-				for (Block<T, X, C> ab : flow) {
+				for (Block<T, X, C> ab : flow.blocks) {
 					for (Port<T, X> p : ab.inputs()) {
 						if (p instanceof ReactivePort) {
 							ConstantOrBlock cb = walkBinding(ab.parent(), ab.id(), p.name());
 							if (cb != null) {
-								for  (Block<T, X, C> ab2 : flow) {
+								for  (Block<T, X, C> ab2 : flow.blocks) {
 									if (ab2.parent() == cb.composite && ab2.id().equals(cb.block)) {
 										((ReactivePort<T, X>) p).connect(ab2.getOutput(cb.param));
 										break;
@@ -558,8 +718,12 @@ public final class AdvanceCompiler<T, X, C> implements AdvanceFlowCompiler<T, X,
 		
 		// ---------------------------------------------------------------------------------
 		
+		// FIXME for now
+		@SuppressWarnings("unchecked")
+		TypeFunctions<AdvanceType> tf = (TypeFunctions<AdvanceType>)settings.typeFunctions;
+		
 		TypeInference<AdvanceType, AdvanceBlockBind> typeInference = 
-				new TypeInference<AdvanceType, AdvanceBlockBind>(relations, new AdvanceTypeFunctions());
+				new TypeInference<AdvanceType, AdvanceBlockBind>(relations, tf);
 		result.add(typeInference.infer(new AdvanceCompilationResult()));
 		if (result.wireTypes().size() > 0) {
 				

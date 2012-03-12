@@ -374,26 +374,32 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	@Override
 	public List<AdvancePortSpecification> queryPorts(String realm)
 			throws IOException, AdvanceControlException {
-		// FIXME Auto-generated method stub
-		return null;
+		XElement response = comm.query(XSerializables.createRequest("query-ports", "realm", realm));
+		return XSerializables.parseList(response, "ports", AdvancePortSpecification.CREATOR);
 	}
 	@Override
-	public Observable<XElement> receivePort(String realm, String portId)
+	public Observable<XElement> receivePort(final String realm, final String portId)
 			throws IOException, AdvanceControlException {
-		// FIXME Auto-generated method stub
-		return null;
+		return new Observable<XElement>() {
+			@Override
+			public Closeable register(final
+					Observer<? super XElement> observer) {
+				return comm.receive(XSerializables.createRequest(
+						"receive-port", "realm", realm, "port", portId), new NewThreadScheduler())
+				.register(observer);
+			}
+		};
 	}
 	@Override
 	public void sendPort(String realm,
 			Iterable<Pair<String, XElement>> portValues) throws IOException,
 			AdvanceControlException {
-		// FIXME Auto-generated method stub
-		
-	}
-	@Override
-	public void sendPort(String realm, String portId, XElement value)
-			throws IOException, AdvanceControlException {
-		// FIXME Auto-generated method stub
-		
+		XElement request = XSerializables.createRequest("send-port", "realm", realm);
+		for (Pair<String, XElement> pv : portValues) {
+			XElement entry = request.add("entry");
+			entry.set("port", pv.first);
+			entry.add(pv.second.copy());
+		}
+		comm.send(request);
 	}
 }

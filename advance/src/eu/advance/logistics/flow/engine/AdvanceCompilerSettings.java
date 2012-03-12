@@ -26,6 +26,8 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import java.util.List;
 import java.util.Map;
 
+import eu.advance.logistics.flow.engine.inference.Type;
+import eu.advance.logistics.flow.engine.inference.TypeFunctions;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
 import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
 
@@ -36,7 +38,7 @@ import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
  * @param <X> the type system type
  * @param <C> the context object to pass into the blocks
  */
-public class AdvanceCompilerSettings<T, X, C> {
+public class AdvanceCompilerSettings<T, X extends Type, C> {
 	/** The default schema locations. */
 	public List<String> defaultSchemas;
 	/** The default blocks. */
@@ -49,4 +51,6 @@ public class AdvanceCompilerSettings<T, X, C> {
 	public C context;
 	/** The data resolver. */
 	public DataResolver<T> resolver;
+	/** The type functions. */
+	public TypeFunctions<X> typeFunctions;
 }

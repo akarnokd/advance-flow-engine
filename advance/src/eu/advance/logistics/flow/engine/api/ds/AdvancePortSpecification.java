@@ -21,6 +21,7 @@
 
 package eu.advance.logistics.flow.engine.api.ds;
 
+import hu.akarnokd.reactive4java.base.Func0;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.flow.engine.xml.XSerializable;
@@ -36,6 +37,13 @@ public class AdvancePortSpecification implements XSerializable {
 	public String id;
 	/** The port's type. */
 	public AdvanceType type;
+	/** Creates a new instance of this class. */
+	public static final Func0<AdvancePortSpecification> CREATOR = new Func0<AdvancePortSpecification>() {
+		@Override
+		public AdvancePortSpecification invoke() {
+			return new AdvancePortSpecification();
+		}
+	};
 	@Override
 	public void load(XElement source) {
 		isInput = source.getBoolean("is-input");

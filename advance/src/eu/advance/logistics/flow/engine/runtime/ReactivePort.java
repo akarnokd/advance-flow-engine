@@ -109,4 +109,8 @@ public class ReactivePort<T, X> extends DefaultObservable<T> implements Port<T, 
 	public X type() {
 		return type;
 	}
+	@Override
+	public String toString() {
+		return name + " of " + parent + " with " + type;
+	}
 }
