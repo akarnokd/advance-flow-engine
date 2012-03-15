@@ -20,207 +20,107 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
-import eu.advance.logistics.flow.engine.runtime.DataResolver;
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.prediction.support.IntGenerator;
-import eu.advance.logistics.prediction.support.SourceSeries;
-import eu.advance.logistics.prediction.support.TestSet;
-import eu.advance.logistics.prediction.support.WekaClassifierName;
-import eu.advance.logistics.prediction.support.attributes.CumulativeSeriesAttributes;
-import eu.advance.logistics.prediction.support.attributes.SelectedAttributes;
-import eu.advance.logistics.prediction.support.attributes.SelectedAttributesProvider;
-import eu.advance.logistics.prediction.support.collections.CollectionUtils;
-import eu.advance.logistics.prediction.support.collections.TreeMapStrStr;
-import eu.advance.logistics.prediction.support.utils.Time;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
- *
+ * During day prediction configuration.
  * @author TTS
  */
-public class DuringDayConfig {
-
+@Block(id = "DuringDayPredictionConfig",
+category = "prediction",
+scheduler = "IO",
+description = "Configuration for during day prediction.")
+public class DuringDayConfig extends AdvanceBlock {
     /**
      * Target type: NbRemaining, Total, FractionEntered.
      */
-    public String targetType;
+    @Input("advance:string")
+    protected static final String TARGET_TYPE = "targetType";
     /**
      * List of target depots IDs.
      */
-    public String[] targetDepotIDs;
+    @Input("advance:collection<advance:string>")
+    protected static final String TARGET_DEPOT_IDS = "targetDepotIds";
     /**
      * Weka classifier class.
      */
-    public String wekaClassifier;
+    @Input("advance:string")
+    protected static final String WEKA_CLASSIFIER = "wekaClassifier";
     /**
      * Value type: pallets, size, (consignments).
      */
-    public String valueType;
+    @Input("advance:string")
+    protected static final String VALUE_TYPE = "valueType";
     /**
      * Normalise.
      */
-    public boolean normalise = true;
+    @Input("advance:boolean")
+    protected static final String NORMALISE = "normalise";
     /**
      * Duration type: fold or fold+time.
      */
-    public boolean durationIsFoldTime;
+    @Input("advance:boolean")
+    protected static final String DURATION = "durationIsFoldTime";
     /**
      * Min entered date.
      */
-    public Date minEnteredDate;
+    @Input("advance:date")
+    protected static final String MIN_ENTERED_DATE = "minEnteredDate";
     /**
      * Max entered date.
      */
-    public Date maxEnteredDate;
+    @Input("advance:date")
+    protected static final String MAX_ENTERED_DATE = "maxEnteredDate";
     /**
      * List of events (first is the main event).
      */
-    public String[] events;
-
+    @Input("advance:collection<advance:string>")
+    protected static final String EVENTS = "events";
     /**
-     * Parse from XML.
-     *
-     * @param r data resolver
-     * @param x XML element
-     * @throws ParseException if unable to convert dates
-     * @return configuration from XML description
+     * Out.
      */
-    public static DuringDayConfig parse(DataResolver<XElement> r, XElement x) throws ParseException {
-        DuringDayConfig ddc = new DuringDayConfig();
-        ddc.targetType = x.get("targetType");
-        ddc.wekaClassifier = x.get("wekaClassifier");
-        ddc.valueType = x.get("valueType");
-        ddc.normalise = x.getBoolean("normalise");
-        ddc.durationIsFoldTime = x.getBoolean("durationIsFoldTime");
-        ddc.minEnteredDate = r.getTimestamp(x.childElement("minEnteredDate"));
-        ddc.maxEnteredDate = r.getTimestamp(x.childElement("maxEnteredDate"));
-        ddc.targetDepotIDs = adapt(r, x.childElement("targetDepotIDs"));
-        ddc.events = adapt(r, x.childElement("events"));
-        return ddc;
-    }
+    @Output("advance:duringdayconfig")
+    protected static final String CONFIG = "config";
 
-    /**
-     * Convert to XML.
-     *
-     * @param r data resolver
-     * @param name the name of the XML element
-     * @return the XML representation
-     */
-    public XElement toXml(DataResolver<XElement> r, String name) {
-        XElement x = new XElement(name);
-        x.set("targetType", targetType);
-        x.set("wekaClassifier", wekaClassifier);
-        x.set("valueType", valueType);
-        x.set("normalise", normalise);
-        x.set("durationIsFoldTime", durationIsFoldTime);
-        x.add(new XElement("minEnteredDate", r.create(minEnteredDate)));
-        x.add(new XElement("maxEnteredDate", r.create(maxEnteredDate)));
-        x.add(adapt(r, targetDepotIDs, "targetDepotIDs"));
-        x.add(adapt(r, events, "events"));
-        return x;
-    }
-
-    /**
-     * Adapt a string array to XML.
-     *
-     * @param r data resolver
-     * @param values array of string
-     * @param name name of the element
-     * @return representation of the string array
-     */
-    private static XElement adapt(DataResolver<XElement> r, String[] values, String name) {
-        List<XElement> list = new ArrayList<XElement>();
-        for (String value : values) {
-            list.add(r.create(value));
+    @Override
+    protected void invoke() {
+        DuringDayConfigData cfg = new DuringDayConfigData();
+        cfg.targetType = getString(TARGET_TYPE);
+        cfg.targetDepotIDs = getStringArray(get(TARGET_DEPOT_IDS));
+        cfg.wekaClassifier = getString(WEKA_CLASSIFIER);
+        cfg.valueType = getString(VALUE_TYPE);
+        cfg.normalise = getBoolean(NORMALISE);
+        cfg.durationIsFoldTime = getBoolean(DURATION);
+        try {
+            cfg.minEnteredDate = getTimestamp(MIN_ENTERED_DATE);
+        } catch (ParseException ex) {
+            LOG.error(null, ex);
         }
-        return new XElement(name, r.create(list));
+        try {
+            cfg.maxEnteredDate = getTimestamp(MAX_ENTERED_DATE);
+        } catch (ParseException ex) {
+            LOG.error(null, ex);
+        }
+        cfg.events = getStringArray(get(EVENTS));
     }
 
     /**
-     * Adapt an XML element to a string array.
-     *
-     * @param r data resolver
-     * @param x XML element
+     * Get a string array form a XML element representing a collection.
+     * @param collection the XML element
      * @return the string array
      */
-    private static String[] adapt(DataResolver<XElement> r, XElement x) {
-        List<XElement> list = r.getList(x);
-        String[] values = new String[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            values[i] = r.getString(list.get(i));
+    private String[] getStringArray(XElement collection) {
+        List<String> names = new ArrayList<String>();
+        for (XElement e : resolver().getItems(collection)) {
+            names.add(resolver().getString(e));
         }
-        return values;
-    }
-
-    /**
-     * Create a TestSet using the current configuration.
-     * @param selectedAttributesProvider provides the selected attributes set
-     * @return the configuration for a ML model
-     */
-    TestSet createTestSet(SelectedAttributesProvider selectedAttributesProvider) {
-        TestSet ts = new TestSet();
-
-        TestSet testSet = new TestSet();
-        testSet.durationIsFoldTime = durationIsFoldTime;
-        testSet.targetDepotIDs = targetDepotIDs;
-        testSet.wekaClassifier = WekaClassifierName.getOrCreate(wekaClassifier);
-        testSet.targetType = TestSet.getTargetType(targetType);
-        testSet.valueType = TestSet.getValueType(valueType);
-
-        // Create primary (and only) series, pointing towards the choice of event
-        testSet.primarySeries = new SourceSeries();
-        testSet.primarySeries.attributeFlags = CumulativeSeriesAttributes.Flag_DateTime | CumulativeSeriesAttributes.Flag_Target;
-        testSet.primarySeries.eventName = events[0];
-        testSet.primarySeries.attributes = selectedAttributesProvider.createDefault();
-        
-        boolean includeEmbedded = false;
-        Map<String, SelectedAttributes> attributesMap = selectedAttributesProvider.load();
-        
-        testSet.secondarySeries = new SourceSeries[events.length - 1];
-        for (int i = 1; i < events.length; i++) {
-            TreeMapStrStr lookupKey = new TreeMapStrStr();
-            lookupKey.put("Cls", testSet.wekaClassifier.shortName);
-            lookupKey.put("Duration", testSet.DurationStr());
-            lookupKey.put("MultiDepot", testSet.MultiDepotStr());
-            lookupKey.put("Event", events[i]);
-            lookupKey.put("ValueType", valueType.toString());
-
-            SourceSeries series = new SourceSeries();
-            testSet.secondarySeries[i] = series;
-            System.out.println("get attributes for " + lookupKey);
-            series.attributes = attributesMap.get(lookupKey.toString());
-            if (series.attributes == null) {
-                System.out.println("Using defaults attributes!");
-                series.attributes = selectedAttributesProvider.createDefault();
-            }
-            series.eventName = events[i];
-            series.attributePrefix = events[i].substring(0, 1);
-            series.attributeFlags = CumulativeSeriesAttributes.Flag_RefSeriesWaiting;
-            if (includeEmbedded) {
-                series.attributeFlags |= CumulativeSeriesAttributes.Flag_RefSeriesRemainingPredictor;
-                series.embeddedPredictorFlags = CumulativeSeriesAttributes.Flag_DateTime | CumulativeSeriesAttributes.Flag_Target;
-            }
-        }
-
-
-
-        // Init the generators for test and training times
-        int[] testTimes = Time.IntTimeToMinsInDay(new int[]{1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000});
-        if (durationIsFoldTime) {
-            testSet.minsInDay = IntGenerator.CreateReturnArray(testTimes);
-        } else {
-            int minsBuffer = 60;
-            int min = CollectionUtils.Min(testTimes) - minsBuffer;
-            int max = CollectionUtils.Max(testTimes) + minsBuffer;
-            testSet.minsInDay = IntGenerator.CreateGenerateUniqueRandomWithinRange(min, max, testTimes.length);
-        }
-        // disable to reduce memory usage
-        //testSet._testSetMinsInDayGenerator = IntGenerator.CreateReturnArray(TestTimes);
-
-        return ts;
+        return names.toArray(new String[names.size()]);
     }
 }
