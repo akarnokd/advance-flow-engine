@@ -231,6 +231,7 @@ public class DuringDayConfigData {
      *
      * @param r data resolver
      * @param name the name of the XML element
+     * @param config the test-set configuration
      * @return the XML representation
      */
     public static XElement toXml(DataResolver<XElement> r, String name, TestSet config) {

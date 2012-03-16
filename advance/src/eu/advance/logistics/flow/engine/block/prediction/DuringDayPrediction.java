@@ -126,7 +126,8 @@ public class DuringDayPrediction extends AdvanceBlock {
      *
      * @param resolver used to resolve data to XML
      * @param root the root XML element
-     * @return
+     * @return the model
+     * @throws Exception if unable to convert base64 string
      */
     private MLModel fromXml(DataResolver<XElement> resolver, XElement root) throws Exception {
         DuringDayConfigData cfg = DuringDayConfigData.parse(resolver, root.childElement("config"));

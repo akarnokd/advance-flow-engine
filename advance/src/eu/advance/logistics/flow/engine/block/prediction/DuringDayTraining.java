@@ -151,9 +151,8 @@ public class DuringDayTraining extends AdvanceBlock {
     /**
      * Converts a model to XML.
      *
-     * @param resolver used to resolve data to XML
      * @param model the model to convert
-     * @return
+     * @return the XML representation of the model
      */
     private XElement toXml(MLModel model) {
         XElement root = new XElement("DuringDayModel");
