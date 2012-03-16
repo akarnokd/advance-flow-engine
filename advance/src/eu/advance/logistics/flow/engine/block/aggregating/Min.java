@@ -26,7 +26,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 /**
@@ -68,12 +67,8 @@ public class Min extends AdvanceBlock {
         double min = Double.MAX_VALUE;
         int lastPos = 0;
 
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
         int count = 0;
-        while (it.hasNext()) {
-            final XElement xelem = it.next();
-            
+        for (XElement xelem : resolver().getItems(get(IN))) {
             String n = AdvanceData.realName(xelem).first;
 
             if (n.equalsIgnoreCase("integer")) {

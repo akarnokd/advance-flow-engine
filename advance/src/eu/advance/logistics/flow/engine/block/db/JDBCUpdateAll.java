@@ -20,11 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
@@ -33,6 +28,11 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Updates multiple values at the same time with the given SQL query on the

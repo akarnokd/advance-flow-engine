@@ -20,38 +20,86 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
-import java.util.logging.Logger;
-
+import com.google.common.io.Files;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.comm.LocalConnection;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+import java.nio.charset.Charset;
 
 /**
- * Load the data from the local file.
- * Signature: LocalFileLoad(trigger, localfiledatasource) -> string
- * @author szmarcell
+ * Load the data from the local file. Signature: LocalFileLoad(trigger,
+ * localfiledatasource) -> string
+ *
+ * @author TTS
  */
-@Block(id = "___LocalFileLoad", category = "file", scheduler = "IO", description = "Load the data from the local file.")
+@Block(id = "LocalFileLoad", category = "file", scheduler = "IO", description = "Load the data from the local file.")
 public class LocalFileLoad extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(LocalFileLoad .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * In.
+     */
+    @Input("advance:boolean")
+    protected static final String TRIGGER = "trigger";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String DATASOURCE = "datasource";
+    /**
+     * Out.
+     */
+    @Output("advance:string")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        // called on trigger
     }
-    
+
+    @Override
+    public Observer<Void> run() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+
+            @Override
+            public void next(XElement value) {
+                if (resolver().getBoolean(value)) {
+                    execute();
+                }
+            }
+
+            @Override
+            public void error(Throwable ex) {
+            }
+
+            @Override
+            public void finish() {
+            }
+        }));
+        return new RunObserver();
+    }
+
+    /** Load the data from the local file. */
+    private void execute() {
+        try {
+            final String dataSourceStr = getString(DATASOURCE);
+            final Pool<LocalConnection> ds = getPool(LocalConnection.class, dataSourceStr);
+            final LocalConnection conn = ds.get();
+            try {
+                final String resultStr = Files.toString(conn.file(), Charset.defaultCharset());
+                
+                dispatch(OUT, resolver().create(resultStr));
+            } finally {
+                ds.put(conn);
+            }
+        } catch (Exception ex) {
+            log(ex);
+            dispatch(OUT, resolver().create(""));
+        }
+    }
 }

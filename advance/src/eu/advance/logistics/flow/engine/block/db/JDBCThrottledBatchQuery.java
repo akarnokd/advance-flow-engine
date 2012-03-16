@@ -21,6 +21,15 @@
 
 package eu.advance.logistics.flow.engine.block.db;
 
+import com.google.common.collect.Lists;
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.Pool;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.comm.JDBCConnection;
+import eu.advance.logistics.flow.engine.runtime.ConstantPort;
+import eu.advance.logistics.flow.engine.xml.XElement;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.util.SingleLaneExecutor;
@@ -32,26 +41,20 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.collect.Lists;
-
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.Pool;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.runtime.ConstantPort;
-import eu.advance.logistics.flow.engine.xml.XElement;
-
 /**
- * Queries and returns a batch of rows from the database and waits for a trigger to continue.
+ * Queries and returns a batch of rows from the database and waits for a trigger
+ * to continue.
+ *
  * @author karnokd, 2012.02.22.
  */
 @Block(id = "JDBCThrottledBatchQuery", category = "db", 
 scheduler = "IO", 
 description = "Retrieves and returns a batch of rows from the database and waits for a trigger to continue with the next set of rows.")
 public class JDBCThrottledBatchQuery extends AdvanceBlock {
-    /** The initial trigger. */
+
+    /**
+     * The initial trigger.
+     */
     @Input("advance:boolean")
     protected static final String TRIGGER = "trigger";
     /**
@@ -64,10 +67,14 @@ public class JDBCThrottledBatchQuery extends AdvanceBlock {
      */
     @Input("advance:string")
     protected static final String QUERY = "query";
-    /** Trigger to request the next batch. */
+    /**
+     * Trigger to request the next batch.
+     */
     @Input("advance:boolean")
     protected static final String NEXT = "next";
-    /** The batch size. */
+    /**
+     * The batch size.
+     */
     @Input("advance:integer")
     protected static final String SIZE = "size";
     /**
@@ -75,28 +82,50 @@ public class JDBCThrottledBatchQuery extends AdvanceBlock {
      */
     @Output("advance:collection<advance:map<advance:string,advance:object>>")
     protected static final String OUT = "out";
-    /** Indicator that the query has finished. */
+    /**
+     * Indicator that the query has finished.
+     */
     @Output("advance:boolean")
     protected static final String DONE = "done";
-    /** The data source. */
+    /**
+     * The data source.
+     */
     protected final AtomicReference<String> datasource = new AtomicReference<String>();
-    /** The query. */
+    /**
+     * The query.
+     */
     protected final AtomicReference<String> query = new AtomicReference<String>();
-    /** The batch size. */
+    /**
+     * The batch size.
+     */
     protected final AtomicReference<Integer> size = new AtomicReference<Integer>();
-    /** The pool used. */
+    /**
+     * The pool used.
+     */
     protected Pool<JDBCConnection> pool;
-    /** The running connection. */
+    /**
+     * The running connection.
+     */
     protected JDBCConnection conn;
-    /** The statement. */
+    /**
+     * The statement.
+     */
     protected PreparedStatement pstmt;
-    /** The resultset. */
+    /**
+     * The resultset.
+     */
     protected ResultSet rs;
-    /** The resultset metadata. */
+    /**
+     * The resultset metadata.
+     */
     protected ResultSetMetaData rsm;
-    /** The single lane executor. */
+    /**
+     * The single lane executor.
+     */
     protected SingleLaneExecutor<Runnable> queue;
-    /** The batch size. */
+    /**
+     * The batch size.
+     */
     protected int batchSize;
 	@Override
 	public Observer<Void> run() {
@@ -196,6 +225,7 @@ public class JDBCThrottledBatchQuery extends AdvanceBlock {
 	}
 	/**
 	 * Initialize the data connection.
+     *
 	 * @return true if the connection was created
 	 */
 	synchronized boolean initConnection() {

@@ -20,38 +20,110 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
-import java.util.logging.Logger;
-
+import com.google.common.io.Files;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.comm.LocalConnection;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+import java.util.Map;
 
 /**
- * Move/rename a set of local files.
- * Signature: LocalFileMoveAll(trigger, localfiledatastore, map<string, string>) -> boolean
- * @author szmarcell
+ * Move/rename a set of local files. Signature: LocalFileMoveAll(trigger,
+ * localfiledatastore, map<string, string>) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "___LocalFileMoveAll", category = "file", scheduler = "IO", description = "Move/rename a set of local files.")
+@Block(id = "LocalFileMoveAll", category = "file", scheduler = "IO", description = "Move/rename a set of local files.")
 public class LocalFileMoveAll extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(LocalFileMoveAll .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * In.
+     */
+    @Input("advance:boolean")
+    protected static final String TRIGGER = "trigger";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String DATASOURCE = "datasource";
+    /**
+     * In.
+     */
+    @Input("advance:map<advance:string, advance:string>")
+    protected static final String MAP = "map";
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        // called on trigger
     }
-    
+
+    @Override
+    public Observer<Void> run() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+
+            @Override
+            public void next(XElement value) {
+                if (resolver().getBoolean(value)) {
+                    execute();
+                }
+            }
+
+            @Override
+            public void error(Throwable ex) {
+            }
+
+            @Override
+            public void finish() {
+            }
+        }));
+        return new RunObserver();
+    }
+
+    /**
+     * Load the data from the local file.
+     */
+    private void execute() {
+        try {
+            final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+            
+            final int size = map.size();
+            int count = 0;
+            
+            for (XElement key : map.keySet()) {
+                final XElement value = map.get(key);
+                final String keyStr = resolver().getString(key);
+                final String valueStr = resolver().getString(value);
+
+                final Pool<LocalConnection> dsKey = getPool(LocalConnection.class, keyStr);
+                final Pool<LocalConnection> dsValue = getPool(LocalConnection.class, valueStr);
+                final LocalConnection connKey = dsKey.get();
+                final LocalConnection connValue = dsValue.get();
+
+                try {
+                    Files.move(connKey.file(), connValue.file());
+                    count++;
+                } catch (Exception ex) {
+                    log(ex);
+                } finally {
+                    dsKey.put(connKey);
+                    dsValue.put(connValue);
+                }
+            }
+
+            dispatch(OUT, resolver().create(count == size));
+        } catch (Exception ex) {
+            log(ex);
+            dispatch(OUT, resolver().create(false));
+        }
+    }
 }

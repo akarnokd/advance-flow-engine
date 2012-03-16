@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
-import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
@@ -28,7 +27,7 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * Compute the sum of the elements within the collection which have the type of
@@ -58,11 +57,8 @@ public class Sum extends AdvanceBlock {
     protected void invoke() {
         double sum = 0;
 
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = resolver().getItems(xcollection).iterator();
-        while (it.hasNext()) {
-            final XElement xelem = it.next();
-            String n = AdvanceData.realName(xelem).first;
+        for (XElement xelem : resolver().getItems(get(IN))) {
+            final String n = AdvanceData.realName(xelem).first;
             if (n.equalsIgnoreCase("integer")) {
                 sum += resolver().getInt(xelem);
             } else if (n.equalsIgnoreCase("real")) {

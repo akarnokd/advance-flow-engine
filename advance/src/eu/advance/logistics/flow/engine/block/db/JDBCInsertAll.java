@@ -20,6 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.Pool;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.comm.JDBCConnection;
+import eu.advance.logistics.flow.engine.xml.XElement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -29,14 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.Pool;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Inserts a collection of values into the datastore via the given SQL statement
