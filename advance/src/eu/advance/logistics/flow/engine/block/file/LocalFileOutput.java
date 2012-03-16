@@ -20,12 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
-import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.reactive.Observer;
-
-import java.io.FileWriter;
-import java.util.List;
-import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
@@ -35,24 +29,34 @@ import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockState;
 import eu.advance.logistics.flow.engine.runtime.Port;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.reactive4java.reactive.Observer;
+import java.io.FileWriter;
+import java.util.List;
 
 /**
- * Save the data into a local file, appending the received input at the end of file or overwriting the file.
- * Signature: LocalFileOutput(string, string, string) -> void
+ * Save the data into a local file, appending the received input at the end of
+ * file or overwriting the file. Signature: LocalFileOutput(string, string,
+ * string) -> void
+ *
  * @author szmarcell
  */
 @Block(id = "LocalFileOutput", category = "file", scheduler = "IO", description = "Save the data into a local file, appending the received input at the end of file or overwriting the file.")
 public class LocalFileOutput extends AdvanceBlock {
 
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(LocalFileOutput.class.getName());
-    /** Filename input. */
+    /**
+     * Filename input.
+     */
     @Input("advance:string")
     protected static final String PATH = "path";
-    /** Append input. */
+    /**
+     * Append input.
+     */
     @Input("advance:string")
     protected static final String APPEND = "append";
-    /** Write input. */
+    /**
+     * Write input.
+     */
     @Input("advance:string")
     protected static final String WRITE = "write";
     @Override
@@ -101,7 +105,9 @@ public class LocalFileOutput extends AdvanceBlock {
         return new RunObserver();
 
     }
-    /** The filename. */
+    /**
+     * The filename.
+     */
     private String file;
     @Override
     protected void invoke() {

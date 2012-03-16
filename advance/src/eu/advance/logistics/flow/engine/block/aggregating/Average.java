@@ -69,8 +69,7 @@ public class Average extends AdvanceBlock {
         	if ("integer".equals(rn.first)) {
             	sum += resolver().getInt(e);
                 count++;
-        	} else
-        	if ("real".equals(rn.first)) {
+            } else if ("real".equals(rn.first)) {
             	sum += resolver().getDouble(e);
                 count++;
         	} else {

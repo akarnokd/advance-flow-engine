@@ -21,6 +21,10 @@
 
 package eu.advance.logistics.flow.engine.block.db;
 
+import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.runtime.DataResolver;
+import eu.advance.logistics.flow.engine.xml.XElement;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -29,10 +33,6 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-
-import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.runtime.DataResolver;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Utility class to convert to and from SQL and XML representation of values in JDBC queries.

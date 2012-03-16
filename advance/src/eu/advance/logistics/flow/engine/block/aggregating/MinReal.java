@@ -25,7 +25,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 /**
@@ -56,10 +55,8 @@ public class MinReal extends AdvanceBlock {
     protected void invoke() {
         double min = Double.MAX_VALUE;
 
-        final XElement xcollection = get(IN);
-        final Iterator<XElement> it = xcollection.children().iterator();
-        while (it.hasNext()) {
-            min = Math.min(min, settings.resolver.getDouble(it.next()));
+        for (XElement xelem : resolver().getItems(get(IN))) {
+            min = Math.min(min, settings.resolver.getDouble(xelem));
         }
 
         dispatch(OUT, resolver().create(min));

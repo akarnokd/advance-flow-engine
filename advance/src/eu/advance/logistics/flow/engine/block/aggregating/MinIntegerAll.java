@@ -81,8 +81,9 @@ public class MinIntegerAll extends AdvanceBlock {
         }
 
     	if (count > 0) {
-        dispatch(OUT1, resolver().create(min));
+        	dispatch(OUT1, resolver().create(min));
     	}
+        
     	List<XElement> xpos = Lists.newLinkedList();
     	for (Integer idx : positions) {
     		xpos.add(resolver().create(idx));

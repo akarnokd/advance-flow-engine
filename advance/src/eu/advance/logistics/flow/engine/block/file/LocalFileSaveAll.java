@@ -20,38 +20,108 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
-import java.util.logging.Logger;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.comm.LocalConnection;
+import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Save a set of files locally.
- * Signature: LocalFileSaveAll(trigger, localfiledatasource, map<string, string>) -> boolean
- * @author szmarcell
+ * Save a set of files locally. Signature: LocalFileSaveAll(trigger,
+ * localfiledatasource, map<string, string>) -> boolean
+ *
+ * @author TTS
  */
-@Block(id = "___LocalFileSaveAll", category = "file", scheduler = "IO", description = "Save a set of files locally.")
+@Block(id = "LocalFileSaveAll", 
+	category = "file", 
+	scheduler = "IO", 
+description = "Save a set of files locally.")
 public class LocalFileSaveAll extends AdvanceBlock {
-    /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(LocalFileSaveAll .class.getName());
-    /** In. */
-    @Input("advance:real")
-    protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+
+    /**
+     * The logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger(LocalFileSave.class.getName());
+    /**
+     * In.
+     */
+    @Input("advance:boolean")
+    protected static final String TRIGGER = "trigger";
+    /**
+     * In.
+     */
+    @Input("advance:string")
+    protected static final String DATASOURCE = "datasource";
+    /**
+     * In.
+     */
+    @Input("advance:map<advance:string, advance:string>")
+    protected static final String CONTENT = "content";
+    /**
+     * Out.
+     */
+    @Output("advance:boolean")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
+
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+        // called on trigger
     }
-    
+
+    @Override
+    public Observer<Void> run() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+
+            @Override
+            public void next(XElement value) {
+                if (resolver().getBoolean(value)) {
+                    execute();
+                }
+            }
+
+            @Override
+            public void error(Throwable ex) {
+            }
+
+            @Override
+            public void finish() {
+            }
+        }));
+        return new RunObserver();
+    }
+
+    /**
+     * Save a set of files locally.
+     */
+    private void execute() {
+        try {
+            final Map<XElement, XElement> map = resolver().getMap(get(CONTENT));
+            final String dataSourceStr = getString(DATASOURCE);
+
+            final Pool<LocalConnection> ds = getPool(LocalConnection.class, dataSourceStr);
+            final LocalConnection conn = ds.get();
+            try {
+
+                for (Map.Entry<XElement, XElement> e : map.entrySet()) {
+                    final XElement key = e.getKey();
+                    final XElement value = e.getValue();
+
+                    conn.send(resolver().getString(key), resolver().getString(value).getBytes());
+                }
+
+                dispatch(OUT, resolver().create(true));
+            } finally {
+                ds.put(conn);
+            }
+        } catch (Exception ex) {
+            log(ex);
+            dispatch(OUT, resolver().create(false));
+        }
+    }
 }

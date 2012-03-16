@@ -78,8 +78,7 @@ public class MinAll extends AdvanceBlock {
     		double v = 0.0;
     		if ("integer".equals(rn)) {
     			v = resolver().getInt(e);
-    		} else
-    		if ("real".equals(rn)) {
+            } else if ("real".equals(rn)) {
     			v = resolver().getDouble(e);
             } else {
     			continue;

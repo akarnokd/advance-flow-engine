@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.flow.engine.block.filtering;
 
-import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
@@ -31,6 +30,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
