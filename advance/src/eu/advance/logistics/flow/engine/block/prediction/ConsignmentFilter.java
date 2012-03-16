@@ -98,7 +98,9 @@ public class ConsignmentFilter extends AdvanceBlock {
     }
 
     /**
-     * Activated on stream.
+     * Process and filter a stream.
+     * @param x XML element to process
+     * @throws Exception if unable to parse dates
      */
     private void process(XElement x) throws Exception {
         Date dateAfter = getTimestamp(DATE_AFTER);

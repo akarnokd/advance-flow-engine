@@ -46,11 +46,8 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
     private Map<String, SelectedAttributes> attributesSet;
 
     /**
-     * Implements a selected attributes provider loading the contents from an
-     * XML file specified by a local connection data store.
-     *
-     * @param owner owner block (to ge the connection pool)
-     * @param selectedAttributesFile the local connection data store
+     * Implements a selected attributes provider.
+     * The contents can be loaded by a local data store or from an XML element.
      */
     SelectedAttributesProviderImpl() {
     }
@@ -61,10 +58,10 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
     }
 
     /**
-     * Parse an atttibute set from XML.
+     * Parse an attribute set from XML.
      *
      * @param attributesSet the collections of attributes sets
-     * @param file XML with a map of attributes sets
+     * @param x the root XML element
      * @throws Exception if unable to parse the XML
      */
     private void parse(Map<String, SelectedAttributes> attributesSet, XElement x) throws Exception {
@@ -124,6 +121,7 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
      * Loads selected attributes form an XML element.
      *
      * @param root the XML element containing the attributes
+     * @throws Exception if unable to parse the XML elements
      */
     public void load(XElement root) throws Exception {
         attributesSet = new HashMap<String, SelectedAttributes>();
@@ -169,6 +167,11 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
         return attributesSet;
     }
 
+    /**
+     * Converts the selected attributes list to an XML representation.
+     * @param resolver the data resolver used to convert data to XML
+     * @return the XML representation of the selected attributes list
+     */
     public XElement toXml(DataResolver<XElement> resolver) {
         XElement root = new XElement("attributes-set");
         for (Map.Entry<String, SelectedAttributes> e : attributesSet.entrySet()) {
