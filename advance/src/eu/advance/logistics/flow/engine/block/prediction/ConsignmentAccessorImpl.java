@@ -74,6 +74,11 @@ final class ConsignmentAccessorImpl implements ConsignmentAccessor {
 
     @Override
     public Date getEventDate(String string) {
+        for (Event e : c.events) {
+         if (string.equals(e.name)) {
+        	 return e.timestamp;
+         }
+        }
         return null;
     }
     
