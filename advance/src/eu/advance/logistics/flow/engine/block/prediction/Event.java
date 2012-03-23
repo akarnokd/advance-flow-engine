@@ -30,16 +30,10 @@ import java.util.Date;
  */
 public class Event {
 
-	 /** Unique event id. */
-    public int id;
-    /** Reference to the consignment id. */
-    public int consignmentId;
-    /** Reference to the event type id. */
-    public int eventType;
+    /** The event name. */
+    public String name;
     /** Time stamp of the event. */
     public Date timestamp;
-    /** Free text notes. */
-    public String notes;
 
     /**
      * Convert to XML element.
@@ -48,11 +42,8 @@ public class Event {
      */
     public XElement toXML(String name) {
         XElement x = new XElement(name);
-        x.set("id", id);
-        x.set("consignmentId", consignmentId);
-        x.set("eventType", eventType);
+        x.set("name", name);
         x.set("timestamp", XElement.formatDateTime(timestamp));
-        x.set("notes", notes);
         return x;
     }
 
@@ -64,11 +55,8 @@ public class Event {
      */
     public static Event parse(XElement x) throws ParseException {
         Event e = new Event();
-        e.id = Integer.parseInt(x.get("id"));
-        e.consignmentId = Integer.parseInt(x.get("consignmentId"));
-        e.eventType = Integer.parseInt(x.get("eventType"));
+        e.name = x.get("name");
         e.timestamp = XElement.parseDateTime(x.get("timestamp"));
-        e.notes = x.get("notes");
         return e;
     }
 }
