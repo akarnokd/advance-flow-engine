@@ -1,0 +1,160 @@
+html{min-width: 62em; min-height: 63em;}
+button{cursor: pointer;}
+#wrapper, #content #main-content{background-color: #fff;}
+
+#content{padding: 0; padding-bottom: 7.5em;}
+
+#content #file-list{
+    margin: 0 auto; padding: 0;
+    list-style-type: none;}
+#content #file-list li a{
+    display: block;
+    padding: 0.52% 1.1%;
+    border-bottom: 1px solid #e0e0e0;
+    color: #808080;
+    font-size: 1.4em; font-weight: bold;
+    text-decoration: none;}
+#content #file-list li a.selected, #content #file-list li a:hover{
+    border-bottom-color: #388d3c; color: #000;}
+
+#content .toolbar{position: absolute; bottom: 2.7em;}
+
+#content .toolbar form{
+    height: 4.4em;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#388d3c), to(#317834));
+    background-image: -moz-linear-gradient(top, #388d3c 0%, #317834 100%);
+    background-image: -o-linear-gradient(top, #388d3c, #317834);
+    background-image: -ms-linear-gradient(top, #388d3c, #317834); /* IE 10 */
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#388d3c', EndColorStr='#317834');
+    background-image: linear-gradient(top, #388d3c, #317834); /* W3C DECLARATION */}
+#content .toolbar form button{
+    float: left; width: 20%; height: 100%;
+    padding: 0.52% 0; margin: 0;
+    border-width: 0px 0px 0px 1px; border-style: solid; border-color: #fff;
+    background-color: transparent;
+    font-size: 2.2em; text-align: center;
+    cursor: pointer;
+}
+
+#content .toolbar form button:first-child{border-left-width: 0px;}
+
+/* OVERLAY - UPLOAD - AJAX IFRAME */
+#overlay-box, #upload-box{display: none;}
+#overlay-box{
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #808080;
+    background-color: rgba(0,0,0, 0.5);
+}
+#upload-box{
+    position: absolute; left: 40%; top: 250px; /*CHANGE*/
+    width: 35em;
+    border: 4px solid #808080; background-color: #f0f0f0;
+    text-align: center;}
+#upload-form{padding: 0.3em; border: 1px solid #388d3c;}
+#upload-form button{border: 1px solid #808080;}
+#upload-form .form-header{margin: 0px; height: 3em;}
+#upload-form .form-header p{
+    float: left; width: 90%; height: 100%;
+    margin: 0; padding: 0;
+    border-bottom: 1px solid #317834;
+    font-size: 2.2em; text-align: left;}
+#upload-form .form-header button{
+    float: left; width: 10%; height: 100%;
+    border-bottom-color: #388d3c;
+    font-weight: bold; text-align: center;}
+#upload-form .form-content p{padding: 0.5em 0.2em; font-size: 1.2em;}
+#upload-form .form-content input{
+    width: 80%; /* For Webkit browsers */ height: 2em;
+    border: 1px solid #808080; background-color: #fff;}
+#upload-form .form-content button{float: right; width: 18%; height: 2em; text-align: center;}
+
+#fake-ajax-iframe{width: 0px; height: 0px; border: none; display: none;}
+
+/*** MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES ***/
+/* IPAD - OTHER TABLETS ? */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px){
+    html, body{
+        width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
+        padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        width: 100%; min-width: 76.8em; max-width: 100%; min-height: 100%;
+        box-shadow: none;}
+    
+    #page-header .logo#logo-1{text-align: center;}
+    #page-header .logo#logo-1 img{width: 98%;}
+    #page-header #logo-2{display: none;}
+
+    #content #page-title p{font-size: 2em;}
+    #content .toolbar form button{font-size: 2em;}
+
+    #footer p a{text-decoration: none;}
+}
+
+/* WVGA */
+@media only screen
+and (max-device-width : 800px) {
+    html, body{
+        width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
+        padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        width: 100%; min-width: 48em; max-width: 100%; min-height: 100%;
+        box-shadow: none;}
+    
+    #content .toolbar{position: absolute; bottom: 2%;}
+}
+
+/* SMARTPHONES */
+@media only screen
+and (min-device-width : 320px)
+and (max-device-width : 480px) {
+    html, body{
+        width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
+        padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        width: 100%; min-width: 32em; max-width: 100%; min-height: 100%;
+        box-shadow: none;}
+    
+    #page-header .logo#logo-1{text-align: center;}
+    #page-header .logo#logo-1 img{width: 98%;}
+    #page-header #logo-2{display: none;}
+
+    #content #page-title p{font-size: 2em;}
+    #content .toolbar form button{font-size: 1.2em;}
+
+    #footer p a{text-decoration: none;}
+
+    #upload-box{left: 5%; top: 30%; width: 90%;}
+}
+
+
+/* QVGA */
+@media only screen
+and (max-device-width : 240px) {
+    html, body{
+        width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
+        padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        width: 100%; min-width: 32em; max-width: 100%; min-height: 100%;
+        box-shadow: none;}
+    
+    #page-header .logo#logo-1{text-align: center;}
+    #page-header .logo#logo-1 img{width: 98%;}
+    #page-header #logo-2{display: none;}
+
+    #content #page-title p{font-size: 2em;}
+    #content .toolbar form button{padding: 0; font-size: 1em;}
+
+    #upload-box{left: 5%; top: 20%; width: 90%;}
+    
+    #footer p{font-size: 0.8em;}
+    #footer p a{text-decoration: none;}
+}

@@ -1,0 +1,86 @@
+/* GENERAL ELEMENTS */
+html, body{height: 100%; margin: 0; padding: 0;}
+html{
+    background-color: #e0e0e0;
+    font-family: 'Open Sans', sans-serif; font-size: 62.5%;}
+.clear{clear: both;}
+body{padding: 15px 5px;}
+*{-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;}
+
+p{margin: 0; padding: 0; text-align: center; font-size: 1.4em; overflow: hidden;}
+
+button, .page-title{
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#388d3c), to(#317834));
+    background-image: -moz-linear-gradient(top, #388d3c 0%, #317834 100%);
+    background-image: -o-linear-gradient(top, #388d3c, #317834);
+    background-image: -ms-linear-gradient(top, #388d3c, #317834); /* IE 10 */
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#388d3c', EndColorStr='#317834');
+    background-image: linear-gradient(top, #388d3c, #317834); /* W3C DECLARATION */
+    color: #fff;}
+button:hover{
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#3F9943), to(#317834));
+    background-image: -moz-linear-gradient(top, #3F9943 0%, #317834 100%);
+    background-image: -o-linear-gradient(top, #3F9943, #317834);
+    background-image: -ms-linear-gradient(top, #3F9943, #317834); /* IE 10 */
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#3F9943', EndColorStr='#317834');
+    background-image: linear-gradient(top, #3F9943, #317834); /* W3C DECLARATION */}
+button[disabled="disabled"]{
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#d0d0d0), to(#808080));
+    background-image: -moz-linear-gradient(top, #d0d0d0, #808080);
+    background-image: -o-linear-gradient(top, #d0d0d0, #808080);
+    background-image: -ms-linear-gradient(top, #d0d0d0, #808080); /* IE 10 */
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#d0d0d0', EndColorStr='#808080');
+    background-image: linear-gradient(top, #d0d0d0, #808080); /* W3C DECLARATION */
+    color: #808080;}
+button{border: none; cursor: pointer;}
+a{color: #000;}
+
+/* SPECIFIC ELEMENTS */
+#wrapper{
+    position: relative; top: 0px;
+    max-width: 96em; /*min-width: 61em; min-height: 60em;*/min-height: 60em;
+    margin: 0 auto;
+    box-shadow: 0 0 5px #000;
+    background-color: yellowgreen;
+    background-color: #e0e0e0;}
+
+#page-header{
+    height: 13.34%;
+    padding: 0.52%; padding-bottom: 0;
+    border-bottom: 1px solid #808080;
+    background-color: #c0c0c0;}
+#page-header .logo{height: 100%; margin: 0; padding: 0;/*background-color: yellow;*/}
+#page-header .logo#logo-1{float: left;} #page-header .logo#logo-2{float: right;}
+#page-header .logo img{max-width: 100%;}
+
+/* CONTENT - CONTENT - CONTENT - CONTENT - CONTENT - CONTENT */
+#content .page-title{
+    border-width: 1px 0px; border-style: solid; border-color: #808080;
+    color: #fff;}
+#content .page-title p{
+    height: 100%; padding: 0.52%;
+    font-size: 2.5em; line-height: 1em; text-align: left;}
+#content .page-title p a{
+    float: right; display: block;
+    color: #fff; font-weight: bold; text-decoration: none;}
+
+#content #main-content{padding: 0.52%; /*background-color: steelblue;*/}
+
+#content .toolbar{
+    width: 100%; 
+    border-width: 1px 1px 0px 1px; border-style: solid; border-color: #808080;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#388d3c), to(#317834));
+    background-image: -moz-linear-gradient(top, #388d3c 0%, #317834 100%);
+    background-image: -o-linear-gradient(top, #388d3c, #317834);
+    background-image: -ms-linear-gradient(top, #388d3c, #317834); /* IE 10 */
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#388d3c', EndColorStr='#317834');
+    background-image: linear-gradient(top, #388d3c, #317834); /* W3C DECLARATION */}
+
+/* FOOTER - FOOTER - FOOTER - FOOTER - FOOTER - FOOTER - FOOTER - FOOTER */
+#footer{
+    position: absolute; bottom: 0;
+    width: 100%; /*height: 2.5%; */
+    padding: 0.15% 0.52%; box-sizing: border-box; 
+    border-top: 1px solid #808080; background-color: #c0c0c0;
+    overflow: hidden;}
+#footer p{font-size: 1em; line-height: 1.2em;}

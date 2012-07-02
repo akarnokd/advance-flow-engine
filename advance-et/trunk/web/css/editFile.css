@@ -1,0 +1,236 @@
+#wrapper{min-width: 60em;}
+
+#page-header{border-bottom: 1px solid #808080;}
+
+#content{height: 48.5em; overflow: hidden;  /* For FF issues on animations */}
+
+#content .container, #content #separator{
+    float: left; height: 100%; margin: 0; padding: 0;}
+#content .container#tree-container{width: 36.46%; /* 350px */}
+#content .container#node-editor-container{width: 61.98%; /* 595px */}
+#content #separator{
+    width: 1.5625%; /* 15px */
+    border-width: 0px 1px; border-style: solid; border-color: #808080;
+    background-color: #e0e0e0;}
+#content #separator:hover{border-color: #000; cursor: pointer;}
+
+#content .container#tree-container .page-title p{padding: 1.15%;}
+#content .container#node-editor-container .page-title p{padding: 0.68%;}
+#content .container #tree{height: 83%;}
+#content .container #node-editor{height: 90%;}
+#content .container .toolbar{
+    height: 5em;
+    border-width: 1px 0px 0px; 
+    background-image: none; background-color: transparent;
+    overflow: hidden;}
+
+#content .container div{position: relative;}
+#content .container div#node-editor, #content .container div#tree{
+    background: url(../images/editor_bg.png); overflow: auto;}
+
+/* TREE - TREE - TREE - TREE - TREE - TREE - TREE - TREE - TREE */
+#tree{overflow: auto;}
+#tree ul#root{display: block; margin: 1em 0; padding: 0 0.2em;}
+#tree ul{display: none; padding-left: 1.5em; list-style-type: none;}
+#tree ul li{position: relative; width: 100%; min-width: 70%; /* 245px */}
+#tree ul li div, #tree ul li a{cursor: pointer;}
+#tree ul li div{
+    float: left;
+    width: 25px; height: 25px;
+    margin: 2px 0px 0px 5px;
+    border: 1px solid transparent; border-radius: 5px;
+    background-color: #c0c0c0;
+    background-image: url('../images/tree_buttons.png');}
+#tree ul li div.open{background-color: #388d3c; background-position: -23px;}
+#tree ul li a{
+    display: block; 
+    margin-left: 2.5em; padding: 0.5em; color: #000;
+    border-bottom: 1px dotted #c0c0c0;
+    font-size: 1.3em; text-decoration: none;}
+#tree ul li a:hover, #tree ul li a.selected{
+    border-bottom-style: solid; border-bottom-color: #317834;
+    background-color: #388d3c; color: #fff;}
+
+/* JQUERYUI'S SLIDER */
+#content .container #node-editor.padded{padding: 6em 1.5em 0 1.5em;}
+#node-editor #slider.ui-widget-content{
+    height: 3em;
+    margin: 3em 0em; 
+    border-color: #808080;
+    -moz-border-radius: 0px; -webkit-border-radius: 0px; -o-border-radius: 0px;
+    border-radius: 0px;
+    background: #e0e0e0;
+    font-size: 1em;}
+#node-editor #slider .ui-slider-range-min{border-color: #808080; background: #388d3c;}
+.ui-slider-horizontal .ui-slider-handle {
+    width: 3.2em; height: 3.5em;
+    margin-left: -1.6em;
+    border-radius: 0px;
+    -moz-border-radius: 0px; -webkit-border-radius: 0px; -o-border-radius: 0px;
+    font-size: 1em;
+    cursor: pointer;}
+
+#node-editor .component{
+    width: 20.85em; /* 250px */
+    margin: 0; padding: 0.89%; border: 1px solid #808080; font-size: 1.2em;}
+#node-editor .component#first-component{
+    float: left; background-color: #388d3c; color: #fff;}
+#node-editor .component#second-component{
+    float: right; background-color: #e0e0e0; color: #000;}
+
+#node-editor .component .value{
+    width: 30%;
+    padding: 2.2%;
+    border: 1px solid #808080; background-color: #fff;
+    color: #000;
+    font-size: 1.4em; font-weight: bold; text-align: center;}
+#node-editor .component p{
+    width: 68%;
+    margin: 0; padding: 0 2.2%;
+    border: 1px solid transparent;
+    font-size: 1.2em; text-align: left; 
+    cursor: pointer;}
+#node-editor .component#first-component p{margin-left: 2.2%;}
+#node-editor .component#second-component p{margin-right: 2.2%;}
+#node-editor .component p[contenteditable="true"]:focus,
+#node-editor .component p[contenteditable="true"]:hover{
+    border-color: #808080; outline: none; background-color: #fff; color: #000;}
+
+#node-editor .component#first-component p, #node-editor .component#first-component .value{float: left;}
+#node-editor .component#second-component .value, #node-editor .component#second-component p{float: right;}
+
+/* JSXGRAPH */
+#node-editor #jxgbox{width: 100%; height: 100%; background-color: #fff;}
+#node-editor #jxgbox .JXGtext span{color: #000 !important;}
+
+/* TOOLBAR BUTTONS - TOOLBAR BUTTONS - TOOLBAR BUTTONS - TOOLBAR BUTTONS */
+.toolbar button{padding: 0; font-size: 2em;}
+#node-editor-toolbar #button-container, #tree-toolbar form{height: 100%;}
+#node-editor-toolbar #button-container{height: 100%;}
+#node-editor-toolbar button, #tree-toolbar button{height: 100%;}
+#node-editor-toolbar button{width: 25%; height: 100%; border-left: 1px solid #e0e0e0;}
+#node-editor-toolbar button:first-child{border-left-width: 0px;}
+#tree-toolbar button{width: 100%;}
+
+/*** MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES ***/
+/* IPAD - OTHER TABLETS ? */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px){
+
+    html, body{
+        /*width: 100%;*/ min-width: 100%; max-width: none; min-height: 100%;
+        margin: 0; padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        position: relative;
+        /*min-width: 100%;*/ width: 100%; min-height: 100%;
+        margin: 0; padding: 0;
+        box-shadow: none;
+    }
+
+    #page-header #logo-2{display: none;}
+
+    #node-editor-toolbar button{font-size: 1.8em;}
+}
+
+/* WVGA */
+@media only screen
+and (max-device-width : 800px) {
+    html, body{
+        /*width: 100%;*/ min-width: 100%; max-width: none; min-height: 100%;
+        margin: 0; padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        /*        position: relative;*/
+        /*min-width: 100%;*/ width: 100%; min-height: 100%;
+        margin: 0; padding: 0;
+        box-shadow: none;
+    }
+
+    #content{height: 100%; min-height: 100%; background-color: red;}
+
+    .toolbar{position: absolute; bottom: 2%;}
+    #content #tree-toolbar{width: 36.46%;}
+    #content #node-editor-toolbar{width: 61.98%;}
+    #separator{background-color: yellowgreen;}
+
+    #page-header #logo-2{display: none;}
+
+    .toolbar{/*position: absolute; bottom: 2.5%;*/}
+    #node-editor-toolbar button{font-size: 1.8em;}
+}
+
+/* SMARTPHONES */
+@media only screen
+and (min-device-width : 320px)
+and (max-device-width : 480px) {
+
+    html, body{
+        /*width: 100%;*/ min-width: 100%; max-width: none; min-height: 100%;
+        margin: 0; padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        position: relative;
+        /*min-width: 100%;*/ width: 100%; min-height: 100%;
+        margin: 0; padding: 0;
+        box-shadow: none;
+    }
+
+    #page-header #logo-2{display: none;}
+
+    #node-editor-toolbar button{font-size: 1.8em;}
+    /*
+    
+        #content{min-height: 100%; height: auto; overflow: auto;}
+    
+        #content .container#node-editor-container, #content #separator{display: none;}
+        #content .container#tree-container{
+            float: left; width: 100%;}
+    
+        #tree-container #tree, #node-editor-container #node-editor{
+            background-image: none; padding-bottom: 18.5%;}
+        #tree-container .toolbar#tree-toolbar,
+        #node-editor-container .toolbar#node-editor-toolbar{
+            position: absolute; bottom: 0.8em;}
+    
+        #footer p{font-size: 0.8em;}
+        #footer p a{text-decoration: none;}*/
+}
+
+/* QVGA */
+@media only screen
+and (max-device-width : 240px) {
+
+    html, body{
+        width: 100%; min-width: 100%; max-width: none; min-height: 100%;
+        margin: 0; padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        position: relative;
+        min-width: 100%; width: 100%; min-height: 100%; height: auto;
+        margin: 0; padding: 0;
+        box-shadow: none;
+        background: url(../images/editor_bg.png);}
+
+    #page-header #logo-2{display: none;}
+    /*
+    
+        #content{min-height: 100%; height: auto; overflow: auto;}
+    
+        #content .container#node-editor-container, 
+        #content #separator{display: none;}
+        #content .container#tree-container{
+            position: absolute; top: 0; left: 0;
+            float: none; width: 100%; min-height: 100%;}
+    
+        #tree-container #tree{background-image: none; padding-bottom: 18%;}
+        #tree-container #tree-toolbar{position: absolute; bottom: 0.8em;}
+    
+        #node-editor #jxgbox{width: 100%; height: 100%; background-color: #fff;}
+    
+        #footer p{font-size: 0.8em;}
+        #footer p a{text-decoration: none;}*/
+}
