@@ -1,0 +1,76 @@
+#wrapper{
+    width: 60em; min-height: 30em; height: auto;
+    background: url(../images/editor_bg.png);}
+
+#page-header{border-bottom: 1px solid #808080;}
+#page-header .logo#logo-1{width: 68.83%;}
+
+#content form{border: none;}
+#content form fieldset{border: none; padding: 1.5em 1em 2.5em;}
+#content form fieldset label{display: block; font-size: 2em;}
+#content form fieldset label:first-child{border-bottom-width: 0px;}
+#content form fieldset input{width: 100%; height: 2.5em; font-size: 1.8em; line-height: 2em;}
+#content form fieldset input.error{
+    border-color: #ff0000;
+    /*FF*/
+    -moz-border-top-colors: #ee0000; -moz-border-bottom-colors: #ee0000;
+    -moz-border-right-colors: #ee0000; -moz-border-left-colors: #ee0000;}
+#content form fieldset input:focus{outline: none; /*Chrome*/}
+#content form fieldset #button-container{margin: 1em 0; text-align: center;}
+#content form fieldset button{border: 1px solid #808080; font-size: 2em;}
+
+/*** MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES ***/
+/* IPAD - OTHER TABLETS ? */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px){
+    html, body{
+        width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
+        padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        width: 100%; min-width: 32em; max-width: 100%; min-height: 100%;
+        box-shadow: none;}
+
+    #page-header #logo-2{width: 15%;}
+}
+
+/* WVGA */
+@media only screen
+and (max-device-width : 800px) {
+    #page-header #logo-2{width: 15%;}
+}
+
+/* SMARTPHONES */
+@media only screen
+and (min-device-width : 320px)
+and (max-device-width : 480px) {
+    html, body{
+        width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
+        padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        width: 100%; min-width: 32em; max-width: 100%; min-height: 100%;
+        box-shadow: none;}
+    #page-header #logo-2{width: 15%;}
+    
+    #footer p a{text-decoration: none;}
+}
+
+/* QVGA */
+@media only screen
+and (max-device-width : 240px) {
+    html, body{
+        width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
+        padding: 0;
+        -webkit-text-size-adjust: none;}
+
+    #wrapper{
+        width: 100%; max-width: 100%; min-height: 100%;
+        box-shadow: none;}
+
+    #page-header #logo-2{width: 15%;}
+
+    #footer p{font-size: 0.8em;}
+    #footer p a{text-decoration: none;}
+}

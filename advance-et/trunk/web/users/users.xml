@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <user name="user1" password="1234">
+        <permission type="edit" allow="true"/>
+        <permission type="view" allow="true"/>
+        <permission type="upload" allow="true"/>
+        <permission type="download" allow="true"/>
+        <permission type="delete" allow="true"/>
+    </user>
+    <user name="user2" password="1234">
+        <permission type="edit" allow="false"/>
+        <permission type="view" allow="false"/>
+        <permission type="upload" allow="false"/>
+        <permission type="download" allow="false"/>
+        <permission type="delete" allow="false"/>
+    </user>
+</users>
