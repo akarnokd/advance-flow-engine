@@ -26,6 +26,8 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
 
 /**
  * During day model writer.
@@ -37,26 +39,54 @@ description = "Writes the during-day model.")
 public class DuringDayModelWriter extends AdvanceBlock {
 
     /**
-     * Location where the DuringDay model will be stores.
-     * It must rappresent a file.
+     * Location where the DuringDay model will be stores. It must rappresent a
+     * file.
      */
     @Input("advance:string")
     protected static final String LOCATION = "location";
     /**
      * DuringDay model to save.
      */
-    @Input("duringdaymodel")
+    @Input("advance:duringdaymodel")
     protected static final String MODEL = "model";
 
     @Override
-    protected void invoke() {
+    public Observer<Void> run() {
+        addCloseable(Reactive.observeOn(getInput(MODEL), scheduler()).register(new Observer<XElement>() {
+
+            @Override
+            public void next(XElement value) {
+                write(value);
+            }
+
+            @Override
+            public void error(Throwable ex) {
+            }
+
+            @Override
+            public void finish() {
+            }
+        }));
+        return new RunObserver();
+    }
+
+    private void write(XElement root) {
+        if (get(LOCATION) == null) {
+            LOG.error("DuringDayModelWriter: no location!");
+            return;
+        }
         Pool<LocalConnection> ds = null;
         LocalConnection conn = null;
         try {
+            LOG.info("DuringDayModelWriter: writing to " + getString(LOCATION) + "...");
             ds = getPool(LocalConnection.class, getString(LOCATION));
-            conn = ds.get();
-            XElement root = get(MODEL);
-            root.save(conn.file());
+            if (ds == null) {
+                LOG.error("DuringDayModelWriter: unable to get local connection!");
+            } else {
+                conn = ds.get();
+                root.save(conn.file());
+                LOG.info("DuringDayModelWriter: done.");
+            }
         } catch (Exception ex) {
             log(ex);
         } finally {
@@ -66,4 +96,7 @@ public class DuringDayModelWriter extends AdvanceBlock {
         }
     }
 
+    @Override
+    protected void invoke() {
+    }
 }

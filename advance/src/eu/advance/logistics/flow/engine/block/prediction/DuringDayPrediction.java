@@ -25,14 +25,13 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
-import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.runtime.DataResolver;
 import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.MLModel;
 import eu.advance.logistics.prediction.support.MLPrediction;
 import hu.akarnokd.reactive4java.reactive.Observer;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -47,43 +46,56 @@ public class DuringDayPrediction extends AdvanceBlock {
     /**
      * Stream of consignments.
      */
-    @Input("advance:collection<advance:consignment>")
+    @Input("advance:consignment")
     protected static final String CONSIGNMENT = "consignments";
+    /**
+     * Targer date.
+     */
+    @Input("advance:timestamp")
+    protected static final String TARGET_DATE = "targetDate";
     /**
      * Previous trained model (optional, not used now).
      */
-    @Input("duringdaymodel")
+    @Input("advance:duringdaymodel")
     protected static final String TRAINED_MODEL = "trainedModel";
     /**
      * Forecast.
      */
     @Output("advance:map<advance:string,advance:real>")
     protected static final String FORECAST = "forecast";
-    
+    /**
+     * Number of consignment.
+     */
+    @Output("advance:integer")
+    protected static final String COUNTER = "counter";
     /**
      * Provides the list of selected attributes.
      */
     private SelectedAttributesProviderImpl selectedAttributesProvider = new SelectedAttributesProviderImpl();
+    private MLPrediction prediction;
 
     @Override
-    public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
-        super.init(settings);
-    }
-
-    @Override
-    protected void invoke() {
-        final MLPrediction prediction = new MLPrediction();
-        try {
-            MLModel model = fromXml(resolver(), get(TRAINED_MODEL));
-            prediction.init(model);
-        } catch (Exception ex) {
-            LOG.error(null, ex);
-        }
-        getInput(CONSIGNMENT).register(new Observer<XElement>() {
-
+    public Observer<Void> run() {
+        getInput(TRAINED_MODEL).register(new Observer<XElement>() {
             @Override
             public void next(XElement value) {
-                process(prediction, value);
+                LOG.info("Reading prediction model...");
+                prediction = new MLPrediction();
+                try {
+                    MLModel model = fromXml(value);
+
+                    Date targetDate = getTimestamp(TARGET_DATE);
+                    prediction.setTargetDate(targetDate);
+                    prediction.setTargetDepotIds(model.config.targetDepotIDs);
+                    prediction.init(model);
+
+                    LOG.info("Target date: "+prediction.getTargetDate());
+                    LOG.info("Target depots: "+Arrays.toString(prediction.getTargetDepotIds()));
+
+                } catch (Exception ex) {
+                    LOG.error(null, ex);
+                }
+                LOG.info("Prediction model: " + prediction);
             }
 
             @Override
@@ -94,6 +106,36 @@ public class DuringDayPrediction extends AdvanceBlock {
             public void finish() {
             }
         });
+        getInput(CONSIGNMENT).register(new Observer<XElement>() {
+            private int counter;
+            private long lastTime;
+
+            @Override
+            public void next(XElement value) {
+                if (prediction != null) {
+                    process(value);
+                    counter++;
+                }
+                long time = System.currentTimeMillis();
+                if (time - lastTime > 2000) {
+                    dispatch(COUNTER, resolver().create(counter));
+                    lastTime = time;
+                }
+            }
+
+            @Override
+            public void error(Throwable ex) {
+            }
+
+            @Override
+            public void finish() {
+            }
+        });
+        return new RunObserver();
+    }
+
+    @Override
+    protected void invoke() {
     }
 
     /**
@@ -102,7 +144,7 @@ public class DuringDayPrediction extends AdvanceBlock {
      * @param prediction the model
      * @param x the XML representation of the consignment
      */
-    private void process(MLPrediction prediction, XElement x) {
+    private void process(XElement x) {
         try {
             Consignment c = Consignment.parse(x);
             if (c.id != -1) {
@@ -114,7 +156,8 @@ public class DuringDayPrediction extends AdvanceBlock {
                     forecast.put(resolver().create(e.getKey()),
                             resolver().create(e.getValue()));
                 }
-                dispatch(FORECAST, forecast);
+                dispatch(FORECAST, resolver().create(forecast));
+                prediction = null;
             }
         } catch (Exception ex) {
             LOG.error(null, ex);
@@ -129,18 +172,28 @@ public class DuringDayPrediction extends AdvanceBlock {
      * @return the model
      * @throws Exception if unable to convert base64 string
      */
-    private MLModel fromXml(DataResolver<XElement> resolver, XElement root) throws Exception {
-        DuringDayConfigData cfg = DuringDayConfigData.parse(resolver, root.childElement("config"));
+    /**
+     * Creates the model from XML.
+     *
+     * @param resolver used to resolve data to XML
+     * @param root the root XML element
+     * @return the model
+     * @throws Exception if unable to convert base64 string
+     */
+    private MLModel fromXml(XElement root) throws Exception {
         MLModel model = new MLModel();
-        model.config = cfg.createTestSet(null);
+
+        DuringDayConfigData cfg = new DuringDayConfigData();
+        cfg.parse(root.childElement("config"));
+
+        selectedAttributesProvider.load(root.childElement("attributes-set"));
+        model.config = cfg.createTestSet(selectedAttributesProvider);
 
         XElement classifiers = root.childElement("classifiers");
         model.classifiers = Maps.newHashMap();
         for (XElement classifier : classifiers.children()) {
             model.classifiers.put(classifier.get("name"), Base64.decode(classifier.content));
         }
-
-        selectedAttributesProvider.load(root.childElement("attributes-set"));
 
         return model;
     }

@@ -25,9 +25,8 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.reactive4java.reactive.Observer;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * During day prediction configuration.
@@ -46,7 +45,7 @@ public class DuringDayConfig extends AdvanceBlock {
     /**
      * List of target depots IDs.
      */
-    @Input("advance:collection<advance:string>")
+    @Input("advance:string")
     protected static final String TARGET_DEPOT_IDS = "targetDepotIds";
     /**
      * Weka classifier class.
@@ -71,17 +70,17 @@ public class DuringDayConfig extends AdvanceBlock {
     /**
      * Min entered date.
      */
-    @Input("advance:date")
+    @Input("advance:timestamp")
     protected static final String MIN_ENTERED_DATE = "minEnteredDate";
     /**
      * Max entered date.
      */
-    @Input("advance:date")
+    @Input("advance:timestamp")
     protected static final String MAX_ENTERED_DATE = "maxEnteredDate";
     /**
      * List of events (first is the main event).
      */
-    @Input("advance:collection<advance:string>")
+    @Input("advance:string")
     protected static final String EVENTS = "events";
     /**
      * Out.
@@ -90,7 +89,15 @@ public class DuringDayConfig extends AdvanceBlock {
     protected static final String CONFIG = "config";
 
     @Override
+    public Observer<Void> run() {
+        LOG.info("DuringDayConfig - run");                
+        invoke();
+        return new RunObserver();
+    }
+    
+    @Override
     protected void invoke() {
+        LOG.info("DuringDayConfig - invoke");
         DuringDayConfigData cfg = new DuringDayConfigData();
         cfg.targetType = getString(TARGET_TYPE);
         cfg.targetDepotIDs = getStringArray(get(TARGET_DEPOT_IDS));
@@ -108,7 +115,11 @@ public class DuringDayConfig extends AdvanceBlock {
         } catch (ParseException ex) {
             LOG.error(null, ex);
         }
-        cfg.events = getStringArray(get(EVENTS));
+        cfg.events = getStringArray(get(EVENTS));        
+        XElement x = new XElement("DuringDayConfig");
+        x.set(cfg);
+        dispatch(CONFIG, x);
+        LOG.info("DuringDayConfig - done");
     }
 
     /**
@@ -117,10 +128,6 @@ public class DuringDayConfig extends AdvanceBlock {
      * @return the string array
      */
     private String[] getStringArray(XElement collection) {
-        List<String> names = new ArrayList<String>();
-        for (XElement e : resolver().getItems(collection)) {
-            names.add(resolver().getString(e));
-        }
-        return names.toArray(new String[names.size()]);
+        return collection.content.split(",");
     }
 }

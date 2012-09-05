@@ -32,10 +32,8 @@ import eu.advance.logistics.prediction.support.MLModel;
 import eu.advance.logistics.prediction.support.MLModelTraining;
 import eu.advance.logistics.prediction.support.TestSet;
 import hu.akarnokd.reactive4java.reactive.Observer;
-import java.text.ParseException;
+import hu.akarnokd.reactive4java.reactive.Reactive;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * During day training block.
@@ -49,12 +47,12 @@ public class DuringDayTraining extends AdvanceBlock {
     /**
      * Stream of consignments.
      */
-    @Input("advance:collection<advance:consignment>")
+    @Input("advance:consignment")
     protected static final String CONSIGNMENT = "consignments";
     /**
      * Previous trained model (optional, not used now).
      */
-    @Input("duringdaymodel")
+    @Input("advance:duringdaymodel")
     protected static final String PREVIOUS_MODEL = "previousTrainedModel";
     /**
      * During day prediction configuration.
@@ -69,7 +67,7 @@ public class DuringDayTraining extends AdvanceBlock {
     /**
      * During day trained model.
      */
-    @Output("duringdaymodel")
+    @Output("advance:duringdaymodel")
     protected static final String TRAINED_MODEL = "trainedModel";
     /**
      * Mean Absolute Error of the trained model.
@@ -81,11 +79,12 @@ public class DuringDayTraining extends AdvanceBlock {
      */
     @Output("advance:real")
     protected static final String OUTPUT_SMAPE = "smape";
-    
     /**
      * Provides the list of selected attributes.
      */
     private SelectedAttributesProviderImpl selectedAttributesProvider;
+    private DuringDayConfigData duringDayConfig;
+    private boolean finished;
 
     @Override
     public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
@@ -93,27 +92,11 @@ public class DuringDayTraining extends AdvanceBlock {
     }
 
     @Override
-    protected void invoke() {
-        DuringDayConfigData cfg = null;
-        try {
-            cfg = DuringDayConfigData.parse(resolver(), get(CONFIG));
-        } catch (ParseException ex) {
-            Logger.getLogger(DuringDayTraining.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        selectedAttributesProvider = new SelectedAttributesProviderImpl();
-        selectedAttributesProvider.loadFromLocalConnection(this, getString(SELECTED_ATTRIBUTES_FILE));
-        TestSet testSet = cfg.createTestSet(selectedAttributesProvider);
-        final MLModelTraining trainingBlock = new MLModelTraining(testSet);
-        try {
-            trainingBlock.init();
-        } catch (Exception ex) {
-            LOG.error(null, ex);
-        }
-        getInput(CONSIGNMENT).register(new Observer<XElement>() {
-
+    public Observer<Void> run() {
+        getInput(CONFIG).register(new Observer<XElement>() {
             @Override
             public void next(XElement value) {
-                process(trainingBlock, value);
+                duringDayConfig = value.get();
             }
 
             @Override
@@ -124,6 +107,79 @@ public class DuringDayTraining extends AdvanceBlock {
             public void finish() {
             }
         });
+        getInput(CONSIGNMENT).register(new Observer<XElement>() {
+            private MLModelTraining training;
+            private long lastTime = 0;
+            private long count = 0;
+
+            @Override
+            public void next(XElement value) {
+                if (finished) return;
+                if (training == null) {
+                    training = init();
+                }
+                if (training != null) {
+                    process(training, value);
+                    count++;
+                }
+                long time = System.currentTimeMillis();
+                if (time - lastTime > 2000) {
+                    LOG.info("Training - processed " + count + "...");
+                    lastTime = time;
+                }
+            }
+
+            @Override
+            public void error(Throwable ex) {
+            }
+
+            @Override
+            public void finish() {
+            }
+        });
+        return new RunObserver();
+    }
+
+    @Override
+    protected void invoke() {
+    }
+
+    private MLModelTraining init() {
+        LOG.info("Starting TRAINING");
+        if (duringDayConfig == null) {
+            LOG.info("Invalid config");
+            return null;
+        }
+        try {
+            selectedAttributesProvider = new SelectedAttributesProviderImpl();
+            if (get(SELECTED_ATTRIBUTES_FILE) == null || getString(SELECTED_ATTRIBUTES_FILE).isEmpty()) {
+                selectedAttributesProvider.loadDefault();
+            } else {
+                selectedAttributesProvider.loadFromLocalConnection(this, getString(SELECTED_ATTRIBUTES_FILE));
+            }
+            TestSet testSet = duringDayConfig.createTestSet(selectedAttributesProvider);
+
+            // testing output
+//            LOG.info("MODEL WRITE TEST STARTED");
+//            MLModel dummy = new MLModel();
+//            dummy.config = testSet;
+//            dummy.classifiers = Maps.newHashMap();
+//            dummy.classifiers.put("TEST", new byte[1]);
+//            dummy.mae = 0.25;
+//            dummy.smape = 0.35;
+//            dispatch(TRAINED_MODEL, toXml(dummy));
+//            LOG.info("MODEL WRITE TEST COMPLETED");
+            //
+
+            final MLModelTraining trainingBlock = new MLModelTraining(testSet);
+            trainingBlock.init();
+            return trainingBlock;
+
+        } catch (Throwable ex) {
+            log(ex);
+        }
+
+        return null;
     }
 
     /**
@@ -138,10 +194,12 @@ public class DuringDayTraining extends AdvanceBlock {
             if (c.id != -1) {
                 mt.process(new ConsignmentAccessorImpl(c));
             } else {
+                LOG.info("TRAINING - finished");
                 MLModel result = mt.done();
                 dispatch(OUTPUT_MAE, resolver().create(result.mae));
                 dispatch(OUTPUT_SMAPE, resolver().create(result.smape));
                 dispatch(TRAINED_MODEL, toXml(result));
+                finished = true;
             }
         } catch (Exception ex) {
             LOG.error(null, ex);
@@ -154,20 +212,45 @@ public class DuringDayTraining extends AdvanceBlock {
      * @param model the model to convert
      * @return the XML representation of the model
      */
+    /**
+     * Converts a model to XML.
+     *
+     * @param model the model to convert
+     * @return the XML representation of the model
+     */
     private XElement toXml(MLModel model) {
         XElement root = new XElement("DuringDayModel");
-        
+
         root.add(DuringDayConfigData.toXml(resolver(), "config", model.config));
         root.add(selectedAttributesProvider.toXml(resolver()));
-        
+
         XElement classifiers = new XElement("classifiers");
         for (Map.Entry<String, byte[]> e : model.classifiers.entrySet()) {
             XElement classifier = new XElement("classifier");
             classifier.set("name", e.getKey());
             classifier.content = Base64.encodeBytes(e.getValue());
+            classifiers.add(classifier);
         }
         root.add(classifiers);
-        
+
         return root;
     }
+    /*
+     private XElement toXml(MLModel model) {
+     XElement root = new XElement("DuringDayModel");
+     ByteArrayDataOutput out = ByteStreams.newDataOutput();
+     // write config
+     DuringDayConfigData.write(out, model.config);
+     // write classifiers
+     out.writeInt(model.classifiers.size());
+     for (Map.Entry<String, byte[]> e : model.classifiers.entrySet()) {
+     out.writeUTF(e.getKey());
+     out.writeInt(e.getValue().length);
+     out.write(e.getValue());
+     }
+     // write selected attributes
+     //selectedAttributesProvider.write(out); //TODO
+     root.content = Base64.encodeBytes(out.toByteArray());
+     return root;
+     }*/
 }

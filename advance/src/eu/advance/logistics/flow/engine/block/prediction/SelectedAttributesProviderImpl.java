@@ -46,8 +46,8 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
     private Map<String, SelectedAttributes> attributesSet;
 
     /**
-     * Implements a selected attributes provider.
-     * The contents can be loaded by a local data store or from an XML element.
+     * Implements a selected attributes provider. The contents can be loaded by
+     * a local data store or from an XML element.
      */
     SelectedAttributesProviderImpl() {
     }
@@ -144,8 +144,10 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
         LocalConnection conn = null;
         try {
             p = owner.getPool(LocalConnection.class, selectedAttributesFile);
-            conn = p.get();
-            parse(attributesSet, XElement.parseXML(conn.file()));
+            if (p != null) {
+                conn = p.get();
+                parse(attributesSet, XElement.parseXML(conn.file()));
+            }
         } catch (Exception ex) {
             Logger.getLogger(DuringDayTraining.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -156,6 +158,10 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
         if (!attributesSet.containsKey("default")) {
             attributesSet.put("default", createDefault());
         }
+    }
+
+    public void loadDefault() {
+        attributesSet.put("default", createDefault());
     }
 
     /**
@@ -169,6 +175,7 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
 
     /**
      * Converts the selected attributes list to an XML representation.
+     *
      * @param resolver the data resolver used to convert data to XML
      * @return the XML representation of the selected attributes list
      */
