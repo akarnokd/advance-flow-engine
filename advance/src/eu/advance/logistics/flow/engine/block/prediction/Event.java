@@ -40,8 +40,8 @@ public class Event {
      * @param name name of the XML element
      * @return XML representation
      */
-    public XElement toXML(String name) {
-        XElement x = new XElement(name);
+    public XElement toXML(String elementName) {
+        XElement x = new XElement(elementName);
         x.set("name", name);
         x.set("timestamp", XElement.formatDateTime(timestamp));
         return x;

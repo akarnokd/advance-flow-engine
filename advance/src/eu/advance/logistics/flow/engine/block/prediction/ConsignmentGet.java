@@ -31,46 +31,60 @@ import eu.advance.logistics.flow.engine.runtime.BlockSettings;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Get a consignment form a database.
+ *
  * @author TTS
  */
 @Block(id = "ConsignmentGet", category = "prediction", scheduler = "IO",
 description = "Gets consignment from the DB")
 public class ConsignmentGet extends AdvanceBlock {
 
-    /** Trigger for activating the data fetch. */
+    /**
+     * Trigger for activating the data fetch.
+     */
     @Input("advance:boolean")
     protected static final String TRIGGER = "trigger";
-    
-    /** Name of the JDBC data source. */
+    /**
+     * Name of the JDBC data source.
+     */
     @Input("advance:string")
     protected static final String DATASOURCE = "datasource";
-    
-    /** Stream of consignment fetched from the database. 
-     * The end of the stream is marked with a consignment with id = -1.
+    /**
+     * Min entered date.
+     */
+    @Input("advance:timestamp")
+    protected static final String MIN_ENTERED_DATE = "minEnteredDate";
+    /**
+     * Max entered date.
+     */
+    @Input("advance:timestamp")
+    protected static final String MAX_ENTERED_DATE = "maxEnteredDate";
+    /**
+     * Stream of consignment fetched from the database. The end of the stream is
+     * marked with a consignment with id = -1.
      */
     @Output("advance:consignment")
     protected static final String OUT = "consignment";
-    
     /**
      * Special consignment instance that mark the end if stream.
      */
     public static final Consignment EOF = new Consignment();
-    
+
     {
-    	EOF.id = -1;
+        EOF.id = -1;
     }
 
     @Override
@@ -86,7 +100,6 @@ public class ConsignmentGet extends AdvanceBlock {
     @Override
     public Observer<Void> run() {
         addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
-
             @Override
             public void next(XElement value) {
                 if (resolver().getBoolean(value)) {
@@ -105,108 +118,165 @@ public class ConsignmentGet extends AdvanceBlock {
         return new RunObserver();
     }
 
-    /** Activated on trigger. */
-    private void execute() {
-    	JDBCConnection conn = null;
-		try {
-			final String dataSourceStr = getString(DATASOURCE);
-			final Pool<JDBCConnection> ds = getPool(JDBCConnection.class, dataSourceStr);
-			conn = ds.get();
-			try {
-				final Session s = new Session(conn.getConnection());
-				try {
-					Consignment c;
-					while ((c = s.next()) != null) {
-						dispatch(OUT, c.toXML("consignment"));
-					}
-				} finally {
-					s.close();
-				}
-			} finally {
-				ds.put(conn);
-			}
-		} catch (Exception ex) {
-			log(ex);
-		}    	
+    private Date getDate(XElement x) {
+        if (x != null) {
+            try {
+                return resolver().getTimestamp(x);
+            } catch (Throwable t) {
+                log(t);
+            }
+        }
+        return null;
     }
-    
+
+    /**
+     * Activated on trigger.
+     */
+    private void execute() {
+        Date minDate = getDate(get(MIN_ENTERED_DATE));
+        Date maxDate = getDate(get(MAX_ENTERED_DATE));
+        LOG.info("Min date: " + minDate + " (" + get(MIN_ENTERED_DATE) + ")");
+        LOG.info("Max date: " + maxDate + " (" + get(MAX_ENTERED_DATE) + ")");
+        LOG.info("Connecting to datasource...");
+        JDBCConnection conn;
+        try {
+            final String dataSourceStr = getString(DATASOURCE);
+            LOG.info("   datasource: " + dataSourceStr);
+            final Pool<JDBCConnection> ds = getPool(JDBCConnection.class, dataSourceStr);
+            LOG.info("   DS: " + ds);
+            conn = ds.get();
+            LOG.info("   connection: " + conn);
+            LOG.info("Starting session.");
+            try {
+                final Session s = new Session(conn.getConnection(), minDate, maxDate);
+                LOG.info("Session started: " + s);
+                long count = 0, lastTime = 0;
+                try {
+                    Consignment c;
+                    while ((c = s.next()) != null && c.id != -1) {
+                        dispatch(OUT, c.toXML("consignment"));
+                        count++;
+                        long time = System.currentTimeMillis();
+                        if (time - lastTime > 2000) {
+                            LOG.info("Consignment: " + count);
+                            lastTime = time;
+                        }
+                    }
+                    c = new Consignment();
+                    c.id = -1;
+                    dispatch(OUT, c.toXML("consignment"));
+                } finally {
+                    LOG.info("Closing....");
+                    s.close();
+                }
+            } finally {
+                ds.put(conn);
+            }
+            LOG.info("Session closed.");
+        } catch (Throwable ex) {
+            log(ex);
+        }
+    }
+
     /**
      * Internal class to handle a single query session.
+     *
      * @author TTS
      */
     private final class Session {
-    	/** Query statement. */
+
+        /**
+         * Query statement.
+         */
         private Statement selectConsignment;
-        /** Depots. */
+        /**
+         * Depots.
+         */
         private Map<String, Integer> depots = new HashMap<String, Integer>();
-        /** Events. */
+        /**
+         * Events.
+         */
         private Map<Integer, String> events = new HashMap<Integer, String>();
-        /** Flag to single end-of-stream. */
+        /**
+         * Flag to single end-of-stream.
+         */
         private boolean eof = false;
-        /** Working result sets. */
-   	 	private ResultSet rs;
-        
-   	 	/**
-   	 	 * A query session built from a connection.
-   	 	 * @param connection the JDBC connection
-   	 	 * @throws SQLException if any error in queries
-   	 	 */
-        private Session(Connection connection) throws SQLException {
-        	ResultSet rs;
+        /**
+         * Working result sets.
+         */
+        private ResultSet rs;
 
-        	 // fetch all depots
-             PreparedStatement allDepots = connection.prepareStatement("SELECT Name, idDepot FROM depot", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-             rs = allDepots.executeQuery();
-             while (rs.next()) {
-                 depots.put(rs.getString(1), rs.getInt(2));
-             }
-             rs.close();
-             allDepots.close();
+        /**
+         * A query session built from a connection.
+         *
+         * @param connection the JDBC connection
+         * @throws SQLException if any error in queries
+         */
+        private Session(Connection connection, Date minDate, Date maxDate) throws SQLException {
+            // fetch all depots
+            PreparedStatement allDepots = connection.prepareStatement("SELECT Name, idDepot FROM depot", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            rs = allDepots.executeQuery();
+            while (rs.next()) {
+                depots.put(rs.getString(1), rs.getInt(2));
+            }
+            rs.close();
+            allDepots.close();
 
-             // fetch all event types
-             PreparedStatement allEventTypes = connection.prepareStatement("SELECT idEventType, Name FROM eventtype", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-             rs = allEventTypes.executeQuery();
-             while (rs.next()) {
-                 events.put(rs.getInt(1), rs.getString(2));
-             }
-             rs.close();
-             allEventTypes.close();
+            // fetch all event types
+            PreparedStatement allEventTypes = connection.prepareStatement("SELECT idEventType, Name FROM eventtype", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            rs = allEventTypes.executeQuery();
+            while (rs.next()) {
+                events.put(rs.getInt(1), rs.getString(2));
+            }
+            rs.close();
+            allEventTypes.close();
 
-             // build the query
-             StringBuilder sb = new StringBuilder();
-             sb.append("SELECT consignment.*, ");
-             for (Map.Entry<Integer, String> eventTypeName : events.entrySet()) {
-                 sb.append("event").append(eventTypeName.getKey()).append(".timestamp AS '");
-                 sb.append(eventTypeName.getValue()).append("', ");
-             }
-             int len = sb.length();
-             sb.delete(len - 2, len);
-             sb.append(" FROM consignment ");
-             for (Map.Entry<Integer, String> eventTypeName : events.entrySet()) {
-                 sb.append("LEFT JOIN event AS event").append(eventTypeName.getKey());
-                 sb.append(" ON(consignment.idConsignment=event").append(eventTypeName.getKey());
-                 sb.append(".consignment AND event").append(eventTypeName.getKey());
-                 sb.append(".eventtype=").append(eventTypeName.getKey()).append(") ");
-             }
-             sb.deleteCharAt(sb.length() - 1);
+            // build the query
+            StringBuilder sb = new StringBuilder();
+            sb.append("SELECT consignment.*, ");
+            for (Map.Entry<Integer, String> eventTypeName : events.entrySet()) {
+                sb.append("event").append(eventTypeName.getKey()).append(".timestamp AS '");
+                sb.append(eventTypeName.getValue()).append("', ");
+            }
+            int len = sb.length();
+            sb.delete(len - 2, len);
+            sb.append(" FROM consignment ");
+            for (Map.Entry<Integer, String> eventTypeName : events.entrySet()) {
+                sb.append("LEFT JOIN event AS event").append(eventTypeName.getKey());
+                sb.append(" ON(consignment.idConsignment=event").append(eventTypeName.getKey());
+                sb.append(".consignment AND event").append(eventTypeName.getKey());
+                sb.append(".eventtype=").append(eventTypeName.getKey()).append(") ");
+            }
+            sb.deleteCharAt(sb.length() - 1);
 
-             // TYPE_FORWARD_ONLY & CONCUR_READ_ONLY is the default but we set it 
-             // explicitly as it is required to stream result sets row-by-row.
-             selectConsignment = connection.createStatement(
-                     ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            if (minDate != null) {
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                sb.append(" WHERE event2.timestamp > '").append(df.format(minDate)).append('\'');
+                if (maxDate != null) {
+                    sb.append(" AND event2.timestamp < '").append(df.format(maxDate)).append('\'');
+                }
+            }
 
-             // magic value to tell the driver to stream the results one row at a time.
-             // see http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
-             selectConsignment.setFetchSize(Integer.MIN_VALUE);
-             rs = selectConsignment.executeQuery(sb.toString());
+            LOG.info(sb.toString());
+
+            // TYPE_FORWARD_ONLY & CONCUR_READ_ONLY is the default but we set it
+            // explicitly as it is required to stream result sets row-by-row.
+            selectConsignment = connection.createStatement(
+                    ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+
+            // magic value to tell the driver to stream the results one row at a time.
+            // see http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
+            selectConsignment.setFetchSize(Integer.MIN_VALUE);
+            rs = selectConsignment.executeQuery(sb.toString());
         }
-        
+
         /**
          * Fetch the next consignment.
+         *
          * @return the consignment or EOF
          * @throws SQLException error accessing the result set
          */
-        private Consignment next() throws SQLException {
+        Consignment next() throws SQLException {
             if (!rs.next()) {
                 return EOF;
             }
@@ -215,8 +285,9 @@ public class ConsignmentGet extends AdvanceBlock {
 
         /**
          * Fetch as many rows as necessary to build a consignment with events.
+         *
          * @return the consignment (with events)
-         * @throws SQLException error accessing the result set         * 
+         * @throws SQLException error accessing the result set *
          */
         private Consignment adapt() throws SQLException {
             Consignment c = new Consignment();
@@ -243,39 +314,38 @@ public class ConsignmentGet extends AdvanceBlock {
         /**
          * Close the session.
          */
-        private void close() {
+        void close() {
             try {
                 rs.close();
             } catch (SQLException ex) {
                 log(ex);
             }
         }
-        
+
         /**
          * Parse events and add them into the list sorted by date.
+         *
          * @param c consignment
          * @param name event name
          * @param rs result set
          * @throws SQLException error accessing the result set
          */
         private void parseEvent(Consignment c, String name, ResultSet rs) throws SQLException {
-        	List<Event> events = c.events;
+            List<Event> evtList = c.events;
             Timestamp eventDateTime = rs.getTimestamp(name);
             if (eventDateTime != null) {
-            	Event newEvent = new Event();
-            	newEvent.name = name;
-            	newEvent.timestamp = new java.util.Date(eventDateTime.getTime());
-            	for (int i = 0, n = events.size(); i < n; i++) {
-            		Event event = events.get(i);
-            		if (newEvent.name.equals(event.name) && newEvent.timestamp.before(event.timestamp)) {
-            			events.add(i, newEvent);
-            			return;
-            		}
-            	}
-            	events.add(newEvent);
+                Event newEvent = new Event();
+                newEvent.name = name;
+                newEvent.timestamp = new java.util.Date(eventDateTime.getTime());
+                for (int i = 0, n = evtList.size(); i < n; i++) {
+                    Event event = evtList.get(i);
+                    if (newEvent.name.equals(event.name) && newEvent.timestamp.before(event.timestamp)) {
+                        evtList.add(i, newEvent);
+                        return;
+                    }
+                }
+                evtList.add(newEvent);
             }
         }
-    	
     }
-    
 }

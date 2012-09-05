@@ -26,11 +26,7 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.runtime.DataResolver;
-import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.prediction.support.MLModel;
-import java.util.Map;
 
 /**
  * During day model writer.
@@ -50,7 +46,7 @@ public class DuringDayModelReader extends AdvanceBlock {
     /**
      * DuringDay model loaded from the location.
      */
-    @Output("duringdaymodel")
+    @Output("advance:duringdaymodel")
     protected static final String MODEL = "model";
 
     @Override
@@ -61,7 +57,7 @@ public class DuringDayModelReader extends AdvanceBlock {
             ds = getPool(LocalConnection.class, getString(LOCATION));
             conn = ds.get();
             XElement root = XElement.parseXML(conn.file());
-            dispatch(root);
+            dispatch(MODEL, root);
         } catch (Exception ex) {
             log(ex);
         } finally {
@@ -71,22 +67,4 @@ public class DuringDayModelReader extends AdvanceBlock {
         }
     }
 
-    /**
-     * Converts a model to XML.
-     * @param resolver used to resolve data to XML
-     * @param model the model to convert
-     * @return the XML representation of the model
-     */
-    static XElement toXml(DataResolver<XElement> resolver, MLModel model) {
-        XElement root = new XElement("DuringDayModel");
-        root.add(DuringDayConfigData.toXml(resolver, "config", model.config));
-        XElement classifiers = new XElement("classifiers");
-        for (Map.Entry<String, byte[]> e : model.classifiers.entrySet()) {
-            XElement classifier = new XElement("classifier");
-            classifier.set("name", e.getKey());
-            classifier.content = Base64.encodeBytes(e.getValue());
-        }
-        root.add(classifiers);
-        return root;
-    }
 }

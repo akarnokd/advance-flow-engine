@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import com.google.common.collect.Lists;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -27,39 +28,67 @@ import java.util.List;
 
 /**
  * Consignment read from the database.
+ *
  * @author TTS
  */
 public class Consignment {
 
-	 /** Unique consignment id. */
+    /**
+     * Unique consignment id.
+     */
     public int id;
-    /** Id of the hub. */
+    /**
+     * Id of the hub.
+     */
     public int hubId;
-    /** Id of the collection depot. */
+    /**
+     * Id of the collection depot.
+     */
     public int collectionDepotId;
-    /** Id of the collection location. */
+    /**
+     * Id of the collection location.
+     */
     public int collectionLocationId;
-    /** Id of the devlivery depot. */
+    /**
+     * Id of the devlivery depot.
+     */
     public int deliveryDepotId;
-    /** Id of the delivery location. */
+    /**
+     * Id of the delivery location.
+     */
     public int deliveryLocationId;
-    /** Id of the paying depot. */
+    /**
+     * Id of the paying depot.
+     */
     public int payingDepotId;
-    /** Number of pallets, i.e. "Lifts". */
+    /**
+     * Number of pallets, i.e. "Lifts".
+     */
     public int palletCount;
-    /** Weight of the consignment. */
+    /**
+     * Weight of the consignment.
+     */
     public double weight;
-    /** Consignment number (free text). */
+    /**
+     * Consignment number (free text).
+     */
     public String number;
-    /** Total volume of the consignment (computed as 1/4*Q+1/2*H+F). */
+    /**
+     * Total volume of the consignment (computed as 1/4*Q+1/2*H+F).
+     */
     public double volume;
-    /** Events associated to this consignment. */
-    public List<Event> events;
-    /** Flags associated to this consignment. */
-    public List<Flag> flags;
+    /**
+     * Events associated to this consignment.
+     */
+    public List<Event> events = Lists.newArrayList();
+    /**
+     * Flags associated to this consignment.
+     */
+    public List<Flag> flags = Lists.newArrayList();
 
     /**
      * Serialize the class to XML.
+     *
      * @param name the name of the element
      * @return an XElement representing the class
      */
@@ -76,12 +105,12 @@ public class Consignment {
         x.set("weight", weight);
         x.set("number", number);
         x.set("volume", volume);
-        if (events !=  null) {
+        if (events != null) {
             for (Event e : events) {
                 x.add(e.toXML("event"));
             }
         }
-        if (flags !=  null) {
+        if (flags != null) {
             for (Flag f : flags) {
                 x.add(f.toXML("flag"));
             }
@@ -91,6 +120,7 @@ public class Consignment {
 
     /**
      * Creates a new instance from an XML representation.
+     *
      * @param x the XML element
      * @return the class represented by the element
      * @throws ParseException if the element cannot be parsed
