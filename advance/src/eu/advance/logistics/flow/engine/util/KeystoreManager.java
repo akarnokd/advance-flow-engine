@@ -343,7 +343,11 @@ public class KeystoreManager {
 			
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			DEROutputStream dout = new DEROutputStream(bout);
-			dout.writeObject(certReq.getDERObject());
+			try {
+				dout.writeObject(certReq.getDERObject());
+			} finally {
+				dout.close();
+			}
 			
 			String s = Base64.encodeBytes(bout.toByteArray());
 			StringBuilder result = new StringBuilder(s.length() + 100);

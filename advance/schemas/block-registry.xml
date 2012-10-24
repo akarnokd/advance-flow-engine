@@ -265,9 +265,12 @@
     </block-description>
 
     <!-- Move/rename a local file -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileMove" id="___LocalFileMove" scheduler="IO" category="file" tooltip="Move/rename a local file">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileMove" id="LocalFileMove" scheduler="IO" category="file" tooltip="Move/rename a local file">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="destination" required="true" varargs="false" type="advance:string"/>
+        <input id="source" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Cast all values in the collection into the specified type. -->
@@ -1147,15 +1150,25 @@
     </block-description>
 
     <!-- Load a set of local files. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoadAll" id="___LocalFileLoadAll" scheduler="IO" category="file" tooltip="Load a set of local files.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoadAll" id="LocalFileLoadAll" scheduler="IO" category="file" tooltip="Load a set of local files.">
+        <input id="collection" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:string"/>
+        </input>
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:string"/>
+        </output>
     </block-description>
 
     <!-- List the contents of a local directory. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalDirList" id="___LocalDirList" scheduler="IO" category="file" tooltip="List the contents of a local directory.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalDirList" id="LocalDirList" scheduler="IO" category="file" tooltip="List the contents of a local directory.">
+        <type-variable name="T"/>
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
     </block-description>
 
     <!-- List emails in the specified email-account -->
@@ -1307,9 +1320,13 @@
     </block-description>
 
     <!-- Move/rename a set of local files. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileMoveAll" id="___LocalFileMoveAll" scheduler="IO" category="file" tooltip="Move/rename a set of local files.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileMoveAll" id="LocalFileMoveAll" scheduler="IO" category="file" tooltip="Move/rename a set of local files.">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="map" required="true" varargs="false" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:string"/>
+        </input>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Computes the standard deviation of numerical elements of the supplied collection -->
@@ -1340,9 +1357,10 @@
     </block-description>
 
     <!-- Load the data from the local file. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoad" id="___LocalFileLoad" scheduler="IO" category="file" tooltip="Load the data from the local file.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoad" id="LocalFileLoad" scheduler="IO" category="file" tooltip="Load the data from the local file.">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Issues the given update SQL query into the datasource and fills in the query parameters from the supplied mapping from column name to column value. Once the update succeeded, a Boolean TRUE is emitted by the operator -->
@@ -1588,9 +1606,13 @@
     </block-description>
 
     <!-- Save a set of files locally. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSaveAll" id="___LocalFileSaveAll" scheduler="IO" category="file" tooltip="Save a set of files locally.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSaveAll" id="LocalFileSaveAll" scheduler="IO" category="file" tooltip="Save a set of files locally.">
+        <input id="content" required="true" varargs="false" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:string"/>
+        </input>
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Filter the keys of the map via the XPath expression and return a map with only those elements where the filter matched the key -->
@@ -1749,9 +1771,11 @@
     </block-description>
 
     <!-- Save the data into a local file. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSave" id="___LocalFileSave" scheduler="IO" category="file" tooltip="Save the data into a local file.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileSave" id="LocalFileSave" scheduler="IO" category="file" tooltip="Save the data into a local file.">
+        <input id="content" required="true" varargs="false" type="advance:string"/>
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:boolean"/>
     </block-description>
 
     <!-- Convert a database row into a consignment -->
@@ -1765,10 +1789,84 @@
     <!-- Gets consignment from the DB -->
     <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentGet" id="ConsignmentGet" scheduler="IO" category="prediction" tooltip="Gets consignment from the DB">
         <input id="datasource" required="true" varargs="false" type="advance:string"/>
-        <input id="dateAfter" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="dateBefore" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="maxEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="minEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
         <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
         <output id="consignment" type="advance:consignment"/>
+    </block-description>
+
+    <!-- Reads a during-day model. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayModelReader" id="DuringDayModelReader" scheduler="IO" category="prediction" tooltip="Reads a during-day model.">
+        <input id="location" required="true" varargs="false" type="advance:string"/>
+        <output id="model" type="advance:duringdaymodel"/>
+    </block-description>
+
+    <!-- Writes the during-day model. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayModelWriter" id="DuringDayModelWriter" scheduler="IO" category="prediction" tooltip="Writes the during-day model.">
+        <input id="location" required="true" varargs="false" type="advance:string"/>
+        <input id="model" required="true" varargs="false" type="advance:duringdaymodel"/>
+    </block-description>
+
+    <!-- Training for during-day prediction algorithm. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayTraining" id="DuringDayTraining" scheduler="IO" category="prediction" tooltip="Training for during-day prediction algorithm.">
+        <input id="config" required="true" varargs="false" type="advance:duringdayconfig"/>
+        <input id="consignments" required="true" varargs="false" type="advance:consignment"/>
+        <input id="previousTrainedModel" required="true" varargs="false" type="advance:duringdaymodel"/>
+        <input id="selectedAttributesFile" required="true" varargs="false" type="advance:string"/>
+        <output id="mae" type="advance:real"/>
+        <output id="smape" type="advance:real"/>
+        <output id="trainedModel" type="advance:duringdaymodel"/>
+    </block-description>
+
+    <!-- During-day prediction algorithm. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayPrediction" id="DuringDayPrediction" scheduler="IO" category="prediction" tooltip="During-day prediction algorithm.">
+        <input id="consignments" required="true" varargs="false" type="advance:consignment"/>
+        <input id="targetDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="trainedModel" required="true" varargs="false" type="advance:duringdaymodel"/>
+        <output id="counter" type="advance:integer"/>
+        <output id="forecast" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:real"/>
+        </output>
+    </block-description>
+
+    <!-- Configuration for during day prediction. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayConfig" id="DuringDayPredictionConfig" scheduler="IO" category="prediction" tooltip="Configuration for during day prediction.">
+        <input id="durationIsFoldTime" required="true" varargs="false" type="advance:boolean"/>
+        <input id="events" required="true" varargs="false" type="advance:string"/>
+        <input id="maxEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="minEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="normalise" required="true" varargs="false" type="advance:boolean"/>
+        <input id="targetDepotIds" required="true" varargs="false" type="advance:string"/>
+        <input id="targetType" required="true" varargs="false" type="advance:string"/>
+        <input id="valueType" required="true" varargs="false" type="advance:string"/>
+        <input id="wekaClassifier" required="true" varargs="false" type="advance:string"/>
+        <output id="config" type="advance:duringdayconfig"/>
+    </block-description>
+
+    <!-- Filters consignment -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentFilter" id="ConsignmentFilter" scheduler="IO" category="prediction" tooltip="Filters consignment">
+        <input id="dateAfter" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="dateBefore" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="in" required="true" varargs="false" type="advance:consignment"/>
+        <output id="out" type="advance:consignment"/>
+    </block-description>
+
+    <!-- Load the data from the local file. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.file.CopyOfLocalFileLoad" id="LocalFileLoad" scheduler="IO" category="file" tooltip="Load the data from the local file.">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="out" type="advance:string"/>
+    </block-description>
+
+    <!-- Load the data from the local file. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoadXML" id="LocalFileLoadXML" scheduler="IO" category="file" tooltip="Load the data from the local file.">
+        <type-variable name="T"/>
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type-variable="T"/>
     </block-description>
 
 </block-registry>

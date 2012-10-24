@@ -20,7 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
-import com.google.common.io.Files;
+import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -28,9 +29,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.nio.charset.Charset;
 
 /**
  * Load the data from the local file. Signature: LocalFileLoad(trigger,
@@ -38,9 +36,12 @@ import java.nio.charset.Charset;
  *
  * @author TTS
  */
-@Block(id = "LocalFileLoad", category = "file", 
-scheduler = "IO", description = "Load the data from the local file.")
-public class LocalFileLoad extends AdvanceBlock {
+@Block(id = "LocalFileLoadXML", category = "file", 
+scheduler = "IO", description = "Load the data from the local file.",
+parameters = { "T" }
+		)
+
+public class LocalFileLoadXML extends AdvanceBlock {
 
     /**
      * In.
@@ -52,10 +53,13 @@ public class LocalFileLoad extends AdvanceBlock {
      */
     @Input("advance:string")
     protected static final String DATASOURCE = "datasource";
+    /** The type token. */
+    @Input("advance:type<?T>")
+    protected static final String TYPE = "type";
     /**
      * Out.
      */
-    @Output("advance:string")
+    @Output("?T")
     protected static final String OUT = "out";
 
     @Override
@@ -92,15 +96,12 @@ public class LocalFileLoad extends AdvanceBlock {
             final Pool<LocalConnection> ds = getPool(LocalConnection.class, dataSourceStr);
             final LocalConnection conn = ds.get();
             try {
-                final String resultStr = Files.toString(conn.file(), Charset.defaultCharset());
-                
-                dispatch(OUT, resolver().create(resultStr));
+                dispatch(OUT, XElement.parseXML(conn.file()));
             } finally {
                 ds.put(conn);
             }
         } catch (Exception ex) {
             log(ex);
-            dispatch(OUT, resolver().create(""));
         }
     }
 }
