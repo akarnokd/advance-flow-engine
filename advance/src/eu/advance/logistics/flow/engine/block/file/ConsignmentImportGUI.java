@@ -424,108 +424,115 @@ public class ConsignmentImportGUI extends JFrame {
 					}
 				});
 				
-				BufferedReader in = null;
+				ZipInputStream zip = null;
 				try {
-					if (s.toLowerCase().endsWith(".zip")) {
-	
-						ZipInputStream zip = new ZipInputStream(
-								new BufferedInputStream(new FileInputStream(s), 64 * 1024));
-						zip.getNextEntry();
-	
-						in = new BufferedReader(
-								new InputStreamReader(zip, "ISO-8859-1"), 64 * 1024);
-					} else {
-						in = new BufferedReader(new FileReader(s), 64 * 1024);
-					}
-					int total = 0;
-					while (!worker.isCancelled()) {
-						List<String> line = U.csvLine(in);
-						if (line == null) {
-							break;
+					BufferedReader in = null;
+					try {
+						if (s.toLowerCase().endsWith(".zip")) {
+		
+							zip = new ZipInputStream(
+									new BufferedInputStream(new FileInputStream(s), 64 * 1024));
+							zip.getNextEntry();
+		
+							in = new BufferedReader(
+									new InputStreamReader(zip, "ISO-8859-1"), 64 * 1024);
+						} else {
+							in = new BufferedReader(new FileReader(s), 64 * 1024);
 						}
-						if (line.size() > 0) {
-							try {
-								if (!"Entered Date".equals(line.get(0))) {
-									ConsignmentRow.parseRow(i, line, r, strings);
-									
-									// ***********************************
+						int total = 0;
+						while (!worker.isCancelled()) {
+							List<String> line = U.csvLine(in);
+							if (line == null) {
+								break;
+							}
+							if (line.size() > 0) {
+								try {
+									if (!"Entered Date".equals(line.get(0))) {
+										ConsignmentRow.parseRow(i, line, r, strings);
+										
+										// ***********************************
+		
+										int p = 1;
+										
+										pstmtCons.setTimestamp(p++, new Timestamp(r.enteredDateTime.getMillis()));
+										pstmtCons.setTimestamp(p++, new Timestamp(r.manifestedDateTime.getMillis()));
+										
+										pstmtCons.setString(p++, r.hubFacility);
+										
+										pstmtCons.setInt(p++, r.collectingDepot);
+										if (r.collectionPostCode.length() > 10) {
+											r.collectionPostCode = r.collectionPostCode.substring(0, 10);
+										}
+										pstmtCons.setString(p++, r.collectionPostCode);
+										
+										if (r.collectionGPS != null) {
+											pstmtCons.setDouble(p++, r.collectionGPS.x);
+											pstmtCons.setDouble(p++, r.collectionGPS.y);
+										} else {
+											pstmtCons.setNull(p++, Types.DOUBLE);
+											pstmtCons.setNull(p++, Types.DOUBLE);
+										}
 	
-									int p = 1;
-									
-									pstmtCons.setTimestamp(p++, new Timestamp(r.enteredDateTime.getMillis()));
-									pstmtCons.setTimestamp(p++, new Timestamp(r.manifestedDateTime.getMillis()));
-									
-									pstmtCons.setString(p++, r.hubFacility);
-									
-									pstmtCons.setInt(p++, r.collectingDepot);
-									if (r.collectionPostCode.length() > 10) {
-										r.collectionPostCode = r.collectionPostCode.substring(0, 10);
+										pstmtCons.setInt(p++, r.deliveryDepot);
+										if (r.deliveryPostCode.length() > 10) {
+											r.deliveryPostCode = r.deliveryPostCode.substring(0, 10);
+										}
+										pstmtCons.setString(p++, r.deliveryPostCode);
+										
+										if (r.deliveryGPS != null) {
+											pstmtCons.setDouble(p++, r.deliveryGPS.x);
+											pstmtCons.setDouble(p++, r.deliveryGPS.y);
+										} else {
+											pstmtCons.setNull(p++, Types.DOUBLE);
+											pstmtCons.setNull(p++, Types.DOUBLE);
+										}
+	
+										pstmtCons.setInt(p++, r.getFlags());
+										pstmtCons.setInt(p++, r.lifts);
+										pstmtCons.setInt(p++, r.payingDepot);
+										pstmtCons.setInt(p++, r.consignmentWeight);
+										pstmtCons.setInt(p++, r.q);
+										pstmtCons.setInt(p++, r.h);
+										pstmtCons.setInt(p++, r.f);
+										
+										pstmtCons.addBatch();
+										
+										// ***********************************
+										total++;
+										bigtotal++;
+										
+										if (total % 10000 == 0) {
+											pstmtCons.executeBatch();
+											conn.commit();
+										}
 									}
-									pstmtCons.setString(p++, r.collectionPostCode);
-									
-									if (r.collectionGPS != null) {
-										pstmtCons.setDouble(p++, r.collectionGPS.x);
-										pstmtCons.setDouble(p++, r.collectionGPS.y);
-									} else {
-										pstmtCons.setNull(p++, Types.DOUBLE);
-										pstmtCons.setNull(p++, Types.DOUBLE);
-									}
-
-									pstmtCons.setInt(p++, r.deliveryDepot);
-									if (r.deliveryPostCode.length() > 10) {
-										r.deliveryPostCode = r.deliveryPostCode.substring(0, 10);
-									}
-									pstmtCons.setString(p++, r.deliveryPostCode);
-									
-									if (r.deliveryGPS != null) {
-										pstmtCons.setDouble(p++, r.deliveryGPS.x);
-										pstmtCons.setDouble(p++, r.deliveryGPS.y);
-									} else {
-										pstmtCons.setNull(p++, Types.DOUBLE);
-										pstmtCons.setNull(p++, Types.DOUBLE);
-									}
-
-									pstmtCons.setInt(p++, r.getFlags());
-									pstmtCons.setInt(p++, r.lifts);
-									pstmtCons.setInt(p++, r.payingDepot);
-									pstmtCons.setInt(p++, r.consignmentWeight);
-									pstmtCons.setInt(p++, r.q);
-									pstmtCons.setInt(p++, r.h);
-									pstmtCons.setInt(p++, r.f);
-									
-									pstmtCons.addBatch();
-									
-									// ***********************************
-									total++;
-									bigtotal++;
-									
-									if (total % 10000 == 0) {
-										pstmtCons.executeBatch();
-										conn.commit();
-									}
+								} catch (NumberFormatException ex) {
+									ex.printStackTrace();
 								}
-							} catch (NumberFormatException ex) {
-								ex.printStackTrace();
+							}
+							if (total % 10000 == 0) {
+								final int ftotal = total;
+								final int fbigtotal = bigtotal;
+								SwingUtilities.invokeLater(new Runnable() {
+									@Override
+									public void run() {
+										currentLabel.setText(String.format("%,d ; %,d", ftotal, fbigtotal));
+									}
+								});
 							}
 						}
-						if (total % 10000 == 0) {
-							final int ftotal = total;
-							final int fbigtotal = bigtotal;
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									currentLabel.setText(String.format("%,d ; %,d", ftotal, fbigtotal));
-								}
-							});
+		
+						
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					} finally {
+						if (in != null) {
+							Closeables.closeQuietly(in);
 						}
 					}
-	
-					
-				} catch (IOException ex) {
-					ex.printStackTrace();
 				} finally {
-					if (in != null) {
-						Closeables.closeQuietly(in);
+					if (zip != null) {
+						Closeables.closeQuietly(zip);
 					}
 				}
 				i++;
