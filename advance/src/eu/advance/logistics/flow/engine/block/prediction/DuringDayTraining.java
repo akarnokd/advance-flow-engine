@@ -20,6 +20,10 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.reactive4java.reactive.Observer;
+
+import java.util.Map;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -31,9 +35,6 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.MLModel;
 import eu.advance.logistics.prediction.support.MLModelTraining;
 import eu.advance.logistics.prediction.support.TestSet;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.util.Map;
 
 /**
  * During day training block.
@@ -83,7 +84,9 @@ public class DuringDayTraining extends AdvanceBlock {
      * Provides the list of selected attributes.
      */
     private SelectedAttributesProviderImpl selectedAttributesProvider;
+    /** The configuration. */
     private DuringDayConfigData duringDayConfig;
+    /** Is finished? */
     private boolean finished;
 
     @Override
@@ -114,7 +117,9 @@ public class DuringDayTraining extends AdvanceBlock {
 
             @Override
             public void next(XElement value) {
-                if (finished) return;
+                if (finished) {
+                	return;
+                }
                 if (training == null) {
                     training = init();
                 }
@@ -143,7 +148,10 @@ public class DuringDayTraining extends AdvanceBlock {
     @Override
     protected void invoke() {
     }
-
+    /**
+     * Initialize.
+     * @return the training model
+     */
     private MLModelTraining init() {
         LOG.info("Starting TRAINING");
         if (duringDayConfig == null) {

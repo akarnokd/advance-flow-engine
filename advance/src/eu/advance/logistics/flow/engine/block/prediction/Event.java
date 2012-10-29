@@ -37,7 +37,7 @@ public class Event {
 
     /**
      * Convert to XML element.
-     * @param name name of the XML element
+     * @param elementName name of the XML element
      * @return XML representation
      */
     public XElement toXML(String elementName) {

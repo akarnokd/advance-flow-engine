@@ -109,33 +109,28 @@ public class KMeansARXLearn extends AdvanceBlock {
 		int sampleCount = series.datamap.size();
 		int timeCount = series.dateset.size();
 		
-		final int split = (int)(timeCount * cfg.getDouble("split"));
-		int p = cfg.getInt("model-order");
-		int modelCount = cfg.getInt("cluster-count");
-		int maxIter = cfg.getInt("max-iteration");
-		int horizon = cfg.getInt("horizon");
+		final int split = (int)(timeCount * cfg.getDouble("split")); //  
+		int p = cfg.getInt("model-order"); // doc: n
+		int modelCount = cfg.getInt("cluster-count"); // doc: K
+		int maxIter = cfg.getInt("max-iteration"); // 100
+		int horizon = cfg.getInt("horizon"); // 2
 		int m = 5;
-		boolean normalize = cfg.getBoolean("normalize");
+		boolean normalize = cfg.getBoolean("normalize"); // true
 
 		
 		// convert to matrix
-		final double[][] trainData = new double[sampleCount][split];
-		final double[][] testData = new double[sampleCount][timeCount - split];
+		final double[][] allData = new double[sampleCount][timeCount];
 		
 		series.createMatrix(new Action1<Triplet<Integer, Integer, Double>>() {
 			@Override
 			public void invoke(Triplet<Integer, Integer, Double> value) {
-				int idx = value.second;
-				if (idx < split) {
-					trainData[value.first][idx] = value.third;
-				} else {
-					testData[value.first][idx - split] = value.third;
-				}
+				allData[value.first][value.second] = value.third;
 			}
 		});
 		
 		
-		KMeansARX kMeans = new KMeansARX(trainData, testData, p, m, modelCount, maxIter, normalize, horizon,
+		KMeansARX kMeans = new KMeansARX(allData, split, 
+				p, m, modelCount, maxIter, normalize, horizon,
 				new Func2<Integer, Integer, Double>() {
 			@Override
 			public Double invoke(Integer param1, Integer param2) {
@@ -187,7 +182,7 @@ public class KMeansARXLearn extends AdvanceBlock {
 		
 	}
 	/**
-	 * Compute the current day of week (0 - Monday, 6 - Saturday) from the given days since the unix epoch.
+	 * Compute the current day of week (0 - Monday, 6 - Sunday) from the given days since the unix epoch.
 	 * @param daysSinceEpoch the days since the unix epoch
 	 * @return the day of week
 	 */

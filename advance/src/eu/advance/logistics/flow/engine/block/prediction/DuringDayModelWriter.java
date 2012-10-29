@@ -69,7 +69,10 @@ public class DuringDayModelWriter extends AdvanceBlock {
         }));
         return new RunObserver();
     }
-
+    /** 
+     * Write the model.
+     * @param root the document 
+     */
     private void write(XElement root) {
         if (get(LOCATION) == null) {
             LOG.error("DuringDayModelWriter: no location!");

@@ -34,7 +34,11 @@ import org.apache.commons.math.linear.SingularValueDecompositionImpl;
  * Autoregressive model with exogenous effects.
  * @author karnokd, 2012.02.01.
  */
-public class ArxModel {
+public class ArxModel extends ObservationModel {
+	/** The start offset. */
+	protected int start;
+	/** The number of elements to process. */
+	protected int count;
 	/** The external factor count. */
 	protected int m;
 	/** Function to return the external effects at time {@code t}. */
@@ -45,55 +49,144 @@ public class ArxModel {
 	protected double[] arCoeffs;
 	/** The external factors coefficeints. */
 	protected double[] uCoeffs;
+	/** The number of time series in the training set. */
+	protected int numSeries;
+	/** The set of time series used for training. */
+	protected double[][] trainingSet;
 	/**
 	 * Initialize the model.
+	 * @param x the array of observations [n]
+	 * @param start the start index to process
+	 * @param count the number of elements to process
 	 * @param p the model order
 	 * @param m the number of additional effects
 	 * @param u Function to return the external effects at time {@code t}
 	 */
 	public ArxModel(
+			double[] x,
+			int start,
+			int count,
 			int p, 
 			int m, 
 			Func2<Integer, Integer, Double> u) {
+		super(x);
+		trainingSet = new double[1][];
+		trainingSet[0] = Arrays.copyOf(x, x.length);
+		this.start = start;
+		this.count = count;
 		this.p = p;
 		this.m = m;
 		this.u = u;
+		this.numSeries = 1;
 	}
 	/**
+	 * Initialize the model.
+	 * @param x the array of observations [n]
+	 * @param p the model order
+	 * @param m the number of additional effects
+	 * @param u Function to return the external effects at time {@code t}.
+	 */
+	public ArxModel(
+			double[] x,
+			int p, 
+			int m, 
+			Func2<Integer, Integer, Double> u) {
+		this(x, 0, x.length, p, m, u);
+	}
+	
+
+	
+	/**
 	 * Solve the model and find the coefficients by using the Mean Square Error estimation algorithm.
-	 * @param trainData the multiple set of time series
+	 */
+	public void solveMSE() {
+		int n = this.observations.length;
+		
+		if (n < p) {
+			arCoeffs = new double[p];
+			uCoeffs = new double[m];
+			Arrays.fill(arCoeffs, 0.0);
+			Arrays.fill(uCoeffs, 0.0);
+			return;
+		}
+		
+		RealMatrix am = MatrixUtils.createRealMatrix(n - p, p + m);
+		RealMatrix atm = MatrixUtils.createRealMatrix(p + m, n - p);
+		
+		double[] x = this.observations;
+		
+		for (int i = 0; i < n - p; i++) {
+			for (int j = 0; j < p; j++) {
+				double xt = x[start + i - 1 + p - j];
+				am.setEntry(i, j, xt);
+				atm.setEntry(j, i, xt);
+			}
+			for (int j = p; j < p + m; j++) {
+				double ut = u.invoke((start + i + p) % (n / numSeries), j - p); // check if % indeed works
+				am.setEntry(i, j, ut);
+				atm.setEntry(j, i, ut);
+			}			
+		}
+		
+		// theta = pinv(a'a) * a' * x
+		
+		RealMatrix atmam = atm.multiply(am);
+		
+		RealMatrix atmamInv = new SingularValueDecompositionImpl(atmam).getSolver().getInverse();
+		
+		RealMatrix atmamInvAtm = atmamInv.multiply(atm);
+		
+		RealMatrix xv = MatrixUtils.createColumnRealMatrix(Arrays.copyOfRange(x, p, n));
+		
+		RealMatrix theta = atmamInvAtm.multiply(xv);
+		
+		double[] thetav = theta.getColumn(0);
+		
+		arCoeffs = new double[p];
+		uCoeffs  = new double[m];
+		
+		System.arraycopy(thetav, 0, arCoeffs, 0, p);
+		System.arraycopy(thetav, p, uCoeffs, 0, m);
+	}
+	
+	/**
+	 * Solve the model and find the coefficients by using the Mean Square Error estimation algorithm.
+	 * @param trainData the training data.
 	 */
 	public void solveMSE(double[][] trainData) {
-		final int seriesCount = trainData.length;
-		final int timeCount = trainData[0].length;
+		int numGroups = trainData.length;
+		int numTimes = trainData[0].length;
 		
-		double[][] at = new double[p + m][seriesCount * timeCount];
+		double[][] at = new double[p + m][numGroups * numTimes];
 		ArrayList<Double> xList = new ArrayList<Double>();		
 		int curr = 0;
-		for (int n = 0; n < seriesCount; n++) {
+		for (int n = 0; n < numGroups; n++) {
 			ArrayList<Double> yList = new ArrayList<Double>();
 			ArrayList<Integer> tList = new ArrayList<Integer>();
-			for (int t = 0; t < timeCount; t++) {
+			for (int t = 0; t < numTimes; t++) {
 				double entry = trainData[n][t];
 				if (entry > 0.0) {
 					yList.add(entry);
-					tList.add(t);
 					if (yList.size() > p) {
 						xList.add(entry);
+						tList.add(t);
 					}
 				}
 			}
 			
-			int yl = yList.size();
+			Object[] yv = yList.toArray();
+			Object[] tv = tList.toArray();
+			
+			int yl = yv.length;
 			
 			for (int i = 0; i < yl - p; i++) {
 				curr++;
 				for (int j = 0; j < p; j++) {
-					double yt = yList.get(i + p - 1 - j);
+					double yt = (Double)yv[i + p - 1 - j];
 					at[j][curr] = yt;
 				}
 				for (int j = p; j < p + m; j++) {
-					double ut = u.invoke((tList.get(i) + p), j - p);
+					double ut = u.invoke(((Integer)tv[i]), j - p);
 					at[j][curr] = ut;
 				}			
 			}
@@ -102,6 +195,8 @@ public class ArxModel {
 		if (curr == 0) {
 			arCoeffs = new double[p];
 			uCoeffs = new double[m];
+			Arrays.fill(arCoeffs, 0.0);
+			Arrays.fill(uCoeffs, 0.0);
 			return;
 		}
 	
@@ -130,8 +225,8 @@ public class ArxModel {
 		
 		double[] thetav = theta.getColumn(0);
 		
-		arCoeffs = thetav.clone();
-		uCoeffs  = thetav.clone();
+		arCoeffs = new double[p];
+		uCoeffs  = new double[m];
 		
 		System.arraycopy(thetav, 0, arCoeffs, 0, p);
 		System.arraycopy(thetav, p, uCoeffs, 0, m);
@@ -147,170 +242,24 @@ public class ArxModel {
 		return uCoeffs.clone();
 	}
 	/** @return the order of the autoregressive model. */
-	public int getP() {
+	public double getP() {
 		return p;
 	}
 	/** @return the external effects count. */
-	public int getM() {
+	public double getM() {
 		return m;
-	}
-	
-	/**
-	 * estimates data based on parameters computed for normalized data.
-	 * @param data the time series to estimate
-	 * @param initValues the initial values
-	 * @param scale the scale of the unnormalized time series
-	 * @param horizon the lookahead horizon
-	 * @return the predicted data [horizon][?]
-	 */
-	public double[][] estimate(double[] data, double[] initValues, double scale, int horizon) {
-		int timeCount = data.length;
-		double[][] initValuesEst = new double[horizon][horizon];
-		double[][] predictedData = new double[horizon][timeCount];
-		for (int h = 0; h < horizon; h++) {
-			for (int j = h; j < horizon; j++) {
-					double initPred = 0.0;
-					int hh = Math.min(h, p);
-					for (int i = hh; i < p; i++) {
-						initPred += initValues[p + j - i - 1] * arCoeffs[i];
-					}
-					for (int i = 0; i < hh; i++) {
-						initPred += initValuesEst[j - i - 1][i] * arCoeffs[i];
-					}
-					initValuesEst[j][h] = initPred;
-			}
-		}
-			
-		for (int h = 0; h < horizon; h++) {
-			for (int t = 0; t < p + h; t++) {
-				double prediction = 0.0;
-				int hh = Math.min(h, p);
-				for (int i = hh; i < p; i++) {
-					prediction += (t - i - 1 < 0) 
-							? initValues[p + horizon + t - i - 1] * arCoeffs[i] 
-											: data[t - i - 1] * arCoeffs[i];
-				}
-				for (int i = 0; i < hh; i++) {
-					prediction += (t - i - 1 < 0) 
-							? initValuesEst[horizon + t - i - 1][i] * arCoeffs[i]
-									: predictedData[i][t - i - 1] * arCoeffs[i];
-				}
-				for (int i = 0; i < m; i++) {
-					prediction += scale * uCoeffs[i] * u.invoke(t, i);
-				}
-				predictedData[h][t] = prediction;
-			}
-			for (int t = p + h; t < timeCount; t++) {
-				double prediction = 0.0;
-				int hh = Math.min(h, p);
-				for (int i = hh; i < p; i++) {
-					prediction += data[t - i - 1] * arCoeffs[i];
-				}
-				for (int i = 0; i < hh; i++) {
-					prediction += predictedData[i][t - i - 1] * arCoeffs[i];
-				}
-				for (int i = 0; i < m; i++) {
-					prediction += scale * uCoeffs[i] * u.invoke(t, i);
-				}
-				predictedData[h][t] = prediction;
-			}
-		}
-		return predictedData;
-	}
-	/**
-	 * Solve the model and find the coefficients by using the Mean Square Error estimation algorithm.
-	 * @param x the time series
-	 */
-	public void solveMSE(double[] x) {
-		int n = x.length;
-		
-		if (n < p) {
-			arCoeffs = new double[p];
-			uCoeffs = new double[m];
-			return;
-		}
-		
-		RealMatrix am = MatrixUtils.createRealMatrix(n - p, p + m);
-		RealMatrix atm = MatrixUtils.createRealMatrix(p + m, n - p);
-		
-		for (int i = 0; i < n - p; i++) {
-			for (int j = 0; j < p; j++) {
-				double xt = x[i - 1 + p - j];
-				am.setEntry(i, j, xt);
-				atm.setEntry(j, i, xt);
-			}
-			for (int j = p; j < p + m; j++) {
-				double ut = u.invoke((i + p) % (n), j - p); //check if % indeed works
-				am.setEntry(i, j, ut);
-				atm.setEntry(j, i, ut);
-			}			
-		}
-		
-		// theta = pinv(a'a) * a' * x
-		
-		RealMatrix atmam = atm.multiply(am);
-		
-		RealMatrix atmamInv = new SingularValueDecompositionImpl(atmam).getSolver().getInverse();
-		
-		RealMatrix atmamInvAtm = atmamInv.multiply(atm);
-		
-		RealMatrix xv = MatrixUtils.createColumnRealMatrix(Arrays.copyOfRange(x, p, n));
-		
-		RealMatrix theta = atmamInvAtm.multiply(xv);
-		
-		double[] thetav = theta.getColumn(0);
-		
-		arCoeffs = thetav.clone();
-		uCoeffs  = thetav.clone();
-		
-		System.arraycopy(thetav, 0, arCoeffs, 0, p);
-		System.arraycopy(thetav, p, uCoeffs, 0, m);
-	}
-	
-	/**
-	 * estimates data based on parameters computed for normalized data.
-	 * @param data the time series to estimate
-	 * @param initValues the initial values
-	 * @param scale the scale of the unnormalized time series
-	 * @return the esimation
-	 */
-	public double[] estimate(double[] data, double[] initValues, double scale) {
-		int timeCount = data.length;
-		double[] predictedData = new double[timeCount];
-		if (initValues == null) {
-			for (int t = 0; t < p; t++) {
-				predictedData[t] = 0.0;
-			}
-		} else {
-			for (int t = 0; t < p; t++) {
-				double prediction = 0.0;
-				for (int i = 0; i < p; i++) {
-					prediction += 
-							(t - i - 1 < 0) 
-							? initValues[p + t - i - 1] * arCoeffs[i] 
-									: data[t - i - 1] * arCoeffs[i];
-				}
-				for (int i = 0; i < m; i++) {
-					prediction += scale * uCoeffs[i] * u.invoke(t, i);
-				}
-				predictedData[t] = prediction;
-			}
-		}
-		for (int t = p; t < timeCount; t++) {
-			double prediction = 0.0;
-			for (int i = 0; i < p; i++) {
-				prediction += data[t - i - 1] * arCoeffs[i];
-			}
-			for (int i = 0; i < m; i++) {
-				prediction += scale * uCoeffs[i] * u.invoke(t, i);
-			}
-			predictedData[t] = prediction;
-		}
-		return predictedData;
 	}
 	/**
 	 * Compute the forecast for the next h time values.
-	 * @param x the observations
+	 * @param h the time horizon, h > 0
+	 * @return the forecast values [h]
+	 */
+	public double[] forecastAll(int h) {
+		return forecastAll(this.observations, h);
+	}
+	/**
+	 * Compute the forecast for the next h time values.
+	 * @param x the samples
 	 * @param h the time horizon, h > 0
 	 * @return the forecast values [h]
 	 */
@@ -341,18 +290,155 @@ public class ArxModel {
 		
 		return xf;
 	}
+	
 	/**
-	 * Sets the AR coefficient.
-	 * @param index the index
-	 * @param value the new value
+	 * Estimates data based on parameters computed for normalized data.
+	 * @param data the time series to estimate
+	 * @param initValues the initial values
+	 * @param scale the scale of the unnormalized time series
+	 * @param horizon the lookahead horizon
+	 * @param offset ?
+	 * @return the estimated values for each group
+	 */
+	public double[][] estimate(
+			double[] data, 
+			double[] initValues, double scale, int horizon, int offset) {
+		int numTime = data.length;
+		int iT = initValues.length;
+		
+		double[] fullData = new double[numTime + iT];
+		System.arraycopy(initValues, 0, fullData, 0, iT);
+		System.arraycopy(data, 0, fullData, iT, numTime);
+		
+		ArrayList<Integer> tList = new ArrayList<Integer>();
+		
+		for (int t = 0; t < numTime; t++) {
+			if (data[t] > 0.0) {
+				tList.add(t);
+			}
+		}
+		
+		int filteredTimes = tList.size();
+		
+		double[][] predictedData = new double[horizon][numTime];
+		double[][] initValuesEst = new double[horizon][horizon];
+		
+		for (int h = 0; h < horizon; h++) {
+			for (int j = h; j < horizon; j++) {
+					double initPred = 0.0;
+					int hh = Math.min(h, p);
+					for (int i = hh; i < p; i++) {
+						initPred += initValues[p + j - i - 1] * arCoeffs[i];
+					}
+					for (int i = 0; i < hh; i++) {
+						initPred += initValuesEst[j - i - 1][i] * arCoeffs[i];
+					}
+					initValuesEst[j][h] = initPred;
+			}
+		}
+			
+		for (int h = 0; h < horizon; h++) {
+			int ph = Math.min(p + h, filteredTimes);
+			for (int t = 0; t < ph; t++) {
+				double prediction = 0.0;
+				int hh = Math.min(h, p);
+				for (int i = hh; i < p; i++) {
+					prediction += 
+							(t - i - 1 < 0) 
+							? initValues[p + horizon + t - i - 1] * arCoeffs[i] 
+											: data[tList.get(t - i - 1)] * arCoeffs[i];
+				}
+				for (int i = 0; i < hh; i++) {
+					prediction += (t - i - 1 < 0) 
+							? initValuesEst[horizon + t - i - 1][i] * arCoeffs[i]
+									: predictedData[i][tList.get(t - i - 1)] * arCoeffs[i];
+				}
+				for (int i = 0; i < m; i++) {
+					prediction += scale * uCoeffs[i] * u.invoke(tList.get(t) + offset, i);
+				}
+				predictedData[h][tList.get(t)] = prediction;
+			}
+			for (int t = ph; t < filteredTimes; t++) {
+				double prediction = 0.0;
+				int hh = Math.min(h, p);
+				for (int i = hh; i < p; i++) {
+					prediction += data[tList.get(t - i - 1)] * arCoeffs[i];
+				}
+				for (int i = 0; i < hh; i++) {
+					prediction += predictedData[i][tList.get(t - i - 1)] * arCoeffs[i];
+				}
+				for (int i = 0; i < m; i++) {
+					prediction += scale * uCoeffs[i] * u.invoke(tList.get(t) + offset, i);
+				}
+				predictedData[h][tList.get(t)] = prediction;
+			}
+		}
+		return predictedData;
+	}
+	
+	/**
+	 * Estimates data based on parameters computed for normalized data.
+	 * @param data the time series to estimate
+	 * @param initValues the initial values
+	 * @param scale the scale of the unnormalized time series
+	 * @return the estimates
+	 */
+	public double[] estimate(double[] data, double[] initValues, double scale) {
+		int numTimes = data.length;
+		double[] predictedData = new double[numTimes];
+		int pp = Math.min(p, numTimes);
+		if (initValues == null) {
+			for (int t = 0; t < pp; t++) {
+				predictedData[t] = -1.0;
+			}
+		} else {
+			for (int t = 0; t < pp; t++) {
+				double prediction = 0.0;
+				for (int i = 0; i < p; i++) {
+					prediction += 
+							(t - i - 1 < 0) 
+							? initValues[p + t - i - 1] * arCoeffs[i] 
+									: data[t - i - 1] * arCoeffs[i];
+				}
+				for (int i = 0; i < m; i++) {
+					prediction += scale * uCoeffs[i] * u.invoke(t, i);
+				}
+				predictedData[t] = prediction;
+			}
+		}
+		for (int t = pp; t < numTimes; t++) {
+			double prediction = 0.0;
+			for (int i = 0; i < p; i++) {
+				prediction += data[t - i - 1] * arCoeffs[i];
+			}
+			for (int i = 0; i < m; i++) {
+				prediction += scale * uCoeffs[i] * u.invoke(t, i);
+			}
+			predictedData[t] = prediction;
+		}
+		return predictedData;
+	}
+	
+	@Override
+	public int paramCount() {
+		return m + p;
+	}
+	@Override
+	public double logLikelihood() {
+		throw new UnsupportedOperationException();
+	}
+	/**
+	 * Sets the autoregression model coefficient.
+	 * @param index the index &lt; p
+	 * @param value the value
 	 */
 	public void setArCoefficient(int index, double value) {
 		arCoeffs[index] = value;
 	}
 	/**
-	 * Sets the ARX external coefficient.
-	 * @param index the index
-	 * @param value the new value
+	 * Sets the autoregression exogenous model coefficient.
+	 * @param index the index, &lt; m
+	 * @param value the value
 	 */
 	public void setUCoefficient(int index, double value) {
 		uCoeffs[index] = value;

@@ -117,7 +117,11 @@ public class ConsignmentGet extends AdvanceBlock {
         }));
         return new RunObserver();
     }
-
+    /**
+     * Returns a date value or null.
+     * @param x the XML containing a timestamp
+     * @return the date
+     */
     private Date getDate(XElement x) {
         if (x != null) {
             try {
@@ -153,14 +157,19 @@ public class ConsignmentGet extends AdvanceBlock {
                 long count = 0, lastTime = 0;
                 try {
                     Consignment c;
-                    while ((c = s.next()) != null && c.id != -1) {
-                        dispatch(OUT, c.toXML("consignment"));
-                        count++;
-                        long time = System.currentTimeMillis();
-                        if (time - lastTime > 2000) {
-                            LOG.info("Consignment: " + count);
-                            lastTime = time;
-                        }
+                    while (true) {
+                    	c = s.next();
+                    	if (c != null && c.id != -1) {
+	                        dispatch(OUT, c.toXML("consignment"));
+	                        count++;
+	                        long time = System.currentTimeMillis();
+	                        if (time - lastTime > 2000) {
+	                            LOG.info("Consignment: " + count);
+	                            lastTime = time;
+	                        }
+                    	} else {
+                    		break;
+                    	}
                     }
                     c = new Consignment();
                     c.id = -1;
@@ -210,6 +219,8 @@ public class ConsignmentGet extends AdvanceBlock {
          * A query session built from a connection.
          *
          * @param connection the JDBC connection
+         * @param minDate the minimum date
+         * @param maxDate the maximum date
          * @throws SQLException if any error in queries
          */
         private Session(Connection connection, Date minDate, Date maxDate) throws SQLException {

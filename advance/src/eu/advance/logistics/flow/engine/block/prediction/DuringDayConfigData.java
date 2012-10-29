@@ -84,10 +84,8 @@ public class DuringDayConfigData {
 /**
      * Parse from XML.
      *
-     * @param r data resolver
      * @param x XML element
      * @throws ParseException if unable to convert dates
-     * @return configuration from XML description
      */
     public void parse(XElement x) throws ParseException {
         targetType = x.get("targetType");
@@ -104,7 +102,6 @@ public class DuringDayConfigData {
     /**
      * Convert to XML.
      *
-     * @param r data resolver
      * @param name the name of the XML element
      * @return the XML representation
      */
@@ -125,7 +122,6 @@ public class DuringDayConfigData {
     /**
      * Adapt a string array to XML.
      *
-     * @param r data resolver
      * @param values array of string
      * @param name name of the element
      * @return representation of the string array
@@ -141,7 +137,6 @@ public class DuringDayConfigData {
     /**
      * Adapt an XML element to a string array.
      *
-     * @param r data resolver
      * @param x XML element
      * @return the string array
      */
