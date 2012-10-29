@@ -96,7 +96,9 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 			int p = xm.getInt("model-order");
 			int m = 5;
 			
-			ArxModel arxModel = new ArxModel(p, m, new Func2<Integer, Integer, Double>() {
+			ArxModel arxModel = new ArxModel(
+					new double[0],
+					p, m, new Func2<Integer, Integer, Double>() {
 				@Override
 				public Double invoke(Integer param1, Integer param2) {
 					int dow = KMeansARXLearn.dayOfWeek(series.daysSinceEpoch.get(param1));

@@ -34,9 +34,8 @@ import com.google.common.collect.Lists;
  * K-means algorithm for classifying and predicting multiple time series.
  * @author gneu, 2012.02.10.
  */
-
 public class KMeansARX {
-	/** number of clusters. */
+	/** Number of clusters. */
 	protected int clusterCount;
 	/** Number of external factors. */
 	protected int m;
@@ -49,7 +48,9 @@ public class KMeansARX {
 	/** Function to return the external effects at time {@code t}.*/
 	protected Func2<Integer, Integer, Double> u;
 	/** The set of K ARX Models. */
-	protected ArxModel[] allModels; 
+	protected ArxModel[] allModels;
+	/** All data. */
+	protected double[][] allData;
 	/** Training data. */
 	protected double[][] trainData;
 	/** Test data. */
@@ -59,87 +60,135 @@ public class KMeansARX {
 	/** Test data estimates. */
 	protected double[][] testDataEst;
 	/** L1 error on the train set. */
-	protected double errorL1train;
+	protected double l1train;
 	/** L1 error on the test set. */
-	protected double errorL1test;
+	protected double l1test;
 	/** L2 error on the train set. */
-	protected double errorL2train;
+	protected double l2train;
 	/** L2 error on the test set. */
-	protected double errorL2test;	
+	protected double l2test;
 	/** Array indicating classes for each time series. */
 	protected int[] classes;
 	/** Sets of time series belonging to each cluster. */
 	protected List<Set<Integer>> classSet;
 	/** Number of time series. */
-	protected int seriesCount;
+	protected int numSeries;
 	/** Length of individual training time series. */
-	protected int timeCount;
+	protected int numTraining;
 	/** Normalization coefficients for each time series. */
-	double[] trainMean;
+	protected double[] trainMean;
 	/** Horizon for measuring accuracy. */
-	int horizon;
+	protected int horizon;
+	/** Where to split the provided data into train and test datasets. */
+	protected int split;
 	
 	/**
 	 * Initialize.
-	 * @param trainData the training data
-	 * @param testData the test data
+	 * @param allData all available data
+	 * @param split the split count, if between 1 and the number of columns in allData, 0 for no split
 	 * @param p the model order
 	 * @param m the number of external factors
-	 * @param modelCount the number of ARX models
+	 * @param cluserCount the number of ARX models
 	 * @param maxIter the maximal number of iterations for K-means
 	 * @param normalized whether to use normalization
-	 * @param horizon the horizon
+	 * @param horizon the prediction horizon
 	 * @param u the function that represents external factors
 	 */
 	public KMeansARX(
-			double[][] trainData,
-			double[][] testData,
+			double[][] allData,
+			int split,
 			int p,
 			int m,
-			int modelCount,
+			int cluserCount,
 			int maxIter,
 			boolean normalized,
 			int horizon,
 			Func2<Integer, Integer, Double> u) {
-		this.trainData = trainData;
-		this.testData = testData;
+		this.allData = allData;
+		this.split = split;
 		this.p = p;
 		this.m = m;
-		this.clusterCount = modelCount;
+		this.clusterCount = cluserCount;
 		this.maxIter = maxIter;
 		this.normalized = normalized;
 		this.horizon = horizon;
 		this.u = u;
-		this.seriesCount = trainData.length;
-		this.timeCount = trainData[0].length;
-		this.classes = new int[seriesCount];
-		this.trainMean = new double[seriesCount];
-		this.trainDataEst = new double[seriesCount][];
-		this.testDataEst = new double[seriesCount][];
-		this.classSet = Lists.newArrayList();
-		for (int k = 0; k < modelCount; k++) {
-			classSet.set(k, new HashSet<Integer>());
+		this.numSeries = allData.length;
+		
+		if (split > 0) {
+			int len = allData[0].length;
+			trainData = new double[numSeries][split];
+			testData = new double[numSeries][len - split];
+			for (int n = 0; n < numSeries; n++) {
+				System.arraycopy(allData[n], 0, trainData[n], 0, split);
+				System.arraycopy(allData[n], split, testData[n], 0, allData[0].length - split);
+			}
+		} else {
+			trainData = allData.clone();
+			testData = allData.clone();
+		}
+			
+		this.numTraining = trainData[0].length;
+		this.classes = new int[numSeries];
+		this.trainMean = new double[numSeries];
+		this.trainDataEst = new double[numSeries][];
+		this.testDataEst = new double[numSeries][];
+		this.classSet = Lists.newArrayList();;
+		for (int k = 0; k < cluserCount; k++) {
+			classSet.add(new HashSet<Integer>());
 		}
 	}
 	
-	/**
-	 * @return the internal ARX models.
+	
+	/** 
+	 * Set all data.
+	 * @param allData the data to set
 	 */
-	public List<ArxModel> models() {
-		return Lists.newArrayList(allModels);
+	public void setAllData(double[][] allData) {
+		int len = allData[0].length;
+		trainData = new double[numSeries][split];
+		testData = new double[numSeries][len - split];
+		for (int n = 0; n < numSeries; n++) {
+			System.arraycopy(allData[n], 0, trainData[n], 0, split);
+			System.arraycopy(allData[n], split, testData[n], 0, len - split);
+		}
+		this.allData = allData.clone();
 	}
+	
+	/** 
+	 * Set train-test split.
+	 * @param split where to split the data in two
+	 */
+	public void setSplit(int split) {
+		this.split = split;
+	}
+	
+	
+	
+	/** 
+	 * Set the function returning external factors.
+	 * @param u the function to set
+	 */
+	public void setU(Func2<Integer, Integer, Double> u) {
+		this.u = u;
+		for (int k = 0; k < clusterCount; k++) {
+			allModels[k].u = u;
+		}
+	}
+	
+	
 	/** 
 	 * Set the training data.
 	 * @param trainData the training data to set
-	 * */
+	 */
 	public void setTrainData(double[][] trainData) {
 		this.trainData = trainData.clone();
 	}
 	
 	/** 
 	 * Set the test data.
-	 * @param testData the training data to set
-	 * */
+	 * @param testData the test data
+	 */
 	public void setTestData(double[][] testData) {
 		this.testData = testData.clone();
 	}
@@ -151,43 +200,37 @@ public class KMeansARX {
 	
 	/** @return the L1 error of the predictions on the test window */
 	public double getL1TestError() {
-		return errorL1test;
+		return l1test;
 	}
 	
 	/** @return the L2 error of the predictions on the test window */
 	public double getL2TestError() {
-		return errorL2test;
+		return l2test;
 	}
 	
-	/** @return the L1 error of the predictions on the train window */
+	/** @return the L1 error of the predictions on the train window*/
 	public double getL1TrainError() {
-		return errorL1train;
+		return l1train;
 	}
 	
-	/** @return the L2 error of the predictions on the train window */
+	/** @return the L2 error of the predictions on the train window*/
 	public double getL2TrainError() {
-		return errorL2train;
+		return l2train;
 	}
-	
-	
-	
-	
-	
-	
 	/**
 	 * Returns the average L2 error between two sets of time series.
 	 * @param data the original set of time series
 	 * @param dataEst the estimated set of time series
-	 * @return the average L2 error
+	 * @return  the l2 error
 	 */
-	protected double l2Error(double[][] data, double[][] dataEst) {
+	public static double l2Error(double[][] data, double[][] dataEst) {
 		double err = 0.0;
 		int nonzeroes = 0;
-		for (int n = 0; n < seriesCount; n++) {
+		for (int n = 0; n < data.length; n++) {
 			for (int t = 0; t < data[n].length; t++) {
 				double d = data[n][t];
 				double dE = dataEst[n][t];
-				if (d > 0.0 && dE != 0.0) {
+				if (d > 0.0 && dE != -1.0) {
 					err += (d - dE) * (d - dE);
 					nonzeroes++;
 				}
@@ -203,15 +246,15 @@ public class KMeansARX {
 	 * Returns the average L2 error between two time series.
 	 * @param data the original time series
 	 * @param dataEst the estimated time series
-	 * @return L2 error
+	 * @return the average L2 error
 	 */
-	protected double l2Error(double[] data, double[] dataEst) {
+	protected static double l2Error(double[] data, double[] dataEst) {
 		double err = 0.0;
 		int nonzeroes = 0;
 		for (int t = 0; t < data.length; t++) {
 			double d = data[t];
 			double dE = dataEst[t];
-			if (d > 0.0 && dE != 0.0) {
+			if (d > 0.0 && dE != -1.0) {
 				err += (d - dE) * (d - dE);
 				nonzeroes++;
 			}
@@ -226,16 +269,16 @@ public class KMeansARX {
 	 * Returns the average L1 error between two sets of time series.
 	 * @param data the original set of time series
 	 * @param dataEst the estimated set of time series
-	 * @return the L1 error
+	 * @return the average L1 error
 	 */
-	protected double l1Error(double[][] data, double[][] dataEst) {
+	public static double l1Error(double[][] data, double[][] dataEst) {
 		double err = 0.0;
 		int nonzeroes = 0;
-		for (int n = 0; n < seriesCount; n++) {
-			for (int t = 0; t < data.length; t++) {
+		for (int n = 0; n < data.length; n++) {
+			for (int t = 0; t < data[n].length; t++) {
 				double d = data[n][t];
 				double dE = dataEst[n][t];
-				if (d > 0.0 && dE != 0.0) {
+				if (d > 0.0 && dE != -1.0) {
 					err += Math.abs(d - dE);
 					nonzeroes++;
 				}
@@ -251,15 +294,15 @@ public class KMeansARX {
 	 * Returns the average L1 error between two time series.
 	 * @param data the original time series
 	 * @param dataEst the estimated time series
-	 * @return the error
+	 * @return the average L2 error
 	 */
-	protected double l1Error(double[] data, double[] dataEst) {
+	protected static double l1Error(double[] data, double[] dataEst) {
 		double err = 0.0;
 		int nonzeroes = 0;
 		for (int t = 0; t < data.length; t++) {
 			double d = data[t];
 			double dE = dataEst[t];
-			if (d > 0.0 && dE != 0.0) {
+			if (d > 0.0 && dE != -1.0) {
 				err += Math.abs(d - dE);
 				nonzeroes++;
 			}
@@ -272,13 +315,13 @@ public class KMeansARX {
 	
 	/**
 	 * Classifies time series into one of K clusters.
-	 * @return model changed?
+	 * @return if the clusers have changed
 	 */
 	protected boolean classify() {
 		boolean changed = false;
 		int bestK = 0;
 		double[] trainEst = null;
-		for (int n = 0; n < seriesCount; n++) {
+		for (int n = 0; n < numSeries; n++) {
 			double bestErr = Double.POSITIVE_INFINITY;
 			for (int k = 0; k < clusterCount; k++) {
 				// this could be slightly improved if we also pass some initializing values to the function
@@ -295,18 +338,16 @@ public class KMeansARX {
 			
 			if (classes[n] != bestK) {
 				classSet.get(classes[n]).remove(n);
-				classSet.get(bestK).add(n);
 				classes[n] = bestK;
 				changed = true;
-			} else {
-				classSet.get(bestK).add(n);
-			}
+			} 
+
+			classSet.get(bestK).add(n);
 			trainDataEst[n] = trainEst;
 		}
-//		for (int k = 0; k<clusterCount; k++) { 
-//			System.out.print(classSet[k].size() + " ");
-//		}
-//		System.out.println();
+		//for (int k=0; k<K; k++) 
+		//	System.out.print(classSet[k].size() + " ");
+		//System.out.println();
 		return changed;
 	}
 	
@@ -315,6 +356,7 @@ public class KMeansARX {
 	 */
 	protected void update() {
 		for (int k = 0; k < clusterCount; k++) {
+			//System.out.println(k + ": " + Arrays.toString(allModels[k].uCoeffs));
 			// concatenate training time series
 			if (classSet.get(k).isEmpty()) {
 				//int index = (int) Math.floor(Math.random()*N);
@@ -322,14 +364,14 @@ public class KMeansARX {
 				//allModels[k].solveMSE();
 				continue;
 			}
-			double[] longTrainingSeries = new double[classSet.get(k).size() * timeCount];
-			double[][] trainingSet = new double[classSet.get(k).size()][timeCount];
+			double[] longTrainingSeries = new double[classSet.get(k).size() * numTraining];
+			double[][] trainingSet = new double[classSet.get(k).size()][numTraining];
 			int h = 0;
 			for (int n : classSet.get(k)) {
-				for (int t = 0; t < timeCount; t++) {
+				for (int t = 0; t < numTraining; t++) {
 					double tt = trainData[n][t] / trainMean[n];
 					trainingSet[h][t] = tt;
-					longTrainingSeries[h * timeCount + t] = tt;
+					longTrainingSeries[h * numTraining + t] = tt;
 				}
 				h++;
 			}
@@ -349,15 +391,15 @@ public class KMeansARX {
 		
 		// normalizes data by the mean of the training data if requested
 		if (normalized) {
-			for (int n = 0; n < seriesCount; n++) {
+			for (int n = 0; n < numSeries; n++) {
 				double trainM = 0.0;
-				for (int t = 0; t < timeCount; t++) {
-					trainM += trainData[n][t] / timeCount;
+				for (int t = 0; t < numTraining; t++) {
+					trainM += trainData[n][t] / numTraining;
 				}
 				trainMean[n] = trainM > 0 ? trainM : 1.0;	
 			}
 		} else {
-			for (int n = 0; n < seriesCount; n++) {
+			for (int n = 0; n < numSeries; n++) {
 				trainMean[n] = 1.0;
 			}
 		}
@@ -367,9 +409,9 @@ public class KMeansARX {
 		if (allModels == null) {
 			allModels = new ArxModel[clusterCount];
 			for (int k = 0; k < clusterCount; k++) {
-				int index = (int) Math.floor(Math.random() * seriesCount);
-				allModels[k] = new ArxModel(p, m, u);
-				allModels[k].solveMSE(trainData[index]);
+				int index = (int) Math.floor(Math.random() * numSeries);
+				allModels[k] = new ArxModel(trainData[index], p, m, u);
+				allModels[k].solveMSE();
 				classSet.get(k).add(index);
 				classes[index] = k;
 			}
@@ -379,25 +421,33 @@ public class KMeansARX {
 		
 		for (int iter = 0; (iter < maxIter) && (changed); iter++) {
 			changed = classify();
+			
 			update();
 		}
 		
 		// compute estimates for the test section of each time series
-		for (int n = 0; n < seriesCount; n++) {
+		for (int n = 0; n < numSeries; n++) {
 			int k = classes[n];
-			double[] initValues = Arrays.copyOfRange(trainData[n], timeCount - p - horizon, timeCount);
-			double[][] estimates = allModels[k].estimate(testData[n], initValues, trainMean[n], horizon);
+			double[] initValues = Arrays.copyOfRange(trainData[n], numTraining - p - horizon, numTraining);
+			double[][] estimates = allModels[k].estimate(testData[n], initValues, trainMean[n], horizon, split);
 			testDataEst[n] = estimates[0];
+
+			//double[] initValues = Arrays.copyOfRange(trainData[n], T-p, T);
+			//testDataEst[n]= allModels[k].estimate(testData[n], initValues, trainMean[n]);
 			trainDataEst[n] = allModels[k].estimate(trainData[n], null, trainMean[n]);
 		}
 		
-		errorL2train = l2Error(trainData, trainDataEst);
-		errorL1train = l1Error(trainData, trainDataEst);
-		errorL2test  = l2Error(testData, testDataEst);
-		errorL1test  = l1Error(testData, testDataEst);
+		l2train = l2Error(trainData, trainDataEst);
+		l1train = l1Error(trainData, trainDataEst);
+		l2test  = l2Error(testData, testDataEst);
+		l1test  = l1Error(testData, testDataEst);
+	}
+	/** @return the models. */
+	public List<ArxModel> models() {
+		return Arrays.asList(allModels);
 	}
 	/**
-	 * @return the classes for each of the time series (index).
+	 * @return the learned class index for each row of the input data
 	 */
 	public int[] getClasses() {
 		return classes.clone();

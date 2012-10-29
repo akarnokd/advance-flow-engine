@@ -159,7 +159,7 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
             attributesSet.put("default", createDefault());
         }
     }
-
+    /** Load the default attributes. */
     public void loadDefault() {
         attributesSet.put("default", createDefault());
     }

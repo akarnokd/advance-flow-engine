@@ -72,6 +72,7 @@ public class DuringDayPrediction extends AdvanceBlock {
      * Provides the list of selected attributes.
      */
     private SelectedAttributesProviderImpl selectedAttributesProvider = new SelectedAttributesProviderImpl();
+    /** The prediction. */
     private MLPrediction prediction;
 
     @Override
@@ -89,8 +90,8 @@ public class DuringDayPrediction extends AdvanceBlock {
                     prediction.setTargetDepotIds(model.config.targetDepotIDs);
                     prediction.init(model);
 
-                    LOG.info("Target date: "+prediction.getTargetDate());
-                    LOG.info("Target depots: "+Arrays.toString(prediction.getTargetDepotIds()));
+                    LOG.info("Target date: " + prediction.getTargetDate());
+                    LOG.info("Target depots: " + Arrays.toString(prediction.getTargetDepotIds()));
 
                 } catch (Exception ex) {
                     LOG.error(null, ex);
@@ -141,7 +142,6 @@ public class DuringDayPrediction extends AdvanceBlock {
     /**
      * Trains the model using the consignment.
      *
-     * @param prediction the model
      * @param x the XML representation of the consignment
      */
     private void process(XElement x) {
@@ -175,7 +175,6 @@ public class DuringDayPrediction extends AdvanceBlock {
     /**
      * Creates the model from XML.
      *
-     * @param resolver used to resolve data to XML
      * @param root the root XML element
      * @return the model
      * @throws Exception if unable to convert base64 string
