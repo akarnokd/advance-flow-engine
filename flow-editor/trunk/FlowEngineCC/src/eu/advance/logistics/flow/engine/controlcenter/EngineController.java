@@ -163,7 +163,7 @@ public class EngineController {
 		auth.password(password);
 		auth.loginType = AdvanceLoginType.BASIC;
 		
-                if (serverCert != null) {
+                if (serverCert != null && !serverCert.isEmpty()) {
                     KeystoreManager mgr = new KeystoreManager();
                     mgr.create();
                     FileInputStream in = new FileInputStream(serverCert);
