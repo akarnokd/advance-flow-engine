@@ -388,7 +388,6 @@ public class KMeansARX {
 	 * Runs K-means clustering.
 	 */
 	public void solve() {
-		
 		// normalizes data by the mean of the training data if requested
 		if (normalized) {
 			for (int n = 0; n < numSeries; n++) {

@@ -508,8 +508,13 @@ public class CCRemoteLogin extends JDialog {
 						ll.address = address;
 						ll.type = AdvanceLoginType.BASIC;
 						ll.user = xi.get("username");
-						ll.password = xi.get("password").toCharArray();
-						ll.timestamp = new Date(xi.getLong("lastLogin"));
+						String pwd = xi.get("password");
+						if (pwd != null) {
+							ll.password = pwd.toCharArray();
+						} else {
+							ll.password = new char[0];
+						}
+						ll.timestamp = new Date(xi.getLong("lastLogin", 0));
 						ll.cert = xi.get("cert");
 						
 						addToRows(ll);
