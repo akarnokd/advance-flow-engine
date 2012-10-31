@@ -61,10 +61,15 @@ public class LoginInfo {
                 info.username = e.getAttribute("username");
                 info.password = e.getAttribute("password");
                 info.serverCert = e.getAttribute("server-cert");
-                if ((str = e.getAttribute("lastLogin")) != null) {
-                    long time = Long.parseLong(str);
-                    if (time != 0) {
-                        info.lastLogin = new Date(time);
+                str = e.getAttribute("lastLogin");
+                if (str != null && !str.isEmpty()) {
+                    try {
+                        long time = Long.parseLong(str);
+                        if (time != 0) {
+                            info.lastLogin = new Date(time);
+                        }
+                    } catch (NumberFormatException ex) {
+                        // ignored
                     }
                 }
                 data.add(info);
