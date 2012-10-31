@@ -150,6 +150,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 		try {
 			c.setRequestMethod("POST");
 			c.setRequestProperty("Content-Type", "text/xml;charset=utf-8");
+			c.setDoOutput(true);
 			c.connect();
 			
 			OutputStream out = c.getOutputStream();
@@ -189,6 +190,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 		try {
 			c.setRequestMethod("POST");
 			c.setRequestProperty("Content-Type", "text/xml;charset=utf-8");
+			c.setDoOutput(true);
 			c.connect();
 			
 			OutputStream out = c.getOutputStream();
@@ -290,6 +292,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 					try {
 						c.setRequestMethod("POST");
 						c.setRequestProperty("Content-Type", "text/xml;charset=utf-8");
+						c.setDoOutput(true);
 						c.connect();
 						
 						OutputStream out = c.getOutputStream();
