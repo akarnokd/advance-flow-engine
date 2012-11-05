@@ -55,9 +55,9 @@ public class AdvanceBlockBind implements XSerializable {
 	@Override
 	public void load(XElement root) {
 		id = root.get("id");
-		sourceBlock = root.get("source-block", "");
+		sourceBlock = root.get("source-block");
 		sourceParameter = root.get("source-parameter");
-		destinationBlock = root.get("destination-block", "");
+		destinationBlock = root.get("destination-block");
 		destinationParameter = root.get("destination-parameter");
 	}
 	@Override

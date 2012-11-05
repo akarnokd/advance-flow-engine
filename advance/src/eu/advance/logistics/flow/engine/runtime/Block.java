@@ -517,6 +517,33 @@ public abstract class Block<T, X, C> {
 		return p;
 	}
 	/**
+	 * Returns all values of a variable parameter name or a single-element list for a regular parameter.
+	 * @param name the parameter name
+	 * @return the list of values
+	 */
+	protected List<T> getAll(String name) {
+		List<T> result = Lists.newArrayList();
+		
+		T single = get(name);
+		if (single != null) {
+			result.add(single);
+		} else {
+			for (int i = 1; ; i++) {
+				String s = name + i;
+				if (params.containsKey(s)) {
+					result.add(params.get(s));
+				} else
+				if (settings.constantValues.containsKey(s)) {
+					result.add(settings.constantValues.get(s));
+				} else {
+					break;
+				}
+			}
+		}
+		
+		return result;
+	}
+	/**
 	 * Dispatches the output value to the given port.
 	 * @param name the port name
 	 * @param value the value

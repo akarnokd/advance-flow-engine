@@ -1869,4 +1869,13 @@
         <output id="out" type-variable="T"/>
     </block-description>
 
+    <!-- Creates a collection from the supplied variable number of arguments. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CreateCollection" id="CreateCollection" scheduler="NOW" category="projection" tooltip="Creates a collection from the supplied variable number of arguments.">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="true" type-variable="T"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
+    </block-description>
+
 </block-registry>
