@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.diagram;
 
+import eu.advance.logistics.flow.editor.util.NaturalStrings;
 import java.awt.Image;
 
 import org.netbeans.api.visual.anchor.Anchor;
@@ -126,6 +127,6 @@ public class PinWidget extends Widget implements Comparable<PinWidget> {
 
     @Override
     public int compareTo(PinWidget o) {
-        return getPinName().compareTo(o.getPinName());
+        return NaturalStrings.compareNatural(getPinName(), o.getPinName());
     }
 }
