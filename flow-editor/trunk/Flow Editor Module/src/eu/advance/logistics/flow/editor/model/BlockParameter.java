@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
+import eu.advance.logistics.flow.editor.util.NaturalStrings;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 
 /**
@@ -86,7 +87,7 @@ public class BlockParameter implements Comparable<BlockParameter> {
 
     @Override
     public int compareTo(BlockParameter o) {
-        return id.compareTo(o.id);
+        return NaturalStrings.compareNatural(id, o.id);
     }
 
     public void destroy() {
