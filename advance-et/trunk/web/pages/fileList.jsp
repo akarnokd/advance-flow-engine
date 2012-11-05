@@ -1,16 +1,19 @@
-<%-- 
+<%--
     Document   : fileList
     Created on : 23-feb-2012, 14.18.16
     Author     : farago
 --%>
 
+<%@page import="com.ttsnetwork.elicitationtool.FileManager"%>
+<%@page import="com.ttsnetwork.elicitationtool.UserBean"%>
+<%@page import="com.ttsnetwork.elicitationtool.FileItem"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page import="java.io.File"%>
 <%@page import="java.util.Calendar"%>
+<%@page import="com.ttsnetwork.elicitationtool.FileViewData"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE HTML>
-<c:set var="fileList" scope="page" 
-value='<%= new File(getServletContext().getInitParameter("XmlFilesRep")).list()%>'/>
+<c:set var="fileList" scope="page" value="<%= FileManager.getInstance().getFiles()%>"/>
 <c:set var="userBean" scope="page" value="${sessionScope.userBean}"/>
 <html>
     <head>
@@ -27,7 +30,7 @@ value='<%= new File(getServletContext().getInitParameter("XmlFilesRep")).list()%
         <div id="wrapper">
             <div id="page-header">
                 <div id="logo-1" class="logo">
-                    <img src="../images/header/logo.png" 
+                    <img src="../images/header/logo.png"
                          alt="ADVANCE RESEARCH PROJECT ELICITATION TOOL LOGO"
                          id="logo">
                 </div>
@@ -40,7 +43,10 @@ value='<%= new File(getServletContext().getInitParameter("XmlFilesRep")).list()%
             <div id="content">
                 <div class="page-title">
                     <p>
-                        Choose a file
+                        <span id="title">Choose a file</span>
+                        <span>Next list update:</span>
+                        <span id="timer"></span>
+                        <button class="float-right" title="Force a refresh of the file list">Refresh</button>
                         <a href="../doc/AdvanceElicitationTool_QuickGuide.pdf"
                            target="_blank" title="Quick Guide">
                             ?
@@ -49,9 +55,22 @@ value='<%= new File(getServletContext().getInitParameter("XmlFilesRep")).list()%
                 </div>
                 <div id="main-content">
                     <ul id="file-list">
-                        <c:forEach var="fileName" items="${pageScope.fileList}">
+                        <c:forEach var="fileItem" items="${pageScope.fileList}">
                             <li>
-                                <a href="#" class="file">${fileName}</a>
+                                <c:choose>
+                                    <c:when test="${fileItem.user == userBean.name || fileItem.user == null}">
+                                        <a href="#" class="file">${fileItem.filename}</a>
+                                    </c:when>
+                                    <c:when test="${fileItem.user != null}">
+                                        <div class="file" title="File is under editing">
+                                            ${fileItem.filename}
+                                            <img src="../images/locked.png">
+                                            <span>
+                                                ${fileItem.user} is editing
+                                            </span>
+                                        </div>
+                                    </c:when>
+                                </c:choose>
                             </li>
                         </c:forEach>
                     </ul>
@@ -82,25 +101,11 @@ value='<%= new File(getServletContext().getInitParameter("XmlFilesRep")).list()%
                     </form>
                 </div>
             </div>
-            <div id="footer">
-                <p>
-                    Copyright &copy; 2010-<%= Calendar.getInstance().get(Calendar.YEAR)%> 
-                    <a href="http://www.advance-logistics.eu/">
-                        The Advance EU 7th Framework project consortium
-                    </a>
-                </p>
-                <p>
-                    Copyright &copy; <%= Calendar.getInstance().get(Calendar.YEAR)%> 
-                    Advance - 
-                    <a href="http://www.ttsnetwork.net">
-                        Technology Transfer System S.r.l.
-                    </a>
-                </p>
-            </div>
+            <%@ include file="/WEB-INF/jspf/footer.jspf" %>
         </div>
         <div id="overlay-box"></div>
         <div id="upload-box">
-            <form action="do.uploadXml" enctype="multipart/form-data" 
+            <form action="do.uploadXml" enctype="multipart/form-data"
                   method="post" id="upload-form" novalidate="novalidate">
                 <div class="form-header">
                     <p>Upload a file</p>

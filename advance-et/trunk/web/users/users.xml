@@ -14,4 +14,18 @@
         <permission type="download" allow="false"/>
         <permission type="delete" allow="false"/>
     </user>
+    <user name="user3" password="1234">
+        <permission type="edit" allow="true"/>
+        <permission type="view" allow="true"/>
+        <permission type="upload" allow="false"/>
+        <permission type="download" allow="false"/>
+        <permission type="delete" allow="false"/>
+    </user>
+    <user name="user4" password="1234">
+        <permission type="edit" allow="true"/>
+        <permission type="view" allow="true"/>
+        <permission type="upload" allow="false"/>
+        <permission type="download" allow="false"/>
+        <permission type="delete" allow="false"/>
+    </user>
 </users>

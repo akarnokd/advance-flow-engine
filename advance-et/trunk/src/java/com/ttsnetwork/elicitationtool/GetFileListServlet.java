@@ -1,19 +1,25 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.ttsnetwork.elicitationtool;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Collection;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 /**
  *
  * @author farago
  */
-public class GetXmlServlet extends HttpServlet {
+public class GetFileListServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP
@@ -27,20 +33,23 @@ public class GetXmlServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("application/xml");
-        OutputStream out = response.getOutputStream(); //Prendo lo stream di uscita
+        response.setContentType("text/xml;charset=UTF-8");
+        PrintWriter out = response.getWriter();
         try {
-            FileInputStream fos = new FileInputStream(
-                    new File(FileViewData.getXmlFileRepository(), 
-                    request.getParameter("fileName"))); //Apro lo stream sul file
-            byte[] buff = new byte[1024]; //Faccio un buffer
-            int read; //Un int che terrà i byte letti
-            while ((read = fos.read(buff)) != -1) { //Legge il file a gruppi di buff.length byte fino a che ce ne sono
-                out.write(buff, 0, read); //Scrive nel file il pezzo buff, da 0 a read
+            Collection<FileItem> files = FileManager.getInstance().getFiles();
+
+            Element el = new Element("root");
+            Document doc = new Document(el);
+            Element fileEl;
+
+            for (FileItem file : files) {
+                fileEl = new Element("file");
+                fileEl.setAttribute("filename", file.getFilename() == null ? "" : file.getFilename());
+                fileEl.setAttribute("user", file.getUser() == null ? "" : file.getUser());
+                el.addContent(fileEl);
             }
-            fos.close();
-        }catch(Exception ex){
-            response.setStatus(301); //Notice an error to client
+            
+            new XMLOutputter().output(doc, out);
         } finally {
             out.close();
         }

@@ -1,0 +1,18 @@
+<%@page import="java.util.Calendar"%>
+<%@ page pageEncoding="UTF-8" %>
+<div id="footer">
+    <% int year = Calendar.getInstance().get(Calendar.YEAR); %>
+    <p>
+        Copyright &copy; 2010-<%=year%>
+        <a href="http://www.advance-logistics.eu/">
+            The Advance EU 7th Framework project consortium
+        </a>
+    </p>
+    <p>
+        Copyright &copy; 2010-<%=year%>
+        <a href="http://www.ttsnetwork.net">
+            Technology Transfer System S.r.l.
+        </a>
+    </p>
+</div>
+

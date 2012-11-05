@@ -27,8 +27,8 @@ public class DeleteXmlServlet extends HttpServlet {
             throws ServletException, IOException {
         boolean errorOccured = true;
         String errorMessage = null;
-        File xmlFile = new File(getServletContext().getInitParameter("XmlFilesRep")
-                + "\\" + request.getParameter("fileName"));
+        File xmlFile = new File(FileViewData.getXmlFileRepository(),
+                request.getParameter("fileName"));
         System.out.println(xmlFile);
 
         if (((UserBean) request.getSession().getAttribute("userBean")).isAllowToDelete()) {

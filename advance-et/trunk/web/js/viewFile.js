@@ -1,189 +1,136 @@
-var tree; //tree div
-var elemWidth; //width of div node
-var isMobileBrowser; //flag for mobile browsers
-var wrapper = undefined; //wrapper div
-var maxElementsNumber = undefined;
-var elemMarginLeft = undefined; //Left margin for node div
 
-$(function(){
-    tree = $('#tree');
-    wrapper = $('#wrapper');
-    isMobile();
+function myclick(node) {
+    d3.selectAll("path.link")
+    .transition().duration(200)
+    .style("stroke-width", "1.5px")
+    .style("stroke", "#ccc");
+
+    d3.selectAll("g.node_sel")
+    .transition().duration(200)
+    .style("opacity", 0)
+
+    if (!node.parent) return;
     
-    populateTree(tree.children('input[name="filename"]').val());
+    while (node) {
+        if (node.linkToParent) {
+            d3.select("path[id="+node.linkToParent+"]")
+            .transition().duration(400)
+            .style("stroke-width", "3px")
+            .style("stroke", "#317834");
+        }
     
-    $(document).on('treePopulated',function(){
-        elemWidth = $('.node').first().outerWidth();
-        maxElementsNumber = Math.floor(tree.width() / elemWidth);
-        setWrapperWidth(tree.children('#root').nextUntil('.clear'), 
-            tree.children('#root').nextAll('.clear').first());
-    });
+        d3.selectAll("g.node_sel[id="+node.rectId+"]")
+        .transition().duration(400)
+        .style("opacity", 1);
+
+        node = node.parent;
+    }
+}
+
+var linkId = 0;
+var makeLinkId = function(link) {
+    var name = "link" + (++linkId);
+    link.target.linkToParent = name;
+    return name;
+}
+var makeRectId = function(node) {
+    var name = "rect" + (++linkId);
+    node.rectId = name;
+    return name;
+}
+
+d3.json("../FileViewData?fileName="+filename, function(json) {
+    var tree = d3.layout.tree();
+    var nodes = tree.nodes(json);
+
+    var max_depth = d3.max(nodes, function(n) {return n.depth;});
+
+    var width = 960;
+    var height = 60 * max_depth;
+
+    var diagonal = d3.svg.diagonal()
+        .projection(function(d) {return [d.x*width, d.y*height];});
+
+    var svg = d3.select("#tree")
+        .append("svg")
+        //.style("background","#eee") // <- debug
+        .attr("width", width)
+        .attr("height", height+60);
     
+    var grad = svg.append("linearGradient")
+        .attr("id", "gradient")
+         .attr("x1", "50%")
+         .attr("y1", "0%")
+         .attr("x2", "50%")
+         .attr("y1", "100%");
+        
+    grad.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#388d3c");
+        
+    grad.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "white");
+        
+    var vis = svg.append("g")
+        .attr("transform", "translate(0, 30)");
+
+    var link = vis.selectAll("path.link")
+    .data(tree.links(nodes))
+    .enter().append("path")
+    .attr("id", makeLinkId)
+    .attr("class", "link")
+    .attr("d", diagonal);
+
+    var node = vis.selectAll("g.node").data(nodes).enter().append("g")
+    .attr("class", "node")
+    .attr("id", makeRectId)
+    .attr("transform", function(d) {return "translate(" + d.x*width + "," + d.y*height + ")";});
+
+    var charwidth = 6;
+    
+    //node.append("circle")
+    //.attr("r", 4)
+    //.attr("transform", function(d) {return "translate(0," + (d.children ? 0 : yoffset) + ")";});
+
+    node.append("rect")    
+    .attr("x", function(d) {return d.name.length * charwidth * -0.5;})
+    .attr("y", -14)
+    .attr("rx", 10)
+    .attr("ry", 10)
+    .attr("width", function(d) {return d.name.length * charwidth;})
+    .attr("height", 20)
+    .attr("class", "node");
+
+    node.append("text")
+    .attr("text-anchor", "middle")
+    .attr("class", "node")
+    .text(function(d) {return d.name;});
+
+    node = vis.selectAll("g.node_sel").data(nodes).enter().append("g")
+    .attr("class", "node_sel")
+    .attr("id", function(d) { return d.rectId; })
+    .attr("cursor", "pointer")
+    .attr("transform", function(d) {return "translate(" + d.x*width + "," + d.y*height + ")";})
+    .on("click", myclick)
+    .on("mouseover", function(node) {             
+            d3.selectAll("g.node[id="+node.rectId+"] > rect")
+            .style("stroke", "black");
+    })
+    .on("mouseout", function(node) { d3.selectAll("g.node[id="+node.rectId+"] > rect").style("stroke", "#ccc")})
+    .style("opacity", 0);
+    
+    node.append("rect")    
+    .attr("x", function(d) {return d.name.length * charwidth * -0.5;})
+    .attr("y", -14)
+    .attr("rx", 10)
+    .attr("ry", 10)
+    .attr("width", function(d) {return d.name.length * charwidth;})
+    .attr("height", 20)    
+    .attr("class", "node_sel");
+
+    node.append("text")
+    .attr("text-anchor", "middle")
+    .attr("class", "node_sel")
+    .text(function(d) {return d.name;});
 });
-
-/**
- * Get an xml file via a get request, parse it, and populate &lt;div id="tree"&gt;
- * @param fileName - the name of the file to be parsed
- */
-var populateTree = function(fileName){
-    $.ajax({
-        url: 'do.getXml?fileName=' + fileName,
-        type: 'POST',
-        dataType: 'xml',
-        error: function(jqXHR, textStatus, errorThrown){
-            alert(errorThrown);
-            alert('Failed to load tree.\nTry again or check the file.');
-        },
-        success: function(xmlDoc){
-            xml = $(xmlDoc);
-            root = xml.children('node');
-            
-            if(root.size() === 1){
-                rootDiv = $('<div class=node id="root">' + root.attr('label') + '</div>');
-                tree.append(rootDiv);
-                elemWidth = rootDiv.outerWidth();
-                if(root.children('node').size() > 0){
-                    appendNodes(root.children('node'), tree, 0);
-                    tree.trigger('treePopulated');
-                }
-            }else{
-                alert('Error while parsing tree.\nTry again or check the file.');
-            }
-            
-        }
-    }); 
-}
-
-/**
- * Transform XML tree in an HTML tree
- * @param elements - collection of elements to be appended
- * @param tree - Html tag where the elements will be appended
- */
-var appendNodes = function(elements, tree, divCount){
-        
-    var elChildren = new Array();
-    /*
-    if(tree.width() / elements.length < elemWidth){
-        $('#wrapper').css('max-width', $('#wrapper').width() + ((elemWidth - (tree.width() / elements.length)) * elements.length) + 10 * elements.length);
-    }
-    */
-    //    var elemMarginLeft = Math.floor((tree.width() - (elemWidth * elements.length)) / (elements.length));
-    $.each(elements, function(index){
-        var node = $(this);
-        var htmlElId = 'div-' + divCount++;
-        var htmlEl = $('<div class="node" id="' + htmlElId + '"></div>');
-        
-        //        var elemMarginLeftCurr = elemMarginLeft;
-        //        if(index == 0) elemMarginLeftCurr = elemMarginLeft / 2;
-        
-        //htmlEl.css('margin-left', elemMarginLeftCurr);
-        htmlEl.data('parent', node.data('parent'));
-        tree.append(htmlEl.text(node.attr('label')));
-        if(node.children('node').size() > 0){
-            $.each(node.children('node'), function(){
-                child = $(this);
-                elChildren.push(child.data('parent', htmlElId)); 
-            });
-        }
-    });
-    
-    tree.append('<div class="clear"></div>');
-    
-    if(elChildren.length > 0){
-        appendNodes(elChildren, tree, divCount);
-    }
-}
-
-var connectNodes = function(){
-    $.each($('#tree').find('.node'), function(){
-        var node = $(this);
-        if(node.attr('id') !== 'root'){
-            var src = node.data('parent') == undefined ? 'root' : node.data('parent');
-            jsPlumb.connect(
-            {
-                source: src,
-                target: node.attr('id'),
-                anchors:["BottomCenter", "TopCenter"],
-                endpoint: 'Blank',
-                connector: 'Flowchart'
-            });
-        }
-    });
-}
-
-/**
- * Mobile browser sniffer
- * Sniff only android, iphone, nokia, windowsphone
- */
-var isMobile = function(){
-    var userAgent = navigator.userAgent.toLowerCase();
-    
-    if(userAgent.indexOf('iphone') != -1){
-        isMobileBrowser = true;
-    }else if(userAgent.indexOf('ipad') != -1){
-        isMobileBrowser = true;
-    }else if(userAgent.indexOf('android') != -1){
-        isMobileBrowser = true;
-    }else if(userAgent.indexOf('opera mini') != -1){
-        isMobileBrowser = true;
-    }else if(userAgent.indexOf('opera mobi') != -1){
-        isMobileBrowser = true;
-    }else if(userAgent.indexOf('blackberry') != -1){
-        isMobileBrowser = true;
-    }else if(userAgent.indexOf('windows phone') != -1){
-        isMobileBrowser = true;
-    }else{
-        isMobileBrowser = false;
-    }
- 
-}
-
-/**
- * Check tree layers and set wrapper width properly to contains them
- * @param elements - collection of node elements
- */
-var setWrapperWidth = function(elements, boundNode){
-    if(elements.length > maxElementsNumber){
-        //Increment wrapper's width to be able to contain elements
-        //(adds 10px of space between every )
-        if(isMobileBrowser){
-            var htmlEl = $('html');
-            htmlEl.width(htmlEl.width() + 
-                ((elemWidth - (tree.width() / elements.length)) * elements.length) 
-                + 10 * (elements.length + 1));  
-        }else{
-            wrapper.width(wrapper.width() + 
-                ((elemWidth - (tree.width() / elements.length)) * elements.length) 
-                + 10 * (elements.length + 1));
-        }
-    }
-    
-    nextElements = boundNode.nextUntil('.clear', '.node');
-    if(nextElements.size() > 0){
-        setWrapperWidth(nextElements, boundNode.nextAll('.clear').first());
-    }else{
-        placeElements(tree.children('#root').nextUntil('.clear'), 
-            tree.children('#root').nextAll('.clear').first());
-    }
-}
-
-/**
- * 
- */
-var placeElements = function(elements, boundNode){
-    elemMarginLeft = Math.floor((tree.width() - (elemWidth * elements.length)) / (elements.length));
-    
-    $.each(elements, function(index){
-        var elemMarginLeftCurr = elemMarginLeft;
-        if(index == 0) elemMarginLeftCurr = elemMarginLeft / 2;
-        $(this).css('margin-left', elemMarginLeftCurr);        
-    });
-    
-    nextElements = boundNode.nextUntil('.clear', '.node');
-    if(nextElements.size() > 0){
-        placeElements(nextElements, boundNode.nextAll('.clear').first());   
-    }else{
-        $('#content').css('visibility', 'visible');
-        setTimeout(500, connectNodes());
-    }
-}

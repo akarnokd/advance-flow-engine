@@ -1,6 +1,6 @@
 #wrapper{min-width: 96em; width: 96em; max-width: none;}
 
-#content{min-height: 50em; visibility: hidden;}
+#content{min-height: 50em;}
 
 #tree{min-height: 41.5em; padding: 1.5em 0.5em 3.5em 0.5em;}
 #toolbar{position: absolute; bottom: 2.7em; width: 100%; height: 5em;}
@@ -18,6 +18,50 @@
 .node#root{float: none; margin: 0px auto;}
 
 .clear{clear: both;}
+
+/* D3 STYLES --- D3 STYLES --- D3 STYLES --- D3 STYLES */
+.node circle {
+    fill: #317834;
+}
+
+.node rect {
+    fill: #fff;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+}
+
+rect.mid {
+    fill: url(#gradient);
+}
+
+.node {
+    font: 10px sans-serif;
+}
+
+.node_sel {
+    font: 10px sans-serif;
+}
+
+.node_sel rect {
+    fill: #317834;
+    stroke: #317834;
+    stroke-width: 1.5px;
+}
+
+.node_sel text {
+    fill: #fff;
+}
+
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+}
+
+.node_over{
+    stroke: #008000;
+}
+/* D3 STYLES --- D3 STYLES --- D3 STYLES --- D3 STYLES */
 
 /*** MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES ***/
 /* IPAD - OTHER TABLETS ? */

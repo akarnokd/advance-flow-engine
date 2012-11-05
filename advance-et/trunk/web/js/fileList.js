@@ -3,17 +3,24 @@ var uploadBox  = undefined;
 var selectedFile = undefined; //File selected
 var toolbarForm  = undefined; //Toolbox form object
 var uploadForm  = undefined; //Toolbox form object
+var timer = undefined; //Timer span
+var timeCount = undefined;
+var fileListInterval = undefined;
+var timerInterval = undefined;
+var fileList = undefined;
 
 $(document).ready(function(){
     
-    if (window.File && window.FileList && window.FileReader) {
-    //Support for HTML5 File API
-    }
     var doc = $(this);
     overlayBox = $('#overlay-box');
     uploadBox = $('#upload-box');
     toolbarForm = $('#toolbar-form');
     uploadForm = $('#upload-form');
+    fileList = $('#file-list');
+    
+    timer = $('#timer');
+    timeCount = 15;
+    setTimerText();
     
     doc.on('click', 'a.file', function(){
         if(selectedFile !== undefined) selectedFile.removeClass('selected');
@@ -56,7 +63,7 @@ $(document).ready(function(){
             }else if(uploadMessage.attr('id') === 'success-message'){
                 $('<li><a href="#" class="file">' + uploadMessage.text() + 
                     '</a></li>').css('display', 'none').appendTo('#file-list').
-                    slideDown(500);
+                slideDown(500);
                 /*
                 $('#file-list').append('<li><a href="#" class="file">'
                     + uploadMessage.text() + '</a></li>');*/
@@ -69,6 +76,22 @@ $(document).ready(function(){
             }
             iFrame.remove();
         });
+    });
+    
+    fileListInterval = window.setInterval(updateFileList, 16000);
+    timerInterval = window.setInterval(updateTimer, 1000);
+    
+    doc.on('click', '.page-title button', function(){
+        clearInterval(timerInterval);
+        clearInterval(fileListInterval);
+        
+        //Call to update list function
+        if(updateList()){
+            timeCount = 15;
+            setTimerText();
+            fileListInterval = window.setInterval(updateFileList, 16000);
+            timerInterval = window.setInterval(updateTimer, 1000);   
+        }
     });
 });
 
@@ -133,8 +156,8 @@ var executeSubmission = function(url, fileName, isAjaxCall){
                 error: function(jqXHR, textStatus, errorThrown){
                     isSuccessfullRequest = false;
                     alert(jqXHR.responseText);
-//                    alert('An error occurred while deleting the file. Retry '
-//                        + 'or contact the administrator.');
+                //                    alert('An error occurred while deleting the file. Retry '
+                //                        + 'or contact the administrator.');
                 },
                 success: function(){
                     isSuccessfullRequest = true;
@@ -150,4 +173,60 @@ var executeSubmission = function(url, fileName, isAjaxCall){
         }
     }
     return isSuccessfullRequest;
+}
+
+var updateFileList = function(){
+    clearInterval(timerInterval);
+    //Call to update list function
+    if(updateList()){
+        timeCount = 15;
+        setTimerText();
+        timerInterval = setInterval(updateTimer, 1000);   
+    }
+}
+
+var updateTimer = function(){
+    if(--timeCount < 0) timeCount = 15;
+    setTimerText(timeCount);
+}
+
+var setTimerText = function(){
+    timer/*.children('span')*/.text(timeCount);
+}
+
+/**
+ * 
+ */
+var updateList = function(){
+    $.ajax({
+        url: 'do.getFileList',
+        type: 'post',
+        dataType: 'xml',
+        error: function(jqXHR, textStatus, errorThrown){
+            alert('Si è verificato un\'errore');
+        },
+        success: function(data, textStatus, jqXHR){
+            var xml = $(data);
+            fileList.empty();
+            var liElement = $('<li>');
+            var temporaryContainer = $('<div>');
+            
+            
+            $.each(xml.find('file'), function(){
+                var file = $(this);
+                console.log(file.attr('user'));
+                var user = $.trim(file.attr('user'));
+                if(user !== undefined && user !== null && user.length > 0){
+                    var newElement = $('<div>' + file.attr('filename') + '</div>').append($('<img>').attr('src', '../images/locked.png')).append($('<span>').text(user + ' is editing'));
+                }else{
+                    var newElement = $('<a>').attr('href', '#').text(file.attr('filename'));
+                }
+                newElement.addClass('file');
+                temporaryContainer.append(liElement.clone().append(newElement));
+            });
+            fileList.html(temporaryContainer.html());
+        }
+        
+    });
+    return true;
 }

@@ -33,8 +33,8 @@ public class CheckFileFilter implements Filter {
             FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
-        File file = new File(filterConfig.getServletContext().getInitParameter("XmlFilesRep") 
-                + "/" + request.getParameter("fileName"));
+        File file = new File(FileViewData.getXmlFileRepository(), 
+                request.getParameter("fileName"));
         if (file.exists()) {
 //            System.out.println("File exists!");
 //            System.out.println("Page: " + req.getRequestURL());
