@@ -409,7 +409,11 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public AdvanceCompositeBlock queryFlow(
 			String realm) throws IOException, AdvanceControlException {
-		return AdvanceCompositeBlock.parseFlow(datastore.queryFlow(realm));
+		XElement xflow = datastore.queryFlow(realm);
+		if (xflow != null) {
+			return AdvanceCompositeBlock.parseFlow(xflow);
+		}
+		return new AdvanceCompositeBlock();
 	}
 	@Override
 	public void updateFlow(String realm,
@@ -661,30 +665,47 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		List<AdvancePortSpecification> result = Lists.newArrayList();
 		
 		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
-
-		for (Map.Entry<String, AdvanceType> te : runtime.inputTypes.entrySet()) {
-			if (!runtime.inputs.get(te.getKey()).isEmpty()) {
+		// if the realm is not running, complile the latest flow and return its port specification
+		if (runtime == null) {
+			XElement xflow = datastore.queryFlow(realm);
+			LOG.debug("Parsing flow");
+			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(xflow);
+			LOG.debug("Verifying flow");
+			AdvanceCompilationResult verify = compiler.verify(flow);
+			if (verify.success()) {
+				LOG.debug("Compiling flow");
+				runtime = compiler.compile(realm, flow);
+			}
+		}
+		if (runtime != null) {
+			for (Map.Entry<String, AdvanceType> te : runtime.inputTypes.entrySet()) {
+				if (!runtime.inputs.get(te.getKey()).isEmpty()) {
+					AdvancePortSpecification aps = new AdvancePortSpecification();
+					aps.id = te.getKey();
+					aps.isInput = true;
+					aps.type = te.getValue();
+					result.add(aps);
+				}
+			}
+			
+			for (Map.Entry<String, AdvanceType> te : runtime.outputTypes.entrySet()) {
 				AdvancePortSpecification aps = new AdvancePortSpecification();
 				aps.id = te.getKey();
-				aps.isInput = true;
 				aps.type = te.getValue();
 				result.add(aps);
 			}
-		}
-		
-		for (Map.Entry<String, AdvanceType> te : runtime.outputTypes.entrySet()) {
-			AdvancePortSpecification aps = new AdvancePortSpecification();
-			aps.id = te.getKey();
-			aps.type = te.getValue();
-			result.add(aps);
-		}
-		
-		return result;
+			return result;
+		}		
+		throw new AdvanceControlException("Realm does not have compiled and running blocks: " + realm);
 	}
 	@Override
 	public Observable<XElement> receivePort(String realm, String portId)
 			throws IOException, AdvanceControlException {
-		return realmRuntime.get(realm).outputs.get(portId);
+		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
+		if (runtime != null) {
+			return runtime.outputs.get(portId);
+		}
+		throw new AdvanceControlException("Realm does not have compiled and running blocks: " + realm);
 	}
 	@Override
 	public void sendPort(String realm,
@@ -692,20 +713,23 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			AdvanceControlException {
 
 		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
-		for (Pair<String, XElement> pv : portValues) {
-			List<Port<XElement, AdvanceType>> list = runtime.inputs.get(pv.first);
-			if (list != null && list.isEmpty()) {
-				for (Port<XElement, AdvanceType> p : list) {
-					if (p instanceof ReactivePort<?, ?>) {
-						ReactivePort<XElement, AdvanceType> rp = (ReactivePort<XElement, AdvanceType>) p;
-						rp.next(pv.second);
-					} else {
-						LOG.error("Global port " + pv.first + " in realm " + realm + " is not a reactive port.");
+		if (runtime != null) {
+			for (Pair<String, XElement> pv : portValues) {
+				List<Port<XElement, AdvanceType>> list = runtime.inputs.get(pv.first);
+				if (list != null && list.isEmpty()) {
+					for (Port<XElement, AdvanceType> p : list) {
+						if (p instanceof ReactivePort<?, ?>) {
+							ReactivePort<XElement, AdvanceType> rp = (ReactivePort<XElement, AdvanceType>) p;
+							rp.next(pv.second);
+						} else {
+							LOG.error("Global port " + pv.first + " in realm " + realm + " is not a reactive port.");
+						}
 					}
+				} else {
+					LOG.warn("Global port " + pv.first + " in realm " + realm + " not found.");
 				}
-			} else {
-				LOG.warn("Global port " + pv.first + " in realm " + realm + " not found.");
 			}
 		}
+		throw new AdvanceControlException("Realm does not have compiled and running blocks: " + realm);
 	}
 }

@@ -290,7 +290,7 @@ public interface AdvanceDataStore extends AdvanceDataStoreUpdate {
 	/**
 	 * Retrieve a concrete realm.
 	 * @param realm the the target realm
-	 * @return the list of realms
+	 * @return the realm record
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the realms
 	 */
