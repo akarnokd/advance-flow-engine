@@ -30,8 +30,8 @@ public class DownloadXmlServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        File newXml = new File(getServletContext().getInitParameter("XmlFilesRep")
-                    + "/" + request.getParameter("fileName"));
+        File newXml = new File(FileViewData.getXmlFileRepository(),
+                    request.getParameter("fileName"));
         FileInputStream in = new FileInputStream(newXml);
         ServletOutputStream out = response.getOutputStream();
         response.setContentType("application/xml");

@@ -8,6 +8,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 /**
  *
@@ -29,15 +32,12 @@ public class SaveXmlServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-            File newXml = new File(getServletContext().getInitParameter("XmlFilesRep")
-                    + "/" + request.getParameter("fileName"));
+            File newXml = new File(FileViewData.getXmlFileRepository(), 
+                   request.getParameter("fileName"));
             FileOutputStream out = new FileOutputStream(newXml);
+            SAXBuilder builder = new SAXBuilder();
             InputStream in = request.getInputStream();
-            byte[] buff = new byte[1024];
-            int read;
-            while ((read = in.read(buff)) != -1) {
-                out.write(buff, 0, read);
-            }
+            new XMLOutputter(Format.getPrettyFormat()).output(builder.build(in), out);
             out.close();
             in.close();
 //            System.out.println("Ok! New file located here: " + newXml.getCanonicalPath());

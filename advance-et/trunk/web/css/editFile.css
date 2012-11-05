@@ -23,6 +23,14 @@
     border-width: 1px 0px 0px; 
     background-image: none; background-color: transparent;
     overflow: hidden;}
+#content .container .toolbar#tree-toolbar{
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#388d3c), to(#317834));
+    background-image: -moz-linear-gradient(top, #388d3c 0%, #317834 100%);
+    background-image: -o-linear-gradient(top, #388d3c, #317834);
+    background-image: -ms-linear-gradient(top, #388d3c, #317834); /* IE 10 */
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#388d3c', EndColorStr='#317834');
+    background-image: linear-gradient(top, #388d3c, #317834); /* W3C DECLARATION */   
+}
 
 #content .container div{position: relative;}
 #content .container div#node-editor, #content .container div#tree{
@@ -52,16 +60,16 @@
     background-color: #388d3c; color: #fff;}
 
 /* JQUERYUI'S SLIDER */
-#content .container #node-editor.padded{padding: 6em 1.5em 0 1.5em;}
-#node-editor #slider.ui-widget-content{
-    height: 3em;
-    margin: 3em 0em; 
+#content .container #node-editor.padded{padding: 6em 2em 0 2em;}
+#node-editor .slider.ui-widget-content{
+    float: right; width: 50%; height: 3em;
+    margin: 1em 0 0; 
     border-color: #808080;
     -moz-border-radius: 0px; -webkit-border-radius: 0px; -o-border-radius: 0px;
     border-radius: 0px;
     background: #e0e0e0;
     font-size: 1em;}
-#node-editor #slider .ui-slider-range-min{border-color: #808080; background: #388d3c;}
+#node-editor .slider .ui-slider-range-min{border-color: #808080; background: #388d3c;}
 .ui-slider-horizontal .ui-slider-handle {
     width: 3.2em; height: 3.5em;
     margin-left: -1.6em;
@@ -71,21 +79,25 @@
     cursor: pointer;}
 
 #node-editor .component{
+    float: left;
     width: 20.85em; /* 250px */
-    margin: 0; padding: 0.89%; border: 1px solid #808080; font-size: 1.2em;}
-#node-editor .component#first-component{
+    margin: 0 0 0.5em; padding: 0.89%;
+    border: 1px solid #808080;
+    background-color: #388d3c; color: #fff;
+    font-size: 1.2em;}
+/*#node-editor .component#first-component{
     float: left; background-color: #388d3c; color: #fff;}
 #node-editor .component#second-component{
-    float: right; background-color: #e0e0e0; color: #000;}
+    float: right; background-color: #e0e0e0; color: #000;}*/
 
 #node-editor .component .value{
-    width: 30%;
+    float: left; width: 30%;
     padding: 2.2%;
     border: 1px solid #808080; background-color: #fff;
     color: #000;
     font-size: 1.4em; font-weight: bold; text-align: center;}
 #node-editor .component p{
-    width: 68%;
+    float: left; width: 68%;
     margin: 0; padding: 0 2.2%;
     border: 1px solid transparent;
     font-size: 1.2em; text-align: left; 
@@ -101,6 +113,8 @@
 
 /* JSXGRAPH */
 #node-editor #jxgbox{width: 100%; height: 100%; background-color: #fff;}
+#node-editor #jxgbox.single-graph{height: 100%;}
+#node-editor #jxgbox.multiple-graph{height: 92%;}
 #node-editor #jxgbox .JXGtext span{color: #000 !important;}
 
 /* TOOLBAR BUTTONS - TOOLBAR BUTTONS - TOOLBAR BUTTONS - TOOLBAR BUTTONS */
@@ -110,7 +124,40 @@
 #node-editor-toolbar button, #tree-toolbar button{height: 100%;}
 #node-editor-toolbar button{width: 25%; height: 100%; border-left: 1px solid #e0e0e0;}
 #node-editor-toolbar button:first-child{border-left-width: 0px;}
-#tree-toolbar button{width: 100%;}
+#tree-toolbar button{float: left; width: 33.3%; border-left: 1px solid #fff;}
+#tree-toolbar button[type="submit"]{border-left: none;}
+
+#tabs-toolbar button{margin: 0; border-right: 1px solid #fff;}
+
+#tabs-toolbar button{background-image: none; background-color: #808080;}
+#tabs-toolbar button.selected, #tabs-toolbar button:hover{
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#388d3c), to(#317834));
+    background-image: -moz-linear-gradient(top, #388d3c 0%, #317834 100%);
+    background-image: -o-linear-gradient(top, #388d3c, #317834);
+    background-image: -ms-linear-gradient(top, #388d3c, #317834); /* IE 10 */
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#388d3c', EndColorStr='#317834');
+    background-image: linear-gradient(top, #388d3c, #317834);  /* W3C DECLARATION */
+}
+
+#tabs-toolbar button{margin: 0; padding: 0 0.5em; border-right: 1px solid #fff}
+#content .toolbar#tabs-toolbar{height: auto; padding: 0.5em 0; border-bottom: 1px solid #808080; font-size: 0.8em;}
+
+/* JQUERY UI */
+.ui-dialog-titlebar{
+    padding: 0.2em 0.5em;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#388d3c), to(#317834));
+    background-image: -moz-linear-gradient(top, #388d3c 0%, #317834 100%);
+    background-image: -o-linear-gradient(top, #388d3c, #317834);
+    background-image: -ms-linear-gradient(top, #388d3c, #317834);  /*IE 10*/
+    filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#388d3c', EndColorStr='#317834');
+    background-image: linear-gradient(top, #388d3c, #317834);  /*W3C DECLARATION*/
+    font-size: 1.4em;
+    font-weight: normal;
+}
+
+.ui-dialog-content p{
+    font-size: 1.2em;
+}
 
 /*** MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES - MEDIA QUERIES ***/
 /* IPAD - OTHER TABLETS ? */
@@ -151,13 +198,14 @@ and (max-device-width : 800px) {
     #content{height: 100%; min-height: 100%; background-color: red;}
 
     .toolbar{position: absolute; bottom: 2%;}
-    #content #tree-toolbar{width: 36.46%;}
+    #content .container .toolbar#tree-toolbar{
+        width: 36.46%;
+    }
     #content #node-editor-toolbar{width: 61.98%;}
     #separator{background-color: yellowgreen;}
 
     #page-header #logo-2{display: none;}
 
-    .toolbar{/*position: absolute; bottom: 2.5%;*/}
     #node-editor-toolbar button{font-size: 1.8em;}
 }
 

@@ -10,6 +10,15 @@ public class UserBean {
     private boolean allowToDownload;
     private boolean allowToUpload;
     private boolean allowToDelete;
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setAllowToDelete(boolean allowToDelete) {
         this.allowToDelete = allowToDelete;

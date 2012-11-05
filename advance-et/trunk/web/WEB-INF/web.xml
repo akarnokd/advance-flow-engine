@@ -5,11 +5,6 @@
         <param-name>maxXmlFileSize</param-name>
         <param-value>5242880</param-value>
     </context-param>
-    <context-param>
-        <description>XML files repository</description>
-        <param-name>XmlFilesRep</param-name>
-        <param-value>D:\Develop\Advance\ElicitationTool\web\filerep</param-value>
-    </context-param>
     <filter>
         <filter-name>CheckFileFilter</filter-name>
         <filter-class>com.ttsnetwork.elicitationtool.CheckFileFilter</filter-class>
@@ -92,7 +87,7 @@
         <init-param>
             <description>Accepted username for login</description>
             <param-name>userName</param-name>
-            <param-value>user1</param-value>
+            <param-value>tts</param-value>
         </init-param>
         <init-param>
             <description>Accepted password for login</description>
@@ -115,6 +110,18 @@
     <servlet>
         <servlet-name>GetXmlServlet</servlet-name>
         <servlet-class>com.ttsnetwork.elicitationtool.GetXmlServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FileViewData</servlet-name>
+        <servlet-class>com.ttsnetwork.elicitationtool.FileViewData</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UnsetUserBeanServlet</servlet-name>
+        <servlet-class>com.ttsnetwork.elicitationtool.UnsetUserBeanServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetFileListServlet</servlet-name>
+        <servlet-class>com.ttsnetwork.elicitationtool.GetFileListServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>SaveXmlServlet</servlet-name>
@@ -144,6 +151,18 @@
         <servlet-name>GetXmlServlet</servlet-name>
         <url-pattern>*.getXml</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileViewData</servlet-name>
+        <url-pattern>/FileViewData</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UnsetUserBeanServlet</servlet-name>
+        <url-pattern>*.unsetUser</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetFileListServlet</servlet-name>
+        <url-pattern>*.getFileList</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30
@@ -152,4 +171,15 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
+    <env-entry>
+<!--            It is possible to add the following code to Tomcat's context.xml to
+            customize file repository location:
+        	<Environment name="advanceet.filerep" value="\path\to\filerep"
+		type="java.lang.String" override="false"/>-->
+        <env-entry-name>advanceet.filerep</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>C:/AdvanceET/Files</env-entry-value>
+            It is possible to add the following code to Tomcat's context.xml to
+            customize file repository location:
+        	<Environment name="advanceet.filerep" override="false" type="java.lang.String" value="\path\to\filerep"/></env-entry>
 </web-app>

@@ -23,8 +23,8 @@ public class CheckFileServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        File selectedFile = new File(getServletContext().getInitParameter("XmlFilesRep")
-                + "/" + request.getParameter("fileName"));
+        File selectedFile = new File(FileViewData.getXmlFileRepository(),
+                request.getParameter("fileName"));
         String action = request.getParameter("action");
         String resultPage = getServletConfig().getInitParameter("resultPage");
 

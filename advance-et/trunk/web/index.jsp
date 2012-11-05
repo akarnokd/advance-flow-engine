@@ -1,4 +1,4 @@
-<%-- 
+<%--
     Document   : index
     Created on : 21-feb-2012, 9.56.30
     Author     : farago
@@ -26,7 +26,7 @@
         <div id="wrapper">
             <div id="page-header">
                 <div id="logo-1" class="logo">
-                    <img src="images/header/logo.png" 
+                    <img src="images/header/logo.png"
                          alt="ADVANCE RESEARCH PROJECT ELICITATION TOOL LOGO"
                          id="logo">
                 </div>
@@ -39,7 +39,7 @@
             <div id="content">
                 <form action="do.login" method="post">
                     <fieldset>
-                        <label 
+                        <label
                             <c:if test="${pageScope.error}">class="error"</c:if>>
                             Username</label>
                         <input type="text" name="userName"
@@ -55,21 +55,7 @@
                     </fieldset>
                 </form>
             </div>
-            <div id="footer">
-                <p>
-                    Copyright &copy; 2010-<%= Calendar.getInstance().get(Calendar.YEAR)%> 
-                    <a href="http://www.advance-logistics.eu/">
-                        The Advance EU 7th Framework project consortium
-                    </a>
-                </p>
-                <p>
-                    Copyright &copy; <%= Calendar.getInstance().get(Calendar.YEAR)%> 
-                    Advance - 
-                    <a href="http://www.ttsnetwork.net">
-                        Technology Transfer System S.r.l.
-                    </a>
-                </p>
-            </div>
+            <%@ include file="/WEB-INF/jspf/footer.jspf" %>
         </div>
     </body>
 </html>

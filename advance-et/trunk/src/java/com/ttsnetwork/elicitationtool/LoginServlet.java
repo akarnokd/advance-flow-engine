@@ -52,7 +52,7 @@ public class LoginServlet extends HttpServlet {
                     Element user = (Element) i.next();
                     username = user.getAttributeValue("name");
                     password = user.getAttributeValue("password");
-                    
+
                     if (username.equals(request.getParameter("userName"))
                             && password.equals(request.getParameter("password"))) {
                         userPermissions = user.getChildren("permission");
@@ -62,6 +62,7 @@ public class LoginServlet extends HttpServlet {
 
                 if (userPermissions.size() > 0) {
                     userBean = new UserBean();
+                    userBean.setName(username);
                     for (Element permission : userPermissions) {
                         String type = permission.getAttributeValue("type");
                         if (type.equals("edit")) {
