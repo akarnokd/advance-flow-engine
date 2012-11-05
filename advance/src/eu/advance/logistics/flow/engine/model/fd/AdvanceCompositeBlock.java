@@ -171,6 +171,16 @@ public class AdvanceCompositeBlock implements XSerializable {
 			typeParams.add(bpd.type);
 		}
 		
+		createTypeParams(sharedTypes, typeParams);
+		
+	}
+	/**
+	 * Create unbounded types for the mentioned type variables.
+	 * @param sharedTypes the known type variables
+	 * @param typeParams the type parameters to check
+	 */
+	public void createTypeParams(Map<String, AdvanceType> sharedTypes,
+			LinkedList<AdvanceType> typeParams) {
 		while (!typeParams.isEmpty()) {
 			AdvanceType at = typeParams.removeFirst();
 			if (at.kind() == TypeKind.VARIABLE_TYPE && at.typeVariable == null) {
@@ -203,7 +213,6 @@ public class AdvanceCompositeBlock implements XSerializable {
 				typeParams.addAll(at.typeArguments);
 			}
 		}
-		
 	}
 	@Override
 	public void save(XElement destination) {
@@ -214,6 +223,27 @@ public class AdvanceCompositeBlock implements XSerializable {
 		} else {
 			destination.set("keywords", null);
 		}
+		
+		// fix type variables which were not created when adding inputs
+		LinkedList<AdvanceType> typeParams = Lists.newLinkedList();
+		Map<String, AdvanceType> sharedTypes = Maps.newHashMap();
+		
+		for (AdvanceTypeVariable bpd : typeVariables.values()) {
+			AdvanceType st = new AdvanceType();
+			st.typeVariableName = bpd.name;
+			st.typeVariable = bpd;
+			sharedTypes.put(bpd.name, st);
+		}
+		for (AdvanceCompositeBlockParameterDescription item : inputs.values()) {
+			typeParams.add(item.type);
+		}
+		for (AdvanceCompositeBlockParameterDescription item : outputs.values()) {
+			typeParams.add(item.type);
+		}		
+		
+		createTypeParams(sharedTypes, typeParams);
+
+		// store
 		for (AdvanceTypeVariable tv : typeVariables.values()) {
 			tv.save(destination.add("type-variable"));
 		}
