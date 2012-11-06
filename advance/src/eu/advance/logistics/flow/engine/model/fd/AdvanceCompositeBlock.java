@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import java.util.Collection;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,9 +54,9 @@ public class AdvanceCompositeBlock implements XSerializable {
 	/** The user-entered keywords for easier finding of this block. */
 	public final List<String> keywords = Lists.newArrayList();
 	/** The optional boundary-parameter of this composite block which lets other internal or external blocks bind to this block. */
-	public final Map<String, AdvanceCompositeBlockParameterDescription> inputs = Maps.newLinkedHashMap();
+	protected final Map<String, AdvanceCompositeBlockParameterDescription> inputs = Maps.newLinkedHashMap();
 	/** The optional boundary parameter of this composite block which lets other internal or external blocks to bind to this block. */
-	public final Map<String, AdvanceCompositeBlockParameterDescription> outputs = Maps.newLinkedHashMap();
+	protected final Map<String, AdvanceCompositeBlockParameterDescription> outputs = Maps.newLinkedHashMap();
 	/** The optional sub-elements of this block. */
 	public final Map<String, AdvanceBlockReference> blocks = Maps.newLinkedHashMap();
 	/** Optional composite inner block. */
@@ -68,7 +68,9 @@ public class AdvanceCompositeBlock implements XSerializable {
 	/** The visual properties for the Flow Editor. */
 	public final AdvanceBlockVisuals visuals = new AdvanceBlockVisuals();
 	/** The definitions of various generic type parameters. */
-	public final Map<String, AdvanceTypeVariable> typeVariables = Maps.newLinkedHashMap();
+	protected final Map<String, AdvanceTypeVariable> typeVariables = Maps.newLinkedHashMap();
+	/** The shared type variables. */
+	protected final Map<String, AdvanceType> sharedTypeVariables = Maps.newHashMap();
 	/**
 	 * Load the contents from an XML element with a schema of <code>flow-description.xsd</code> and typed as {@code composite-block}.
 	 * @param source the root element
@@ -115,104 +117,30 @@ public class AdvanceCompositeBlock implements XSerializable {
 		}
 		visuals.load(source);
 		
-		// manage type variables for the compisite inputs and outputs
-		Deque<AdvanceType> typeRefs = Lists.newLinkedList();
-		
-		Map<String, AdvanceType> sharedTypes = Maps.newHashMap();
-		
 		for (XElement tp : source.childrenWithName("type-variable")) {
 			AdvanceTypeVariable bpd = new AdvanceTypeVariable();
 			bpd.load(tp);
-			if (typeVariables.put(bpd.name, bpd) != null) {
+			if (!addTypeVariable(bpd)) {
 				throw new DuplicateIdentifierException(tp.getXPath(), bpd.name);
 			}
-			typeRefs.addAll(bpd.bounds);
-			AdvanceType st = new AdvanceType();
-			st.typeVariableName = bpd.name;
-			st.typeVariable = bpd;
-			sharedTypes.put(bpd.name, st);
 		}
+		linkTypeVariables();
 
-		while (!typeRefs.isEmpty()) {
-			AdvanceType tvb = typeRefs.pop();
-			if (tvb.typeVariableName != null) {
-				tvb.typeVariable = typeVariables.get(tvb.typeVariableName);
-				if (tvb.typeVariable == null) {
-					throw new MissingTypeVariableException(source.toString(), tvb.typeVariableName);
-				}
-			} else {
-				typeRefs.addAll(tvb.typeArguments);
-			}
-		}
-		LinkedList<AdvanceType> typeParams = Lists.newLinkedList();
-		
 		for (XElement inp : source.childrenWithName("input")) {
 			AdvanceCompositeBlockParameterDescription bpd = new AdvanceCompositeBlockParameterDescription();
 			bpd.load(inp);
-			if (inputs.put(bpd.id, bpd) != null) {
+			if (!addInput(bpd)) {
 				throw new DuplicateIdentifierException(inp.getXPath(), bpd.id);
 			}
-			// use the shared type object instead of an individual type
-			if (sharedTypes.containsKey(bpd.type.typeVariableName)) {
-				bpd.type = sharedTypes.get(bpd.type.typeVariableName);
-			}
-			typeParams.add(bpd.type);
 		}
 		for (XElement outp : source.childrenWithName("output")) {
 			AdvanceCompositeBlockParameterDescription bpd = new AdvanceCompositeBlockParameterDescription();
 			bpd.load(outp);
-			if (outputs.put(bpd.id, bpd) != null) {
+			if (!addOutput(bpd)) {
 				throw new DuplicateIdentifierException(outp.getXPath(), bpd.id);
 			}
-			// use the shared type object instead of an individual type
-			if (sharedTypes.containsKey(bpd.type.typeVariableName)) {
-				bpd.type = sharedTypes.get(bpd.type.typeVariableName);
-			}
-			typeParams.add(bpd.type);
 		}
 		
-		createTypeParams(sharedTypes, typeParams);
-		
-	}
-	/**
-	 * Create unbounded types for the mentioned type variables.
-	 * @param sharedTypes the known type variables
-	 * @param typeParams the type parameters to check
-	 */
-	public void createTypeParams(Map<String, AdvanceType> sharedTypes,
-			LinkedList<AdvanceType> typeParams) {
-		while (!typeParams.isEmpty()) {
-			AdvanceType at = typeParams.removeFirst();
-			if (at.kind() == TypeKind.VARIABLE_TYPE && at.typeVariable == null) {
-				at.typeVariable = typeVariables.get(at.typeVariableName);
-				if (at.typeVariable == null) {
-					// FIXME for now, let's just create an unbounded type variable
-					at.typeVariable = new AdvanceTypeVariable();
-					at.typeVariable.name = at.typeVariableName;
-					typeVariables.put(at.typeVariableName, at.typeVariable);
-				}
-			} else
-			if (at.kind() == TypeKind.PARAMETRIC_TYPE) {
-				int i = 0;
-				for (AdvanceType ta : Lists.newArrayList(at.typeArguments)) {
-					if (ta.kind() == TypeKind.VARIABLE_TYPE) {
-						AdvanceType sv = sharedTypes.get(ta.typeVariableName);
-						if (sv == null) {
-							// FIXME for now, let's just create an unbounded type variable
-							sv = new AdvanceType();
-							sv.typeVariable = new AdvanceTypeVariable();
-							sv.typeVariableName = ta.typeVariableName;
-							sv.typeVariable.name = ta.typeVariableName;
-							sharedTypes.put(sv.typeVariableName, sv);
-//							throw new MissingTypeVariableException(source.toString(), ta.typeVariableName);
-						}
-						at.typeArguments.set(i, sv);
-					}
-					i++;
-				}
-				typeParams.addAll(at.typeArguments);
-			}
-		}
 	}
 	@Override
 	public void save(XElement destination) {
@@ -224,26 +152,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 			destination.set("keywords", null);
 		}
 		
-		// fix type variables which were not created when adding inputs
-		LinkedList<AdvanceType> typeParams = Lists.newLinkedList();
-		Map<String, AdvanceType> sharedTypes = Maps.newHashMap();
-		
-		for (AdvanceTypeVariable bpd : typeVariables.values()) {
-			AdvanceType st = new AdvanceType();
-			st.typeVariableName = bpd.name;
-			st.typeVariable = bpd;
-			sharedTypes.put(bpd.name, st);
-		}
-		for (AdvanceCompositeBlockParameterDescription item : inputs.values()) {
-			typeParams.add(item.type);
-		}
-		for (AdvanceCompositeBlockParameterDescription item : outputs.values()) {
-			typeParams.add(item.type);
-		}		
-		
-		createTypeParams(sharedTypes, typeParams);
-
-		// store
+		// store content
 		for (AdvanceTypeVariable tv : typeVariables.values()) {
 			tv.save(destination.add("type-variable"));
 		}
@@ -312,5 +221,232 @@ public class AdvanceCompositeBlock implements XSerializable {
 	 */
 	public XElement serializeFlow() {
 		return serializeFlow(this);
+	}
+	/**
+	 * Removes the input parameter with the given identifier.
+	 * @param name the input name identifier
+	 */
+	public void removeInput(String name) {
+		inputs.remove(name);
+	}
+	/**
+	 * Removes the output parameter with the given identifier.
+	 * @param name the input name identifier
+	 */
+	public void removeOutput(String name) {
+		outputs.remove(name);
+	}
+	/**
+	 * Test if the given input parameter exists in this composite.
+	 * @param name the input name
+	 * @return true if exists
+	 */
+	public boolean hasInput(String name) {
+		return inputs.containsKey(name);
+	}
+	/**
+	 * Returns the given input parameter.
+	 * @param name the input name
+	 * @return the input parameter description or null if not present
+	 */
+	@Nullable
+	public AdvanceCompositeBlockParameterDescription getInput(String name) {
+		return inputs.get(name);
+	}
+	/**
+	 * Test if the given output parameter exists in this composite.
+	 * @param name the output name
+	 * @return true if exists
+	 */
+	public boolean hasOutput(String name) {
+		return outputs.containsKey(name);
+	}
+	/**
+	 * Returns the given output parameter.
+	 * @param name the output name
+	 * @return the output parameter description or null if not present
+	 */
+	@Nullable
+	public AdvanceCompositeBlockParameterDescription getOutput(String name) {
+		return outputs.get(name);
+	}
+	/**
+	 * @return the collection of all inputs
+	 */
+	public Collection<AdvanceCompositeBlockParameterDescription> inputs() {
+		return inputs.values();
+	}
+	/**
+	 * @return the collection of all outputs
+	 */
+	public Collection<AdvanceCompositeBlockParameterDescription> outputs() {
+		return outputs.values();
+	}
+	/**
+	 * Add the given parameter description as an input parameter.
+	 * @param p the description
+	 * @return true if the parameter was new
+	 */
+	public boolean addInput(@NonNull AdvanceCompositeBlockParameterDescription p) {
+		if (inputs.containsKey(p.id)) {
+			return false;
+		}
+		inputs.put(p.id, p);
+
+		linkParameterType(p);
+		
+		return true;
+	}
+	/**
+	 * Add the given parameter description as a output parameter.
+	 * @param p the description
+	 * @return true if the parameter was new
+	 */
+	public boolean addOutput(AdvanceCompositeBlockParameterDescription p) {
+		if (outputs.containsKey(p.id)) {
+			return false;
+		}
+		outputs.put(p.id, p);
+
+		linkParameterType(p);
+
+		return true;
+	}
+	/**
+	 * Adds a type variable to this composite.
+	 * @param tv the type variable
+	 * @return true if it was added
+	 */
+	public boolean addTypeVariable(AdvanceTypeVariable tv) {
+		// report duplication
+		if (typeVariables.containsKey(tv.name)) {
+			return false;
+		}
+		
+		AdvanceType t = new AdvanceType();
+		t.typeVariable = tv;
+		t.typeVariableName = tv.name;
+
+		addSharedTypeVariable(tv.name, t);
+		
+		return true;
+	}
+	/**
+	 * Adds a shared type variable and type.
+	 * @param name the variable name
+	 * @param t the type, if null, an IllegalArgumentException is thrown
+	 */
+	protected void addSharedTypeVariable(String name, AdvanceType t) {
+		if (t == null) {
+			throw new IllegalArgumentException("AdvanceType " + name + " is null");
+		}
+		// create the type variable if not specified
+		if (t.typeVariable == null) {
+			t.typeVariable = new AdvanceTypeVariable();
+			t.typeVariable.name = name;
+		}
+		
+		typeVariables.put(name, t.typeVariable);
+		sharedTypeVariables.put(name, t);
+	}
+	/**
+	 * Establish a direct link between type variables referencing other type variables.
+	 */
+	protected void linkTypeVariables() {
+		Set<AdvanceType> visited = Sets.newHashSet();
+		Deque<List<AdvanceType>> queue = Lists.newLinkedList();
+		for (AdvanceTypeVariable tv : typeVariables.values()) {
+			queue.add(tv.bounds);
+		}
+		while (!queue.isEmpty()) {
+			List<AdvanceType> bounds = queue.removeFirst();
+			for (int i = 0; i < bounds.size(); i++) {
+				AdvanceType t = bounds.get(i);
+				if (t.kind() == TypeKind.VARIABLE_TYPE) {
+					AdvanceType st = sharedTypeVariables.get(t.typeVariableName);
+					if (st == null) {
+						throw new MissingTypeVariableException("", t.typeVariableName);
+					}
+					bounds.set(i, st);
+				} else
+				if (t.kind() == TypeKind.PARAMETRIC_TYPE) {
+					if (visited.add(t)) {
+						queue.add(t.typeArguments);
+					}
+				}
+			}
+		}
+	}
+	/**
+	 * Remove any unused type variable.
+	 */
+	public void removeUnusedTypeVariables() {
+		Set<AdvanceType> visited = Sets.newHashSet();
+		Set<String> used = Sets.newHashSet();
+		Deque<AdvanceType> queue = Lists.newLinkedList();
+		for (AdvanceCompositeBlockParameterDescription p : inputs()) {
+			queue.add(p.type);
+		}
+		for (AdvanceCompositeBlockParameterDescription p : outputs()) {
+			queue.add(p.type);
+		}
+		while (!queue.isEmpty()) {
+			AdvanceType t = queue.removeFirst();
+			if (t.kind() == TypeKind.VARIABLE_TYPE) {
+				used.add(t.typeVariableName);
+			} else
+			if (t.kind() == TypeKind.PARAMETRIC_TYPE) {
+				if (visited.add(t)) {
+					queue.addAll(t.typeArguments);
+				}
+			}
+		}
+	}
+	/**
+	 * Link the variable types in the parameter to the common types
+	 * and create type variables as necessary.
+	 * @param p the parameter
+	 */
+	protected void linkParameterType(AdvanceCompositeBlockParameterDescription p) {
+		if (p.type.kind() == TypeKind.VARIABLE_TYPE) {
+			AdvanceType t = sharedTypeVariables.get(p.type.typeVariableName);
+			if (t == null) {
+				addSharedTypeVariable(p.type.typeVariableName, p.type);
+			} else {
+				p.type = t;
+			}
+		} else
+		if (p.type.kind() == TypeKind.PARAMETRIC_TYPE) {
+			Set<AdvanceType> visited = Sets.newHashSet();
+			Deque<List<AdvanceType>> queue = Lists.newLinkedList();
+			queue.add(p.type.typeArguments);
+			while (!queue.isEmpty()) {
+				List<AdvanceType> args = queue.removeFirst();
+				for (int i = 0; i < args.size(); i++) {
+					AdvanceType t = args.get(i);
+					if (t.kind() == TypeKind.VARIABLE_TYPE) {
+						AdvanceType st = sharedTypeVariables.get(t.typeVariableName);
+						if (st == null) {
+							addSharedTypeVariable(t.typeVariableName, t);
+						} else {
+							args.set(i, st);
+						}
+					} else
+					if (t.kind() == TypeKind.PARAMETRIC_TYPE) {
+						if (visited.add(t)) {
+							queue.add(t.typeArguments);
+						}
+					}
+				}
+			}
+		}
+	}
+	/**
+	 * Simple test program.
+	 * @param args no arguments
+	 * @throws Exception ignored
+	 */
+	public static void main(String[] args) throws Exception {
+		parseFlow(XElement.parseXML("c:\\Users\\karnokd\\.advance-flow-editor-ws\\flow-description-21.xml"));
 	}
 }

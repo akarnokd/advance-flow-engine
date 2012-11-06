@@ -222,7 +222,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 	 */
 	protected void bindGlobals(AdvanceCompositeBlock flow, 
 			AdvanceRealmRuntime<T, X, C> runtime) {
-		for (AdvanceCompositeBlockParameterDescription in : flow.inputs.values()) {
+		for (AdvanceCompositeBlockParameterDescription in : flow.inputs()) {
 			List<Port<T, X>> ports = runtime.inputs.get(in.id);
 			if (ports == null) {
 				ports = Lists.newArrayList();
@@ -248,7 +248,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 				runtime.inputTypes.put(in.id, commonSubType);
 			}
 		}
-		for (AdvanceCompositeBlockParameterDescription out : flow.outputs.values()) {
+		for (AdvanceCompositeBlockParameterDescription out : flow.outputs()) {
 			for (Block<T, X, C> block : runtime.blocks) {
 				for (Port<T, X> outPort : block.outputs()) {
 					if (findGlobalOutput(block, outPort.name(), out.id)) {
@@ -356,7 +356,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 						continue outer;
 					}
 					// leave the composite block in the input side
-					if (parent.inputs.containsKey(bb.sourceParameter) && !bb.hasSourceBlock()) {
+					if (parent.hasInput(bb.sourceParameter) && !bb.hasSourceBlock()) {
 						targetBlock = parent.id;
 						targetPort = bb.sourceBlock;
 						parent = parent.parent;
@@ -520,7 +520,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 						result.composite = start;
 						return result;
 					} else
-					if (bb.sourceBlock.isEmpty() && start.inputs.containsKey(bb.sourceParameter)) {
+					if (bb.sourceBlock.isEmpty() && start.hasInput(bb.sourceParameter)) {
 						// if binding is to an input parameter, trace that
 						AdvanceCompositeBlock q = start;
 						start = q.parent;
@@ -639,7 +639,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME
-						AdvanceCompositeBlockParameterDescription pin = cb1.outputs.get(bb.sourceParameter);
+						AdvanceCompositeBlockParameterDescription pin = cb1.getOutput(bb.sourceParameter);
 						at = pin.type;
 						resolve(at);
 //						at = AdvanceType.fresh("T");
@@ -647,13 +647,13 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 					}					
 					tr.left = at;
 				} else
-				if (!bb.hasSourceBlock() && cb.inputs.containsKey(bb.sourceParameter)) {
+				if (!bb.hasSourceBlock() && cb.hasInput(bb.sourceParameter)) {
 					// SOURCE: enclosing composite input
 					Triplet<AdvanceCompositeBlock, String, String> typePort = Triplet.of(cb, "", bb.sourceParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME
-						AdvanceCompositeBlockParameterDescription pin = cb.inputs.get(bb.sourceParameter);
+						AdvanceCompositeBlockParameterDescription pin = cb.getInput(bb.sourceParameter);
 						at = pin.type;
 						resolve(at);
 //						at = AdvanceType.fresh("T");
@@ -688,7 +688,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME
-						AdvanceCompositeBlockParameterDescription pin = cb1.inputs.get(bb.destinationParameter);
+						AdvanceCompositeBlockParameterDescription pin = cb1.getInput(bb.destinationParameter);
 						at = pin.type;
 						resolve(at);
 //						at = AdvanceType.fresh("T");
@@ -697,13 +697,13 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 					tr.right = at;
 					
 				} else
-				if (!bb.hasDestinationBlock() && cb.outputs.containsKey(bb.destinationParameter)) {
+				if (!bb.hasDestinationBlock() && cb.hasOutput(bb.destinationParameter)) {
 					// DESTINATION: enclosing composite output
 					Triplet<AdvanceCompositeBlock, String, String> typePort = Triplet.of(cb, "", bb.destinationParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME
-						AdvanceCompositeBlockParameterDescription pin = cb.outputs.get(bb.destinationParameter);
+						AdvanceCompositeBlockParameterDescription pin = cb.getOutput(bb.destinationParameter);
 						at = pin.type;
 						resolve(at);
 //						at = AdvanceType.fresh("T");
@@ -812,13 +812,13 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 			Object input = null;
 			Object inputPort = null;
 			
-			if (!bb.hasSourceBlock() && cb.outputs.containsKey(bb.sourceParameter)) {
+			if (!bb.hasSourceBlock() && cb.hasOutput(bb.sourceParameter)) {
 				result.addError(new SourceToCompositeOutputError(bb));
 				continue;
 			}
-			if (!bb.hasSourceBlock() && cb.inputs.containsKey(bb.sourceParameter)) {
+			if (!bb.hasSourceBlock() && cb.hasInput(bb.sourceParameter)) {
 				input = cb;
-				inputPort = cb.inputs.get(bb.sourceParameter);
+				inputPort = cb.getInput(bb.sourceParameter);
 			} else
 			if (cb.constants.containsKey(bb.sourceBlock)) {
 				AdvanceConstantBlock acb = cb.constants.get(bb.sourceBlock);
@@ -853,11 +853,11 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 			if (cb.composites.containsKey(bb.sourceBlock)) {
 				AdvanceCompositeBlock cb1 = cb.composites.get(bb.sourceBlock);
 				input = cb1;
-				if (cb1.inputs.containsKey(bb.sourceParameter)) {
+				if (cb1.hasInput(bb.sourceParameter)) {
 					result.addError(new SourceToCompositeInputError(bb));
 					continue;
 				}
-				inputPort = cb1.outputs.get(bb.sourceParameter);
+				inputPort = cb1.getOutput(bb.sourceParameter);
 			}
 			
 			
@@ -878,13 +878,13 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 				result.addError(new ConstantOutputError(bb));
 				continue;
 			}
-			if (!bb.hasDestinationBlock() && cb.inputs.containsKey(bb.destinationParameter)) {
+			if (!bb.hasDestinationBlock() && cb.hasInput(bb.destinationParameter)) {
 				result.addError(new DestinationToCompositeInputError(bb));
 				continue;
 			}
-			if (!bb.hasDestinationBlock() && cb.outputs.containsKey(bb.destinationParameter)) {
+			if (!bb.hasDestinationBlock() && cb.hasOutput(bb.destinationParameter)) {
 				output = cb;
-				outputPort = cb.outputs.get(bb.destinationParameter);
+				outputPort = cb.getOutput(bb.destinationParameter);
 			} else
 			if (cb.blocks.containsKey(bb.destinationBlock)) {
 				AdvanceBlockReference b = cb.blocks.get(bb.destinationBlock);
@@ -907,11 +907,11 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 			if (cb.composites.containsKey(bb.destinationBlock)) {
 				AdvanceCompositeBlock cb1 = cb.composites.get(bb.destinationBlock);
 				output = cb1;
-				if (cb1.outputs.containsKey(bb.destinationParameter)) {
+				if (cb1.hasOutput(bb.destinationParameter)) {
 					result.addError(new DestinationToCompositeOutputError(bb));
 					continue;
 				}
-				outputPort = cb1.inputs.get(bb.destinationParameter);
+				outputPort = cb1.getInput(bb.destinationParameter);
 			}
 			
 			if (output == null) {
