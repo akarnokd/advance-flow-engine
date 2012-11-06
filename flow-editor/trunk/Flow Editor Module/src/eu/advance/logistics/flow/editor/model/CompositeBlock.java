@@ -20,6 +20,7 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
+import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +80,9 @@ public class CompositeBlock extends AbstractBlock {
         
         FlowDescription fd = getFlowDiagram();
         if (fd != null) {
+            AdvanceCompositeBlock build = fd.build();
             getFlowDiagram().setCompilationResult(BlockRegistry.getInstance()
-                    .verify(fd.build()));
+                    .verify(build));
         }
     }
 

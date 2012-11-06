@@ -52,18 +52,12 @@ class FlowDescriptionIO {
     }
 
     private static void read(CompositeBlock parent, AdvanceCompositeBlock advCompositeBlock) {
-        for (Map.Entry<String, AdvanceCompositeBlockParameterDescription> e : advCompositeBlock.inputs.entrySet()) {
-            if (!e.getKey().equals(e.getValue().id)) {
-                System.err.println("ID " + e.getKey() + " != " + e.getValue().id);
-            }
-            parent.createInput(e.getValue());
+        for (AdvanceCompositeBlockParameterDescription e : advCompositeBlock.inputs()) {
+            parent.createInput(e);
         }
 
-        for (Map.Entry<String, AdvanceCompositeBlockParameterDescription> e : advCompositeBlock.outputs.entrySet()) {
-            if (!e.getKey().equals(e.getValue().id)) {
-                System.err.println("ID " + e.getKey() + " != " + e.getValue().id);
-            }
-            parent.createOutput(e.getValue());
+        for (AdvanceCompositeBlockParameterDescription e : advCompositeBlock.outputs()) {
+            parent.createOutput(e);
         }
 
         BlockRegistry r = BlockRegistry.getInstance();
@@ -123,10 +117,10 @@ class FlowDescriptionIO {
         AdvanceCompositeBlock aCompositeBlock = new AdvanceCompositeBlock();
         aCompositeBlock.id = parent.getId();
         for (BlockParameter param : parent.getInputs()) {
-            aCompositeBlock.inputs.put(param.getId(), convert(param.getDescription()));
+            aCompositeBlock.addInput(convert(param.getDescription()));
         }
         for (BlockParameter param : parent.getOutputs()) {
-            aCompositeBlock.outputs.put(param.getId(), convert(param.getDescription()));
+            aCompositeBlock.addOutput(convert(param.getDescription()));
         }
         for (AbstractBlock block : parent.getChildren()) {
             if (block instanceof SimpleBlock) {

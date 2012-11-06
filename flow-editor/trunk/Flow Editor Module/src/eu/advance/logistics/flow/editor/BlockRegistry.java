@@ -265,6 +265,8 @@ public class BlockRegistry {
             }
             return localVerify.verify(flow);
         } catch (Throwable t) {
+            String s = flow.serializeFlow().toString();
+            System.err.println(s);
             Exceptions.printStackTrace(t);
             return new AdvanceCompilationResult();
         }
