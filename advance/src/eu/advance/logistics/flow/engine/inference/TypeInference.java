@@ -164,11 +164,21 @@ public final class TypeInference<T extends Type, W> {
 								}
 							}
 						} else {
+							List<T> ebArgs = functions.arguments(eb);
+							List<T> rightArgs = functions.arguments(rel.right);
+							if (ebArgs.size() != rightArgs.size()) {
+								result.errorArgumentCount(eb, rel.right, rel.wire);
+								return result;
+							}
+							TypeRelation xr = functions.compare(eb, rel.right);
+							if (xr != TypeRelation.EQUAL && xr != TypeRelation.EXTENDS) {
+								result.errorIncompatibleBaseTypes(eb, rel.right, rel.wire);
+								return result;
+							}
+
 							T bt = functions.copy(eb);
 							List<T> btArgs = functions.arguments(bt);
 							btArgs.clear();
-							List<T> ebArgs = functions.arguments(eb);
-							List<T> rightArgs = functions.arguments(rel.right);
 							for (int i = 0; i < ebArgs.size(); i++) {
 								T ta1 = ebArgs.get(i);
 								T ta2 = rightArgs.get(i);
@@ -224,11 +234,21 @@ public final class TypeInference<T extends Type, W> {
 								}
 							}
 						} else {
+							List<T> ebArgs = functions.arguments(eb);
+							List<T> leftArgs = functions.arguments(rel.left);
+							if (ebArgs.size() != leftArgs.size()) {
+								result.errorArgumentCount(rel.left, eb, rel.wire);
+								return result;
+							}
+							TypeRelation xr = functions.compare(rel.left, eb);
+							if (xr != TypeRelation.EQUAL && xr != TypeRelation.EXTENDS) {
+								result.errorIncompatibleBaseTypes(rel.left, eb, rel.wire);
+								return result;
+							}
+							
 							T bt = functions.copy(eb);
 							List<T> btArgs = functions.arguments(bt);
 							btArgs.clear();
-							List<T> ebArgs = functions.arguments(eb);
-							List<T> leftArgs = functions.arguments(rel.left);
 							for (int i = 0; i < ebArgs.size(); i++) {
 								T ta1 = ebArgs.get(i);
 								T ta2 = leftArgs.get(i);
