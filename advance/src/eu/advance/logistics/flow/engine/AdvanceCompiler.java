@@ -235,6 +235,11 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 						ports.add(block.getInput(inPort.name()));
 						// FIXME port type is the declared type for now
 						X pt = inPort.type();
+						if (pt == null) {
+							@SuppressWarnings("unchecked")
+							X ptx = (X)block.description().inputs.get(inPort.name()).type;
+							pt = ptx;
+						}
 						if (commonSubType == null) {
 							commonSubType = pt;
 						} else {
@@ -244,9 +249,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 				}
 			}
 			// FIXME port type is the declared type for now
-			if (commonSubType != null) {
-				runtime.inputTypes.put(in.id, commonSubType);
-			}
+			runtime.inputTypes.put(in.id, commonSubType);
 		}
 		for (AdvanceCompositeBlockParameterDescription out : flow.outputs()) {
 			for (Block<T, X, C> block : runtime.blocks) {
@@ -257,7 +260,15 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 							throw new AssertionError("Multiple global outputs found?! Current: " + outPort + " | Old = " + old);
 						}
 						// FIXME  port type is the declared type for now
-						runtime.outputTypes.put(out.id, outPort.type());
+						
+						X pt = outPort.type();
+						if (pt == null) {
+							@SuppressWarnings("unchecked")
+							X ptx = (X)block.description().outputs.get(outPort.name()).type;
+							pt = ptx;
+						}
+						
+						runtime.outputTypes.put(out.id, pt);
 					}
 				}				
 			}
@@ -284,6 +295,10 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 		static OutputSearch of(AdvanceCompositeBlock parent, String targetBlock, String targetPort) {
 			OutputSearch result = new OutputSearch();
 			
+			result.parent = parent;
+			result.targetBlock = targetBlock;
+			result.targetPort = targetPort;
+			
 			return result;
 		}
 	}
@@ -300,7 +315,9 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 		search.add(location);
 		while (!search.isEmpty()) {
 			location = search.removeFirst();
-			
+			if (location.parent == null) {
+				return false;
+			}
 			for (AdvanceBlockBind bb : location.parent.bindings) {
 				if (bb.sourceBlock.equals(location.targetBlock) && bb.sourceParameter.equals(location.targetPort)) {
 					// we found it
@@ -340,6 +357,9 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 		
 		outer:
 		while (!Thread.currentThread().isInterrupted()) {
+			if (parent == null) {
+				return false;
+			}
 			for (AdvanceBlockBind bb : parent.bindings) {
 				if (bb.destinationBlock.equals(targetBlock) 
 						&& bb.destinationParameter.equals(targetPort)) {
@@ -510,6 +530,10 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 	ConstantOrBlock walkBinding(AdvanceCompositeBlock start, String block, String param) {
 		while (!Thread.currentThread().isInterrupted()) {
 			boolean foundBinding = false;
+			// if we stepped outside the topmost composite
+			if (start == null) {
+				return null;
+			}
 			for (AdvanceBlockBind bb : start.bindings) {
 				if (bb.destinationBlock.equals(block) && bb.destinationParameter.equals(param)) {
 					foundBinding = true;

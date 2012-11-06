@@ -150,6 +150,7 @@ public class XElement /* implements Iterable<XElement> */ {
 	 * @param attributeName the attribute name
 	 * @return the attribute value or null if no such attribute
 	 */
+	@Nullable
 	public String get(String attributeName) {
 		// check first for a namespace-less attribute
 		String attr = attributes.get(new XAttributeName(attributeName, null, null));
@@ -169,6 +170,7 @@ public class XElement /* implements Iterable<XElement> */ {
 	 * @param attributeNamespace the attribute namespace URI
 	 * @return the attribute value or null if not present
 	 */
+	@Nullable
 	public String get(String attributeName, String attributeNamespace) {
 		return attributes.get(new XAttributeName(attributeName, attributeNamespace, null));
 	}

@@ -716,7 +716,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		if (runtime != null) {
 			for (Pair<String, XElement> pv : portValues) {
 				List<Port<XElement, AdvanceType>> list = runtime.inputs.get(pv.first);
-				if (list != null && list.isEmpty()) {
+				if (list != null && !list.isEmpty()) {
 					for (Port<XElement, AdvanceType> p : list) {
 						if (p instanceof ReactivePort<?, ?>) {
 							ReactivePort<XElement, AdvanceType> rp = (ReactivePort<XElement, AdvanceType>) p;
@@ -729,6 +729,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 					LOG.warn("Global port " + pv.first + " in realm " + realm + " not found.");
 				}
 			}
+			return;
 		}
 		throw new AdvanceControlException("Realm does not have compiled and running blocks: " + realm);
 	}
