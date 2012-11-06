@@ -21,7 +21,6 @@
 
 package eu.advance.logistics.flow.engine.block.prediction;
 
-import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Func2;
 
 import java.util.List;
@@ -34,7 +33,7 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.util.Triplet;
+import eu.advance.logistics.flow.engine.block.prediction.KMeansARXLearn.TimeseriesAggregator;
 import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
@@ -63,20 +62,9 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 	@Override
 	protected void invoke() {
 		final int horizon = getInt(HORIZON);
-		
-		final TimeGroupSeriesMapper series = new TimeGroupSeriesMapper();
-		
-		series.map(resolver().getItems(get(DATA)), resolver());
-		
-		final double[][] allData = new double[series.rowset.size()][series.dateset.size()];
-		
-		series.createMatrix(new Action1<Triplet<Integer, Integer, Double>>() {
-			@Override
-			public void invoke(Triplet<Integer, Integer, Double> value) {
-				allData[value.first][value.second] = value.third;
-			}
-		});
 
+		final TimeseriesAggregator series = TimeseriesAggregator.load(resolver().getItems(get(DATA)));
+		
 		final Map<Integer, String> modelReverseMap = Maps.newHashMap();
 		
 		for (Map.Entry<XElement, XElement> e : resolver().getMap(get(CLASS)).entrySet()) {
@@ -91,7 +79,7 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 			
 			String group = modelReverseMap.get(j);
 			
-			int midx = series.rowset.get(group);
+			int midx = series.groupIndex.get(group);
 			
 			int p = xm.getInt("model-order");
 			int m = 5;
@@ -101,7 +89,7 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 					p, m, new Func2<Integer, Integer, Double>() {
 				@Override
 				public Double invoke(Integer param1, Integer param2) {
-					int dow = KMeansARXLearn.dayOfWeek(series.daysSinceEpoch.get(param1));
+					int dow = KMeansARXLearn.dayOfWeek(series.daysSinceEpoch[param1]);
 					return dow == param2.intValue() ? 1d : 0d;
 				}
 			});
@@ -117,7 +105,7 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 				i++;
 			}
 			
-			double[] forecasts = arxModel.forecastAll(allData[midx], horizon);
+			double[] forecasts = arxModel.forecastAll(series.timeSeriesMatrix[midx], horizon);
 	
 			List<XElement> forecastList = Lists.newArrayList();
 			for (double d : forecasts) {
