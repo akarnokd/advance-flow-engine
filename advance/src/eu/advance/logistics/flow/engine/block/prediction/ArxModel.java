@@ -78,6 +78,8 @@ public class ArxModel extends ObservationModel {
 		this.m = m;
 		this.u = u;
 		this.numSeries = 1;
+		arCoeffs = new double[p];
+		uCoeffs = new double[m];
 	}
 	/**
 	 * Initialize the model.
@@ -103,8 +105,6 @@ public class ArxModel extends ObservationModel {
 		int n = this.observations.length;
 		
 		if (n < p) {
-			arCoeffs = new double[p];
-			uCoeffs = new double[m];
 			Arrays.fill(arCoeffs, 0.0);
 			Arrays.fill(uCoeffs, 0.0);
 			return;
@@ -242,11 +242,11 @@ public class ArxModel extends ObservationModel {
 		return uCoeffs.clone();
 	}
 	/** @return the order of the autoregressive model. */
-	public double getP() {
+	public int getP() {
 		return p;
 	}
 	/** @return the external effects count. */
-	public double getM() {
+	public int getM() {
 		return m;
 	}
 	/**

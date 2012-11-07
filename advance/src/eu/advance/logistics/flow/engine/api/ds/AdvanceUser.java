@@ -58,9 +58,9 @@ implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<Strin
 	/** The number format string. */
 	public String numberFormat;
 	/** The thousand separator character. */
-	public char thousandSeparator;
+	public char thousandSeparator = ',';
 	/** The decimal separator character. */
-	public char decimalSeparator;
+	public char decimalSeparator = '.';
 	/** Is the user logging in via username/password? */
 	public boolean passwordLogin;
 	/** 

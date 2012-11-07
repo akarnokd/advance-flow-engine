@@ -69,7 +69,7 @@ public class KMeansARX {
 	protected double l2test;
 	/** Array indicating classes for each time series. */
 	protected int[] classes;
-	/** Sets of time series belonging to each cluster. */
+	/** Sets of time series belonging to each cluster. (i.e, [cluster #] == series index */
 	protected List<Set<Integer>> classSet;
 	/** Number of time series. */
 	protected int numSeries;
@@ -450,5 +450,13 @@ public class KMeansARX {
 	 */
 	public int[] getClasses() {
 		return classes.clone();
+	}
+	/**
+	 * Returns the set of input row indexes for the given cluser index.
+	 * @param clusterIndex the cluster index
+	 * @return the set of row indexes
+	 */
+	public Set<Integer> getTimeseriesRowsForCluster(int clusterIndex) {
+		return classSet.get(clusterIndex);
 	}
 }
