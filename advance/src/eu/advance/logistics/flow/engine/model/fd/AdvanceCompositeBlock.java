@@ -203,7 +203,10 @@ public class AdvanceCompositeBlock implements XSerializable {
 	 */
 	public static AdvanceCompositeBlock parseFlow(XElement flow) {
 		AdvanceCompositeBlock result = new AdvanceCompositeBlock();
-		result.load(flow.childElement("composite-block"));
+		XElement x = flow.childElement("composite-block");
+		if (x != null) {
+			result.load(x);
+		}
 		return result;
 	}
 	/**

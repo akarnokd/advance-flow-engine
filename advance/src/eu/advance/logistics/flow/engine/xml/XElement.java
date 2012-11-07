@@ -622,6 +622,9 @@ public class XElement /* implements Iterable<XElement> */ {
 					b.append("&amp;");
 					break;
 				default:
+					if (c < 32 && c != '\r' && c != '\n' && c != '\t') {
+						b.append("&#").append((int)c).append(";");
+					}
 					b.append(c);
 				}
 			}

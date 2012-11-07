@@ -236,61 +236,71 @@ public class KMeansARXLearn extends AdvanceBlock {
 		int m = 5;
 		boolean normalize = cfg.getBoolean("normalize"); // true
 
+		int minSamples = (int)Math.ceil((1 + split) * p);
 		
-		
-		KMeansARX kMeans = new KMeansARX(
-				series.timeSeriesMatrix, 
-				(int)(series.daysSinceEpoch.length * split), 
-				p, m, modelCount, maxIter, normalize, horizon,
-				new Func2<Integer, Integer, Double>() {
-			@Override
-			public Double invoke(Integer param1, Integer param2) {
-				int dow = dayOfWeek(series.daysSinceEpoch[param1]);
-				return param2.intValue() == dow ? 1d : 0d;
-			}
-		});
-		
-		kMeans.solve();
-
-		List<XElement> models = Lists.newArrayList();
-		
-		for (ArxModel md : kMeans.models()) {
+		if (series.daysSinceEpoch.length >= minSamples) {
+			KMeansARX kMeans = new KMeansARX(
+					series.timeSeriesMatrix, 
+					(int)(series.daysSinceEpoch.length * split), 
+					p, m, modelCount, maxIter, normalize, horizon,
+					new Func2<Integer, Integer, Double>() {
+				@Override
+				public Double invoke(Integer param1, Integer param2) {
+					int dow = dayOfWeek(series.daysSinceEpoch[param1]);
+					return param2.intValue() == dow ? 1d : 0d;
+				}
+			});
 			
-			XElement xm = new XElement("arxmodel");
-			xm.set("model-order", md.getP());
-			xm.set("external-order", md.getM());
+			kMeans.solve();
+	
+			List<XElement> models = Lists.newArrayList();
 			
-			for (double ac : md.getArCoefficients()) {
-				xm.add("model-coefficient").content = Double.toString(ac);
+			for (ArxModel md : kMeans.models()) {
+				
+				XElement xm = new XElement("arxmodel");
+				xm.set("model-order", md.getP());
+				xm.set("external-order", md.getM());
+				
+				for (double ac : md.getArCoefficients()) {
+					xm.add("model-coefficient").content = Double.toString(ac);
+				}
+				for (double uc : md.getUCoefficients()) {
+					xm.add("external-coefficient").content = Double.toString(uc);
+				}
+				
+				models.add(xm);
 			}
-			for (double uc : md.getUCoefficients()) {
-				xm.add("external-coefficient").content = Double.toString(uc);
-			}
+	
+			int[] classes = kMeans.getClasses();
+	
+			Map<XElement, XElement> classesMap = Maps.newHashMap();
 			
-			models.add(xm);
-		}
-
-		int[] classes = kMeans.getClasses();
-
-		Map<XElement, XElement> classesMap = Maps.newHashMap();
-		
-		for (int cl : classes) {
-			for (Map.Entry<String, Integer> e : series.groupIndex.entrySet()) {
-				if (e.getValue().intValue() == cl) {
-					classesMap.put(resolver().create(e.getKey()), resolver().create(cl));
+			for (int cl : classes) {
+				Set<Integer> rows = kMeans.getTimeseriesRowsForCluster(cl);
+				for (Map.Entry<String, Integer> e : series.groupIndex.entrySet()) {
+					if (rows.contains(e.getValue().intValue())) {
+						classesMap.put(resolver().create(e.getKey()), resolver().create(cl));
+					}
 				}
 			}
+			
+			
+			dispatch(CLASSES, resolver().create(classesMap));
+			dispatch(MODEL, resolver().create(models));
+			
+			dispatch(L1_TRAIN_ERROR, resolver().create(kMeans.getL1TrainError()));
+			dispatch(L2_TRAIN_ERROR, resolver().create(kMeans.getL2TrainError()));
+			dispatch(L1_TEST_ERROR, resolver().create(kMeans.getL1TestError()));
+			dispatch(L2_TEST_ERROR, resolver().create(kMeans.getL2TestError()));
+		} else {
+			dispatch(CLASSES, resolver().create(Maps.<XElement, XElement>newHashMap()));
+			dispatch(MODEL, resolver().create(Lists.<XElement>newArrayList()));
+
+			dispatch(L1_TRAIN_ERROR, resolver().create(-1d));
+			dispatch(L2_TRAIN_ERROR, resolver().create(-1d));
+			dispatch(L1_TEST_ERROR, resolver().create(-1d));
+			dispatch(L2_TEST_ERROR, resolver().create(-1d));
 		}
-		
-		
-		dispatch(CLASSES, resolver().create(classesMap));
-		
-		dispatch(MODEL, resolver().create(models));
-		dispatch(L1_TRAIN_ERROR, kMeans.getL1TrainError());
-		dispatch(L2_TRAIN_ERROR, kMeans.getL2TrainError());
-		dispatch(L1_TEST_ERROR, kMeans.getL1TestError());
-		dispatch(L2_TEST_ERROR, kMeans.getL2TestError());
-		
 	}
 	/**
 	 * Compute the current day of week (0 - Monday, 6 - Sunday) from the given days since the unix epoch.
