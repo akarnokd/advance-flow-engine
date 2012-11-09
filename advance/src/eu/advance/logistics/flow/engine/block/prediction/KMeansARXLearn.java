@@ -231,6 +231,9 @@ public class KMeansARXLearn extends AdvanceBlock {
 		final double split = cfg.getDouble("split"); //  
 		int p = cfg.getInt("model-order"); // doc: n
 		int modelCount = cfg.getInt("cluster-count"); // doc: K
+		if (modelCount < 0) {
+			modelCount = series.groupTimeValues.size(); // use group size
+		}
 		int maxIter = cfg.getInt("max-iteration"); // 100
 		int horizon = cfg.getInt("horizon"); // 2
 		int m = 5;
