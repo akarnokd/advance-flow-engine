@@ -412,6 +412,9 @@ public class KMeansARX {
 			allModels = new ArxModel[clusterCount];
 			for (int k = 0; k < clusterCount; k++) {
 				int index = (int) Math.floor(Math.random() * numSeries);
+				if (clusterCount >= numSeries) {
+					index = k;
+				}
 				allModels[k] = new ArxModel(trainData[index], p, m, u);
 				allModels[k].solveMSE();
 				classSet.get(k).add(index);

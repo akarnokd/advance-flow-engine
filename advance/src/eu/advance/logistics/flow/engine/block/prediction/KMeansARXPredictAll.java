@@ -98,7 +98,11 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 			
 			String group = ig.getValue();
 			
-			int modelIndex = groupToModel.get(group);
+			Integer modelIndex = groupToModel.get(group);
+			if (modelIndex == null) {
+				LOG.error("Missing model for group " + group);
+				continue;
+			}
 			
 			XElement xm = models.get(modelIndex);
 			
