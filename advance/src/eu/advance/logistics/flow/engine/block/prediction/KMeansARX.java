@@ -406,6 +406,9 @@ public class KMeansARX {
 				
 		// initialize if needed
 		if (allModels == null) {
+			if (clusterCount >= numSeries) {
+				clusterCount = numSeries;
+			}
 			allModels = new ArxModel[clusterCount];
 			for (int k = 0; k < clusterCount; k++) {
 				int index = (int) Math.floor(Math.random() * numSeries);
@@ -419,17 +422,25 @@ public class KMeansARX {
 		boolean changed = true;
 		
 		for (int iter = 0; (iter < maxIter) && (changed); iter++) {
-			changed = classify();
+			changed = clusterCount < numSeries ? classify() : false;
 			
 			update();
 		}
-		
+
+		predict(0);
+	}
+	/**
+	 * Run the prediction.
+	 * @param lookahead the lookahead days
+	 * @return the estimated data
+	 */
+	public double[][] predict(int lookahead) {
 		// compute estimates for the test section of each time series
 		for (int n = 0; n < numSeries; n++) {
 			int k = classes[n];
 			double[] initValues = Arrays.copyOfRange(trainData[n], numTraining - p - horizon, numTraining);
 			double[][] estimates = allModels[k].estimate(testData[n], initValues, trainMean[n], horizon, split);
-			testDataEst[n] = estimates[0];
+			testDataEst[n] = estimates[lookahead];
 
 			//double[] initValues = Arrays.copyOfRange(trainData[n], T-p, T);
 			//testDataEst[n]= allModels[k].estimate(testData[n], initValues, trainMean[n]);
@@ -440,6 +451,8 @@ public class KMeansARX {
 		l1train = l1Error(trainData, trainDataEst);
 		l2test  = l2Error(testData, testDataEst);
 		l1test  = l1Error(testData, testDataEst);
+		
+		return testDataEst;
 	}
 	/** @return the models. */
 	public List<ArxModel> models() {
@@ -459,4 +472,20 @@ public class KMeansARX {
 	public Set<Integer> getTimeseriesRowsForCluster(int clusterIndex) {
 		return classSet.get(clusterIndex);
 	}
+	/** 
+	 * Split data into trainset and test set.
+	 * @param split where to split the data in two
+	 * */
+	public void split(int split) {
+		int len = allData[0].length;
+		split = Math.min(len, split);
+		trainData = new double[numSeries][split];
+		testData = new double[numSeries][len - split];
+		for (int n = 0; n < numSeries; n++) {
+			System.arraycopy(allData[n], 0, trainData[n], 0, split);
+			System.arraycopy(allData[n], split, testData[n], 0, len - split);
+		}
+		this.split = split;
+	}
+	
 }
