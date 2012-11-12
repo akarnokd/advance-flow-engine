@@ -97,7 +97,7 @@ public class CompositeBlock extends AbstractBlock {
     }
 
     public BlockParameter findBlockParameter(String blockId, String paramId) {
-        if (blockId == null) {
+        if (blockId == null || blockId.isEmpty()) {
             return getInputOrOutputParameter(paramId);
         }
         AbstractBlock block = children.get(blockId);
