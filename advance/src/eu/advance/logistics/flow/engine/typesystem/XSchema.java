@@ -597,6 +597,12 @@ public final class XSchema {
 			return TypeRelation.EXTENDS;
 		} else
 		if ((t1.capabilities.get(0).complexType == null) != (t2.capabilities.get(0).complexType == null)) {
+			if (isObject(t1.capabilities.get(0).complexType) && t2.capabilities.get(0).complexType == null) {
+				return TypeRelation.SUPER;
+			} else
+			if (t1.capabilities.get(0).complexType == null && isObject(t2.capabilities.get(0).complexType)) {
+				return TypeRelation.EXTENDS;
+			}
 			return TypeRelation.NONE;
 		} else
 		if (t1.capabilities.get(0).complexType != null && t2.capabilities.get(0).complexType != null) {
@@ -612,6 +618,14 @@ public final class XSchema {
 			return TypeRelation.EXTENDS;
 		}
 		return TypeRelation.NONE;
+	}
+	/**
+	 * Check if the complex type represents a top-type (e.g., object).
+	 * @param complexType the complex type
+	 * @return true if represents an object
+	 */
+	protected static boolean isObject(XType complexType) {
+		return complexType != null && complexType.capabilities.isEmpty();
 	}
 	/**
 	 * Infer and generate an xml type from the given XML instance based on its structure.

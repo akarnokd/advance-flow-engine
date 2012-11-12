@@ -28,21 +28,18 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- Convert a database row into a consignment -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentConvert" id="ConsignmentConvert" scheduler="IO" category="prediction" tooltip="Convert a database row into a consignment">
+        <input id="row" required="true" varargs="false" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:object"/>
+        </input>
+        <output id="consignment" type="advance:consignment"/>
+    </block-description>
+
     <!-- Negates the boolean value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Not" id="Not" scheduler="NOW" category="projection" tooltip="Negates the boolean value.">
         <input id="in" required="true" varargs="false" type="advance:boolean"/>
         <output id="out" type="advance:boolean"/>
-    </block-description>
-
-    <!-- Returns the largest real value from the collection along with the collection of its occurrence indexes -->
-    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MaxRealAll" id="MaxRealAll" scheduler="IO" category="aggregation" tooltip="Returns the largest real value from the collection along with the collection of its occurrence indexes">
-        <input id="in" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:real"/>
-        </input>
-        <output id="collection" type="advance:collection">
-            <type-argument type="advance:integer"/>
-        </output>
-        <output id="max" type="advance:real"/>
     </block-description>
 
     <!-- Returns a new map with the given key-value pair added to the map -->
@@ -57,6 +54,17 @@
         <output id="out" type="advance:map">
             <type-argument type-variable="K"/><type-argument type-variable="V"/>
         </output>
+    </block-description>
+
+    <!-- Returns the largest real value from the collection along with the collection of its occurrence indexes -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MaxRealAll" id="MaxRealAll" scheduler="IO" category="aggregation" tooltip="Returns the largest real value from the collection along with the collection of its occurrence indexes">
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:real"/>
+        </input>
+        <output id="collection" type="advance:collection">
+            <type-argument type="advance:integer"/>
+        </output>
+        <output id="max" type="advance:real"/>
     </block-description>
 
     <!-- Predicts the subsequent values of an ARX model. -->
@@ -139,14 +147,6 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
-    <!-- Returns the smallest integer in the collection along with its last occurrence index -->
-    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MinReal" id="MinReal" scheduler="IO" category="aggregation" tooltip="Returns the smallest integer in the collection along with its last occurrence index">
-        <input id="in" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:real"/>
-        </input>
-        <output id="out" type="advance:real"/>
-    </block-description>
-
     <!-- Computes the standard deviation of the collection of reals -->
     <block-description class="eu.advance.logistics.flow.engine.block.aggregating.STDDeviationReal" id="STDDeviationReal" scheduler="IO" category="aggregation" tooltip="Computes the standard deviation of the collection of reals">
         <input id="in" required="true" varargs="false" type="advance:collection">
@@ -167,6 +167,14 @@
         </output>
     </block-description>
 
+    <!-- Returns the smallest integer in the collection along with its last occurrence index -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MinReal" id="MinReal" scheduler="IO" category="aggregation" tooltip="Returns the smallest integer in the collection along with its last occurrence index">
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type="advance:real"/>
+        </input>
+        <output id="out" type="advance:real"/>
+    </block-description>
+
     <!-- Returns an empty collection -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.EmptyMap" id="EmptyMap" scheduler="IO" category="projection" tooltip="Returns an empty collection">
         <type-variable name="K"/>
@@ -175,6 +183,12 @@
         <output id="out" type="advance:map">
             <type-argument type-variable="K"/><type-argument type-variable="V"/>
         </output>
+    </block-description>
+
+    <!-- Reads a during-day model. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayModelReader" id="DuringDayModelReader" scheduler="IO" category="prediction" tooltip="Reads a during-day model.">
+        <input id="location" required="true" varargs="false" type="advance:string"/>
+        <output id="model" type="advance:duringdaymodel"/>
     </block-description>
 
     <!-- Displays a red rectangle if the trigger arrives. -->
@@ -192,6 +206,31 @@
         <output id="out2" type="advance:collection">
             <type-argument type="advance:integer"/>
         </output>
+    </block-description>
+
+    <!-- Collects all bids and decides who will get the consignments, then advances the situation time and environment for the next bid. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.collab.Auctioning" id="Auctioning" scheduler="IO" category="collaboration" tooltip="Collects all bids and decides who will get the consignments, then advances the situation time and environment for the next bid.">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="bids" required="true" varargs="false" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:collection">
+                <type-argument type="advance:pair">
+                    <type-argument type="advance:integer"/><type-argument type="advance:real"/>
+                </type-argument>
+            </type-argument>
+        </input>
+        <input id="config" required="true" varargs="false" type-variable="T"/>
+        <input id="consignments" required="true" varargs="false" type="advance:option">
+            <type-argument type="advance:consignment"/>
+        </input>
+        <input id="trigger" required="true" varargs="false" type="advance:object"/>
+        <output id="results" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:collection">
+                <type-argument type="advance:integer"/>
+            </type-argument>
+        </output>
+        <output id="time" type="advance:integer"/>
+        <output id="virtualSituation" type-variable="U"/>
     </block-description>
 
     <!-- Send and replace the given file to the ftp data source -->
@@ -300,17 +339,6 @@
         </output>
     </block-description>
 
-    <!-- Training for during-day prediction algorithm. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayTrainingBlock" id="DuringDayTraining" scheduler="IO" category="prediction" tooltip="Training for during-day prediction algorithm.">
-        <input id="config" required="true" varargs="false" type="advance:duringdayconfig"/>
-        <input id="consignments" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:consignment"/>
-        </input>
-        <input id="previousTrainedModel" required="true" varargs="false" type="advance:object"/>
-        <input id="selectedAttributesFile" required="true" varargs="false" type="advance:string"/>
-        <output id="trainedModel" type="advance:object"/>
-    </block-description>
-
     <!-- Convert a value into string -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ToString" id="ToString" scheduler="IO" category="projection" tooltip="Convert a value into string">
         <input id="in" required="true" varargs="false" type="advance:object"/>
@@ -341,6 +369,12 @@
         </output>
     </block-description>
 
+    <!-- Writes the during-day model. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayModelWriter" id="DuringDayModelWriter" scheduler="IO" category="prediction" tooltip="Writes the during-day model.">
+        <input id="location" required="true" varargs="false" type="advance:string"/>
+        <input id="model" required="true" varargs="false" type="advance:duringdaymodel"/>
+    </block-description>
+
     <!-- Returns an empty collection -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.EmptyCollection" id="EmptyCollection" scheduler="IO" category="projection" tooltip="Returns an empty collection">
         <type-variable name="T"/>
@@ -348,6 +382,17 @@
         <output id="out" type="advance:collection">
             <type-argument type-variable="T"/>
         </output>
+    </block-description>
+
+    <!-- Training for during-day prediction algorithm. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayTraining" id="DuringDayTraining" scheduler="IO" category="prediction" tooltip="Training for during-day prediction algorithm.">
+        <input id="config" required="true" varargs="false" type="advance:duringdayconfig"/>
+        <input id="consignments" required="true" varargs="false" type="advance:consignment"/>
+        <input id="previousTrainedModel" required="true" varargs="false" type="advance:duringdaymodel"/>
+        <input id="selectedAttributesFile" required="true" varargs="false" type="advance:string"/>
+        <output id="mae" type="advance:real"/>
+        <output id="smape" type="advance:real"/>
+        <output id="trainedModel" type="advance:duringdaymodel"/>
     </block-description>
 
     <!-- Returns the smallest value in the collection along with its last occurrence -->
@@ -480,6 +525,15 @@
         </output>
     </block-description>
 
+    <!-- Gets consignment from the DB -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentGet" id="ConsignmentGet" scheduler="IO" category="prediction" tooltip="Gets consignment from the DB">
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="maxEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="minEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <output id="consignment" type="advance:consignment"/>
+    </block-description>
+
     <!-- Stream the columns of a memory-mapped binary consignment representation. -->
     <block-description class="eu.advance.logistics.flow.engine.block.file.ConsignmentMMSource" id="ConsignmentMMSource" scheduler="IO" category="file" tooltip="Stream the columns of a memory-mapped binary consignment representation.">
         <input id="columns" required="true" varargs="false" type="advance:collection">
@@ -492,19 +546,44 @@
         </output>
     </block-description>
 
-    <!-- During-day prediction algorithm. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayPredictionBlock" id="DuringDayPrediction" scheduler="IO" category="prediction" tooltip="During-day prediction algorithm.">
-        <input id="consignments" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:consignment"/>
-        </input>
-        <input id="trainedModel" required="true" varargs="false" type="advance:object"/>
-        <output id="pallets" type="advance:integer"/>
-    </block-description>
-
     <!-- Computes the logical AND of all inputs. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.And" id="And" scheduler="NOW" category="projection" tooltip="Computes the logical AND of all inputs.">
         <input id="in" required="true" varargs="true" type="advance:boolean"/>
         <output id="out" type="advance:boolean"/>
+    </block-description>
+
+    <!-- Scatters the bidding request to partners and collects their bid values for consignments. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.collab.Bidding" id="Bidding" scheduler="IO" category="collaboration" tooltip="Scatters the bidding request to partners and collects their bid values for consignments.">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="config" required="true" varargs="false" type-variable="T"/>
+        <input id="consignments" required="true" varargs="false" type="advance:option">
+            <type-argument type="advance:consignment"/>
+        </input>
+        <input id="time" required="true" varargs="false" type="advance:integer"/>
+        <input id="trigger" required="true" varargs="false" type="advance:object"/>
+        <input id="virtualSituation" required="true" varargs="false" type-variable="U"/>
+        <output id="bids" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:collection">
+                <type-argument type="advance:pair">
+                    <type-argument type="advance:integer"/><type-argument type="advance:real"/>
+                </type-argument>
+            </type-argument>
+        </output>
+    </block-description>
+
+    <!-- Classifies the channels based on their time behavior into periodic, regular, cooling-off and daily activating classes. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.pattern.SingleChannelClassifier" id="SingleChannelClassifier" scheduler="CPU" category="classification" tooltip="Classifies the channels based on their time behavior into periodic, regular, cooling-off and daily activating classes.">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="config" required="true" varargs="false" type-variable="T"/>
+        <input id="data" required="true" varargs="false" type="advance:option">
+            <type-argument type="advance:timedvaluegroup"/>
+        </input>
+        <input id="trigger" required="true" varargs="false" type="advance:object"/>
+        <output id="categories" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type-variable="U"/>
+        </output>
     </block-description>
 
     <!-- Wraps the value into an option. -->
@@ -537,6 +616,17 @@
             <type-argument type="advance:integer"/>
         </input>
         <input id="title" required="true" varargs="false" type="advance:string"/>
+    </block-description>
+
+    <!-- Load the data from the local file. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoadXML" id="LocalFileLoadXML" scheduler="IO" category="file" tooltip="Load the data from the local file.">
+        <type-variable name="T"/>
+        <input id="datasource" required="true" varargs="false" type="advance:string"/>
+        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out" type-variable="T"/>
     </block-description>
 
     <!-- Send an object via JMS message through the given channel and indicate when it completes. -->
@@ -607,6 +697,15 @@
         <output id="out" type="advance:kmeans_arx_config"/>
     </block-description>
 
+    <!-- Creates a collection from the supplied variable number of arguments. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CreateCollection" id="CreateCollection" scheduler="NOW" category="projection" tooltip="Creates a collection from the supplied variable number of arguments.">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="true" type-variable="T"/>
+        <output id="out" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </output>
+    </block-description>
+
     <!-- Computes the logical OR of all inputs. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Or" id="Or" scheduler="NOW" category="projection" tooltip="Computes the logical OR of all inputs.">
         <input id="in" required="true" varargs="true" type="advance:boolean"/>
@@ -623,24 +722,6 @@
     <block-description class="eu.advance.logistics.flow.engine.block.web.WebPOST" id="___WebPOST" scheduler="IO" category="web" tooltip="Issue a POST request to the given datasource and return the response">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
-    </block-description>
-
-    <!-- Configuration for during day prediction. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayPredictionConfig" id="DuringDayPredictionConfig" scheduler="IO" category="prediction" tooltip="Configuration for during day prediction.">
-        <input id="durationIsFoldTime" required="true" varargs="false" type="advance:boolean"/>
-        <input id="events" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:string"/>
-        </input>
-        <input id="maxEnteredDate" required="true" varargs="false" type="advance:date"/>
-        <input id="minEnteredDate" required="true" varargs="false" type="advance:date"/>
-        <input id="normalise" required="true" varargs="false" type="advance:boolean"/>
-        <input id="targetDepotIds" required="true" varargs="false" type="advance:collection">
-            <type-argument type="advance:string"/>
-        </input>
-        <input id="targetType" required="true" varargs="false" type="advance:string"/>
-        <input id="valueType" required="true" varargs="false" type="advance:string"/>
-        <input id="wekaClassifier" required="true" varargs="false" type="advance:string"/>
-        <output id="config" type="advance:duringdayconfig"/>
     </block-description>
 
     <!-- Compute the average of the real values -->
@@ -711,6 +792,16 @@
             <type-argument type-variable="T"/>
         </input>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Retrieves a sequence of channel data based on the configured data source. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.pattern.ChannelGet" id="ChannelGet" scheduler="IO" category="classification" tooltip="Retrieves a sequence of channel data based on the configured data source.">
+        <type-variable name="T"/>
+        <input id="config" required="true" varargs="false" type-variable="T"/>
+        <input id="trigger" required="true" varargs="false" type="advance:object"/>
+        <output id="data" type="advance:option">
+            <type-argument type="advance:timedvaluegroup"/>
+        </output>
     </block-description>
 
     <!-- Remove a range from the source collection and return two new collections, one without the elements of the range, another with the elements of the range -->
@@ -853,8 +944,25 @@
         <output id="out" type-variable="T"/>
     </block-description>
 
+    <!-- During-day prediction algorithm. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayPrediction" id="DuringDayPrediction" scheduler="IO" category="prediction" tooltip="During-day prediction algorithm.">
+        <input id="consignments" required="true" varargs="false" type="advance:consignment"/>
+        <input id="targetDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="trainedModel" required="true" varargs="false" type="advance:duringdaymodel"/>
+        <output id="counter" type="advance:integer"/>
+        <output id="forecast" type="advance:map">
+            <type-argument type="advance:string"/><type-argument type="advance:real"/>
+        </output>
+    </block-description>
+
     <!-- Re ceive an email. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.EmailReceive" id="___EmailReceive" scheduler="IO" category="comm" tooltip="Re ceive an email.">
+        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Invoke a remote procedure call given by the name and emit the response. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.web.SOAPInvoke" id="___SOAPInvoke" scheduler="IO" category="web" tooltip="Invoke a remote procedure call given by the name and emit the response.">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
@@ -864,12 +972,6 @@
         <input id="in" required="true" varargs="false" type="advance:collection">
             <type-argument type="advance:real"/>
         </input>
-        <output id="out" type="advance:real"/>
-    </block-description>
-
-    <!-- Invoke a remote procedure call given by the name and emit the response. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.web.SOAPInvoke" id="___SOAPInvoke" scheduler="IO" category="web" tooltip="Invoke a remote procedure call given by the name and emit the response.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
@@ -1024,16 +1126,16 @@
         <output id="out" type="advance:integer"/>
     </block-description>
 
-    <!-- Convert the string into a Base64 representation -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.EncodeBase64" id="EncodeBase64" scheduler="NOW" category="string" tooltip="Convert the string into a Base64 representation">
-        <input id="in" required="true" varargs="false" type="advance:string"/>
-        <output id="out" type="advance:string"/>
-    </block-description>
-
     <!-- Compute the largest integer value which is smaller than the given real value -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Floor" id="Floor" scheduler="IO" category="projection" tooltip="Compute the largest integer value which is smaller than the given real value">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:integer"/>
+    </block-description>
+
+    <!-- Convert the string into a Base64 representation -->
+    <block-description class="eu.advance.logistics.flow.engine.block.util.EncodeBase64" id="EncodeBase64" scheduler="NOW" category="string" tooltip="Convert the string into a Base64 representation">
+        <input id="in" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type="advance:string"/>
     </block-description>
 
     <!-- Concatenate two collections -->
@@ -1056,16 +1158,16 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
-    <!-- Returns the smallest integer in the collection along with its last occurrence index -->
-    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MinInteger" id="MinInteger" scheduler="IO" category="aggregation" tooltip="Returns the smallest integer in the collection along with its last occurrence index">
+    <!-- Compute the sum of the collection of integers -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.SumInteger" id="SumInteger" scheduler="IO" category="aggregation" tooltip="Compute the sum of the collection of integers">
         <input id="in" required="true" varargs="false" type="advance:collection">
             <type-argument type="advance:integer"/>
         </input>
         <output id="out" type="advance:integer"/>
     </block-description>
 
-    <!-- Compute the sum of the collection of integers -->
-    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.SumInteger" id="SumInteger" scheduler="IO" category="aggregation" tooltip="Compute the sum of the collection of integers">
+    <!-- Returns the smallest integer in the collection along with its last occurrence index -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.MinInteger" id="MinInteger" scheduler="IO" category="aggregation" tooltip="Returns the smallest integer in the collection along with its last occurrence index">
         <input id="in" required="true" varargs="false" type="advance:collection">
             <type-argument type="advance:integer"/>
         </input>
@@ -1085,16 +1187,6 @@
         <output id="min" type="advance:real"/>
     </block-description>
 
-    <!-- Returns the largest value in the collection along with its last occurrence -->
-    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.Max" id="Max" scheduler="IO" category="aggregation" tooltip="Returns the largest value in the collection along with its last occurrence">
-        <type-variable name="T"/>
-        <input id="in" required="true" varargs="false" type="advance:collection">
-            <type-argument type-variable="T"/>
-        </input>
-        <output id="out1" type="advance:real"/>
-        <output id="out2" type="advance:integer"/>
-    </block-description>
-
     <!-- Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertOptionMapToObject" id="ConvertOptionMapToObject" scheduler="NOW" category="projection" tooltip="Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values.">
         <type-variable name="T"/>
@@ -1110,6 +1202,16 @@
         <output id="out" type="advance:option">
             <type-argument type-variable="T"/>
         </output>
+    </block-description>
+
+    <!-- Returns the largest value in the collection along with its last occurrence -->
+    <block-description class="eu.advance.logistics.flow.engine.block.aggregating.Max" id="Max" scheduler="IO" category="aggregation" tooltip="Returns the largest value in the collection along with its last occurrence">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <output id="out1" type="advance:real"/>
+        <output id="out2" type="advance:integer"/>
     </block-description>
 
     <!-- Compute the sum of the elements within the collection which have the type of Integer or Real. -->
@@ -1216,6 +1318,20 @@
     <block-description class="eu.advance.logistics.flow.engine.block.file.FTPCreateDir" id="___FTPCreateDir" scheduler="IO" category="ftp" tooltip="Create a remote directory.">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Configuration for during day prediction. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayConfig" id="DuringDayPredictionConfig" scheduler="IO" category="prediction" tooltip="Configuration for during day prediction.">
+        <input id="durationIsFoldTime" required="true" varargs="false" type="advance:boolean"/>
+        <input id="events" required="true" varargs="false" type="advance:string"/>
+        <input id="maxEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="minEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="normalise" required="true" varargs="false" type="advance:boolean"/>
+        <input id="targetDepotIds" required="true" varargs="false" type="advance:string"/>
+        <input id="targetType" required="true" varargs="false" type="advance:string"/>
+        <input id="valueType" required="true" varargs="false" type="advance:string"/>
+        <input id="wekaClassifier" required="true" varargs="false" type="advance:string"/>
+        <output id="config" type="advance:duringdayconfig"/>
     </block-description>
 
     <!-- Takes a collection of values and emits each element as an option, followed by NONE. -->
@@ -1336,6 +1452,27 @@
             <type-argument type-variable="T"/>
         </input>
         <output id="out" type="advance:real"/>
+    </block-description>
+
+    <!-- Takes two sequences of channel data and deetermines the cross relation parameters between them. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.pattern.CrossChannelClassifier" id="CrossChannelClassifier" scheduler="CPU" category="classification" tooltip="Takes two sequences of channel data and deetermines the cross relation parameters between them.">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="channel1" required="true" varargs="false" type="advance:option">
+            <type-argument type="advance:timedvalue"/>
+        </input>
+        <input id="channel2" required="true" varargs="false" type="advance:option">
+            <type-argument type="advance:timedvalue"/>
+        </input>
+        <input id="config" required="true" varargs="false" type-variable="T"/>
+        <input id="trigger" required="true" varargs="false" type="advance:object"/>
+        <output id="channel_1_trigger" type="advance:string"/>
+        <output id="channel_2_trigger" type="advance:string"/>
+        <output id="relations" type="advance:map">
+            <type-argument type="advance:pair">
+                <type-argument type="advance:string"/><type-argument type="advance:string"/>
+            </type-argument><type-argument type-variable="U"/>
+        </output>
     </block-description>
 
     <!-- Returns the index of the first occurrence of the substring in the string -->
@@ -1725,6 +1862,14 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
+    <!-- Filters consignment -->
+    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentFilter" id="ConsignmentFilter" scheduler="IO" category="prediction" tooltip="Filters consignment">
+        <input id="dateAfter" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="dateBefore" required="true" varargs="false" type="advance:timestamp"/>
+        <input id="in" required="true" varargs="false" type="advance:consignment"/>
+        <output id="out" type="advance:consignment"/>
+    </block-description>
+
     <!-- Receive a value from the JMS channel. -->
     <block-description class="eu.advance.logistics.flow.engine.block.comm.JMSReceive" id="___JMSReceive" scheduler="IO" category="comm" tooltip="Receive a value from the JMS channel.">
         <input id="in" required="true" varargs="false" type="advance:real"/>
@@ -1776,106 +1921,6 @@
         <input id="datasource" required="true" varargs="false" type="advance:string"/>
         <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
         <output id="out" type="advance:boolean"/>
-    </block-description>
-
-    <!-- Convert a database row into a consignment -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentConvert" id="ConsignmentConvert" scheduler="IO" category="prediction" tooltip="Convert a database row into a consignment">
-        <input id="row" required="true" varargs="false" type="advance:map">
-            <type-argument type="advance:string"/><type-argument type="advance:object"/>
-        </input>
-        <output id="consignment" type="advance:consignment"/>
-    </block-description>
-
-    <!-- Gets consignment from the DB -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentGet" id="ConsignmentGet" scheduler="IO" category="prediction" tooltip="Gets consignment from the DB">
-        <input id="datasource" required="true" varargs="false" type="advance:string"/>
-        <input id="maxEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="minEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
-        <output id="consignment" type="advance:consignment"/>
-    </block-description>
-
-    <!-- Reads a during-day model. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayModelReader" id="DuringDayModelReader" scheduler="IO" category="prediction" tooltip="Reads a during-day model.">
-        <input id="location" required="true" varargs="false" type="advance:string"/>
-        <output id="model" type="advance:duringdaymodel"/>
-    </block-description>
-
-    <!-- Writes the during-day model. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayModelWriter" id="DuringDayModelWriter" scheduler="IO" category="prediction" tooltip="Writes the during-day model.">
-        <input id="location" required="true" varargs="false" type="advance:string"/>
-        <input id="model" required="true" varargs="false" type="advance:duringdaymodel"/>
-    </block-description>
-
-    <!-- Training for during-day prediction algorithm. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayTraining" id="DuringDayTraining" scheduler="IO" category="prediction" tooltip="Training for during-day prediction algorithm.">
-        <input id="config" required="true" varargs="false" type="advance:duringdayconfig"/>
-        <input id="consignments" required="true" varargs="false" type="advance:consignment"/>
-        <input id="previousTrainedModel" required="true" varargs="false" type="advance:duringdaymodel"/>
-        <input id="selectedAttributesFile" required="true" varargs="false" type="advance:string"/>
-        <output id="mae" type="advance:real"/>
-        <output id="smape" type="advance:real"/>
-        <output id="trainedModel" type="advance:duringdaymodel"/>
-    </block-description>
-
-    <!-- During-day prediction algorithm. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayPrediction" id="DuringDayPrediction" scheduler="IO" category="prediction" tooltip="During-day prediction algorithm.">
-        <input id="consignments" required="true" varargs="false" type="advance:consignment"/>
-        <input id="targetDate" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="trainedModel" required="true" varargs="false" type="advance:duringdaymodel"/>
-        <output id="counter" type="advance:integer"/>
-        <output id="forecast" type="advance:map">
-            <type-argument type="advance:string"/><type-argument type="advance:real"/>
-        </output>
-    </block-description>
-
-    <!-- Configuration for during day prediction. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.DuringDayConfig" id="DuringDayPredictionConfig" scheduler="IO" category="prediction" tooltip="Configuration for during day prediction.">
-        <input id="durationIsFoldTime" required="true" varargs="false" type="advance:boolean"/>
-        <input id="events" required="true" varargs="false" type="advance:string"/>
-        <input id="maxEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="minEnteredDate" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="normalise" required="true" varargs="false" type="advance:boolean"/>
-        <input id="targetDepotIds" required="true" varargs="false" type="advance:string"/>
-        <input id="targetType" required="true" varargs="false" type="advance:string"/>
-        <input id="valueType" required="true" varargs="false" type="advance:string"/>
-        <input id="wekaClassifier" required="true" varargs="false" type="advance:string"/>
-        <output id="config" type="advance:duringdayconfig"/>
-    </block-description>
-
-    <!-- Filters consignment -->
-    <block-description class="eu.advance.logistics.flow.engine.block.prediction.ConsignmentFilter" id="ConsignmentFilter" scheduler="IO" category="prediction" tooltip="Filters consignment">
-        <input id="dateAfter" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="dateBefore" required="true" varargs="false" type="advance:timestamp"/>
-        <input id="in" required="true" varargs="false" type="advance:consignment"/>
-        <output id="out" type="advance:consignment"/>
-    </block-description>
-
-    <!-- Load the data from the local file. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.CopyOfLocalFileLoad" id="LocalFileLoad" scheduler="IO" category="file" tooltip="Load the data from the local file.">
-        <input id="datasource" required="true" varargs="false" type="advance:string"/>
-        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
-        <output id="out" type="advance:string"/>
-    </block-description>
-
-    <!-- Load the data from the local file. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.file.LocalFileLoadXML" id="LocalFileLoadXML" scheduler="IO" category="file" tooltip="Load the data from the local file.">
-        <type-variable name="T"/>
-        <input id="datasource" required="true" varargs="false" type="advance:string"/>
-        <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
-        <input id="type" required="true" varargs="false" type="advance:type">
-            <type-argument type-variable="T"/>
-        </input>
-        <output id="out" type-variable="T"/>
-    </block-description>
-
-    <!-- Creates a collection from the supplied variable number of arguments. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.CreateCollection" id="CreateCollection" scheduler="NOW" category="projection" tooltip="Creates a collection from the supplied variable number of arguments.">
-        <type-variable name="T"/>
-        <input id="in" required="true" varargs="true" type-variable="T"/>
-        <output id="out" type="advance:collection">
-            <type-argument type-variable="T"/>
-        </output>
     </block-description>
 
 </block-registry>
