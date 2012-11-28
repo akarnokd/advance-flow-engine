@@ -23,7 +23,6 @@ package eu.advance.logistics.flow.editor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
-
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.TopComponent.Registry;

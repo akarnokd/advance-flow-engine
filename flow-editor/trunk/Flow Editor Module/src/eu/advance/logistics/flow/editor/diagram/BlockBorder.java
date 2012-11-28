@@ -29,7 +29,6 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.RoundRectangle2D;
-
 import org.netbeans.api.visual.border.Border;
 
 /**

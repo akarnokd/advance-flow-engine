@@ -18,44 +18,32 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.editor.undo;
+package eu.advance.logistics.flow.editor.actions;
 
-import eu.advance.logistics.flow.editor.model.BlockBind;
-import eu.advance.logistics.flow.editor.model.CompositeBlock;
+import eu.advance.logistics.flow.editor.FlowSceneClipboard;
+import eu.advance.logistics.flow.editor.diagram.FlowScene;
+import java.awt.event.ActionEvent;
+import java.util.Set;
+import javax.swing.AbstractAction;
 
 /**
  *
  * @author TTS
  */
-public class BindRemoved extends UndoableEdit {
+public class CopyBlockAction extends AbstractAction {
 
-	private static final long serialVersionUID = -8056460721341812650L;
-	private CompositeBlock parent;
-    private BlockBind bind;
+    private FlowScene scene;
 
-    public BindRemoved(CompositeBlock parent, BlockBind bind) {
-        this.parent = parent;
-        this.bind = bind;
+    public void setScene(FlowScene scene) {
+        this.scene = scene;
     }
 
     @Override
-    protected void restore(boolean redo) {
-        if (redo) {
-            parent.removeBind(bind);
-        } else {
-            parent.addBind(bind);
+    public void actionPerformed(ActionEvent e) {
+        final Set selection = scene.getSelectedObjects();
+
+        if (selection != null) {
+            FlowSceneClipboard.getInstance().setSelection(selection);
         }
-    }
-
-    @Override
-    public String getPresentationName() {
-        return "Remove connection";
-    }
-
-    @Override
-    public void die() {
-        super.die();
-        parent = null;
-        bind = null;
     }
 }

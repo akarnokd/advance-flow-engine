@@ -18,40 +18,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  */
-package eu.advance.logistics.flow.editor.undo;
-
-import eu.advance.logistics.flow.editor.model.AbstractBlock;
+package eu.advance.logistics.flow.editor;
 
 /**
  *
  * @author TTS
  */
-public class BlockRenamed extends UndoableEdit {
+public interface FlowSceneSelectionListener {
 
-	private static final long serialVersionUID = -1805447750391822329L;
-	private AbstractBlock block;
-    private String oldName;
-    private String newName;
-
-    public BlockRenamed(AbstractBlock block, String oldName, String newName) {
-        this.block = block;
-        this.oldName = oldName;
-        this.newName = newName;
-    }
-
-    @Override
-    protected void restore(boolean redo) {
-        block.setId(redo ? newName : oldName);
-    }
-
-    @Override
-    public String getPresentationName() {
-        return "Rename block";
-    }
-
-    @Override
-    public void die() {
-        super.die();
-        block = null;
-    }
+    public void SelectionChanged();
 }

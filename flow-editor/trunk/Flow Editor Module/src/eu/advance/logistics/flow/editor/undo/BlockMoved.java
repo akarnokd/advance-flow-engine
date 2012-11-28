@@ -29,7 +29,7 @@ import eu.advance.logistics.flow.editor.model.AbstractBlock;
  * @author TTS
  */
 public class BlockMoved extends UndoableEdit {
-    /** */
+
 	private static final long serialVersionUID = -3977837742592659424L;
 	private AbstractBlock block;
     private Point oldLocation;

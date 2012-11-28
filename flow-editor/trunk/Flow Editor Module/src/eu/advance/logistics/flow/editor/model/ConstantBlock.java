@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.editor.model;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * <b>ConstantBlock</b>
@@ -73,14 +74,34 @@ public class ConstantBlock extends AbstractBlock {
         }
         return org.openide.util.NbBundle.getBundle(ConstantBlock.class).getString("NO_VALUE");
     }
+
     @Override
     public String toString() {
         return getTypeAsString() + "=" + getValueAsString();
     }
+
     @Override
     public void destroy() {
         if (parent != null) {
             parent.removeConstant(this);
         }
+    }
+
+    @Override
+    public ConstantBlock createClone(CompositeBlock newParent) {
+        final ConstantBlock cb = new ConstantBlock(id + " (copy)");
+        cb.setParent(newParent);
+        cb.setTooltip(tooltip);
+        cb.setLocation(getLocation());
+        cb.constant = clone(constant);
+        return cb;
+    }
+
+    private static AdvanceConstantBlock clone(AdvanceConstantBlock src) {
+        XElement temp = new XElement("temp");
+        src.save(temp);
+        AdvanceConstantBlock cloned  = new AdvanceConstantBlock();
+        cloned.load(temp);
+        return cloned;
     }
 }

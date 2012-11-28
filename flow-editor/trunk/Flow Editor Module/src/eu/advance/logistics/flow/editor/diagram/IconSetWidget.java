@@ -22,7 +22,6 @@ package eu.advance.logistics.flow.editor.diagram;
 
 import java.awt.Cursor;
 import java.awt.Image;
-
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.border.Border;
 import org.netbeans.api.visual.layout.LayoutFactory;

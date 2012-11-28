@@ -20,18 +20,16 @@
  */
 package eu.advance.logistics.flow.editor.model;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import eu.advance.logistics.flow.editor.BlockRegistry;
+import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 import org.openide.util.NbBundle;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import eu.advance.logistics.flow.editor.BlockRegistry;
-import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 
 /**
  * <b>CompositeBlock</b>
@@ -225,5 +223,53 @@ public class CompositeBlock extends AbstractBlock {
         if (parent != null) {
             parent.removeComposite(this);
         }
+    }
+
+    @Override
+    public CompositeBlock createClone(CompositeBlock newParent) {
+        final CompositeBlock cb = new CompositeBlock("");
+        cb.setParent(newParent);
+        cb.copyValues(this);
+
+        final Set<String> keySet = children.keySet();
+        for (String key : keySet) {
+            final AbstractBlock ch_src = children.get(key);
+            final AbstractBlock ch = ch_src.createClone(cb);
+            cb.children.put(ch.getId(), ch);
+        }
+
+        final Set<String> bindsKeySet = binds.keySet();
+        for (String key : bindsKeySet) {
+            final BlockBind b_src = binds.get(key);
+
+            final String srcParamID = b_src.source.getId();
+
+            // if I'm the owner, then the id is null
+            String srcBlockID = b_src.source.owner.getId();
+            if (srcBlockID.equals(id)) {
+                srcBlockID = null;
+            } else {
+                srcBlockID += " (copy)";
+            }
+            final BlockParameter source = cb.findBlockParameter(srcBlockID, srcParamID);
+//            System.err.println("CompositeBlockClone SOURCE: " + source + " <=>  param: " + srcParamID + "  block: " + srcBlockID);
+
+            final String dstParamID = b_src.destination.getId();
+            // if I'm the owner, then the id is null
+            String dstBlockID = b_src.destination.owner.getId();
+            if (dstBlockID.equals(id)) {
+                dstBlockID = null;
+            } else {
+                dstBlockID += " (copy)";
+            }
+            final BlockParameter destination = cb.findBlockParameter(dstBlockID, dstParamID);
+//            System.err.println("CompositeBlockClone DEST: " + destination + " <=>  param: " + dstParamID + "  block: " + dstBlockID);
+
+            //add the bind
+            final BlockBind c = new BlockBind(cb, key, source, destination);
+            cb.binds.put(generateId(cb.binds.keySet(), "bind"), c);
+        }
+
+        return cb;
     }
 }

@@ -5,6 +5,8 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -23,7 +25,7 @@ import org.openide.nodes.PropertySupport;
  * @author TTS
  */
 public class EditSupport {
-
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private Class<?> clz;
     private Object value;
 
@@ -50,8 +52,8 @@ public class EditSupport {
             value = text;
         } else if (Date.class.equals(clz)) {
             try {
-                value = new Date(Long.parseLong(text));
-            } catch (NumberFormatException ex) {
+                value = dateFormat.parse(text);
+            } catch (ParseException ex) {
                 value = new Date();
             }
         } else {
@@ -60,6 +62,9 @@ public class EditSupport {
     }
 
     String getAsText() {
+        if (value instanceof Date) {
+            return dateFormat.format((Date)value);
+        }
         return value != null ? value.toString() : null;
     }
 
