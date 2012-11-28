@@ -38,7 +38,6 @@ import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
  * @author TTS
  */
 public class ParamRemoveAction extends AbstractAction {
-    /** */
 	private static final long serialVersionUID = 5942002119680415645L;
 	private UndoRedoSupport undoRedoSupport;
     private BlockParameter parameter;

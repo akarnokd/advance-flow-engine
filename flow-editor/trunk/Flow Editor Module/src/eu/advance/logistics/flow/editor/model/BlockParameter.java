@@ -85,6 +85,10 @@ public class BlockParameter implements Comparable<BlockParameter> {
         return owner.getFlowDiagram();
     }
 
+    public AbstractBlock getOwner() {
+        return owner;
+    }
+
     @Override
     public int compareTo(BlockParameter o) {
         return NaturalStrings.compareNatural(id, o.id);
@@ -99,6 +103,18 @@ public class BlockParameter implements Comparable<BlockParameter> {
         return getPath();
     }
     
+    public BlockParameter createClone(AbstractBlock parent) {
+        AdvanceBlockParameterDescription cloned = new AdvanceBlockParameterDescription();
+        cloned.defaultValue = description.defaultValue;
+        cloned.displayName = description.displayName;
+        cloned.documentation = description.documentation;
+        cloned.id = description.id;
+        cloned.required = description.required;
+        cloned.type = description.type != null ? description.type.copy() : null;
+        cloned.varargs = description.varargs;
+        return new BlockParameter(parent, cloned, type);
+    }
+
     public enum Type {
 
         INPUT, OUTPUT

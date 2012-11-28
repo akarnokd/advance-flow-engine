@@ -32,8 +32,14 @@ import java.util.Map;
 public class SimpleBlock extends AbstractBlock {
 
     public final AdvanceBlockDescription description;
-    /** The saved varargs counts used by this block. */
+    /**
+     * The saved varargs counts used by this block.
+     */
     public Map<String, Integer> varargs;
+
+    private SimpleBlock(AdvanceBlockDescription desc){
+        this.description = desc;
+    }
 
     public SimpleBlock(String id, AdvanceBlockDescription desc) {
         this.id = id;
@@ -54,5 +60,14 @@ public class SimpleBlock extends AbstractBlock {
         if (parent != null) {
             parent.removeBlock(this);            
         }
+    }
+
+    @Override
+    public SimpleBlock createClone(CompositeBlock newParent) {
+        final SimpleBlock sb = new SimpleBlock(description.copy());
+        sb.setParent(newParent);
+        sb.copyValues(this);
+
+        return sb;
     }
 }

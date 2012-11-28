@@ -60,13 +60,7 @@ import org.openide.util.NbBundle;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.editor.FlowDescriptionDataObject;
-import eu.advance.logistics.flow.editor.actions.ConstAddAction;
-import eu.advance.logistics.flow.editor.actions.ConstEditAction;
-import eu.advance.logistics.flow.editor.actions.DeleteBlockAction;
-import eu.advance.logistics.flow.editor.actions.GroupBlockAction;
-import eu.advance.logistics.flow.editor.actions.ParamAddAction;
-import eu.advance.logistics.flow.editor.actions.ParamEditAction;
-import eu.advance.logistics.flow.editor.actions.ParamRemoveAction;
+import eu.advance.logistics.flow.editor.actions.*;
 import eu.advance.logistics.flow.editor.model.AbstractBlock;
 import eu.advance.logistics.flow.editor.model.BlockBind;
 import eu.advance.logistics.flow.editor.model.BlockParameter;
@@ -622,6 +616,7 @@ public class FlowScene extends GraphPinScene<AbstractBlock, BlockBind, BlockPara
         final FlowScene scene = new FlowScene(urs, flowDesc);
         final GroupBlockAction groupBlockAction = new GroupBlockAction(scene, flowDesc);
         scene.contentWidget.getActions().addAction(ActionFactory.createAcceptAction(new PaletteAcceptProvider(scene, flowDesc)));
+        
         scene.contentWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
 
             @Override
