@@ -20,6 +20,11 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
@@ -28,10 +33,6 @@ import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.attributes.SelectedAttribute;
 import eu.advance.logistics.prediction.support.attributes.SelectedAttributes;
 import eu.advance.logistics.prediction.support.attributes.SelectedAttributesProvider;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implements a selected attributes provider loading the contents from an XML

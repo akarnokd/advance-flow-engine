@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 import hu.akarnokd.reactive4java.base.CloseableIterable;
 import hu.akarnokd.reactive4java.base.CloseableIterator;
-import hu.akarnokd.reactive4java.reactive.Observable;
+import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.IOException;

@@ -21,8 +21,8 @@
 package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Action1;
-import hu.akarnokd.reactive4java.base.Closeables;
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.reactive4java.util.Closeables;
 
 import java.io.File;
 import java.io.IOException;
@@ -167,7 +167,7 @@ public class ConsignmentMMSource extends AdvanceBlock {
 		} catch (IOException ex) {
 			log(ex);
 		} finally {
-			Closeables.closeAll(mcs).close();
+			Closeables.close(mcs);
 		}
 	}
     /**

@@ -20,6 +20,12 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
+import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+
+import java.util.Map;
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -27,10 +33,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Save a set of files locally. Signature: LocalFileSaveAll(trigger,

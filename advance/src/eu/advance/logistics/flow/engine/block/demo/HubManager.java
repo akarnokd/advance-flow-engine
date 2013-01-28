@@ -20,7 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.block.demo;
 
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.util.Random;

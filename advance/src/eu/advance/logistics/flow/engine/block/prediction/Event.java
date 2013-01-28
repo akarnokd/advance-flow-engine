@@ -20,9 +20,10 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
 import java.text.ParseException;
 import java.util.Date;
+
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Event represented by consignment, type and date.

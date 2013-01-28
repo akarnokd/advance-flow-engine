@@ -20,8 +20,9 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
-import eu.advance.logistics.prediction.support.ConsignmentAccessor;
 import java.util.Date;
+
+import eu.advance.logistics.prediction.support.ConsignmentAccessor;
 
 /**
  *

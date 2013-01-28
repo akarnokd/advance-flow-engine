@@ -21,7 +21,13 @@
 package eu.advance.logistics.flow.engine.block.file;
 
 
+import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+
+import java.util.List;
+
 import com.google.common.collect.Lists;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -30,9 +36,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.FileInfo;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.util.List;
 
 /**
  * List the contents of a local directory. Signature: LocalDirList(trigger,

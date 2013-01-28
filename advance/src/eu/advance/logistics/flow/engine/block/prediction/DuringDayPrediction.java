@@ -20,7 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.reactive4java.base.Observer;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
+
 import com.google.common.collect.Maps;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -29,10 +36,6 @@ import eu.advance.logistics.flow.engine.util.Base64;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.MLModel;
 import eu.advance.logistics.prediction.support.MLPrediction;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * During day prediction block.

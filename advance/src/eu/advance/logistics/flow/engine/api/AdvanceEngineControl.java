@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api;
 
+import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Pair;
-import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.IOException;
 import java.util.List;

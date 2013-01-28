@@ -21,9 +21,9 @@
 
 package eu.advance.logistics.flow.engine;
 
-import hu.akarnokd.reactive4java.base.Closeables;
 import hu.akarnokd.reactive4java.base.Scheduler;
-import hu.akarnokd.reactive4java.util.DefaultScheduler;
+import hu.akarnokd.reactive4java.scheduler.DefaultScheduler;
+import hu.akarnokd.reactive4java.util.Closeables;
 
 import java.io.Closeable;
 import java.io.File;
@@ -232,7 +232,7 @@ public class AdvanceEngineConfig {
 	 * Terminate and close everything.
 	 */
 	public void close() {
-		Closeables.close0(pluginManagerCloseable);
+		Closeables.closeSilently(pluginManagerCloseable);
 		for (ExecutorService s : schedulerMapExecutors.values()) {
 			s.shutdown();
 		}
