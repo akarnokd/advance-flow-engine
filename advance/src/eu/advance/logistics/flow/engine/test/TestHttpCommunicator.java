@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.test;
 
+import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Scheduler;
-import hu.akarnokd.reactive4java.reactive.Observable;
 
 import java.io.IOException;
 

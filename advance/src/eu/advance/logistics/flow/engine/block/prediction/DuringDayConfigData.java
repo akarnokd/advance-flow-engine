@@ -20,7 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.Lists;
+
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
 import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.IntGenerator;
@@ -33,10 +39,6 @@ import eu.advance.logistics.prediction.support.attributes.SelectedAttributesProv
 import eu.advance.logistics.prediction.support.collections.CollectionUtils;
 import eu.advance.logistics.prediction.support.collections.TreeMapStrStr;
 import eu.advance.logistics.prediction.support.utils.Time;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  *

@@ -20,14 +20,15 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import java.text.ParseException;
+import java.util.Date;
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.logging.Logger;
 
 /**
  * Convert a string into a timestamp or indicate an error. Signature:

@@ -20,8 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.file;
 
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.io.FileWriter;

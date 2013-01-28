@@ -21,6 +21,16 @@
 
 package eu.advance.logistics.flow.engine.block.db;
 
+import hu.akarnokd.reactive4java.base.Action1;
+import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.reactive4java.scheduler.SingleLaneExecutor;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicReference;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -29,15 +39,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import hu.akarnokd.reactive4java.base.Action1;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import hu.akarnokd.reactive4java.util.SingleLaneExecutor;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Query a batch of results from the datasource and return them one-by-one.

@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.xml;
 
 import hu.akarnokd.reactive4java.base.Func0;
 import hu.akarnokd.reactive4java.base.Func1;
-import hu.akarnokd.reactive4java.reactive.Observable;
+import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 
 import java.util.List;

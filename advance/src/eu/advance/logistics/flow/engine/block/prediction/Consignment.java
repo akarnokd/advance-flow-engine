@@ -20,11 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
-import com.google.common.collect.Lists;
-import eu.advance.logistics.flow.engine.xml.XElement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.collect.Lists;
+
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Consignment read from the database.

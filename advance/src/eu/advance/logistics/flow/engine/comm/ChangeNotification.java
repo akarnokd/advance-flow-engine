@@ -22,7 +22,7 @@
 package eu.advance.logistics.flow.engine.comm;
 
 import hu.akarnokd.reactive4java.base.Scheduler;
-import hu.akarnokd.reactive4java.reactive.DefaultObservable;
+import hu.akarnokd.reactive4java.util.DefaultObservable;
 
 import java.io.Closeable;
 import java.io.IOException;

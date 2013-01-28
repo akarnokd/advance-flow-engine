@@ -20,17 +20,9 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
-import eu.advance.logistics.annotations.Block;
-import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.api.core.Pool;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
-import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,6 +34,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import eu.advance.logistics.annotations.Block;
+import eu.advance.logistics.annotations.Input;
+import eu.advance.logistics.annotations.Output;
+import eu.advance.logistics.flow.engine.api.core.Pool;
+import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
+import eu.advance.logistics.flow.engine.comm.JDBCConnection;
+import eu.advance.logistics.flow.engine.runtime.BlockSettings;
+import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Get a consignment form a database.

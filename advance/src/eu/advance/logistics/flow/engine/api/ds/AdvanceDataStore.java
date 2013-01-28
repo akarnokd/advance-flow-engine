@@ -221,7 +221,7 @@ public interface AdvanceDataStore extends AdvanceDataStoreUpdate {
 	/**
 	 * Return the properties of a a JMS endpoint.
 	 * @param name the name of the endpoint
-	 * @return the endpoint properties
+	 * @return the endpoint properties, or null if not present
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */

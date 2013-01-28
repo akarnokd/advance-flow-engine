@@ -34,6 +34,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -977,11 +978,12 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 			Collection<String> result = map.get(name);
 			if (result == null) {
 				LOG.error("Missing group " + name + " in type " + type);
+				return Collections.emptyList();
 			}
 			return result;
 		}
 		LOG.error("Missing group type: " + type);
-		return null;
+		return Collections.emptyList();
 	}
 	@Override
 	public XElement queryBlockState(String realm, String blockId)

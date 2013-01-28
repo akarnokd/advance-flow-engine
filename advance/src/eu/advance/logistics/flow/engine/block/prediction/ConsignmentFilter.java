@@ -20,6 +20,11 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.reactive4java.reactive.Reactive;
+
+import java.util.Date;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
@@ -27,9 +32,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import hu.akarnokd.reactive4java.reactive.Reactive;
-import java.util.Date;
 
 /**
  * Filter a consignment.

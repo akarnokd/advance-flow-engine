@@ -21,10 +21,10 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
-import hu.akarnokd.reactive4java.base.Closeables;
+import hu.akarnokd.reactive4java.base.Observable;
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Scheduler;
-import hu.akarnokd.reactive4java.reactive.Observable;
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.util.Closeables;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

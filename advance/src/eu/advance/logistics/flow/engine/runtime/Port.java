@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.runtime;
 
-import hu.akarnokd.reactive4java.reactive.Observable;
+import hu.akarnokd.reactive4java.base.Observable;
 
 /**
  * Generic interface to describe ports.

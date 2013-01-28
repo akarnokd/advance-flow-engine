@@ -24,13 +24,13 @@ package eu.advance.logistics.flow.engine.runtime;
 import hu.akarnokd.reactive4java.base.Action0;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.base.Observable;
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.interactive.Interactive;
-import hu.akarnokd.reactive4java.reactive.DefaultObservable;
-import hu.akarnokd.reactive4java.reactive.Observable;
-import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.reactive4java.util.DefaultObservable;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -151,7 +151,7 @@ public abstract class Block<T, X, C> {
 	protected Observer<Void> runReactiveBlock(
 			List<Port<T, X>> reactivePorts) {
 		addCloseable(Reactive.observeOn(
-				Reactive.combine(reactivePorts), scheduler()).register(new InvokeObserver<List<T>>() {
+				Reactive.zip(reactivePorts), scheduler()).register(new InvokeObserver<List<T>>() {
 			@Override
 			public void next(List<T> value) {
 				invokeBody(value, scheduler());

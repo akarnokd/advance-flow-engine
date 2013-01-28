@@ -20,11 +20,12 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import java.util.logging.Logger;
 
 /**
  * Marshalls the given object into its XML string format. Signature: Marshall(t)

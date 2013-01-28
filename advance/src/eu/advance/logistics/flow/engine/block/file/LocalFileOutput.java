@@ -21,6 +21,12 @@
 package eu.advance.logistics.flow.engine.block.file;
 
 
+import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.reactive4java.base.Option;
+
+import java.io.FileWriter;
+import java.util.List;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
@@ -29,10 +35,6 @@ import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockState;
 import eu.advance.logistics.flow.engine.runtime.Port;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.reactive.Observer;
-import java.io.FileWriter;
-import java.util.List;
 
 /**
  * Save the data into a local file, appending the received input at the end of

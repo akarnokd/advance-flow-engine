@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.test;
 
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 import hu.akarnokd.reactive4java.swing.DefaultEdtScheduler;
 

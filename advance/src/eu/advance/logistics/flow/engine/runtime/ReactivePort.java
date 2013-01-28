@@ -22,10 +22,10 @@
 package eu.advance.logistics.flow.engine.runtime;
 
 import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.reactive.DefaultObservable;
-import hu.akarnokd.reactive4java.reactive.Observable;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.reactive4java.util.DefaultObservable;
 
 import java.io.Closeable;
 import java.io.IOException;

@@ -20,14 +20,16 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import java.util.List;
+import java.util.logging.Logger;
+
 import com.google.common.collect.Lists;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Returns the largest real value from the collection along with the collection

@@ -20,11 +20,12 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import java.util.logging.Logger;
 
 /**
  * Convert a string into an integer or indicate an error. Signature:

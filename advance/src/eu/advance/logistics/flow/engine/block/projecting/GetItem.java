@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import java.util.List;
+import java.util.logging.Logger;
+
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.xml.XElement;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Extracts an element from the collection given by the index. Signature:

@@ -22,7 +22,7 @@
 package eu.advance.logistics.flow.engine.block.projecting;
 
 import hu.akarnokd.reactive4java.base.Action1;
-import hu.akarnokd.reactive4java.reactive.Observer;
+import hu.akarnokd.reactive4java.base.Observer;
 
 import java.util.concurrent.atomic.AtomicReference;
 

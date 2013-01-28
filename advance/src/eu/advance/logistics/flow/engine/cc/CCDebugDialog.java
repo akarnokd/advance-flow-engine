@@ -22,14 +22,14 @@
 package eu.advance.logistics.flow.engine.cc;
 
 import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.interactive.Interactive;
-import hu.akarnokd.reactive4java.reactive.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.reactive4java.scheduler.CachedThreadPoolScheduler;
 import hu.akarnokd.reactive4java.swing.DefaultEdtScheduler;
-import hu.akarnokd.reactive4java.util.CachedThreadPoolScheduler;
 
 import java.awt.Component;
 import java.awt.Container;
