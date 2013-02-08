@@ -67,7 +67,7 @@ public class TypeSupport {
     static int find(TypeSupport[] types, URI target) {
         for (int i = 0; i < types.length; i++) {
             TypeSupport item = types[i];
-            if (item.advanceType != null && item.advanceType.typeURI.equals(target)) {
+            if (item.advanceType != null && item.advanceType.typeURI != null && item.advanceType.typeURI.equals(target)) {
                 return i;
             }
         }

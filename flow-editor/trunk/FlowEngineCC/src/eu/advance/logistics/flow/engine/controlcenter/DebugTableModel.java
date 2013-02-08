@@ -20,27 +20,22 @@
  */
 package eu.advance.logistics.flow.engine.controlcenter;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
+import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
+import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
+import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Option;
-import hu.akarnokd.reactive4java.reactive.Observer;
-
 import java.awt.EventQueue;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-
 import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
-
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
-import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
-import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
 
 /**
  *
