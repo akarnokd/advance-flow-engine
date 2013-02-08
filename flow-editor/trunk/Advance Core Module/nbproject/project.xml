@@ -18,6 +18,7 @@
                 <package>com.google.common.math</package>
                 <package>com.google.common.net</package>
                 <package>com.google.common.primitives</package>
+                <package>com.google.common.reflect</package>
                 <package>com.google.common.util.concurrent</package>
                 <package>com.sshtools.ant</package>
                 <package>com.sshtools.common.authentication</package>
@@ -81,11 +82,13 @@
                 <package>eu.advance.logistics.flow.engine.api.impl</package>
                 <package>eu.advance.logistics.flow.engine.block</package>
                 <package>eu.advance.logistics.flow.engine.block.aggregating</package>
+                <package>eu.advance.logistics.flow.engine.block.collab</package>
                 <package>eu.advance.logistics.flow.engine.block.comm</package>
                 <package>eu.advance.logistics.flow.engine.block.db</package>
                 <package>eu.advance.logistics.flow.engine.block.demo</package>
                 <package>eu.advance.logistics.flow.engine.block.file</package>
                 <package>eu.advance.logistics.flow.engine.block.filtering</package>
+                <package>eu.advance.logistics.flow.engine.block.pattern</package>
                 <package>eu.advance.logistics.flow.engine.block.prediction</package>
                 <package>eu.advance.logistics.flow.engine.block.projecting</package>
                 <package>eu.advance.logistics.flow.engine.block.streaming</package>
@@ -117,8 +120,10 @@
                 <package>hu.akarnokd.reactive4java.interactive</package>
                 <package>hu.akarnokd.reactive4java.query</package>
                 <package>hu.akarnokd.reactive4java.reactive</package>
+                <package>hu.akarnokd.reactive4java.scheduler</package>
                 <package>hu.akarnokd.reactive4java.swing</package>
                 <package>hu.akarnokd.reactive4java.test</package>
+                <package>hu.akarnokd.reactive4java.test.old</package>
                 <package>hu.akarnokd.reactive4java.util</package>
                 <package>javax.annotation</package>
                 <package>javax.annotation.concurrent</package>
@@ -388,96 +393,96 @@
                 <package>org.slf4j.spi</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/bcprov-jdk16-146.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/bcprov-jdk16-146.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/jaxen-1.1.3.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jaxen-1.1.3.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/j2ssh-0.2.9.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/j2ssh-0.2.9.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/mysql-connector-java-5.1.18-bin.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/mysql-connector-java-5.1.18-bin.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/annotations.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/annotations.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/guava-11.0.1.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/guava-11.0.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jxl5.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jxl5.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jsr166y.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jsr166y.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/advance-prediction-lib.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/advance-prediction-lib.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/reactive4java-0.96.1.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/reactive4java-0.96.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/joda-time-2.0.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/joda-time-2.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/httpclient-4.1.2.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/httpclient-4.1.2.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/advance-prediction-lib.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/advance-prediction-lib.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/slf4j-log4j-jcl-jul-1.6.1.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/slf4j-log4j-jcl-jul-1.6.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/advance-core.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/advance-core.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/javamail.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/javamail.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/log4j-1.2.16.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/log4j-1.2.16.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jms-1.1.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jms-1.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/commons-codec-1.4.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/commons-codec-1.4.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/commons-net-3.0.1.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/commons-net-3.0.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/extra166y.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/extra166y.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/commons-net-3.0.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-net-3.0.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/guava-13.0.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/guava-13.0.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/reactive4java-0.97.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/reactive4java-0.97.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/commons-math-2.2.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-math-2.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/jsr305.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jsr305.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/bcprov-jdk16-146.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/bcprov-jdk16-146.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/monetdb-1.17-jdbc.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/monetdb-1.17-jdbc.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/commons-math-2.2.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/commons-math-2.2.jar</binary-origin>
+                <runtime-relative-path>ext/commons-codec-1.4.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-codec-1.4.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/log4j-1.2.16.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/log4j-1.2.16.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/mysql-connector-java-5.1.23-bin.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/mysql-connector-java-5.1.23-bin.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/joda-time-2.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/joda-time-2.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/advance-core.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/advance-core.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jsr166y.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jsr166y.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jxl5.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jxl5.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/annotations.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/annotations.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/javamail.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/javamail.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jms-1.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jms-1.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/j2ssh-0.2.9.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/j2ssh-0.2.9.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

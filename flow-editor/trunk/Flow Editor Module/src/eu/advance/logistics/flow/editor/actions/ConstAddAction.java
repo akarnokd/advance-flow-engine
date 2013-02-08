@@ -124,7 +124,7 @@ public class ConstAddAction extends AbstractAction {
             if (constantURI != null) {
                 c.typeString = constantURI;
             } else {
-                c.typeString = d.type.typeURI.toString();
+                c.typeString = d.type.toString();
             }
         }
         try {
