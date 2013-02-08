@@ -24,11 +24,11 @@
 	<classpathentry kind="lib" path="lib/Jcrontab-2.0-RC0.jar"/>
 	<classpathentry kind="lib" path="lib/advance-prediction-lib.jar"/>
 	<classpathentry kind="lib" path="lib/guava-13.0.1.jar" sourcepath="lib/guava-13.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.22-bin.jar"/>
 	<classpathentry kind="lib" path="lib/flanagan.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jsci-core.jar"/>
 	<classpathentry kind="lib" path="lib/weka.jar"/>
 	<classpathentry kind="lib" path="lib/reactive4java-0.97.jar" sourcepath="lib/reactive4java-0.97.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.23-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
