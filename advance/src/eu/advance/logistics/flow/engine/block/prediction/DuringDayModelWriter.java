@@ -22,12 +22,12 @@ package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * During day model writer.
@@ -52,10 +52,10 @@ public class DuringDayModelWriter extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(MODEL), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(MODEL), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 write(value);
             }
 
@@ -73,7 +73,7 @@ public class DuringDayModelWriter extends AdvanceBlock {
      * Write the model.
      * @param root the document 
      */
-    private void write(XElement root) {
+    private void write(XNElement root) {
         if (get(LOCATION) == null) {
             LOG.error("DuringDayModelWriter: no location!");
             return;

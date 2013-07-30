@@ -24,6 +24,8 @@ package eu.advance.logistics.flow.engine.block;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNElement.XAttributeName;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -48,15 +50,13 @@ import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XElement.XAttributeName;
 
 
 /**
- * Convenience utils to extract or create values from various default ADVANCE XElement objects.
+ * Convenience utils to extract or create values from various default ADVANCE XNElement objects.
  * @author akarnokd, 2011.11.04.
  */
-public final class AdvanceData implements DataResolver<XElement> {
+public final class AdvanceData implements DataResolver<XNElement> {
 	/**
 	 * The attribute name to store the original element namespace in collections and wrappers.
 	 */
@@ -75,7 +75,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	public AdvanceData() {
 	}
 	@Override
-	public boolean getBoolean(XElement e) {
+	public boolean getBoolean(XNElement e) {
 		return "true".equals(e.content) || "1".equals(e.content);
 	}
 	/**
@@ -84,7 +84,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the value
 	 */
 	@Override
-	public int getInt(XElement e) {
+	public int getInt(XNElement e) {
 		return Integer.parseInt(e.content);
 	}
 	/**
@@ -93,7 +93,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the value
 	 */
 	@Override
-	public long getLong(XElement e) {
+	public long getLong(XNElement e) {
 		return Long.parseLong(e.content);
 	}
 	/**
@@ -102,7 +102,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the value
 	 */
 	@Override
-	public BigInteger getBigInteger(XElement e) {
+	public BigInteger getBigInteger(XNElement e) {
 		return new BigInteger(e.content);
 	}
 	/**
@@ -111,7 +111,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the value
 	 */
 	@Override
-	public BigDecimal getBigDecimal(XElement e) {
+	public BigDecimal getBigDecimal(XNElement e) {
 		return new BigDecimal(e.content);
 	}
 	/**
@@ -120,7 +120,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the value
 	 */
 	@Override
-	public float getFloat(XElement e) {
+	public float getFloat(XNElement e) {
 		return Float.parseFloat(e.content);
 	}
 	/**
@@ -129,7 +129,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the value
 	 */
 	@Override
-	public double getDouble(XElement e) {
+	public double getDouble(XNElement e) {
 		return Double.parseDouble(e.content);
 	}
 	/**
@@ -138,7 +138,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the value
 	 */
 	@Override
-	public String getString(XElement e) {
+	public String getString(XNElement e) {
 		return e.content;
 	}
 	/**
@@ -148,97 +148,97 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @throws ParseException if the timestamp format is incorrect
 	 */
 	@Override
-	public Date getTimestamp(XElement e) throws ParseException {
-		return XElement.parseDateTime(e.content);
+	public Date getTimestamp(XNElement e) throws ParseException {
+		return XNElement.parseDateTime(e.content);
 	}
 	/**
-	 * Returns true if the supplied XElement represents an {@code advance:integer} type object.
+	 * Returns true if the supplied XNElement represents an {@code advance:integer} type object.
 	 * @param e the element
 	 * @return true if the element is of type {@code advance:integer}
 	 */
 	@Override
-	public boolean isInt(XElement e) {
+	public boolean isInt(XNElement e) {
 		return "integer".equals(e.name) && e.content != null;
 	}
 	/**
-	 * Returns true if the supplied XElement represents an {@code advance:string} type object.
+	 * Returns true if the supplied XNElement represents an {@code advance:string} type object.
 	 * @param e the element
 	 * @return true if the element is of type {@code advance:string}
 	 */
 	@Override
-	public boolean isString(XElement e) {
+	public boolean isString(XNElement e) {
 		return "string".equals(e.name) && e.content != null;
 	}
 	/**
-	 * Creates a {@code advance:boolean} typed XElement.
+	 * Creates a {@code advance:boolean} typed XNElement.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(boolean value) {
-		return new XElement("boolean", value);
+	public XNElement create(boolean value) {
+		return new XNElement("boolean", value);
 	}
 	/**
-	 * Creates a {@code advance:integer} typed XElement.
+	 * Creates a {@code advance:integer} typed XNElement.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(long value) {
-		return new XElement("integer", value);
+	public XNElement create(long value) {
+		return new XNElement("integer", value);
 	}
 	/**
-	 * Creates a {@code advance:integer} typed XElement.
+	 * Creates a {@code advance:integer} typed XNElement.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(BigInteger value) {
-		return new XElement("integer", value);
+	public XNElement create(BigInteger value) {
+		return new XNElement("integer", value);
 	}
 	/**
-	 * Creates a {@code advance:real} typed XElement.
+	 * Creates a {@code advance:real} typed XNElement.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(double value) {
-		return new XElement("real", value);
+	public XNElement create(double value) {
+		return new XNElement("real", value);
 	}
 	/**
-	 * Creates a {@code advance:real} typed XElement.
+	 * Creates a {@code advance:real} typed XNElement.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(BigDecimal value) {
-		return new XElement("real", value);
+	public XNElement create(BigDecimal value) {
+		return new XNElement("real", value);
 	}
 	/**
-	 * Creates a {@code advance:string} typed XElement.
+	 * Creates a {@code advance:string} typed XNElement.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(String value) {
-		return new XElement("string", (Object)value);
+	public XNElement create(String value) {
+		return new XNElement("string", (Object)value);
 	}
 	/**
-	 * Creates a {@code advance:timestamp} typed XElement.
+	 * Creates a {@code advance:timestamp} typed XNElement.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(Date value) {
-		return new XElement("timestamp", value);
+	public XNElement create(Date value) {
+		return new XNElement("timestamp", value);
 	}
 	/**
-	 * Creates a {@code advance:object} typed XElement.
-	 * @return the XElement
+	 * Creates a {@code advance:object} typed XNElement.
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement createObject() {
-		return new XElement("object");
+	public XNElement createObject() {
+		return new XNElement("object");
 	}
 	/** An object. */
 	public static final URI OBJECT = uri("advance:object");
@@ -310,7 +310,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the element
 	 */
 	@Override
-	public XElement getItem(XElement collection, int index) {
+	public XNElement getItem(XNElement collection, int index) {
 		return unrename(Iterables.get(collection.childrenWithName("item"), index));
 	}
 	/**
@@ -321,19 +321,19 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the iterable sequence
 	 */
 	@Override
-	public Iterable<XElement> getItems(XElement collection) {
+	public Iterable<XNElement> getItems(XNElement collection) {
 		return collection.childrenWithName("item");
 	}
 	/**
 	 * Create an advance:collection from the supplied items.
 	 * @param items the sequence of items
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	@Override
-	public XElement create(Iterable<? extends XElement> items) {
-		XElement result = new XElement("collection");
+	public XNElement create(Iterable<? extends XNElement> items) {
+		XNElement result = new XNElement("collection");
 		
-		for (XElement e : items) {
+		for (XNElement e : items) {
 			result.add(rename(e, "item"));
 		}
 
@@ -346,8 +346,8 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param newName the new element name
 	 * @return the new element
 	 */
-	public static XElement rename(XElement src, String newName) {
-		XElement result = new XElement(newName);
+	public static XNElement rename(XNElement src, String newName) {
+		XNElement result = new XNElement(newName);
 		// save the original name and namespace
 		addRename(result, src.name, src.namespace);
 		
@@ -360,7 +360,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param oldName the new name
 	 * @param oldNamespace the new namespace
 	 */
-	protected static void addRename(XElement dst, String oldName, String oldNamespace) {
+	protected static void addRename(XNElement dst, String oldName, String oldNamespace) {
 		String n = dst.get(ORIGINAL_NAME, ADVANCE_NS);
 		String ns = dst.get(ORIGINAL_NS, ADVANCE_NS);
 		if (n == null) {
@@ -379,11 +379,11 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param source the source XML
 	 * @param destination the destination XML
 	 */
-	protected static void copy(XElement source, XElement destination) {
+	protected static void copy(XNElement source, XNElement destination) {
 		destination.attributes().putAll(source.attributes());
 		destination.content = source.content;
 		destination.set(source.get());
-		for (XElement c : source.children()) {
+		for (XNElement c : source.children()) {
 			destination.add(c.copy());
 		}
 	}
@@ -392,7 +392,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param source the source XML
 	 * @param destination the destination XML
 	 */
-	protected static void copy2(XElement source, XElement destination) {
+	protected static void copy2(XNElement source, XNElement destination) {
 		for (Map.Entry<XAttributeName, String> e : source.attributes().entrySet()) {
 			XAttributeName an = e.getKey();
 			if (!Objects.equal(an.namespace, ADVANCE_NS) 
@@ -403,7 +403,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 		}
 		destination.content = source.content;
 		destination.set(source.get());
-		for (XElement c : source.children()) {
+		for (XNElement c : source.children()) {
 			destination.add(c.copy());
 		}
 	}
@@ -415,8 +415,8 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param newNamespace the new namespace
 	 * @return the new element
 	 */
-	public static XElement rename(XElement src, String newName, String newNamespace) {
-		XElement result = new XElement(newName, newNamespace);
+	public static XNElement rename(XNElement src, String newName, String newNamespace) {
+		XNElement result = new XNElement(newName, newNamespace);
 		
 		// save the original name and namespace
 		addRename(result, src.name, src.namespace);
@@ -428,22 +428,22 @@ public final class AdvanceData implements DataResolver<XElement> {
 	/**
 	 * Creates a copy of the given source XML with the saved original name and namespace restored.
 	 * <p>Can be used to unwrap elements from various collections.</p>
-	 * @param src the source XElement
+	 * @param src the source XNElement
 	 * @return the unrenamed element
 	 */
-	public static XElement unrename(XElement src) {
+	public static XNElement unrename(XNElement src) {
 		Pair<String, String> pn = realName(src);
-		XElement result = new XElement(pn.first, pn.second);
+		XNElement result = new XNElement(pn.first, pn.second);
 		copy2(src, result);
 		return result;
 	}
 	/**
-	 * Create an advance:collection from the supplied XElement items.
+	 * Create an advance:collection from the supplied XNElement items.
 	 * @param items the array of items
-	 * @return the collection XElement
+	 * @return the collection XNElement
 	 */
 	@Override
-	public XElement create(XElement... items) {
+	public XNElement create(XNElement... items) {
 		return create(Arrays.asList(items));
 	}
 	/**
@@ -452,7 +452,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the map XML
 	 */
 	@Override
-	public XElement createMap(XElement... keyValuePairs) {
+	public XNElement createMap(XNElement... keyValuePairs) {
 		return createMap(Arrays.asList(keyValuePairs));
 	}
 	/**
@@ -461,13 +461,13 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the map XML
 	 */
 	@Override
-	public XElement createMap(Iterable<? extends XElement> keyValuePairs) {
-		Iterator<? extends XElement> it = keyValuePairs.iterator();
-		Map<XElement, XElement> map = Maps.newLinkedHashMap();
+	public XNElement createMap(Iterable<? extends XNElement> keyValuePairs) {
+		Iterator<? extends XNElement> it = keyValuePairs.iterator();
+		Map<XNElement, XNElement> map = Maps.newLinkedHashMap();
 		while (it.hasNext()) {
-			XElement key = it.next();
+			XNElement key = it.next();
 			if (it.hasNext()) {
-				XElement value = it.next();
+				XNElement value = it.next();
 				map.put(key, value);
 			}
 		}
@@ -479,10 +479,10 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the map XML
 	 */
 	@Override
-	public XElement create(Map<XElement, XElement> map) {
-		XElement result = new XElement("map");
-		for (Map.Entry<XElement, XElement> e : map.entrySet()) {
-			XElement item = result.add("item");
+	public XNElement create(Map<XNElement, XNElement> map) {
+		XNElement result = new XNElement("map");
+		for (Map.Entry<XNElement, XNElement> e : map.entrySet()) {
+			XNElement item = result.add("item");
 			addRename(item, "pair", null);
 			item.add(rename(e.getKey(), "first"));
 			item.add(rename(e.getValue(), "second"));
@@ -495,8 +495,8 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param second the second element
 	 * @return the pair XML
 	 */
-	public XElement createPair(XElement first, XElement second) {
-		XElement result = new XElement("pair");
+	public XNElement createPair(XNElement first, XNElement second) {
+		XNElement result = new XNElement("pair");
 		result.add(rename(first, "first"));
 		result.add(rename(second, "second"));
 		return result;
@@ -506,7 +506,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param pair the pair of XMLs
 	 * @return the pair XML
 	 */
-	public XElement create(Pair<XElement, XElement> pair) {
+	public XNElement create(Pair<XNElement, XNElement> pair) {
 		return createPair(pair.first, pair.second);
 	}
 	/**
@@ -514,7 +514,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param pair the pair XML
 	 * @return the pair of two XMLs
 	 */
-	public Pair<XElement, XElement> getPair(XElement pair) {
+	public Pair<XNElement, XNElement> getPair(XNElement pair) {
 		return Pair.of(unrename(pair.childElement("first")), unrename(pair.childElement("second")));
 	}
 	/**
@@ -524,7 +524,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param pair the pair XML
 	 * @return the pair of two XMLs
 	 */
-	public Pair<XElement, XElement> getSharedPair(XElement pair) {
+	public Pair<XNElement, XNElement> getSharedPair(XNElement pair) {
 		return Pair.of(pair.childElement("first"), pair.childElement("second"));
 	}
 	/**
@@ -533,9 +533,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the shared mapping
 	 */
 	@Override
-	public Map<XElement, XElement> getMap(XElement map) {
-		Map<XElement, XElement> result = Maps.newLinkedHashMap();
-		for (XElement item : getItems(map)) {
+	public Map<XNElement, XNElement> getMap(XNElement map) {
+		Map<XNElement, XNElement> result = Maps.newLinkedHashMap();
+		for (XNElement item : getItems(map)) {
 			result.put(unrename(item.childElement("first")), unrename(item.childElement("second")));
 		}
 		return result;
@@ -547,9 +547,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param map the XML map
 	 * @return the shared mapping
 	 */
-	public Map<XElement, XElement> getSharedMap(XElement map) {
-		Map<XElement, XElement> result = Maps.newLinkedHashMap();
-		for (XElement item : getItems(map)) {
+	public Map<XNElement, XNElement> getSharedMap(XNElement map) {
+		Map<XNElement, XNElement> result = Maps.newLinkedHashMap();
+		for (XNElement item : getItems(map)) {
 			result.put(item.childElement("first"), item.childElement("second"));
 		}
 		return result;
@@ -560,9 +560,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the list of the collection items XML.
 	 */
 	@Override
-	public List<XElement> getList(XElement collection) {
-		List<XElement> result = Lists.newArrayList();
-		for (XElement e : getItems(collection)) {
+	public List<XNElement> getList(XNElement collection) {
+		List<XNElement> result = Lists.newArrayList();
+		for (XNElement e : getItems(collection)) {
 			result.add(unrename(e));
 		}
 		return result;
@@ -574,7 +574,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param collection the XML collection
 	 * @return the list of the XML elements inside
 	 */
-	public List<XElement> getSharedList(XElement collection) {
+	public List<XNElement> getSharedList(XNElement collection) {
 		return Lists.newArrayList(getItems(collection));
 	}
 	/**
@@ -584,9 +584,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param key the key XML
 	 * @return the map value or null if not present
 	 */
-	public XElement getMapValue(XElement map, XElement key) {
-		for (XElement item : getItems(map)) {
-			XElement k = item.childElement("first");
+	public XNElement getMapValue(XNElement map, XNElement key) {
+		for (XNElement item : getItems(map)) {
+			XNElement k = item.childElement("first");
 			if (wrappedEquals(k, key)) {
 				return unrename(item.childElement("second"));
 			}
@@ -599,10 +599,10 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param value the value to lookup
 	 * @return the list of keys
 	 */
-	public List<XElement> getMapKeys(XElement map, XElement value) {
-		List<XElement> result = Lists.newArrayList();
-		for (XElement item : getItems(map)) {
-			XElement v = item.childElement("second");
+	public List<XNElement> getMapKeys(XNElement map, XNElement value) {
+		List<XNElement> result = Lists.newArrayList();
+		for (XNElement item : getItems(map)) {
+			XNElement v = item.childElement("second");
 			if (wrappedEquals(v, value)) {
 				result.add(unrename(item.childElement("first")));
 			}
@@ -615,7 +615,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param key the key XML
 	 * @return true if in the map
 	 */
-	public boolean containsKey(XElement map, XElement key) {
+	public boolean containsKey(XNElement map, XNElement key) {
 		return getMapValue(map, key) != null;
 	}
 	/**
@@ -624,9 +624,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param value the value XML
 	 * @return true if in the map
 	 */
-	public boolean containsValue(XElement map, XElement value) {
-		for (XElement item : getItems(map)) {
-			XElement v = item.childElement("second");
+	public boolean containsValue(XNElement map, XNElement value) {
+		for (XNElement item : getItems(map)) {
+			XNElement v = item.childElement("second");
 			if (wrappedEquals(v, value)) {
 				return true;
 			}
@@ -640,10 +640,10 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param value the value XML
 	 * @return true if in the map
 	 */
-	public boolean containsEntry(XElement map, XElement key, XElement value) {
-		for (XElement item : getItems(map)) {
-			XElement k = item.childElement("first");
-			XElement v = item.childElement("second");
+	public boolean containsEntry(XNElement map, XNElement key, XNElement value) {
+		for (XNElement item : getItems(map)) {
+			XNElement k = item.childElement("first");
+			XNElement v = item.childElement("second");
 			if (wrappedEquals(k, key) && wrappedEquals(v, value)) {
 				return true;
 			}
@@ -655,7 +655,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param element the XML element
 	 * @return the pair of name and namespace
 	 */
-	public static Pair<String, String> realName(XElement element) {
+	public static Pair<String, String> realName(XNElement element) {
 		String n1 = element.get(ORIGINAL_NAME, ADVANCE_NS);
 		String n2 = element.get(ORIGINAL_NS, ADVANCE_NS);
 		if (n1 == null) {
@@ -670,11 +670,11 @@ public final class AdvanceData implements DataResolver<XElement> {
 	}
 	/**
 	 * Returns true if both XML are the same, considering the notion of original names if present.
-	 * @param first the first XElement
-	 * @param second the second XElement
+	 * @param first the first XNElement
+	 * @param second the second XNElement
 	 * @return true if equals
 	 */
-	public static boolean wrappedEquals(XElement first, XElement second) {
+	public static boolean wrappedEquals(XNElement first, XNElement second) {
 		Pair<String, String> n1 = realName(first);
 		Pair<String, String> n2 = realName(second);
 		if (!n1.equals(n2)) {
@@ -703,8 +703,8 @@ public final class AdvanceData implements DataResolver<XElement> {
 			return false;
 		}
 		for (int i = 0; i < first.children().size(); i++) {
-			XElement c1 = first.children().get(i);
-			XElement c2 = second.children().get(i);
+			XNElement c1 = first.children().get(i);
+			XNElement c2 = second.children().get(i);
 			if (!wrappedEquals(c1, c2)) {
 				return false;
 			}
@@ -717,9 +717,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param collection the output collection
 	 * @return collection the output collection
 	 */
-	public static XElement toCollection(XElement container,
-			XElement collection) {
-		for (XElement e : container.children()) {
+	public static XNElement toCollection(XNElement container,
+			XNElement collection) {
+		for (XNElement e : container.children()) {
 			collection.add(rename(e, "item"));
 		}
 		return collection;
@@ -731,9 +731,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param collection the output collection
 	 * @return collection the output collection
 	 */
-	public XElement toCollection(XElement container,
-			Func1<XElement, Boolean> itemFilter, XElement collection) {
-		for (XElement e : container.children()) {
+	public XNElement toCollection(XNElement container,
+			Func1<XNElement, Boolean> itemFilter, XNElement collection) {
+		for (XNElement e : container.children()) {
 			if (itemFilter.invoke(e)) {
 				collection.add(rename(e, "item"));
 			}
@@ -747,8 +747,8 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @return the output container
 	 */
 	@NonNull 
-	public XElement toContainer(@NonNull XElement collection, XElement container) {
-		for (XElement e : getItems(collection)) {
+	public XNElement toContainer(@NonNull XNElement collection, XNElement container) {
+		for (XNElement e : getItems(collection)) {
 			container.add(unrename(e));
 		}
 		return container;
@@ -760,10 +760,10 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param collection the output collection
 	 * @return the output collection
 	 */
-	public XElement toCollection(XElement container, final String itemName, XElement collection) {
-		return toCollection(container, new Func1<XElement, Boolean>() {
+	public XNElement toCollection(XNElement container, final String itemName, XNElement collection) {
+		return toCollection(container, new Func1<XNElement, Boolean>() {
 			@Override
-			public Boolean invoke(XElement param1) {
+			public Boolean invoke(XNElement param1) {
 				return Objects.equal(itemName, param1.name);
 			}
 		}, collection);
@@ -776,17 +776,17 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param collection the output collection
 	 * @return the output collection
 	 */
-	public XElement toCollection(XElement container, final String itemName, final String itemNamespace, XElement collection) {
-		return toCollection(container, new Func1<XElement, Boolean>() {
+	public XNElement toCollection(XNElement container, final String itemName, final String itemNamespace, XNElement collection) {
+		return toCollection(container, new Func1<XNElement, Boolean>() {
 			@Override
-			public Boolean invoke(XElement param1) {
+			public Boolean invoke(XNElement param1) {
 				return Objects.equal(itemName, param1.name) 
 						&& Objects.equal(itemNamespace, param1.namespace);
 			}
 		}, collection);
 	}
 	@Override
-	public XElement get(XElement value) {
+	public XNElement get(XNElement value) {
 		return value;
 	}
 	@Override
@@ -794,9 +794,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 		return BASE_TYPES;
 	}
 	/** The none option. */
-	private static final XElement NONE = new XElement("option");
+	private static final XNElement NONE = new XNElement("option");
 	/** @return creates a NONE option. */
-	public static XElement createNone() {
+	public static XNElement createNone() {
 		return NONE;
 	}
 	/**
@@ -804,8 +804,8 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param value the value to wrap
 	 * @return the SOME option
 	 */
-	public static XElement createSome(XElement value) {
-		XElement some = new XElement("option");
+	public static XNElement createSome(XNElement value) {
+		XNElement some = new XNElement("option");
 		some.add(rename(value, "value"));
 		return some;
 	}
@@ -814,7 +814,7 @@ public final class AdvanceData implements DataResolver<XElement> {
 	 * @param value the value to unwrap
 	 * @return the option
 	 */
-	public static Option<XElement> getOption(XElement value) {
+	public static Option<XNElement> getOption(XNElement value) {
 		if (value.children().size() == 1) {
 			return Option.some(value.children().get(0).copy());
 		}
@@ -823,9 +823,9 @@ public final class AdvanceData implements DataResolver<XElement> {
 	/**
 	 * Creates an XML option from the supplied option value.
 	 * @param value the optioned value
-	 * @return the XElement representing the option
+	 * @return the XNElement representing the option
 	 */
-	public static XElement createOption(Option<XElement> value) {
+	public static XNElement createOption(Option<XNElement> value) {
 		if (Option.isSome(value)) {
 			return createSome(value.value());
 		}

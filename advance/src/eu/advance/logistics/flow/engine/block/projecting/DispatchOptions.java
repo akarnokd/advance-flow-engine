@@ -21,12 +21,12 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Takes a collection of values and emits each element as an option, followed by NONE.
@@ -46,7 +46,7 @@ public class DispatchOptions extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-    	for (XElement e : resolver().getList(get(IN))) {
+    	for (XNElement e : resolver().getList(get(IN))) {
         	dispatch(OUT, AdvanceData.createSome(e));
     	}
     	dispatch(OUT, AdvanceData.createNone());

@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Concatenate two maps. Signature: ConcatMap(map<t, u>, map<t, u>) -> map<t, u>
@@ -64,8 +65,8 @@ public class ConcatMap extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final Map<XElement, XElement> map1 = resolver().getMap(get(IN1));
-        final Map<XElement, XElement> map2 = resolver().getMap(get(IN2));
+        final Map<XNElement, XNElement> map1 = resolver().getMap(get(IN1));
+        final Map<XNElement, XNElement> map2 = resolver().getMap(get(IN2));
 
         map1.putAll(map2);
 

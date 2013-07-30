@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.utils.Base64;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Map;
 
@@ -30,8 +32,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.util.Base64;
-import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.MLModel;
 import eu.advance.logistics.prediction.support.MLModelTraining;
 import eu.advance.logistics.prediction.support.TestSet;
@@ -90,15 +90,15 @@ public class DuringDayTraining extends AdvanceBlock {
     private boolean finished;
 
     @Override
-    public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+    public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
         super.init(settings);
     }
 
     @Override
     public Observer<Void> run() {
-        getInput(CONFIG).register(new Observer<XElement>() {
+        getInput(CONFIG).register(new Observer<XNElement>() {
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 duringDayConfig = value.get();
             }
 
@@ -110,13 +110,13 @@ public class DuringDayTraining extends AdvanceBlock {
             public void finish() {
             }
         });
-        getInput(CONSIGNMENT).register(new Observer<XElement>() {
+        getInput(CONSIGNMENT).register(new Observer<XNElement>() {
             private MLModelTraining training;
             private long lastTime = 0;
             private long count = 0;
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (finished) {
                 	return;
                 }
@@ -196,7 +196,7 @@ public class DuringDayTraining extends AdvanceBlock {
      * @param mt the model
      * @param x the XML representation of the consignment
      */
-    private void process(MLModelTraining mt, XElement x) {
+    private void process(MLModelTraining mt, XNElement x) {
         try {
             Consignment c = Consignment.parse(x);
             if (c.id != -1) {
@@ -226,15 +226,15 @@ public class DuringDayTraining extends AdvanceBlock {
      * @param model the model to convert
      * @return the XML representation of the model
      */
-    private XElement toXml(MLModel model) {
-        XElement root = new XElement("DuringDayModel");
+    private XNElement toXml(MLModel model) {
+        XNElement root = new XNElement("DuringDayModel");
 
         root.add(DuringDayConfigData.toXml(resolver(), "config", model.config));
         root.add(selectedAttributesProvider.toXml(resolver()));
 
-        XElement classifiers = new XElement("classifiers");
+        XNElement classifiers = new XNElement("classifiers");
         for (Map.Entry<String, byte[]> e : model.classifiers.entrySet()) {
-            XElement classifier = new XElement("classifier");
+            XNElement classifier = new XNElement("classifier");
             classifier.set("name", e.getKey());
             classifier.content = Base64.encodeBytes(e.getValue());
             classifiers.add(classifier);
@@ -244,8 +244,8 @@ public class DuringDayTraining extends AdvanceBlock {
         return root;
     }
     /*
-     private XElement toXml(MLModel model) {
-     XElement root = new XElement("DuringDayModel");
+     private XNElement toXml(MLModel model) {
+     XNElement root = new XNElement("DuringDayModel");
      ByteArrayDataOutput out = ByteStreams.newDataOutput();
      // write config
      DuringDayConfigData.write(out, model.config);

@@ -21,11 +21,11 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Selects the first child element with the supplied name.
@@ -51,9 +51,9 @@ public class SelectChild extends AdvanceBlock {
     protected static final String OUT = "out";
 	@Override
 	protected void invoke() {
-		XElement in = get(IN);
+		XNElement in = get(IN);
 		
-		XElement ce = in.childElement(getString(NAME));
+		XNElement ce = in.childElement(getString(NAME));
 		
 		if (ce != null) {
 			dispatch(OUT, ce.copy());

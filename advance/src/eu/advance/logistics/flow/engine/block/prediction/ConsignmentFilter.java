@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Date;
 
@@ -31,7 +32,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Filter a consignment.
@@ -66,7 +66,7 @@ public class ConsignmentFilter extends AdvanceBlock {
     protected static final String OUT = "out";
 
     @Override
-    public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+    public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
         super.init(settings);
     }
 
@@ -77,10 +77,10 @@ public class ConsignmentFilter extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(IN), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(IN), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 try {
                     process(value);
                 } catch (Exception ex) {
@@ -104,7 +104,7 @@ public class ConsignmentFilter extends AdvanceBlock {
      * @param x XML element to process
      * @throws Exception if unable to parse dates
      */
-    private void process(XElement x) throws Exception {
+    private void process(XNElement x) throws Exception {
         Date dateAfter = getTimestamp(DATE_AFTER);
         Date dateBefore = getTimestamp(DATE_BEFORE);
         Consignment c = Consignment.parse(x);

@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -29,7 +31,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Selects the all child element with the supplied name.
@@ -55,9 +56,9 @@ public class SelectChildren extends AdvanceBlock {
     protected static final String OUT = "out";
 	@Override
 	protected void invoke() {
-		XElement in = get(IN);
+		XNElement in = get(IN);
 
-		List<XElement> ces = Lists.newLinkedList(in.childrenWithName(getString(NAME)));
+		List<XNElement> ces = Lists.newLinkedList(in.childrenWithName(getString(NAME)));
 		
 		dispatch(OUT, ces);
 	}

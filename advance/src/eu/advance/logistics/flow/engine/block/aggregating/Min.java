@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns the smallest value in the collection along with its last occurrence.
@@ -69,7 +70,7 @@ public class Min extends AdvanceBlock {
         int lastPos = 0;
 
         int count = 0;
-        for (XElement xelem : resolver().getItems(get(IN))) {
+        for (XNElement xelem : resolver().getItems(get(IN))) {
             String n = AdvanceData.realName(xelem).first;
 
             if (n.equalsIgnoreCase("integer")) {

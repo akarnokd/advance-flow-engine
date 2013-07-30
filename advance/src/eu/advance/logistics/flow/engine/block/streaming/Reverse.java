@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,7 +30,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Reverses the element order within the collection. Signature:
@@ -61,10 +62,10 @@ public class Reverse extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-       final List<XElement> elList = resolver().getList(get(IN));
-       final List<XElement> result = new ArrayList<XElement>();
+       final List<XNElement> elList = resolver().getList(get(IN));
+       final List<XNElement> result = new ArrayList<XNElement>();
        
-       for (XElement el : elList) {
+       for (XNElement el : elList) {
            result.add(0, el);
        }
        

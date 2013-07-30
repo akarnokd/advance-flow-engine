@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
+import hu.akarnokd.utils.Base64;
+
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.util.Base64;
 
 /**
  * Convert the Base64 representation into a string. Signature:

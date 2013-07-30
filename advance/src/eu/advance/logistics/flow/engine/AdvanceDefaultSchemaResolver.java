@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,6 @@ import com.google.common.collect.Maps;
 
 import eu.advance.logistics.flow.engine.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.typesystem.XType;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Class to resolve schemas and load them as XTypes from local file system.
@@ -57,12 +57,12 @@ public class AdvanceDefaultSchemaResolver implements AdvanceSchemaResolver {
 	/** The list of schema locations. */
 	protected final List<String> schemaLocations = Lists.newArrayList();
 	/** The list of schema locations. */
-	protected final Map<String, XElement> schemaXMLs = Maps.newHashMap();
+	protected final Map<String, XNElement> schemaXMLs = Maps.newHashMap();
 	/**
 	 * Constructor with no additional schema locations or preloaded schema XMLs.
 	 */
 	public AdvanceDefaultSchemaResolver() {
-		this(Collections.<String>emptyList(), Collections.<String, XElement>emptyMap());
+		this(Collections.<String>emptyList(), Collections.<String, XNElement>emptyMap());
 	}
 	/**
 	 * Constructor with the collection of schema locations.
@@ -70,14 +70,14 @@ public class AdvanceDefaultSchemaResolver implements AdvanceSchemaResolver {
 	 * @param schemaXMLs the preloaded schema XMLs
 	 */
 	public AdvanceDefaultSchemaResolver(
-			final Collection<String> schemaLocations, final Map<String, XElement> schemaXMLs) {
+			final Collection<String> schemaLocations, final Map<String, XNElement> schemaXMLs) {
 		this.schemaLocations.addAll(schemaLocations);
 		this.schemaXMLs.putAll(schemaXMLs);
 	}
 	@Override
 	public XType resolve(String typeName) {
 		try {
-			Pair<XElement, URL> type = resolveXML(typeName);
+			Pair<XNElement, URL> type = resolveXML(typeName);
 			if (type != null) {
 				return process(type.first, type.second != null ? getParent(type.second) : null);
 			}
@@ -95,29 +95,29 @@ public class AdvanceDefaultSchemaResolver implements AdvanceSchemaResolver {
 	 * @throws IOException on I/O error
 	 * @throws XMLStreamException on Parse error
 	 */
-	protected Pair<XElement, URL> resolveXML(String typeName) throws IOException, XMLStreamException {
+	protected Pair<XNElement, URL> resolveXML(String typeName) throws IOException, XMLStreamException {
 		if (typeName.startsWith("advance:")) {
 			String name = typeName.substring(typeName.indexOf(':') + 1);
 			URL resource = getClass().getResource("/" + name + ".xsd");
-			return Pair.of(XElement.parseXML(resource), resource);
+			return Pair.of(XNElement.parseXML(resource), resource);
 		} else
 		if (typeName.contains(":")) {
 			URL url = new URL(typeName);
-			return Pair.of(XElement.parseXML(url), url);
+			return Pair.of(XNElement.parseXML(url), url);
 		}
-		XElement s = schemaXMLs.get(typeName);
+		XNElement s = schemaXMLs.get(typeName);
 		if (s != null) {
 			return Pair.of(s, null);
 		}
 		for (String dir : schemaLocations) {
 			File sf = new File(dir, typeName);
 			if (sf.canRead()) {
-				return Pair.of(XElement.parseXML(sf), sf.toURI().toURL());
+				return Pair.of(XNElement.parseXML(sf), sf.toURI().toURL());
 			}
 		}
 		URL resource = getClass().getResource("/" + typeName);
 		if (resource != null) {
-			return Pair.of(XElement.parseXML(resource), resource);
+			return Pair.of(XNElement.parseXML(resource), resource);
 		}
 		return Pair.of(s, null);
 	}
@@ -128,12 +128,12 @@ public class AdvanceDefaultSchemaResolver implements AdvanceSchemaResolver {
 	 * @param context the relative context for this schema to resolve any locally referenced schemas
 	 * @return the type
 	 */
-	protected XType process(XElement schemaDef, final URL context) {
-		return XSchema.parse(schemaDef, new Func1<String, XElement>() {
+	protected XType process(XNElement schemaDef, final URL context) {
+		return XSchema.parse(schemaDef, new Func1<String, XNElement>() {
 			@Override
-			public XElement invoke(String param1) {
+			public XNElement invoke(String param1) {
 				try {
-					Pair<XElement, URL> type = null;
+					Pair<XNElement, URL> type = null;
 					if (param1.contains(":")) {
 						type = resolveXML(param1);
 					} else {

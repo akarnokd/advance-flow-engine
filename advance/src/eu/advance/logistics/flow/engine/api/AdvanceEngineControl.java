@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.api;
 
 import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,7 +43,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
@@ -90,7 +90,7 @@ public interface AdvanceEngineControl {
 	/**
 	 * Query a concrete schema.
 	 * @param name the schema name
-	 * @return the schema as XElement
+	 * @return the schema as XNElement
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
 	 */
@@ -103,7 +103,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to add new schemas
 	 */
-	void updateSchema(@NonNull String name, @NonNull XElement schema) throws IOException, AdvanceControlException;
+	void updateSchema(@NonNull String name, @NonNull XNElement schema) throws IOException, AdvanceControlException;
 	/**
 	 * Delete the specified schema.
 	 * @param name the schema name
@@ -288,11 +288,11 @@ public interface AdvanceEngineControl {
 	 * @param realm the realm
 	 * @param blockId the block unique identifier (as in the flow)
 	 * @param port the port name
-	 * @param value the value as XElement to inject
+	 * @param value the value as XNElement to inject
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to debug a realm or the referenced object is missing
 	 */
-	void injectValue(@NonNull String realm, @NonNull String blockId, @NonNull String port, @NonNull XElement value) throws IOException, AdvanceControlException;
+	void injectValue(@NonNull String realm, @NonNull String blockId, @NonNull String port, @NonNull XNElement value) throws IOException, AdvanceControlException;
 	/** 
 	 * Shut down the flow engine.
 	 * @throws IOException if a network error occurs
@@ -325,7 +325,7 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right to access the realm/ports
 	 */
-	void sendPort(@NonNull String realm, Iterable<Pair<String, XElement>> portValues) throws IOException, AdvanceControlException;
+	void sendPort(@NonNull String realm, Iterable<Pair<String, XNElement>> portValues) throws IOException, AdvanceControlException;
 	/**
 	 * Observe the output of the specified port in the given realm.
 	 * @param realm the target realm
@@ -334,5 +334,5 @@ public interface AdvanceEngineControl {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right to access the realm/ports
 	 */
-	Observable<XElement> receivePort(@NonNull String realm, String portId) throws IOException, AdvanceControlException;
+	Observable<XNElement> receivePort(@NonNull String realm, String portId) throws IOException, AdvanceControlException;
 }

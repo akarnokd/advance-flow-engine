@@ -22,18 +22,18 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 /**
  * The schema registry used to ask the engine about known schemas.
  * @author akarnokd, 2011.09.28.
  */
-public class AdvanceSchemaRegistryEntry implements XSerializable {
+public class AdvanceSchemaRegistryEntry implements XNSerializable {
 	/** The schema file name. */
 	public String name;
 	/** The schema content. */
-	public XElement schema;
+	public XNElement schema;
 	/** Function to create a new instance of this class. */
 	public static final Func0<AdvanceSchemaRegistryEntry> CREATOR = new Func0<AdvanceSchemaRegistryEntry>() {
 		@Override
@@ -42,12 +42,12 @@ public class AdvanceSchemaRegistryEntry implements XSerializable {
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
-		schema = source.childElement("schema", XElement.XSD).copy();
+		schema = source.childElement("schema", XNElement.XSD).copy();
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name);
 		destination.add(schema);
 	}

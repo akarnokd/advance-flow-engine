@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -46,7 +48,6 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A JDBC based remote datastore.
@@ -173,7 +174,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public XElement queryBlockState(String realm, String blockId)
+	public XNElement queryBlockState(String realm, String blockId)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -194,7 +195,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public XElement queryFlow(String realm) throws IOException,
+	public XNElement queryFlow(String realm) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -342,7 +343,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void updateBlockState(String realm, String blockId, XElement state)
+	public void updateBlockState(String realm, String blockId, XNElement state)
 			throws IOException, AdvanceControlException {
 		update.updateBlockState(realm, blockId, state);
 	}
@@ -354,7 +355,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void updateFlow(String realm, XElement flow) throws IOException,
+	public void updateFlow(String realm, XNElement flow) throws IOException,
 			AdvanceControlException {
 		update.updateFlow(realm, flow);
 	}

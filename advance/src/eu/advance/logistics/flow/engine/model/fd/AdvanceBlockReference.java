@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +36,12 @@ import com.google.common.collect.Maps;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.util.Strings;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The block reference for the {@code flow-description.xsd} used within composite blocks.
  * @author akarnokd, 2011.06.21.
  */
-public class AdvanceBlockReference implements XSerializable {
+public class AdvanceBlockReference implements XNSerializable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlockReference.class);
 	/** The unique identifier of this block among the current level of blocks. */
@@ -65,7 +66,7 @@ public class AdvanceBlockReference implements XSerializable {
 	 * @param source the element of a input or output
 	 */
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		id = source.get("id");
 		type = source.get("type");
 		documentation = source.get("documentation");
@@ -74,12 +75,12 @@ public class AdvanceBlockReference implements XSerializable {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
 		visuals.load(source);
-		for (XElement e : source.childrenWithName("vararg")) {
+		for (XNElement e : source.childrenWithName("vararg")) {
 			varargs.put(e.get("name"), e.getInt("count"));
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("id", id);
 		destination.set("type", type);
 		destination.set("documentation", documentation);
@@ -90,7 +91,7 @@ public class AdvanceBlockReference implements XSerializable {
 		}
 		visuals.save(destination);
 		for (Map.Entry<String, Integer> va : varargs.entrySet()) {
-			XElement e = destination.add("vararg");
+			XNElement e = destination.add("vararg");
 			e.set("name", va.getKey(), "count", va.getValue());
 		}
 	}

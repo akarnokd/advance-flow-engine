@@ -22,18 +22,18 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Description of JDBC data store records.
  * @author akarnokd, 2011.09.20.
  */
 public class AdvanceJDBCDataSource extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource>, Identifiable<String> {
+implements XNSerializable, HasPassword, Copyable<AdvanceJDBCDataSource>, Identifiable<String> {
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The JDBC driver. */
@@ -62,7 +62,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource>, Identifi
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
 		driver = source.get("driver");
 		url = source.get("url");
@@ -73,7 +73,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceJDBCDataSource>, Identifi
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name);
 		destination.set("driver", driver);
 		destination.set("url", url);

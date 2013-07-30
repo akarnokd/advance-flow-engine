@@ -22,17 +22,17 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * A local file or directory data source.
  * @author akarnokd, 2011.09.20.
  */
 public class AdvanceLocalFileDataSource extends AdvanceCreateModifyInfo 
-implements XSerializable, Copyable<AdvanceLocalFileDataSource>, Identifiable<String> {
+implements XNSerializable, Copyable<AdvanceLocalFileDataSource>, Identifiable<String> {
 	/** The name of the data source as used by blocks. */
 	public String name;
 	/** The directory where the file source(s) are located. */
@@ -45,13 +45,13 @@ implements XSerializable, Copyable<AdvanceLocalFileDataSource>, Identifiable<Str
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
 		directory = source.get("directory");
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name);
 		destination.set("directory", directory);
 		super.save(destination);

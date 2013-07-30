@@ -21,13 +21,14 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Computes the logical XOR of the inputs.
@@ -47,7 +48,7 @@ public class Xor extends AdvanceBlock {
 
 	@Override
 	protected void invoke() {
-		List<XElement> varargs = varargs(IN);
+		List<XNElement> varargs = varargs(IN);
 		if (varargs.size() > 0) {
 			boolean result = resolver().getBoolean(varargs.get(0));
 			for (int i = 1; i < varargs.size(); i++) {

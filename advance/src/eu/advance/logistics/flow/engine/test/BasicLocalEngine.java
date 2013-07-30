@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -56,7 +58,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Creates a basic local flow engine with a constant configuration.
@@ -79,9 +80,9 @@ public final class BasicLocalEngine {
 	 */
 	public static AdvanceEngineControl create(String userName, String workDir) {
 		final AdvanceEngineConfig config = defaultConfig(workDir);
-		AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = config.createCompilerSettings();
-		AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
-				new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
+		AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = config.createCompilerSettings();
+		AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext> compiler = 
+				new AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 		AdvanceDataStore datastore = config.datastore();
 		try {
 			if (datastore.queryUsers().isEmpty()) {
@@ -112,7 +113,7 @@ public final class BasicLocalEngine {
 		
 		AdvanceEngineConfig config = new AdvanceEngineConfig();
 		try {
-			config.initialize(XElement.parseXML(new StringReader(defaultConfigText)), workDir);
+			config.initialize(XNElement.parseXML(new StringReader(defaultConfigText)), workDir);
 		} catch (XMLStreamException ex) {
 			LOG.error(ex.toString(), ex);
 		}
@@ -183,7 +184,7 @@ public final class BasicLocalEngine {
 	 * Creates a compiler with the locally available block registry and schemas.
 	 * @return the compiler
 	 */
-	public static AdvanceFlowCompiler<XElement, AdvanceType, AdvanceRuntimeContext> createCompiler() {
+	public static AdvanceFlowCompiler<XNElement, AdvanceType, AdvanceRuntimeContext> createCompiler() {
 		
 		Map<String, BlockRegistryEntry> bm = Maps.newHashMap();
 		
@@ -191,26 +192,26 @@ public final class BasicLocalEngine {
 			bm.put(e.id, e);
 		}
 		
-		AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext> br = 
-				new AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>(bm);
-		Map<String, AdvanceBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>> brMap = Maps.newHashMap();
+		AdvanceDefaultBlockResolver<XNElement, AdvanceType, AdvanceRuntimeContext> br = 
+				new AdvanceDefaultBlockResolver<XNElement, AdvanceType, AdvanceRuntimeContext>(bm);
+		Map<String, AdvanceBlockResolver<XNElement, AdvanceType, AdvanceRuntimeContext>> brMap = Maps.newHashMap();
 		for (String s : bm.keySet()) {
 			brMap.put(s, br);
 		}
 		
-		AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = 
-				new AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext>();
+		AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = 
+				new AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext>();
 		// engine-local schemas
 		compilerSettings.defaultSchemas = Lists.newArrayList();
 		// default blocks
 		compilerSettings.defaultBlocks = brMap; 
 		compilerSettings.schedulers = Maps.newHashMap();
 		// without plugins
-		compilerSettings.pluginManager = new AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext>("");
+		compilerSettings.pluginManager = new AdvancePluginManager<XNElement, AdvanceType, AdvanceRuntimeContext>("");
 		compilerSettings.resolver = new AdvanceData();
 		compilerSettings.typeFunctions = new AdvanceTypeFunctions();
-		AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
-				new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
+		AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext> compiler = 
+				new AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 
 		return compiler;
 	}

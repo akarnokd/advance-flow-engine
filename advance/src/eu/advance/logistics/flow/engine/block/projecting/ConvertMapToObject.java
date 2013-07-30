@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.Map;
 
 import eu.advance.logistics.annotations.Block;
@@ -28,7 +30,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values.
@@ -55,18 +56,18 @@ public class ConvertMapToObject extends AdvanceBlock {
 	@Override
 	protected void invoke() {
 		boolean attr = getBoolean(ATTRIBUTES);
-		Map<XElement, XElement> map = resolver().getMap(get(VALUE));
+		Map<XNElement, XNElement> map = resolver().getMap(get(VALUE));
 		
-		XElement type = get(TYPE);
+		XNElement type = get(TYPE);
 		String ta = type.get("type");
 		if (ta.contains(":")) {
 			ta = ta.substring(ta.indexOf(':') + 1);
 		}
 		
-		XElement result = new XElement(ta);
+		XNElement result = new XNElement(ta);
 		
-		for (Map.Entry<XElement, XElement> e : map.entrySet()) {
-			XElement other = e.getValue();
+		for (Map.Entry<XNElement, XNElement> e : map.entrySet()) {
+			XNElement other = e.getValue();
 			if (attr) {
 				if (other.hasChildren() || other.hasAttributes()) {
 					log(new IllegalArgumentException("Value is not simple value type for attribute representation: " + e.getKey() + " " + other));

@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.ds;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +31,6 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Interface for performing datastore related operations.
@@ -152,12 +153,12 @@ public interface AdvanceDataStore extends AdvanceDataStoreUpdate {
 	 * Retrieve the block state.
 	 * @param realm the target realm
 	 * @param blockId the block identifier
-	 * @return the state XElement
+	 * @return the state XNElement
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */
 	@Nullable 
-	XElement queryBlockState(@NonNull String realm, @NonNull String blockId) throws IOException, AdvanceControlException;
+	XNElement queryBlockState(@NonNull String realm, @NonNull String blockId) throws IOException, AdvanceControlException;
 	/**
 	 * Retrieve a particular email box record.
 	 * @param name the box name
@@ -178,12 +179,12 @@ public interface AdvanceDataStore extends AdvanceDataStoreUpdate {
 	/**
 	 * Retrieve the flow descriptor of the given realm.
 	 * @param realm the target realm
-	 * @return the flow description XElement
+	 * @return the flow description XNElement
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */
 	@Nullable
-	XElement queryFlow(@NonNull String realm) throws IOException, AdvanceControlException;
+	XNElement queryFlow(@NonNull String realm) throws IOException, AdvanceControlException;
 	/**
 	 * Return the properties of a a FTP data source.
 	 * @param name the name of the data source

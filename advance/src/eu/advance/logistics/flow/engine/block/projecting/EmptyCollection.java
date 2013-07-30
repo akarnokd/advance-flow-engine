@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.projecting;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -30,7 +31,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns an empty collection. Signature: EmptyCollection(trigger) ->
@@ -68,12 +68,12 @@ public class EmptyCollection extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
-                    dispatch(OUT, resolver().create(new ArrayList<XElement>()));
+                    dispatch(OUT, resolver().create(new ArrayList<XNElement>()));
                 }
             }
 

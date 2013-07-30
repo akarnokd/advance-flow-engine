@@ -21,9 +21,9 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Record to store a FileInfo and a change reason.
@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.xml.XSerializable;
  * In case of a DELETED type, the {@code file} contains the last known file status.</p>
  * @author akarnokd, 2011.10.06.
  */
-public class FileChangeInfo implements XSerializable, Copyable<FileChangeInfo> {
+public class FileChangeInfo implements XNSerializable, Copyable<FileChangeInfo> {
 	/** The change type. */
 	public FileChangeType type;
 	/** The file info. */
@@ -45,14 +45,14 @@ public class FileChangeInfo implements XSerializable, Copyable<FileChangeInfo> {
 	}
 
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		type = FileChangeType.valueOf(source.get("change-type"));
 		file = new FileInfo();
 		file.load(source);
 	}
 
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("change-type", type);
 		file.save(destination);
 	}

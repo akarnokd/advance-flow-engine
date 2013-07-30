@@ -22,6 +22,10 @@
 package eu.advance.logistics.flow.engine.api.impl;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.crypto.KeystoreFault;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -81,16 +85,12 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.util.KeystoreFault;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The local realm object containing various tables.
  * @author akarnokd, 2011.09.21.
  */
-public class LocalDataStore implements XSerializable, AdvanceDataStore {
+public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(LocalDataStore.class);
 	/** The cryptographic salt used to encrypt the datastore. */
@@ -120,9 +120,9 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	/** The Local file data sources table. */
 	public final Map<String, AdvanceLocalFileDataSource> localDataSources = Maps.newHashMap();
 	/** The dataflow storage per realm. */
-	public final Map<String, XElement> dataflows = Maps.newHashMap();
+	public final Map<String, XNElement> dataflows = Maps.newHashMap();
 	/** The map from realm to block-id to an arbitrary XML used to persist block states between restarts. */
-	public final Map<String, Map<String, XElement>> blockStates = Maps.newHashMap();
+	public final Map<String, Map<String, XNElement>> blockStates = Maps.newHashMap();
 	/** The email boxes. */
 	public final Map<String, AdvanceEmailBox> emailBoxes = Maps.newHashMap();
 	/** Clear all records from the maps. */
@@ -160,15 +160,15 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		contacts.add(contact);
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		clear();
 		loadInto(source, "users", "user", users, AdvanceUser.CREATOR);
 		loadInto(source, "realms", "realm", realms, AdvanceRealm.CREATOR);
 		loadInto(source, "keystores", "keystore", keystores, AdvanceKeyStore.CREATOR);
-		for (XElement xe : source.childElement("notification-groups").childrenWithName("group")) {
+		for (XNElement xe : source.childElement("notification-groups").childrenWithName("group")) {
 			String name = xe.get("name");
 			AdvanceNotificationGroupType type = AdvanceNotificationGroupType.valueOf(xe.get("type"));
-			for (XElement xi : xe.childrenWithName("contact")) {
+			for (XNElement xi : xe.childrenWithName("contact")) {
 				addNotificationContact(type, name, xi.get("value"));
 			}
 		}
@@ -178,17 +178,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		loadInto(source, "web-data-sources", "web-source", webDataSources, AdvanceWebDataSource.CREATOR);
 		loadInto(source, "ftp-data-sources", "ftp-source", ftpDataSources, AdvanceFTPDataSource.CREATOR);
 		loadInto(source, "local-data-sources", "local-source", localDataSources, AdvanceLocalFileDataSource.CREATOR);
-		for (XElement xe : source.childElement("dataflows").childrenWithName("flow")) {
+		for (XNElement xe : source.childElement("dataflows").childrenWithName("flow")) {
 			dataflows.put(xe.get("realm"), xe.childElement("flow-description").copy());
 		}
-		for (XElement xe : source.childElement("block-states").childrenWithName("realm")) {
+		for (XNElement xe : source.childElement("block-states").childrenWithName("realm")) {
 			String realm = xe.get("name");
-			Map<String, XElement> r = blockStates.get(realm);
+			Map<String, XNElement> r = blockStates.get(realm);
 			if (r == null) {
 				r = Maps.newHashMap();
 				blockStates.put(realm, r);
 			}
-			for (XElement be : xe.childrenWithName("block")) {
+			for (XNElement be : xe.childrenWithName("block")) {
 				String block = be.get("id");
 				if (be.children().size() == 1) {
 					r.put(block, be.children().get(0).copy());
@@ -207,11 +207,11 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	 * @param map the output map
 	 * @param creator the creator of Ts
 	 */
-	protected <K, T extends Identifiable<K> & XSerializable> 
-	void loadInto(XElement source, String container, String item, Map<K, T> map, Func0<T> creator) {
-		XElement xcontainer = source.childElement(container);
+	protected <K, T extends Identifiable<K> & XNSerializable> 
+	void loadInto(XNElement source, String container, String item, Map<K, T> map, Func0<T> creator) {
+		XNElement xcontainer = source.childElement(container);
 		if (xcontainer != null) {
-			for (XElement xe : xcontainer.childrenWithName(item)) {
+			for (XNElement xe : xcontainer.childrenWithName(item)) {
 				T obj = creator.invoke();
 				obj.load(xe);
 				map.put(obj.id(), obj);
@@ -219,17 +219,17 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		}
 	}
 	/**
-	 * Create an XElement from the given complex map of notification groups.
+	 * Create an XNElement from the given complex map of notification groups.
 	 * @param name the name of the element
 	 * @param groups the map from group type to group to set of contact information
-	 * @return the XElement created
+	 * @return the XNElement created
 	 */
-	public static XElement createGroups(String name, Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups) {
-		XElement result = new XElement(name);
+	public static XNElement createGroups(String name, Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> groups) {
+		XNElement result = new XNElement(name);
 		
 		for (Map.Entry<AdvanceNotificationGroupType, Map<String, Collection<String>>> e : groups.entrySet()) {
 			for (Map.Entry<String, Collection<String>> e2 : e.getValue().entrySet()) {
-				XElement xgroup = result.add("group");
+				XNElement xgroup = result.add("group");
 				xgroup.set("name", e2.getKey());
 				xgroup.set("type", e.getKey());
 				for (String e3 : e2.getValue()) {
@@ -241,16 +241,16 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	}
 	/**
 	 * Parse the given source into the complex map of notification groups and contacts.
-	 * @param source the source XElement
+	 * @param source the source XNElement
 	 * @return the parsed map from group type to group name to contacts
 	 */
-	public static Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> parseGroups(XElement source) {
+	public static Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> parseGroups(XNElement source) {
 		Map<AdvanceNotificationGroupType, Map<String, Collection<String>>> result = Maps.newHashMap();
 		
-		for (XElement xe : source.childrenWithName("group")) {
+		for (XNElement xe : source.childrenWithName("group")) {
 			String name = xe.get("name");
 			AdvanceNotificationGroupType type = AdvanceNotificationGroupType.valueOf(xe.get("type"));
-			for (XElement xi : xe.childrenWithName("contact")) {
+			for (XNElement xi : xe.childrenWithName("contact")) {
 				Map<String, Collection<String>> groups = result.get(type);
 				if (groups == null) {
 					groups = Maps.newHashMap();
@@ -267,7 +267,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		return result;
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		saveInto(destination, "users", "user", users);
 		saveInto(destination, "realms", "realm", realms);
 		saveInto(destination, "keystores", "keystore", keystores);
@@ -284,35 +284,35 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		saveInto(destination, "local-data-sources", "local-source", localDataSources);
 		saveInto(destination, "email-boxes", "email-box", emailBoxes);
 		
-		XElement xflows = destination.add("dataflows");
-		for (Map.Entry<String, XElement> fe : dataflows.entrySet()) {
-			XElement xf = xflows.add("flow");
+		XNElement xflows = destination.add("dataflows");
+		for (Map.Entry<String, XNElement> fe : dataflows.entrySet()) {
+			XNElement xf = xflows.add("flow");
 			xf.set("realm", fe.getKey());
 			xf.add(fe.getValue());
 		}
-		XElement xstate = destination.add("block-states");
-		for (Map.Entry<String, Map<String, XElement>> bs : blockStates.entrySet()) {
-			XElement xr = xstate.add("realm");
+		XNElement xstate = destination.add("block-states");
+		for (Map.Entry<String, Map<String, XNElement>> bs : blockStates.entrySet()) {
+			XNElement xr = xstate.add("realm");
 			xr.set("name", bs.getKey());
-			for (Map.Entry<String, XElement> bse : bs.getValue().entrySet()) {
-				XElement xb = xr.add("block");
+			for (Map.Entry<String, XNElement> bse : bs.getValue().entrySet()) {
+				XNElement xb = xr.add("block");
 				xb.set("id", bse.getKey());
 				xb.add(bse.getValue());
 			}
 		}
 	}
 	/**
-	 * Save the XSerializable elements with the given names into the destination.
-	 * @param destination the destination XElement
+	 * Save the XNSerializable elements with the given names into the destination.
+	 * @param destination the destination XNElement
 	 * @param collectionName the collection name to use
 	 * @param itemName the item name to use
 	 * @param elements the sequence of elements
 	 */
-	protected void saveInto(XElement destination, String collectionName, 
-			String itemName, Map<?, ? extends XSerializable> elements) {
-		XElement xe = destination.add(collectionName);
+	protected void saveInto(XNElement destination, String collectionName, 
+			String itemName, Map<?, ? extends XNSerializable> elements) {
+		XNElement xe = destination.add(collectionName);
 		synchronized (elements) {
-			for (XSerializable e : elements.values()) {
+			for (XNSerializable e : elements.values()) {
 				e.save(xe.add(itemName));
 			}
 		}
@@ -325,7 +325,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		File dsFile = new File(fileName);
 		if (dsFile.canRead()) {
 			try {
-				load(XElement.parseXML(dsFile));
+				load(XNElement.parseXML(dsFile));
 			} catch (IOException ex) {
 				LOG.error(ex.toString(), ex);
 			} catch (XMLStreamException ex) {
@@ -353,7 +353,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 				
 				CipherInputStream in = new CipherInputStream(new BufferedInputStream(new FileInputStream(dsFile)), pbeCipher);
 				try {
-					XElement xdatastore = XElement.parseXML(in);
+					XNElement xdatastore = XNElement.parseXML(in);
 					load(xdatastore);
 				} finally {
 					in.close();
@@ -384,7 +384,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public void saveEncrypted(String fileName, char[] password) {
 		File dsFile = new File(fileName);
 		try {
-			XElement xdatastore = new XElement("datastore");
+			XNElement xdatastore = new XNElement("datastore");
 			save(xdatastore);
 			
 			PBEParameterSpec pbeParamSpec = new PBEParameterSpec(CRYPTO_SALT, CRYPTO_COUNT);
@@ -423,7 +423,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 	public void save(String fileName) {
 		File dsFile = new File(fileName);
 		try {
-			XElement xdatastore = new XElement("datastore");
+			XNElement xdatastore = new XNElement("datastore");
 			save(xdatastore);
 			xdatastore.save(dsFile);
 		} catch (IOException ex) {
@@ -986,19 +986,19 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		return Collections.emptyList();
 	}
 	@Override
-	public XElement queryBlockState(String realm, String blockId)
+	public XNElement queryBlockState(String realm, String blockId)
 			throws IOException {
-		Map<String, XElement> map = blockStates.get(realm);
+		Map<String, XNElement> map = blockStates.get(realm);
 		if (map != null) {
-			XElement result = map.get(blockId);
+			XNElement result = map.get(blockId);
 			return result;
 		}
 		return null;
 	}
 	@Override
-	public void updateBlockState(String realm, String blockId, XElement state)
+	public void updateBlockState(String realm, String blockId, XNElement state)
 			throws IOException {
-		Map<String, XElement> map = blockStates.get(realm);
+		Map<String, XNElement> map = blockStates.get(realm);
 		if (map == null) {
 			map = Maps.newHashMap();
 			blockStates.put(realm, map);
@@ -1010,8 +1010,8 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		}
 	}
 	@Override
-	public XElement queryFlow(String realm) throws IOException {
-		XElement result = dataflows.get(realm);
+	public XNElement queryFlow(String realm) throws IOException {
+		XNElement result = dataflows.get(realm);
 		if (result == null) {
 			// use empty flow
 			result = new AdvanceCompositeBlock().serializeFlow();
@@ -1035,7 +1035,7 @@ public class LocalDataStore implements XSerializable, AdvanceDataStore {
 		}
 	}
 	@Override
-	public void updateFlow(String realm, XElement flow) throws IOException,
+	public void updateFlow(String realm, XNElement flow) throws IOException,
 			AdvanceControlException {
 		synchronized (dataflows) {
 			dataflows.put(realm, flow);

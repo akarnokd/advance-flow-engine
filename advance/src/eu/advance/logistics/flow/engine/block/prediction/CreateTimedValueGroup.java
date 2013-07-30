@@ -21,13 +21,14 @@
 
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.text.ParseException;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Creates a record from a date, group and value triplets.
@@ -53,7 +54,7 @@ public class CreateTimedValueGroup extends AdvanceBlock {
 	protected void invoke() {
 		
 		try {
-			XElement result = new XElement("timedvaluegroup");
+			XNElement result = new XNElement("timedvaluegroup");
 			
 			result.set("timestamp", getTimestamp(TIMESTAMP));
 			result.set("group", getString(GROUP));

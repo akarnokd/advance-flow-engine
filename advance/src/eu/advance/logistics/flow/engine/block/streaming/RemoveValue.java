@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Removes all the elements equal to the supplied value and returns a new map
@@ -74,16 +75,16 @@ public class RemoveValue extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
-        final XElement value = get(VALUE);
+        final Map<XNElement, XNElement> map = resolver().getMap(get(MAP));
+        final XNElement value = get(VALUE);
 
-        final List<XElement> keysList = new ArrayList<XElement>();
+        final List<XNElement> keysList = new ArrayList<XNElement>();
         if (map.containsValue(value)) {
 
-            final Set<XElement> keySet = map.keySet();
-            XElement key = null;
-            for (XElement keyVal : keySet) {
-                final XElement obj = map.get(keyVal);
+            final Set<XNElement> keySet = map.keySet();
+            XNElement key = null;
+            for (XNElement keyVal : keySet) {
+                final XNElement obj = map.get(keyVal);
 
                 if (obj.equals(value)) {
                     map.remove(key);

@@ -22,10 +22,10 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 
 /**
@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.xml.XSerializable;
  * @author akarnokd, 2011.09.19.
  */
 public class AdvanceRealm extends AdvanceCreateModifyInfo 
-implements XSerializable, Copyable<AdvanceRealm>, Identifiable<String> {
+implements XNSerializable, Copyable<AdvanceRealm>, Identifiable<String> {
 	/** The realm status. */
 	public AdvanceRealmStatus status;
 	/** The name of the realm. */
@@ -48,13 +48,13 @@ implements XSerializable, Copyable<AdvanceRealm>, Identifiable<String> {
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		status = AdvanceRealmStatus.valueOf(source.get("status"));
 		name = source.get("name");
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("status", status);
 		destination.set("name", name);
 		super.save(destination);

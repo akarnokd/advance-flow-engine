@@ -182,8 +182,8 @@ public final class GUIUtils {
 				v.setText(p.getProperty(prefix + f.getName() + index));
 			}
 		} else
-		if (o instanceof JComboBox) {
-			JComboBox v = (JComboBox)o;
+		if (o instanceof JComboBox<?>) {
+			JComboBox<?> v = (JComboBox<?>)o;
 			if (save) {
 				if (v.isEditable()) {
 					p.setProperty(prefix + f.getName() + index, v.getSelectedItem() != null ? v.getSelectedItem().toString() : "");

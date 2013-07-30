@@ -55,7 +55,7 @@ public class CCJDBCDetails extends JPanel implements
 	/** The name. */
 	protected JTextField name;
 	/** The driver. */
-	protected JComboBox driver;
+	protected JComboBox<AdvanceJDBCDrivers> driver;
 	/** The custom driver label. */
 	protected JLabel customDriverLabel;
 	/** The custom driver field. */
@@ -84,7 +84,7 @@ public class CCJDBCDetails extends JPanel implements
 
 		name = new JTextField();
 		url = new JTextField();
-		driver = new JComboBox(AdvanceJDBCDrivers.values());
+		driver = new JComboBox<>(AdvanceJDBCDrivers.values());
 		driver.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

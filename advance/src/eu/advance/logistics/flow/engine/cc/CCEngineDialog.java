@@ -24,6 +24,8 @@ package eu.advance.logistics.flow.engine.cc;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -84,8 +86,6 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
 import eu.advance.logistics.flow.engine.runtime.SchedulerPriority;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Create or manage existing properties of a local flow engine.
@@ -103,9 +103,9 @@ public class CCEngineDialog extends JFrame {
 	/** The basic login port. */
 	protected JFormattedTextField basicAuthPort;
 	/** The certificates of the client. */
-	protected JComboBox clientKeyStore;
+	protected JComboBox<String> clientKeyStore;
 	/** The server keys and certificate. */
-	protected JComboBox serverKeyStore;
+	protected JComboBox<String> serverKeyStore;
 	/** The server's key password. */
 	protected JPasswordField serverPassword;
 	/** The server's key password. */
@@ -127,7 +127,7 @@ public class CCEngineDialog extends JFrame {
 	/** The custom driver. */
 	protected JTextField dsCustomDriver;
 	/** The set of predefined drivers. */
-	protected JComboBox dsDriver;
+	protected JComboBox<AdvanceJDBCDrivers> dsDriver;
 	/** The custom driver label. */
 	protected JLabel dsCustomDriverLabel;
 	/** The user name. */
@@ -263,12 +263,12 @@ public class CCEngineDialog extends JFrame {
 		basicAuthPort = new JFormattedTextField(8444);
 		certAuthPort = new JFormattedTextField(8443);
 		
-		serverKeyStore = new JComboBox();
+		serverKeyStore = new JComboBox<>();
 		serverKeyAlias = new JTextField();
 		serverPassword = new JPasswordField();
 		serverPasswordAgain = new JPasswordField();
 		
-		clientKeyStore = new JComboBox();
+		clientKeyStore = new JComboBox<>();
 		
 		Pair<Group, Group> g = GUIUtils.createForm(gl, 2,
 			labels.get("Basic authentication port:"), basicAuthPort,
@@ -514,7 +514,7 @@ public class CCEngineDialog extends JFrame {
 		
 		dsUrl = new JTextField();
 		dsCustomDriver = new JTextField();
-		dsDriver = new JComboBox(AdvanceJDBCDrivers.values());
+		dsDriver = new JComboBox<>(AdvanceJDBCDrivers.values());
 		dsDriver.setSelectedItem(AdvanceJDBCDrivers.GENERIC);
 		dsDriver.addActionListener(new ActionListener() {
 			@Override
@@ -1075,8 +1075,8 @@ public class CCEngineDialog extends JFrame {
 		Object s1 = serverKeyStore.getSelectedItem();
 		Object s2 = clientKeyStore.getSelectedItem();
 
-		DefaultComboBoxModel m1 = new DefaultComboBoxModel();
-		DefaultComboBoxModel m2 = new DefaultComboBoxModel();
+		DefaultComboBoxModel<String> m1 = new DefaultComboBoxModel<>();
+		DefaultComboBoxModel<String> m2 = new DefaultComboBoxModel<>();
 		for (AdvanceKeyStore ks : keystores) {
 			m1.addElement(ks.name);
 			m2.addElement(ks.name);
@@ -1231,7 +1231,7 @@ public class CCEngineDialog extends JFrame {
 		/** The number. */
 		protected JFormattedTextField number;
 		/** Priority. */
-		protected JComboBox priority;
+		protected JComboBox<SchedulerPriority> priority;
 		/** The priority mode. */
 		protected JRadioButton priorityMode;
 		/** The priority percent. */
@@ -1253,7 +1253,7 @@ public class CCEngineDialog extends JFrame {
 			bg.add(numCores);
 			
 			number = new JFormattedTextField(1);
-			priority = new JComboBox(SchedulerPriority.values());
+			priority = new JComboBox<SchedulerPriority>(SchedulerPriority.values());
 			priority.setSelectedItem(SchedulerPriority.NORMAL);
 			priorityMode = new JRadioButton(labels.get("Priority level:"));
 			priorityPercent = new JRadioButton(labels.get("Priority:"));
@@ -1377,14 +1377,14 @@ public class CCEngineDialog extends JFrame {
 	 * Load the specific configuration.
 	 * @param config the configuration XML
 	 */
-	public void load(XElement config) {
+	public void load(XNElement config) {
 		keystores.clear();
 		blocksList.clear();
 		schemasList.clear();
 		clearSchedulers();
 		clearListener();
 
-		for (XElement xkeystore : config.childrenWithName("keystore")) {
+		for (XNElement xkeystore : config.childrenWithName("keystore")) {
 			AdvanceKeyStore aks = new AdvanceKeyStore();
 			aks.name = xkeystore.get("name");
 			aks.location = xkeystore.get("file");
@@ -1395,7 +1395,7 @@ public class CCEngineDialog extends JFrame {
 		}
 		updateKeyStoreLists();
 		
-		XElement xlistener = config.childElement("listener");
+		XNElement xlistener = config.childElement("listener");
 		certAuthPort.setValue(xlistener.getInt("cert-auth-port"));
 		basicAuthPort.setValue(xlistener.getInt("basic-auth-port"));
 		serverKeyAlias.setText(xlistener.get("server-keyalias"));
@@ -1404,14 +1404,14 @@ public class CCEngineDialog extends JFrame {
 		serverPasswordAgain.setText(new String(AdvanceCreateModifyInfo.getPassword(xlistener, "server-password")));
 		clientKeyStore.setSelectedItem(xlistener.get("client-keystore"));
 		
-		for (XElement xblocks : config.childrenWithName("block-registry")) {
+		for (XNElement xblocks : config.childrenWithName("block-registry")) {
 			blocksList.add(xblocks.get("file"));
 		}
-		for (XElement xschemas : config.childrenWithName("schemas")) {
+		for (XNElement xschemas : config.childrenWithName("schemas")) {
 			schemasList.add(xschemas.get("location"));
 		}
 		
-		XElement xdatastore = config.childElement("datastore");
+		XNElement xdatastore = config.childElement("datastore");
 		String driver = xdatastore.get("driver");
 		char[] p = AdvanceCreateModifyInfo.getPassword(xdatastore, "password");
 		if (p == null) {
@@ -1450,7 +1450,7 @@ public class CCEngineDialog extends JFrame {
 			dsPoolsize.setValue(xdatastore.getInt("poolsize"));
 		}
 		
-		for (XElement xscheduler : config.childrenWithName("scheduler")) {
+		for (XNElement xscheduler : config.childrenWithName("scheduler")) {
 			SchedulerPreference type = SchedulerPreference.valueOf(xscheduler.get("type"));
 			switch (type) {
 			case CPU:
@@ -1476,7 +1476,7 @@ public class CCEngineDialog extends JFrame {
 	 * @param panel the target panel
 	 * @param xscheduler the source
 	 */
-	void initScheduler(SchedulerPanel panel, XElement xscheduler) {
+	void initScheduler(SchedulerPanel panel, XNElement xscheduler) {
 		String concur = xscheduler.get("concurrency");
 		String priority = xscheduler.get("priority");
 		if ("ALL_CORES".equals(concur)) {
@@ -1500,17 +1500,17 @@ public class CCEngineDialog extends JFrame {
 	}
 	/**
 	 * Save the dialog values.
-	 * @return the created XElement or null if a validation error occurs
+	 * @return the created XNElement or null if a validation error occurs
 	 */
-	public XElement save() {
-		XElement result = new XElement("flow-engine-config");
+	public XNElement save() {
+		XNElement result = new XNElement("flow-engine-config");
 		
 		if (keystores.size() == 0) {
 			GUIUtils.errorMessage(this, labels.get("You'll have to specify at least one keystore!"));
 			return null;
 		}
 		
-		XElement xlistener = result.add("listener");
+		XNElement xlistener = result.add("listener");
 		if (certAuthPort.getValue() == null) {
 			GUIUtils.errorMessage(this, labels.get("Please enter a certificate-authentication based port number!"));
 			return null;
@@ -1549,7 +1549,7 @@ public class CCEngineDialog extends JFrame {
 			result.add("block-registry").set("file", s);
 		}
 		
-		XElement xdatastore = result.add("datastore");
+		XNElement xdatastore = result.add("datastore");
 
 		if (dsUrl.getText().isEmpty()) {
 			GUIUtils.errorMessage(this, labels.get("Please enter the datastore URL!"));
@@ -1589,7 +1589,7 @@ public class CCEngineDialog extends JFrame {
 		}
 		
 		for (AdvanceKeyStore aks : keystores) {
-			XElement xkeystore = result.add("keystore");
+			XNElement xkeystore = result.add("keystore");
 			xkeystore.set("name", aks.name, "file", aks.location);
 			AdvanceCreateModifyInfo.setPassword(xkeystore, "password", aks.password());
 			if (aks.name.equals(serverKeyStore.getSelectedItem())) {
@@ -1623,12 +1623,12 @@ public class CCEngineDialog extends JFrame {
 		return result;
 	}
 	/**
-	 * Store the scheduler panel contents into the XElement.
+	 * Store the scheduler panel contents into the XNElement.
 	 * @param panel the panel
 	 * @param xscheduler the scheduler
 	 * @return true if the validation succeded
 	 */
-	boolean getSchedulerPanel(SchedulerPanel panel, XElement xscheduler) {
+	boolean getSchedulerPanel(SchedulerPanel panel, XNElement xscheduler) {
 		xscheduler.set("type", panel.preference);
 		if (panel.allCores.isSelected()) {
 			xscheduler.set("concurrency", "ALL_CORES");
@@ -1676,7 +1676,7 @@ public class CCEngineDialog extends JFrame {
 			doSelectWorkDir();
 			
 			try {
-				load(XElement.parseXML(fileName));
+				load(XNElement.parseXML(fileName));
 			} catch (IOException ex) {
 				LOG.error(ex.toString(), ex);
 			} catch (XMLStreamException ex) {
@@ -1738,7 +1738,7 @@ public class CCEngineDialog extends JFrame {
 	 * @param fileName the filename
 	 */
 	void saveToFile(File fileName) {
-		XElement e = save();
+		XNElement e = save();
 		try {
 			if (e != null) {
 				e.save(fileName);

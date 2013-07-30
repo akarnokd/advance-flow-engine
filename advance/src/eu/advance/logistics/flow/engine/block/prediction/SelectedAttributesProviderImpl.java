@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -29,7 +31,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
-import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.attributes.SelectedAttribute;
 import eu.advance.logistics.prediction.support.attributes.SelectedAttributes;
 import eu.advance.logistics.prediction.support.attributes.SelectedAttributesProvider;
@@ -65,8 +66,8 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
      * @param x the root XML element
      * @throws Exception if unable to parse the XML
      */
-    private void parse(Map<String, SelectedAttributes> attributesSet, XElement x) throws Exception {
-        for (XElement cx : x.childrenWithName("attributes")) {
+    private void parse(Map<String, SelectedAttributes> attributesSet, XNElement x) throws Exception {
+        for (XNElement cx : x.childrenWithName("attributes")) {
             String key = cx.get("key");
             if (key != null) {
                 SelectedAttributes sa = parse(cx);
@@ -83,9 +84,9 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
      * @param x the XML element representing the attribute
      * @return a named attibute
      */
-    private SelectedAttributes parse(XElement x) {
+    private SelectedAttributes parse(XNElement x) {
         SelectedAttributes sa = new SelectedAttributes();
-        for (XElement cx : x.childrenWithName("attribute")) {
+        for (XNElement cx : x.childrenWithName("attribute")) {
             String name = cx.get("name");
             if (name != null) {
                 sa.add(new SelectedAttribute(name));
@@ -124,7 +125,7 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
      * @param root the XML element containing the attributes
      * @throws Exception if unable to parse the XML elements
      */
-    public void load(XElement root) throws Exception {
+    public void load(XNElement root) throws Exception {
         attributesSet = new HashMap<String, SelectedAttributes>();
         parse(attributesSet, root);
         if (!attributesSet.containsKey("default")) {
@@ -147,7 +148,7 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
             p = owner.getPool(LocalConnection.class, selectedAttributesFile);
             if (p != null) {
                 conn = p.get();
-                parse(attributesSet, XElement.parseXML(conn.file()));
+                parse(attributesSet, XNElement.parseXML(conn.file()));
             }
         } catch (Exception ex) {
             Logger.getLogger(DuringDayTraining.class.getName()).log(Level.SEVERE, null, ex);
@@ -180,13 +181,13 @@ final class SelectedAttributesProviderImpl implements SelectedAttributesProvider
      * @param resolver the data resolver used to convert data to XML
      * @return the XML representation of the selected attributes list
      */
-    public XElement toXml(DataResolver<XElement> resolver) {
-        XElement root = new XElement("attributes-set");
+    public XNElement toXml(DataResolver<XNElement> resolver) {
+        XNElement root = new XNElement("attributes-set");
         for (Map.Entry<String, SelectedAttributes> e : attributesSet.entrySet()) {
-            XElement attributes = new XElement("attributes");
+            XNElement attributes = new XNElement("attributes");
             attributes.set("key", e.getKey());
             for (SelectedAttribute sa : e.getValue()) {
-                XElement attribute = new XElement("attribute");
+                XNElement attribute = new XNElement("attribute");
                 attribute.set("name", sa._name);
                 attributes.add(attribute);
             }

@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,7 +44,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Get a consignment form a database.
@@ -90,7 +90,7 @@ public class ConsignmentGet extends AdvanceBlock {
     }
 
     @Override
-    public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+    public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
         super.init(settings);
     }
 
@@ -101,9 +101,9 @@ public class ConsignmentGet extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
                     execute();
                 }
@@ -124,7 +124,7 @@ public class ConsignmentGet extends AdvanceBlock {
      * @param x the XML containing a timestamp
      * @return the date
      */
-    private Date getDate(XElement x) {
+    private Date getDate(XNElement x) {
         if (x != null) {
             try {
                 return resolver().getTimestamp(x);

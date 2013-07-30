@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,7 +44,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Displays an input box which sends out strings as the user presses ENTER or the SEND button.
@@ -68,7 +69,7 @@ public class InputBox extends AdvanceBlock {
 	/** The deferred button title. */
 	protected String titleDefer = "Message:";
 	@Override
-	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+	public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
 		if (settings.constantValues.containsKey(TITLE)) {
 			titleDefer = resolver().getString(settings.constantValues.get(TITLE));
@@ -134,7 +135,7 @@ public class InputBox extends AdvanceBlock {
 		scheduler().schedule(new Runnable() {
 			@Override
 			public void run() {
-				XElement e = new XElement("string");
+				XNElement e = new XNElement("string");
 				e.content = txt;
 				dispatchOutput(Collections.singletonMap(OUT, e));
 			}

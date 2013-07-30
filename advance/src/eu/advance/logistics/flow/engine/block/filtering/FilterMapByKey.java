@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.engine.block.filtering;
 
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +40,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Filter the keys of the map via the XPath expression and return a map with
@@ -79,11 +80,11 @@ public class FilterMapByKey extends AdvanceBlock {
     protected void invoke() {
         final XPath xpath = XPathFactory.newInstance().newXPath();
         final InputSource inputSource = new InputSource(new StringReader(resolver().getString(get(PATH))));
-        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
-        final Set<XElement> keysSet = map.keySet();
+        final Map<XNElement, XNElement> map = resolver().getMap(get(MAP));
+        final Set<XNElement> keysSet = map.keySet();
         
-        final Map<XElement, XElement> result = new HashMap<XElement, XElement>();
-        for (XElement key : keysSet) {
+        final Map<XNElement, XNElement> result = new HashMap<XNElement, XNElement>();
+        for (XNElement key : keysSet) {
             
             try {
                 final String expression = resolver().getString(key);

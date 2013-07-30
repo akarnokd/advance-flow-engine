@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.demo;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *.
@@ -54,7 +55,7 @@ public class FullPalletDispenser extends AdvanceBlock {
     protected void invoke() {
     	DemoDatastore ds = DemoDatastore.instance();
     	int n = ds.getMaxDestinations();
-    	XElement fullPallet = DemoTypes.createFullPallet(rnd.get().nextInt(n));
+    	XNElement fullPallet = DemoTypes.createFullPallet(rnd.get().nextInt(n));
     	dispatch(FULL_PALLET, fullPallet);
     }
     

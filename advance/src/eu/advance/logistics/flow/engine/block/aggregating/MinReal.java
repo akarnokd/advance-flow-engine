@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns the smallest integer in the collection along with its last occurrence
@@ -56,7 +57,7 @@ public class MinReal extends AdvanceBlock {
     protected void invoke() {
         double min = Double.MAX_VALUE;
 
-        for (XElement xelem : resolver().getItems(get(IN))) {
+        for (XNElement xelem : resolver().getItems(get(IN))) {
             min = Math.min(min, settings.resolver.getDouble(xelem));
         }
 

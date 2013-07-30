@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Func2;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.text.ParseException;
 import java.util.Collections;
@@ -37,7 +38,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The prediction calculator for the K-means ARX model for a single group.
@@ -67,7 +67,7 @@ public class KMeansARXPredict extends AdvanceBlock {
 		Map<DateTime, Integer> dateset = Maps.newHashMap();
 		
 		Map<Integer, Double> values = Maps.newHashMap();
-		for (XElement e : resolver().getItems(get(DATA))) {
+		for (XNElement e : resolver().getItems(get(DATA))) {
 			try {
 				DateTime dt = new DateTime(resolver().getTimestamp(e.childElement("timestamp")).getTime());
 				double v = resolver().getDouble(e.childElement("value"));
@@ -103,7 +103,7 @@ public class KMeansARXPredict extends AdvanceBlock {
 			tf[idx] = (int)(dt.getMillis() / (24L * 60 * 60 * 1000)); 
 		}
 
-		XElement xm = get(MODEL);
+		XNElement xm = get(MODEL);
 		
 		int p = xm.getInt("model-order");
 		int m = 5;
@@ -119,19 +119,19 @@ public class KMeansARXPredict extends AdvanceBlock {
 		});
 
 		int i = 0;
-		for (XElement ac : xm.childrenWithName("model-coefficient")) {
+		for (XNElement ac : xm.childrenWithName("model-coefficient")) {
 			arxModel.setArCoefficient(i, resolver().getDouble(ac));
 			i++;
 		}
 		i = 0;
-		for (XElement uc : xm.childrenWithName("external-coefficient")) {
+		for (XNElement uc : xm.childrenWithName("external-coefficient")) {
 			arxModel.setUCoefficient(i, resolver().getDouble(uc));
 			i++;
 		}
 		
 		double[] forecasts = arxModel.forecastAll(xs, horizon);
 		
-		List<XElement> result = Lists.newArrayList();
+		List<XNElement> result = Lists.newArrayList();
 		for (double d : forecasts) {
 			result.add(resolver().create(d));
 		}

@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.text.ParseException;
 import java.util.Date;
 import java.util.logging.Logger;
@@ -28,7 +30,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Convert a string into a timestamp or indicate an error. Signature:
@@ -61,10 +62,10 @@ public class ToTimestamp extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final XElement xelem = get(IN);
+        final XNElement xelem = get(IN);
 
         try {
-            final Date res = XElement.parseDateTime(resolver().getString(xelem));
+            final Date res = XNElement.parseDateTime(resolver().getString(xelem));
 
             dispatch(OUT_TIMESTAMP, resolver().create(res));
             dispatch(OUT_STATUS, resolver().create(true));

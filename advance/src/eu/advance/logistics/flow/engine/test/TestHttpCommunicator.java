@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.test;
 
 import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Scheduler;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.IOException;
 
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpListener;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A simple mocked communicator which dispatches the requests directly to an {@code AdvanceHttpListener}.
@@ -56,21 +56,21 @@ public class TestHttpCommunicator implements AdvanceXMLCommunicator {
 		this.userName = userName;
 	}
 	@Override
-	public XElement query() throws IOException {
+	public XNElement query() throws IOException {
 		// TODO implement
 		return null;
 	}
 	@Override
-	public XElement query(XElement request) throws IOException {
+	public XNElement query(XNElement request) throws IOException {
 		// TODO implement
 		return null;
 	}
 	@Override
-	public void send(XElement request) throws IOException {
+	public void send(XNElement request) throws IOException {
 		// TODO implement
 	}
 	@Override
-	public Observable<XElement> receive(XElement request, Scheduler scheduler) {
+	public Observable<XNElement> receive(XNElement request, Scheduler scheduler) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -23,10 +23,9 @@ package eu.advance.logistics.flow.engine.api;
 
 import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Scheduler;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.IOException;
-
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Base interface for classes that communicate via XML based messages.
@@ -39,19 +38,19 @@ public interface AdvanceXMLCommunicator {
 	 * @return the response XML
 	 * @throws IOException if a network error occurred
 	 */
-	XElement query(XElement request) throws IOException;
+	XNElement query(XNElement request) throws IOException;
 	/**
 	 * Query for a (default) response without sending a query message.
 	 * @return the response XML
 	 * @throws IOException if a network error occurs
 	 */
-	XElement query() throws IOException;
+	XNElement query() throws IOException;
 	/**
 	 * Send a request that doesn't return a response (other than acknowledgement).
 	 * @param request the request XML
 	 * @throws IOException if a network error occurred
 	 */
-	void send(XElement request) throws IOException;
+	void send(XNElement request) throws IOException;
 	/**
 	 * Receive XML responses continuously.
 	 * The returned data should be a complete XML, but its parsing is done per each of the root's children,
@@ -62,5 +61,5 @@ public interface AdvanceXMLCommunicator {
 	 * @return the closeable to terminate the streaming
 	 * @throws IOException
 	 */
-	Observable<XElement> receive(XElement request, Scheduler scheduler);
+	Observable<XNElement> receive(XNElement request, Scheduler scheduler);
 }

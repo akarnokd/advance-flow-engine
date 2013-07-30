@@ -31,6 +31,7 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 import hu.akarnokd.reactive4java.util.DefaultObservable;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -53,7 +54,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The generic block.
@@ -257,8 +257,8 @@ public abstract class Block<T, X, C> {
 		diagnostic.next(new BlockDiagnostic("", description().id, Option.<BlockState>error(t)));
 	}
 	/**
-	 * Dispatch a set of outputs given by subsequent String and XElement types.
-	 * @param nameValuePairs the name-value pairs as {@code String}, {@code XElement} or {@code Iterable<XElement>}
+	 * Dispatch a set of outputs given by subsequent String and XNElement types.
+	 * @param nameValuePairs the name-value pairs as {@code String}, {@code XNElement} or {@code Iterable<XNElement>}
 	 */
 	protected void dispatch(Object... nameValuePairs) {
 		Map<String, Iterable<T>> values = Maps.newHashMap();
@@ -399,7 +399,7 @@ public abstract class Block<T, X, C> {
 	 * case the engine is shut down (but not when the realm is stopped).
 	 * @return if a non-null value is returned, it indicates the state to be saved
 	 */
-	public XElement saveState() {
+	public XNElement saveState() {
 		return null;
 	}
 	/**
@@ -408,7 +408,7 @@ public abstract class Block<T, X, C> {
 	 * and the saveState() returned an object.
 	 * @param state the state to restore
 	 */
-	public void restoreState(XElement state) {
+	public void restoreState(XNElement state) {
 		
 	}
 	/**

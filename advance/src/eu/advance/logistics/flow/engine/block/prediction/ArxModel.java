@@ -26,9 +26,9 @@ import hu.akarnokd.reactive4java.base.Func2;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.math.linear.MatrixUtils;
-import org.apache.commons.math.linear.RealMatrix;
-import org.apache.commons.math.linear.SingularValueDecompositionImpl;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 /**
  * Autoregressive model with exogenous effects.
@@ -132,7 +132,7 @@ public class ArxModel extends ObservationModel {
 		
 		RealMatrix atmam = atm.multiply(am);
 		
-		RealMatrix atmamInv = new SingularValueDecompositionImpl(atmam).getSolver().getInverse();
+		RealMatrix atmamInv = new SingularValueDecomposition(atmam).getSolver().getInverse();
 		
 		RealMatrix atmamInvAtm = atmamInv.multiply(atm);
 		
@@ -212,7 +212,7 @@ public class ArxModel extends ObservationModel {
 		
 		RealMatrix atmam = atm.multiply(am);
 		
-		RealMatrix atmamInv = new SingularValueDecompositionImpl(atmam).getSolver().getInverse();
+		RealMatrix atmamInv = new SingularValueDecomposition(atmam).getSolver().getInverse();
 		
 		RealMatrix atmamInvAtm = atmamInv.multiply(atm);
 		

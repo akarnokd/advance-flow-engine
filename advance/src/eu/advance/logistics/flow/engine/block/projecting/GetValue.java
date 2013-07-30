@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Get a value by the given key from the map or indicate if no such element
@@ -70,8 +71,8 @@ public class GetValue extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
-        final XElement obj = map.get(get(KEY));
+        final Map<XNElement, XNElement> map = resolver().getMap(get(MAP));
+        final XNElement obj = map.get(get(KEY));
 
         dispatch(OUT_VALUE, resolver().create(obj));
         dispatch(OUT_STATUS, resolver().create((obj != null)));

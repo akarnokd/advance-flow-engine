@@ -22,6 +22,9 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,16 +46,13 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * A record representing information about local or remote key stores.
  * @author akarnokd, 2011.09.20.
  */
 public class AdvanceKeyStore extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<String> {
+implements XNSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<String> {
 	/** The logger object. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceKeyStore.class);
 	/** The key store name. */
@@ -78,14 +78,14 @@ implements XSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<S
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
 		location = source.get("location");
 		password = getPassword(source, "password");
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name);
 		destination.set("location", location);
 		setPassword(destination, "password", password);

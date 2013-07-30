@@ -21,18 +21,18 @@
 
 package eu.advance.logistics.flow.engine.typesystem;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
-
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The XML type argument.
  * @author akarnokd, 2011.11.15.
  */
-public class XGenericType implements XSerializable {
+public class XGenericType implements XNSerializable {
 	/** The type variable.*/
 	public XGenericVariable typeVariable;
 	/** The base type. */
@@ -89,14 +89,14 @@ public class XGenericType implements XSerializable {
 		return b.toString();
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		typeURI = source.get("type");
 		String tv = source.get("type-variable");
 		if (tv != null) {
 			typeVariable = new XGenericVariable();
 			typeVariable.name = tv;
 		} else {
-			for (XElement ta : source.childrenWithName("type-argument")) {
+			for (XNElement ta : source.childrenWithName("type-argument")) {
 				XGenericType targ = new XGenericType();
 				targ.load(ta);
 				arguments.add(targ);
@@ -104,7 +104,7 @@ public class XGenericType implements XSerializable {
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		throw new UnsupportedOperationException();
 	}
 }

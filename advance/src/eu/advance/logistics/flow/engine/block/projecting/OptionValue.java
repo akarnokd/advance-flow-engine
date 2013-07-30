@@ -22,12 +22,12 @@
 package eu.advance.logistics.flow.engine.block.projecting;
 
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Extracts the contained value from the option if it has any.
@@ -47,7 +47,7 @@ public class OptionValue extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-    	Option<XElement> opt = AdvanceData.getOption(get(IN));
+    	Option<XNElement> opt = AdvanceData.getOption(get(IN));
     	if (Option.isSome(opt)) {
     		dispatch(OUT, opt.value());
     	}

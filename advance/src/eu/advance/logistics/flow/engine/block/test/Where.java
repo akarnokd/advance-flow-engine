@@ -21,12 +21,13 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.Map;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A simple block which takes an object type T and applies a filter function on it.
@@ -51,7 +52,7 @@ public class Where extends Lambda {
 		return SCRIPT;
 	}
 	@Override
-	protected void scriptValue(Map<String, XElement> params, Object o) {
+	protected void scriptValue(Map<String, XNElement> params, Object o) {
 		if (o instanceof Boolean) {
 			Boolean b = (Boolean) o;
 			if (b) {

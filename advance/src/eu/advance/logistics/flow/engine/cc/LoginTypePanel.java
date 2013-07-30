@@ -54,7 +54,7 @@ public class LoginTypePanel extends JPanel {
 	/** Via certificate. */
 	protected JRadioButton viaCertificate;
 	/** The available keystores. */
-	protected JComboBox keystoreList;
+	protected JComboBox<String> keystoreList;
 	/** Manage keystores button. */
 	protected JButton manageKeyStores;
 	/** Username. */
@@ -96,7 +96,7 @@ public class LoginTypePanel extends JPanel {
 		userPassword = new JPasswordField();
 		
 		keystoreListLabel = new JLabel(labels.get("Keystore:"));
-		keystoreList = new JComboBox();
+		keystoreList = new JComboBox<>();
 		manageKeyStores = new JButton(labels.get("Manage keystores..."));
 		manageKeyStores.addActionListener(GUIUtils.createFromMethod(this, "doManageKeyStores"));
 		
@@ -174,7 +174,7 @@ public class LoginTypePanel extends JPanel {
 	 * @param keystores the keystores sequence
 	 */
 	public void setKeyStores(Iterable<String> keystores) {
-		keystoreList.setModel(new DefaultComboBoxModel(Iterables.toArray(keystores, String.class)));
+		keystoreList.setModel(new DefaultComboBoxModel<>(Iterables.toArray(keystores, String.class)));
 	}
 	/** 
 	 * Display the none option?

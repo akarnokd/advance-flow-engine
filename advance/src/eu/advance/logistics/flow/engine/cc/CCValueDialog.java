@@ -24,6 +24,9 @@ package eu.advance.logistics.flow.engine.cc;
 import hu.akarnokd.reactive4java.base.Action0;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNElement.XAttributeName;
+import hu.akarnokd.utils.xml.XNElement.XRepresentationRecord;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -70,9 +73,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XElement.XAttributeName;
-import eu.advance.logistics.flow.engine.xml.XElement.XRepresentationRecord;
 
 /**
  * The value dialog.
@@ -92,13 +92,13 @@ public class CCValueDialog extends JFrame {
 	/** The tree. */
 	protected JTree tree;
 	/** The element starts. */
-	final Map<XElement, Integer> elementStarts = Maps.newHashMap();
+	final Map<XNElement, Integer> elementStarts = Maps.newHashMap();
 	/** The element ends. */
-	final Map<XElement, Integer> elementEnds = Maps.newHashMap();
+	final Map<XNElement, Integer> elementEnds = Maps.newHashMap();
 	/** The text starts. */
-	final Map<XElement, Integer> textStarts = Maps.newHashMap();
+	final Map<XNElement, Integer> textStarts = Maps.newHashMap();
 	/** The text ends. */
-	final Map<XElement, Integer> textEnds = Maps.newHashMap();
+	final Map<XNElement, Integer> textEnds = Maps.newHashMap();
 	/** Tree selection is under progress. */
 	boolean treeSelecting;
 	/** Find text. */
@@ -273,10 +273,10 @@ public class CCValueDialog extends JFrame {
 	 * @param o the value
 	 */
 	void createTree(Object o) {
-		if (!(o instanceof XElement)) {
+		if (!(o instanceof XNElement)) {
 			return;
 		}
-		final XElement e = (XElement)o;
+		final XNElement e = (XNElement)o;
 		
 		StringBuilder b = new StringBuilder();
 		e.toStringRep("", new HashMap<String, String>(), b, new Action1<XRepresentationRecord>() {
@@ -309,7 +309,7 @@ public class CCValueDialog extends JFrame {
 	 */
 	protected abstract static class TreeAction implements Action0 {
 		/** @return the wrapped element. */
-		public abstract XElement element();
+		public abstract XNElement element();
 		/** @return is this a text node? */
 		public abstract boolean isText();
 	}
@@ -318,7 +318,7 @@ public class CCValueDialog extends JFrame {
 	 * @param e the element
 	 * @return the created node
 	 */
-	public DefaultMutableTreeNode createNode(final XElement e) {
+	public DefaultMutableTreeNode createNode(final XNElement e) {
 		final String env = elementValue(e);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new TreeAction() {
 			@Override
@@ -330,7 +330,7 @@ public class CCValueDialog extends JFrame {
 				return env;
 			}
 			@Override
-			public XElement element() {
+			public XNElement element() {
 				return e;
 			}
 			@Override
@@ -349,7 +349,7 @@ public class CCValueDialog extends JFrame {
 					return e.content;
 				}
 				@Override
-				public XElement element() {
+				public XNElement element() {
 					return e;
 				}
 				@Override
@@ -366,8 +366,8 @@ public class CCValueDialog extends JFrame {
 	 * @param node the parent node
 	 * @param items the items
 	 */
-	void buildTree(DefaultMutableTreeNode node, List<XElement> items) {
-		for (final XElement e : items) {
+	void buildTree(DefaultMutableTreeNode node, List<XNElement> items) {
+		for (final XNElement e : items) {
 			node.add(createNode(e));
 		}
 	}
@@ -392,7 +392,7 @@ public class CCValueDialog extends JFrame {
 	 * @param e the element
 	 * @return the text
 	 */
-	String elementValue(XElement e) {
+	String elementValue(XNElement e) {
 		StringBuilder b = new StringBuilder(e.name);
 		for (Map.Entry<XAttributeName, String> me : e.attributes().entrySet()) {
 			b.append(" ").append(me.getKey().name).append("=").append(me.getValue());
@@ -497,7 +497,7 @@ public class CCValueDialog extends JFrame {
 	 * @param offset the offset
 	 */
 	void selectNode(int offset) {
-		for (Map.Entry<XElement, Integer> start : textStarts.entrySet()) {
+		for (Map.Entry<XNElement, Integer> start : textStarts.entrySet()) {
 			int endIdx = textEnds.get(start.getKey());
 			if (start.getValue() <= offset && offset <= endIdx) {
 				findNode(start.getKey(), true);
@@ -506,8 +506,8 @@ public class CCValueDialog extends JFrame {
 		}
 		int sx = Integer.MAX_VALUE;
 		int sx2 = Integer.MAX_VALUE;
-		XElement e = null;
-		for (Map.Entry<XElement, Integer> start : elementStarts.entrySet()) {
+		XNElement e = null;
+		for (Map.Entry<XNElement, Integer> start : elementStarts.entrySet()) {
 			int endIdx = elementEnds.get(start.getKey());
 			if (start.getValue() <= offset && offset <= endIdx) {
 				int o1 = offset - start.getValue();
@@ -528,7 +528,7 @@ public class CCValueDialog extends JFrame {
 	 * @param e the element object
 	 * @param isText a node representing text
 	 */
-	void findNode(XElement e, boolean isText) {
+	void findNode(XNElement e, boolean isText) {
 		Deque<DefaultMutableTreeNode> list = Lists.newLinkedList();
 		list.add((DefaultMutableTreeNode)tree.getModel().getRoot());
 		while (!list.isEmpty()) {

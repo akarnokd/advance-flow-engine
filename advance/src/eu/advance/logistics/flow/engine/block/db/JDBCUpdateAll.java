@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.engine.block.db;
 
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -33,7 +35,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Updates multiple values at the same time with the given SQL query on the
@@ -80,15 +81,15 @@ public class JDBCUpdateAll extends AdvanceBlock {
             conn = ds.get();
             try {
                 final String query = getString(QUERY);
-                final List<XElement> paramList = resolver().getList(get(LIST));
+                final List<XNElement> paramList = resolver().getList(get(LIST));
                 final PreparedStatement pstm = conn.getConnection().prepareStatement(query);
                 try {
 	                int results = 0;
 	
-	                for (XElement listElement : paramList) {
-	                	Map<XElement, XElement> row = resolver().getMap(listElement);
+	                for (XNElement listElement : paramList) {
+	                	Map<XNElement, XNElement> row = resolver().getMap(listElement);
 	                    int paramCount = 1;
-	                	for (XElement value : row.values()) {
+	                	for (XNElement value : row.values()) {
 	                        paramCount = JDBCConverter.convert(resolver(), value, pstm, paramCount);
 	                	}
 	                	pstm.addBatch();

@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Remove the given key and value pair from the map and return the new map.
@@ -75,12 +76,12 @@ public class RemoveEntry extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
-        final XElement key = get(KEY);
-        final XElement value = get(KEY);
+        final Map<XNElement, XNElement> map = resolver().getMap(get(MAP));
+        final XNElement key = get(KEY);
+        final XNElement value = get(KEY);
 
         boolean status = false;
-        final XElement assObj = map.get(key);
+        final XNElement assObj = map.get(key);
         if (assObj.equals(value)) {
             status = true;
             map.remove(key);

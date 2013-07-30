@@ -24,6 +24,7 @@ package eu.advance.logistics.flow.engine.block.db;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.scheduler.SingleLaneExecutor;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,7 +39,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Query a batch of results from the datasource and return them one-by-one.
@@ -135,30 +135,30 @@ public class JDBCThrottledQuery extends AdvanceBlock {
 		});
 		addCloseable(queue);
 		
-		observeInput(DATASOURCE, new Action1<XElement>() {
+		observeInput(DATASOURCE, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				datasource.set(resolver().getString(value));
 				JDBCThrottledQuery.this.invoke();
 			}
 		});
-		observeInput(QUERY, new Action1<XElement>() {
+		observeInput(QUERY, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				query.set(resolver().getString(value));
 				JDBCThrottledQuery.this.invoke();
 			}
 		});
-		observeInput(SIZE, new Action1<XElement>() {
+		observeInput(SIZE, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				size.set(resolver().getInt(value));
 				JDBCThrottledQuery.this.invoke();
 			}
 		});
-		observeInput(NEXT, new Action1<XElement>() {
+		observeInput(NEXT, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				scheduleNext();
 			}
 		});
@@ -181,9 +181,9 @@ public class JDBCThrottledQuery extends AdvanceBlock {
 			}
 			return new RunObserver();
 		}
-    	observeInput(TRIGGER, new Action1<XElement>() {
+    	observeInput(TRIGGER, new Action1<XNElement>() {
     		@Override
-    		public void invoke(XElement value) {
+    		public void invoke(XNElement value) {
     			if (resolver().getBoolean(value)) {
     				JDBCThrottledQuery.this.invoke();
     			}

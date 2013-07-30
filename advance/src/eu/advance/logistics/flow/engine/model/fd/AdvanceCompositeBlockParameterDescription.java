@@ -21,20 +21,21 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.util.Strings;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The input or output parameter description of a flow composite block element.
  * @author akarnokd, 2011.06.21.
  */
 public class AdvanceCompositeBlockParameterDescription extends
-		AdvanceBlockParameterDescription implements XSerializable {
+		AdvanceBlockParameterDescription implements XNSerializable {
 	/** The user-entered keywords for easier finding of this parameter. */
 	public final List<String> keywords = Lists.newArrayList();
 	
@@ -43,7 +44,7 @@ public class AdvanceCompositeBlockParameterDescription extends
 	 * @param root the element of a input or output
 	 */
 	@Override
-	public void load(XElement root) {
+	public void load(XNElement root) {
 		super.load(root);
 		documentation = root.get("documentation");
 		String kw = root.get("keywords");
@@ -52,7 +53,7 @@ public class AdvanceCompositeBlockParameterDescription extends
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		super.save(destination);
 		destination.set("documentation", documentation);
 		if (keywords.size() > 0) {

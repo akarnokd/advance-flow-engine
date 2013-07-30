@@ -25,6 +25,9 @@ import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.util.Closeables;
+import hu.akarnokd.utils.Base64;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -56,9 +59,6 @@ import org.slf4j.LoggerFactory;
 import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLCommunicator;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
-import eu.advance.logistics.flow.engine.util.Base64;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Send and receive requests through HTTP or HTTPS,
@@ -145,7 +145,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 	 * @throws IOException on error
 	 */
 	@Override
-	public void send(XElement message) throws IOException {
+	public void send(XNElement message) throws IOException {
 		HttpURLConnection c = prepare();
 		try {
 			c.setRequestMethod("POST");
@@ -185,7 +185,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 	 * @throws IOException on error
 	 */
 	@Override
-	public XElement query(XElement message) throws IOException {
+	public XNElement query(XNElement message) throws IOException {
 		HttpURLConnection c = prepare();
 		try {
 			c.setRequestMethod("POST");
@@ -202,7 +202,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 			if (c.getResponseCode() < 400) {
 				InputStream in = c.getInputStream();
 				try {
-					XElement result = XElement.parseXML(in);
+					XNElement result = XNElement.parseXML(in);
 					return result;
 				} finally {
 					in.close();
@@ -224,7 +224,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 	 * @throws IOException on error
 	 */
 	@Override
-	public XElement query() throws IOException {
+	public XNElement query() throws IOException {
 		HttpURLConnection c = prepare();
 		try {
 			c.setRequestMethod("GET");
@@ -233,7 +233,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 			if (c.getResponseCode() < 400) {
 				InputStream in = c.getInputStream();
 				try {
-					XElement result = XElement.parseXML(in);
+					XNElement result = XNElement.parseXML(in);
 					return result;
 				} finally {
 					in.close();
@@ -283,10 +283,10 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 		}
 	}
 	@Override
-	public Observable<XElement> receive(final XElement request, final Scheduler scheduler) {
-		return new Observable<XElement>() {
+	public Observable<XNElement> receive(final XNElement request, final Scheduler scheduler) {
+		return new Observable<XNElement>() {
 			@Override
-			public Closeable register(final Observer<? super XElement> observer) {
+			public Closeable register(final Observer<? super XNElement> observer) {
 				try {
 					final HttpURLConnection c = prepare();
 					try {
@@ -314,7 +314,7 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 											try {
 												ir.nextTag();
 												while (ir.hasNext()) {
-													XElement e = XElement.parseXMLFragment(ir);
+													XNElement e = XNElement.parseXMLFragment(ir);
 													observer.next(e);
 												}
 												observer.finish();

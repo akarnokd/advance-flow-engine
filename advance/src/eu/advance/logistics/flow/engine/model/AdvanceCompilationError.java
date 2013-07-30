@@ -21,12 +21,12 @@
 
 package eu.advance.logistics.flow.engine.model;
 
-import eu.advance.logistics.flow.engine.xml.XSerializable;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 /**
  * A simple base interface for reporting various compilation problems.
  * @author akarnokd, 2011.07.07.
  */
-public interface AdvanceCompilationError extends XSerializable {
+public interface AdvanceCompilationError extends XNSerializable {
 	
 }

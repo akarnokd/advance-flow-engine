@@ -2,9 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="schemas"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JDK6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/annotations.jar" sourcepath="lib/annotations.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk16-146.jar" sourcepath="lib/bcprov-jdk16-146.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar" sourcepath="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-net-3.0.1.jar" sourcepath="lib/commons-net-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extra166y.jar" sourcepath="lib/extra166y.jar"/>
@@ -15,20 +14,23 @@
 	<classpathentry kind="lib" path="lib/jsr166y.jar" sourcepath="lib/jsr166y.jar"/>
 	<classpathentry kind="lib" path="lib/jsr305.jar" sourcepath="lib/jsr305.jar"/>
 	<classpathentry kind="lib" path="lib/jxl5.jar" sourcepath="lib/jxl5.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar" sourcepath="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j-jcl-jul-1.6.1.jar" sourcepath="lib/slf4j-log4j-jcl-jul-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/j2ssh-0.2.9.jar" sourcepath="lib/j2ssh-0.2.9.jar"/>
 	<classpathentry kind="lib" path="lib/advance_apt.jar" sourcepath="lib/advance_apt.jar"/>
-	<classpathentry kind="lib" path="lib/joda-time-2.0.jar" sourcepath="lib/joda-time-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-math-2.2.jar" sourcepath="lib/commons-math-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/Jcrontab-2.0-RC0.jar"/>
 	<classpathentry kind="lib" path="lib/advance-prediction-lib.jar"/>
-	<classpathentry kind="lib" path="lib/guava-13.0.1.jar" sourcepath="lib/guava-13.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/flanagan.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jsci-core.jar"/>
 	<classpathentry kind="lib" path="lib/weka.jar"/>
 	<classpathentry kind="lib" path="lib/reactive4java-0.97.jar" sourcepath="lib/reactive4java-0.97.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.23-bin.jar"/>
+	<classpathentry kind="lib" path="lib/akarnokd_tools.jar" sourcepath="lib/akarnokd_tools.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-2.2.jar" sourcepath="lib/joda-time-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk15on-149.jar" sourcepath="lib/bcprov-jdk15on-149.jar"/>
+	<classpathentry kind="lib" path="lib/trove-3.0.3.jar" sourcepath="lib/trove-3.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/guava-14.0.1.jar" sourcepath="lib/guava-14.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math3-3.2.jar" sourcepath="lib/commons-math3-3.2.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar" sourcepath="lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.25-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -30,15 +32,13 @@ import org.slf4j.LoggerFactory;
 
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 
 /**
  * Properties of a concrete key in a key store.
  * @author akarnokd, 2011.09.20.
  */
-public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry>, Identifiable<String> {
+public class AdvanceKeyEntry implements XNSerializable, Copyable<AdvanceKeyEntry>, Identifiable<String> {
 	/** The key type. */
 	public AdvanceKeyType type;
 	/** The key name. */
@@ -61,20 +61,20 @@ public class AdvanceKeyEntry implements XSerializable, Copyable<AdvanceKeyEntry>
 		return result;
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		type = AdvanceKeyType.valueOf(source.get("type"));
 		name = source.get("name");
 		try {
-			createdAt = XElement.parseDateTime(source.get("created-at"));
+			createdAt = XNElement.parseDateTime(source.get("created-at"));
 		} catch (ParseException ex) {
 			LoggerFactory.getLogger(AdvanceKeyEntry.class).error(ex.toString(), ex);
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("type", type);
 		destination.set("name", name);
-		destination.set("created-at", XElement.formatDateTime(createdAt));
+		destination.set("created-at", XNElement.formatDateTime(createdAt));
 	}
 	@Override
 	public String id() {

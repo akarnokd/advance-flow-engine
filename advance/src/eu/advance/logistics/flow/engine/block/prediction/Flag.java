@@ -20,7 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 /**
  * Flag represented by consignment and type.
@@ -40,8 +40,8 @@ public class Flag {
      * @param name name of the XML element
      * @return XML representation
      */
-    public XElement toXML(String name) {
-        XElement x = new XElement(name);
+    public XNElement toXML(String name) {
+        XNElement x = new XNElement(name);
         x.set("id", id);
         x.set("type", type);
         x.set("consignmentId", consignmentId);
@@ -53,7 +53,7 @@ public class Flag {
      * @param x XML element
      * @return new flag object
      */
-    public static Flag parse(XElement x) {
+    public static Flag parse(XNElement x) {
         Flag f = new Flag();
         f.id = Integer.parseInt(x.get("id"));
         f.type = Integer.parseInt(x.get("type"));

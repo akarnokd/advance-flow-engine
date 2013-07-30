@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.List;
 
@@ -35,7 +36,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.FileInfo;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * List the contents of a local directory. Signature: LocalDirList(trigger,
@@ -69,10 +69,10 @@ public class LocalDirList extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
                     execute();
                 }
@@ -93,7 +93,7 @@ public class LocalDirList extends AdvanceBlock {
      * Load the data from the local file.
      */
     private void execute() {
-    	List<XElement> result = Lists.newArrayList();
+    	List<XNElement> result = Lists.newArrayList();
         try {
             final String dataSourceStr = getString(DATASOURCE);
             final Pool<LocalConnection> ds = getPool(LocalConnection.class, dataSourceStr);
@@ -101,7 +101,7 @@ public class LocalDirList extends AdvanceBlock {
             try {
                 final List<FileInfo> files = conn.list();
                 for (FileInfo fi : files) {
-                    XElement el = new XElement("file-info");
+                    XNElement el = new XNElement("file-info");
                     fi.save(el);
                     result.add(el);
                 }

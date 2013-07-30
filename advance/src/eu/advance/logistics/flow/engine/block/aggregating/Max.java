@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns the largest value in the collection along with its last occurrence.
@@ -68,7 +69,7 @@ public class Max extends AdvanceBlock {
         int lastPos = 0;
 
         int count = 0;
-        for (XElement xelem : resolver().getItems(get(IN))) {
+        for (XNElement xelem : resolver().getItems(get(IN))) {
 
             if (xelem.name.equalsIgnoreCase("integer")) {
                 final int curr = settings.resolver.getInt(xelem);

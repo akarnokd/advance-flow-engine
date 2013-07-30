@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,7 +30,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Remove a range from the source collection and return two new collections, one
@@ -78,7 +79,7 @@ public class RemoveIndexRange extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> list = resolver().getList(get(COLLECTION));
+        final List<XNElement> list = resolver().getList(get(COLLECTION));
         final int start = getInt(START);
         final int end = getInt(END);
 
@@ -87,10 +88,10 @@ public class RemoveIndexRange extends AdvanceBlock {
             return;
         }
 
-        final List<XElement> newList = new ArrayList<XElement>();
-        final List<XElement> exctracted = new ArrayList<XElement>();
+        final List<XNElement> newList = new ArrayList<XNElement>();
+        final List<XNElement> exctracted = new ArrayList<XNElement>();
         for (int i = 0, n = list.size(); i < n; i++) {
-            final XElement el = list.get(i);
+            final XNElement el = list.get(i);
 
             if ((i >= start) && (i <= end)) {
                 exctracted.add(el);

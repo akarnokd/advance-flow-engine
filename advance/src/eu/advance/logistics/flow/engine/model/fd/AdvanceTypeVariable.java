@@ -21,21 +21,21 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
-
 /**
  * The type variable definition of an Advance block.
  * It allows
  * @author akarnokd, 2011.07.01.
  */
-public class AdvanceTypeVariable implements XSerializable {
+public class AdvanceTypeVariable implements XNSerializable {
 	/** The type parameter name. */
 	public String name;
 	/** The upper bounds of this type parameter, e.g., T super SomeObject1 &amp; SomeObject2. */
@@ -82,15 +82,15 @@ public class AdvanceTypeVariable implements XSerializable {
 	 * @param root the root element
 	 */
 	@Override
-	public void load(XElement root) {
+	public void load(XNElement root) {
 		name = root.get("name");
-		for (XElement ub : root.childrenWithName("upper-bound")) {
+		for (XNElement ub : root.childrenWithName("upper-bound")) {
 			isUpperBound = true;
 			AdvanceType t = new AdvanceType();
 			t.load(ub);
 			bounds.add(t);
 		}
-		for (XElement lb : root.childrenWithName("lower-bound")) {
+		for (XNElement lb : root.childrenWithName("lower-bound")) {
 			if (isUpperBound) {
 				throw new IllegalArgumentException("Type variable has multiple bound types! " + root);
 			}
@@ -108,7 +108,7 @@ public class AdvanceTypeVariable implements XSerializable {
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name);
 		for (AdvanceType t : bounds) {
 			t.save(destination.add(isUpperBound ? "upper-bound" : "lower-bound"));

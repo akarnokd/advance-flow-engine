@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.util.Set;
 
@@ -32,15 +34,13 @@ import com.google.common.collect.Sets;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * User settings.
  * @author akarnokd, 2011.09.19.
  */
 public class AdvanceUser extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<String> {
+implements XNSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<String> {
 	/** Is the user enabled? */
 	public boolean enabled;
 	/** The user's name. */
@@ -89,7 +89,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<Strin
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		enabled = source.getBoolean("enabled");
 		name = source.get("name");
 		email = source.get("email");
@@ -105,19 +105,19 @@ implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<Strin
 		keyStore = source.get("keystore");
 		keyAlias = source.get("keyalias");
 		rights.clear();
-		for (XElement xe : source.childElement("rights").childrenWithName("right")) {
+		for (XNElement xe : source.childElement("rights").childrenWithName("right")) {
 			rights.add(AdvanceUserRights.valueOf(xe.get("value")));
 		}
 		realmRights.clear();
-		for (XElement xe : source.childElement("realm-rights").childrenWithName("realm")) {
-			for (XElement xe2 : xe.childrenWithName("right")) {
+		for (XNElement xe : source.childElement("realm-rights").childrenWithName("realm")) {
+			for (XNElement xe2 : xe.childrenWithName("right")) {
 				realmRights.put(xe.get("name"), AdvanceUserRealmRights.valueOf(xe2.get("value")));
 			}
 		}
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name);
 		destination.set("enabled", enabled);
 		destination.set("email", email);
@@ -132,13 +132,13 @@ implements XSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<Strin
 		setPassword(destination, "password", password);
 		destination.set("keystore", keyStore);
 		destination.set("keyalias", keyAlias);
-		XElement xr = destination.add("rights");
+		XNElement xr = destination.add("rights");
 		for (AdvanceUserRights r : rights) {
 			xr.add("right").set("value", r);
 		}
-		XElement rr = destination.add("realm-rights");
+		XNElement rr = destination.add("realm-rights");
 		for (String r : realmRights.keySet()) {
-			XElement xrr = rr.add("realm");
+			XNElement xrr = rr.add("realm");
 			xrr.set("name", r);
 			for (AdvanceUserRealmRights urr : realmRights.get(r)) {
 				xrr.add("right").set("value", urr);

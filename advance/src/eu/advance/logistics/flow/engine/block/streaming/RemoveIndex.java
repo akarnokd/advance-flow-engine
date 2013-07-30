@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Remove the indexth element from the collection. Signature:
@@ -65,7 +66,7 @@ public class RemoveIndex extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> list = resolver().getList(get(COLLECTION));
+        final List<XNElement> list = resolver().getList(get(COLLECTION));
         final int index = getInt(INDEX);
 
         if ((index >= 0) && (index < list.size())) {

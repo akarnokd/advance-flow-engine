@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
+import hu.akarnokd.utils.crypto.KeystoreFault;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,8 +64,6 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPProtocols;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.util.KeystoreFault;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
 
 /**
  * Manages FTP connection objects.

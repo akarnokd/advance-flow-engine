@@ -20,13 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * During day model writer.
@@ -56,7 +56,7 @@ public class DuringDayModelReader extends AdvanceBlock {
         try {
             ds = getPool(LocalConnection.class, getString(LOCATION));
             conn = ds.get();
-            XElement root = XElement.parseXML(conn.file());
+            XNElement root = XNElement.parseXML(conn.file());
             dispatch(MODEL, root);
         } catch (Exception ex) {
             log(ex);

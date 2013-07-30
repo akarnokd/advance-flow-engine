@@ -22,6 +22,9 @@
 package eu.advance.logistics.flow.engine.cc;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+import hu.akarnokd.utils.xml.XNSerializables;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -81,9 +84,6 @@ import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
-import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * The Local Login dialog.
@@ -98,7 +98,7 @@ public class CCLocalLogin extends JDialog {
 	 * The last local login record.
 	 * @author akarnokd, 2011.10.10.
 	 */
-	public static class LastLocalLogin implements XSerializable {
+	public static class LastLocalLogin implements XNSerializable {
 		/** The path to the configuration file. */
 		public String path;
 		/** The working directory. */
@@ -115,10 +115,10 @@ public class CCLocalLogin extends JDialog {
 			}
 		};
 		@Override
-		public void load(XElement source) {
+		public void load(XNElement source) {
 			path = source.get("path");
 			try {
-				timestamp = XElement.parseDateTime(source.get("timestamp"));
+				timestamp = XNElement.parseDateTime(source.get("timestamp"));
 			} catch (ParseException ex) {
 				LOG.error(ex.toString(), ex);
 			}
@@ -129,7 +129,7 @@ public class CCLocalLogin extends JDialog {
 			}
 		}
 		@Override
-		public void save(XElement destination) {
+		public void save(XNElement destination) {
 			destination.set("path", path, "timestamp", timestamp, "user", user, "workDir", workDir);
 		}
 	}
@@ -464,9 +464,9 @@ public class CCLocalLogin extends JDialog {
 		File cf = new File(workingDirectory, config);
 		if (cf.canRead()) {
 			try {
-				XElement e = XElement.parseXML(cf);
+				XNElement e = XNElement.parseXML(cf);
 				rows.clear();
-				rows.addAll(XSerializables.parseList(e, "last-login", LastLocalLogin.CREATOR));
+				rows.addAll(XNSerializables.parseList(e, "last-login", LastLocalLogin.CREATOR));
 			} catch (IOException ex) {
 				LOG.error(ex.toString(), ex);
 			} catch (XMLStreamException ex) {
@@ -476,9 +476,9 @@ public class CCLocalLogin extends JDialog {
 		cf = new File(workingDirectory, "login-info.xml");
 		if (cf.canRead()) {
 			try {
-				XElement e = XElement.parseXML(cf);
+				XNElement e = XNElement.parseXML(cf);
 				outer:
-				for (XElement xi : e.childrenWithName("item")) {
+				for (XNElement xi : e.childrenWithName("item")) {
 					String address = xi.get("address");
 					if (address.startsWith("file:")) {
 						LastLocalLogin ll = new LastLocalLogin();
@@ -517,7 +517,7 @@ public class CCLocalLogin extends JDialog {
 	/** Save a configuration. */
 	void saveConfig() {
 		try {
-			XSerializables.storeList("last-logins", "last-login", rows).save(new File(workingDirectory, config));
+			XNSerializables.storeList("last-logins", "last-login", rows).save(new File(workingDirectory, config));
 		} catch (IOException ex) {
 			LOG.error(ex.toString(), ex);
 		}			
@@ -552,11 +552,11 @@ public class CCLocalLogin extends JDialog {
 	protected boolean openLocalEngine(File file, String userName, String workDir) {
 		engineConfig = new AdvanceEngineConfig();
 		try {
-			engineConfig.initialize(XElement.parseXML(file), workDir);
+			engineConfig.initialize(XNElement.parseXML(file), workDir);
 			
-			AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = engineConfig.createCompilerSettings();
-			AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = 
-					new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
+			AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = engineConfig.createCompilerSettings();
+			AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext> compiler = 
+					new AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 			
 			AdvanceDataStore datastore = engineConfig.datastore();
 			if (datastore.queryUsers().isEmpty()) {

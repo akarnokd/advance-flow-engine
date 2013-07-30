@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -62,7 +64,6 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A test datastore which usually returns empty lists and simple initialized objects and
@@ -442,25 +443,25 @@ public class DummyDataStore implements AdvanceDataStore {
 		return Sets.newHashSet("test@advance-logistics.eu");
 	}
 	/** @return Create an empty test XML. */
-	public static XElement createTestXML() {
-		return new XElement("test");
+	public static XNElement createTestXML() {
+		return new XNElement("test");
 	}
 	@Override
-	public XElement queryBlockState(String realm, String blockId)
+	public XNElement queryBlockState(String realm, String blockId)
 			throws IOException, AdvanceControlException {
 		return createTestXML();
 	}
 
 	@Override
-	public void updateBlockState(String realm, String blockId, XElement state)
+	public void updateBlockState(String realm, String blockId, XNElement state)
 			throws IOException, AdvanceControlException {
 		// NO operation
 	}
 
 	@Override
-	public XElement queryFlow(String realm) throws IOException,
+	public XNElement queryFlow(String realm) throws IOException,
 			AdvanceControlException {
-		XElement r = new XElement("flow-description");
+		XNElement r = new XNElement("flow-description");
 		r.add("composite-block");
 		return r;
 	}
@@ -476,7 +477,7 @@ public class DummyDataStore implements AdvanceDataStore {
 		// NO operation
 	}
 	@Override
-	public void updateFlow(String realm, XElement flow) throws IOException,
+	public void updateFlow(String realm, XNElement flow) throws IOException,
 			AdvanceControlException {
 		// NO operation
 	}

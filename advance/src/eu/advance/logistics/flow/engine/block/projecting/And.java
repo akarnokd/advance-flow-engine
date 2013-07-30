@@ -21,13 +21,14 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Computes the logical AND of all inputs.
@@ -47,9 +48,9 @@ public class And extends AdvanceBlock {
 
 	@Override
 	protected void invoke() {
-		List<XElement> varargs = varargs(IN);
+		List<XNElement> varargs = varargs(IN);
 		if (varargs.size() > 0) {
-			for (XElement e : varargs) {
+			for (XNElement e : varargs) {
 				if (!resolver().getBoolean(e)) {
 					dispatch(OUT, resolver().create(false));
 					return;

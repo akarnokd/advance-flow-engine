@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.filtering;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Filter the elements of the collection via the XPath expression and return a
@@ -77,10 +78,10 @@ public class FilterCollection extends AdvanceBlock {
     protected void invoke() {
         final XPath xpath = XPathFactory.newInstance().newXPath();
         final InputSource inputSource = new InputSource(new StringReader(resolver().getString(get(PATH))));
-        final List<XElement> collection = resolver().getList(get(COLLECTION));
+        final List<XNElement> collection = resolver().getList(get(COLLECTION));
 
-        final List<XElement> result = new ArrayList<XElement>();
-        for (XElement xel : collection) {
+        final List<XNElement> result = new ArrayList<XNElement>();
+        for (XNElement xel : collection) {
             try {
                 final String expression = resolver().getString(xel);
                 final String value = (String) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);

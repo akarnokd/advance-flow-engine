@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -36,7 +38,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Inserts a collection of values into the datastore via the given SQL statement
@@ -77,7 +78,7 @@ public class JDBCInsertAll extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> paramList = resolver().getList(get(LIST));
+        final List<XNElement> paramList = resolver().getList(get(LIST));
         if (paramList.isEmpty()) {
         	return;
         }
@@ -91,17 +92,17 @@ public class JDBCInsertAll extends AdvanceBlock {
 
                 
                 
-                final List<XElement> resultList = new ArrayList<XElement>();
+                final List<XNElement> resultList = new ArrayList<XNElement>();
 
                 // prepare columns
-                final Map<XElement, XElement> paramMap = resolver().getMap(paramList.get(0));
+                final Map<XNElement, XNElement> paramMap = resolver().getMap(paramList.get(0));
 
-                final Set<XElement> keySet = paramMap.keySet();
+                final Set<XNElement> keySet = paramMap.keySet();
                 final String[] columns = new String[keySet.size()];
 
                 //retrieve columns names
                 int count = 0;
-                for (XElement e : keySet) {
+                for (XNElement e : keySet) {
                     columns[count] = resolver().getString(e);
                     count++;
                 }
@@ -109,11 +110,11 @@ public class JDBCInsertAll extends AdvanceBlock {
                 final PreparedStatement pstm = conn.getConnection().prepareStatement(query, columns);
 
                 
-                for (XElement el : paramList) {
-                    Map<XElement, XElement> row = resolver().getMap(el);
+                for (XNElement el : paramList) {
+                    Map<XNElement, XNElement> row = resolver().getMap(el);
                    // basing on types fill the prepared_statement
                     int paramCount = 1;
-                    for (XElement e : row.values()) {
+                    for (XNElement e : row.values()) {
                         paramCount = JDBCConverter.convert(resolver(), e, pstm, paramCount);
                         pstm.addBatch();
                     }

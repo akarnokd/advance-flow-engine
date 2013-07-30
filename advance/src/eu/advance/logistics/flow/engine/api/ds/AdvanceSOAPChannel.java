@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -33,15 +35,13 @@ import org.slf4j.LoggerFactory;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Describes a SOAP communication channel.
  * @author akarnokd, 2011.09.20.
  */
 public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiable<String> {
+implements XNSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiable<String> {
 	/** The name used to reference this channel from blocks. */
 	public String name;
 	/** The endpoint URL. */
@@ -77,7 +77,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiabl
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
 		try {
 			endpoint = new URL(source.get("endpoint"));
@@ -102,7 +102,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiabl
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name);
 		destination.set("endpoint", endpoint);
 		destination.set("target-object", targetObject);

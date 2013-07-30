@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -29,7 +31,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Run a regular expression on the string and return a collection of the matched
@@ -65,7 +66,7 @@ public class RegexpMatch extends AdvanceBlock {
         final Pattern pattern = Pattern.compile(getString(IN2));
         final Matcher matcher = pattern.matcher(getString(IN1));
         
-        final ArrayList<XElement> result = new ArrayList<XElement>();
+        final ArrayList<XNElement> result = new ArrayList<XNElement>();
         while (matcher.find()) {
             result.add(resolver().create(matcher.group()));
         }

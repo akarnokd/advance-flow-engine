@@ -24,6 +24,7 @@ package eu.advance.logistics.flow.engine.block.db;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.scheduler.SingleLaneExecutor;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,7 +42,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Queries and returns a batch of rows from the database and waits for a trigger
@@ -139,30 +139,30 @@ public class JDBCThrottledBatchQuery extends AdvanceBlock {
 		});
 		addCloseable(queue);
 		
-		observeInput(DATASOURCE, new Action1<XElement>() {
+		observeInput(DATASOURCE, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				datasource.set(resolver().getString(value));
 				JDBCThrottledBatchQuery.this.invoke();
 			}
 		});
-		observeInput(QUERY, new Action1<XElement>() {
+		observeInput(QUERY, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				query.set(resolver().getString(value));
 				JDBCThrottledBatchQuery.this.invoke();
 			}
 		});
-		observeInput(SIZE, new Action1<XElement>() {
+		observeInput(SIZE, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				size.set(resolver().getInt(value));
 				JDBCThrottledBatchQuery.this.invoke();
 			}
 		});
-		observeInput(NEXT, new Action1<XElement>() {
+		observeInput(NEXT, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				scheduleNext();
 			}
 		});
@@ -185,9 +185,9 @@ public class JDBCThrottledBatchQuery extends AdvanceBlock {
 			}
 			return new RunObserver();
 		}
-    	observeInput(TRIGGER, new Action1<XElement>() {
+    	observeInput(TRIGGER, new Action1<XNElement>() {
     		@Override
-    		public void invoke(XElement value) {
+    		public void invoke(XNElement value) {
     			if (resolver().getBoolean(value)) {
     				JDBCThrottledBatchQuery.this.invoke();
     			}
@@ -301,7 +301,7 @@ public class JDBCThrottledBatchQuery extends AdvanceBlock {
 			}
 		}
 		int row = 0;
-		List<XElement> result = Lists.newLinkedList();
+		List<XNElement> result = Lists.newLinkedList();
 		try {
 			while (rs.next() && row < batchSize) {
 				result.add(JDBCConverter.create(resolver(), rs, rsm));

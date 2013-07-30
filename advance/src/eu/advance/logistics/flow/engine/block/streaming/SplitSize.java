@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,7 +30,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Split the source collection into equally sized sub-collections. Signature:
@@ -66,7 +67,7 @@ public class SplitSize extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> list = resolver().getList(get(COLLECTION));
+        final List<XNElement> list = resolver().getList(get(COLLECTION));
         final int subSize = getInt(SIZE);
 
         final int size = list.size();
@@ -75,17 +76,17 @@ public class SplitSize extends AdvanceBlock {
             return;
         }
 
-        final ArrayList<XElement> result = new ArrayList<XElement>();
+        final ArrayList<XNElement> result = new ArrayList<XNElement>();
 
         int currEl = 0;
-        ArrayList<XElement> currList = new ArrayList<XElement>();
-        for (XElement el : list) {
+        ArrayList<XNElement> currList = new ArrayList<XNElement>();
+        for (XNElement el : list) {
             if (currEl < subSize) {
                 currList.add(el);
                 currEl++;
             } else {
                 result.add(resolver().create(currList));
-                currList = new ArrayList<XElement>();
+                currList = new ArrayList<XNElement>();
                 currEl = 0;
             }
         }

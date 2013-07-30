@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializables;
+
 import java.io.IOException;
 import java.util.Collection;
 
@@ -43,8 +46,6 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * Utility class to parse and compose DataStore request coming as XML format
@@ -63,14 +64,14 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 	}
 	@Nullable
 	@Override
-	public AdvanceXMLExchange dispatch(@NonNull final XElement request, @NonNull final String userName) throws IOException, AdvanceControlException {
+	public AdvanceXMLExchange dispatch(@NonNull final XNElement request, @NonNull final String userName) throws IOException, AdvanceControlException {
 		AdvanceDataStore ds = new CheckedDataStore(datastore, userName);
 		String function = request.name;
 		if ("query-realms".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("realms", "realm", ds.queryRealms()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("realms", "realm", ds.queryRealms()));
 		} else
 		if ("query-realm".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("realm", ds.queryRealm(request.get("realm"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("realm", ds.queryRealm(request.get("realm"))));
 		} else
 		if ("create-realm".equals(function)) {
 			ds.createRealm(request.get("realm"), userName);
@@ -81,14 +82,14 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("update-realm".equals(function)) {
-			ds.updateRealm(XSerializables.parseItem(request, AdvanceRealm.CREATOR));
+			ds.updateRealm(XNSerializables.parseItem(request, AdvanceRealm.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-users".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("users", "user", ds.queryUsers()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("users", "user", ds.queryUsers()));
 		} else
 		if ("query-user".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("user", ds.queryUser(request.get("user-name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("user", ds.queryUser(request.get("user-name"))));
 		} else
 		if ("enable-user".equals(function)) {
 			ds.enableUser(request.get("user-name"), request.getBoolean("enabled"), userName);
@@ -99,7 +100,7 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("update-user".equals(function)) {
-			ds.updateUser(XSerializables.parseItem(request, AdvanceUser.CREATOR));
+			ds.updateUser(XNSerializables.parseItem(request, AdvanceUser.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-notification-groups".equals(function)) {
@@ -110,10 +111,10 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-jdbc-data-sources".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("jdbc-data-sources", "jdbc-source", ds.queryJDBCDataSources()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("jdbc-data-sources", "jdbc-source", ds.queryJDBCDataSources()));
 		} else
 		if ("update-jdbc-data-source".equals(function)) {
-			ds.updateJDBCDataSource(XSerializables.parseItem(request, AdvanceJDBCDataSource.CREATOR));
+			ds.updateJDBCDataSource(XNSerializables.parseItem(request, AdvanceJDBCDataSource.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-jdbc-data-source".equals(function)) {
@@ -121,10 +122,10 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-jms-endpoints".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("jms-endpoints", "endpoint", ds.queryJMSEndpoints()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("jms-endpoints", "endpoint", ds.queryJMSEndpoints()));
 		} else
 		if ("update-jms-endpoint".equals(function)) {
-			ds.updateJMSEndpoint(XSerializables.parseItem(request, AdvanceJMSEndpoint.CREATOR));
+			ds.updateJMSEndpoint(XNSerializables.parseItem(request, AdvanceJMSEndpoint.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-jms-endpoint".equals(function)) {
@@ -132,10 +133,10 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-web-data-sources".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("web-data-sources", "web-source", ds.queryWebDataSources()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("web-data-sources", "web-source", ds.queryWebDataSources()));
 		} else
 		if ("update-web-data-source".equals(function)) {
-			ds.updateWebDataSource(XSerializables.parseItem(request, AdvanceWebDataSource.CREATOR));
+			ds.updateWebDataSource(XNSerializables.parseItem(request, AdvanceWebDataSource.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-web-data-source".equals(function)) {
@@ -143,10 +144,10 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-ftp-data-sources".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("ftp-data-sources", "ftp-source", ds.queryFTPDataSources()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("ftp-data-sources", "ftp-source", ds.queryFTPDataSources()));
 		} else
 		if ("update-ftp-data-source".equals(function)) {
-			ds.updateFTPDataSource(XSerializables.parseItem(request, AdvanceFTPDataSource.CREATOR));
+			ds.updateFTPDataSource(XNSerializables.parseItem(request, AdvanceFTPDataSource.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-ftp-data-source".equals(function)) {
@@ -154,10 +155,10 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-local-file-data-sources".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("local-file-data-sources", "local-source", ds.queryLocalFileDataSources()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("local-file-data-sources", "local-source", ds.queryLocalFileDataSources()));
 		} else
 		if ("update-local-file-data-source".equals(function)) {
-			ds.updateLocalFileDataSource(XSerializables.parseItem(request, AdvanceLocalFileDataSource.CREATOR));
+			ds.updateLocalFileDataSource(XNSerializables.parseItem(request, AdvanceLocalFileDataSource.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-local-file-data-source".equals(function)) {
@@ -165,24 +166,24 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-keystores".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("keystores", "keystore", ds.queryKeyStores()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("keystores", "keystore", ds.queryKeyStores()));
 		} else
 		if ("query-keystore".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("keystore", ds.queryKeyStore(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("keystore", ds.queryKeyStore(request.get("name"))));
 		} else
 		if ("has-user-right".equals(function)) {
-			XElement e = new XElement("boolean");
+			XNElement e = new XNElement("boolean");
 			e.content = String.valueOf(ds.hasUserRight(userName, AdvanceUserRights.valueOf(request.get("expected"))));
 			return AdvanceXMLExchange.single(e);
 		} else
 		if ("has-user-realm-right".equals(function)) {
-			XElement e = new XElement("boolean");
+			XNElement e = new XNElement("boolean");
 			e.content = String.valueOf(ds.hasUserRight(userName, request.get("realm"), 
 					AdvanceUserRealmRights.valueOf(request.get("expected"))));
 			return AdvanceXMLExchange.single(e);
 		} else
 		if ("update-keystore".equals(function)) {
-			ds.updateKeyStore(XSerializables.parseItem(request, AdvanceKeyStore.CREATOR));
+			ds.updateKeyStore(XNSerializables.parseItem(request, AdvanceKeyStore.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-keystore".equals(function)) {
@@ -191,26 +192,26 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 		} else
 		if ("query-notification-group".equals(function)) {
 			Collection<String> contacts = ds.queryNotificationGroup(AdvanceNotificationGroupType.valueOf(request.get("type")), request.get("name"));
-			XElement response = new XElement("group");
+			XNElement response = new XNElement("group");
 			for (String s : contacts) {
 				response.add("contact").set("value", s);
 			}
 			return AdvanceXMLExchange.single(response);
 		} else
 		if ("query-jdbc-data-source".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("jdbc-source", ds.queryJDBCDataSource(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("jdbc-source", ds.queryJDBCDataSource(request.get("name"))));
 		} else
 		if ("query-jms-endpoint".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("endpoint", ds.queryJMSEndpoint(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("endpoint", ds.queryJMSEndpoint(request.get("name"))));
 		} else
 		if ("query-soap-channel".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("channel", ds.querySOAPChannel(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("channel", ds.querySOAPChannel(request.get("name"))));
 		} else
 		if ("query-web-data-source".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("web-source", ds.queryWebDataSource(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("web-source", ds.queryWebDataSource(request.get("name"))));
 		} else
 		if ("query-local-file-data-source".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("local-source", ds.queryLocalFileDataSource(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("local-source", ds.queryLocalFileDataSource(request.get("name"))));
 		} else
 		if ("query-block-state".equals(function)) {
 			return AdvanceXMLExchange.single(ds.queryBlockState(request.get("realm"), request.get("block-id")));
@@ -223,7 +224,7 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.single(ds.queryFlow(request.get("realm")));
 		} else
 		if ("query-soap-channels".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("soap-channels", "channel", ds.querySOAPChannels()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("soap-channels", "channel", ds.querySOAPChannels()));
 		} else
 		if ("update-flow".equals(function)) {
 			ds.updateFlow(request.get("realm"), request.children().get(0).copy());
@@ -234,13 +235,13 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("query-email-boxes".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeList("email-boxes", "email-box", ds.queryEmailBoxes()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("email-boxes", "email-box", ds.queryEmailBoxes()));
 		} else
 		if ("query-email-box".equals(function)) {
-			return AdvanceXMLExchange.single(XSerializables.storeItem("email-box", ds.queryEmailBox(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("email-box", ds.queryEmailBox(request.get("name"))));
 		} else
 		if ("update-email-box".equals(function)) {
-			ds.updateEmailBox(XSerializables.parseItem(request, AdvanceEmailBox.CREATOR));
+			ds.updateEmailBox(XNSerializables.parseItem(request, AdvanceEmailBox.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-email-box".equals(function)) {
@@ -248,7 +249,7 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("update-soap-channel".equals(function)) {
-			ds.updateSOAPChannel(XSerializables.parseItem(request, AdvanceSOAPChannel.CREATOR));
+			ds.updateSOAPChannel(XNSerializables.parseItem(request, AdvanceSOAPChannel.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-soap-channel".equals(function)) {

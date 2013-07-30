@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.block.db;
 
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -37,7 +38,6 @@ import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Issues an SQL query into the datasource once a trigger object arrives and
@@ -86,9 +86,9 @@ public class JDBCQueryOption extends AdvanceBlock {
     	return new RunObserver() {
     		@Override
     		public void next(Void value) {
-		    	observeInput(TRIGGER, new Action1<XElement>() {
+		    	observeInput(TRIGGER, new Action1<XNElement>() {
 		    		@Override
-		    		public void invoke(XElement value) {
+		    		public void invoke(XNElement value) {
 		                if (resolver().getBoolean(value)) {
 		                    execute();
 		                }

@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Deque;
@@ -35,14 +38,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.util.Strings;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The ADVANCE block description record.
  * @author akarnokd, 2011.06.21.
  */
-public class AdvanceBlockDescription implements XSerializable {
+public class AdvanceBlockDescription implements XNSerializable {
 	/** The unique block identifier or name. */
 	@NonNull
 	public String id;
@@ -74,7 +75,7 @@ public class AdvanceBlockDescription implements XSerializable {
 		AdvanceBlockDescription result = new AdvanceBlockDescription();
 
 		// serialization copy trick
-		XElement bs = new XElement("block");
+		XNElement bs = new XNElement("block");
 		save(bs);
 		result.load(bs);
 		
@@ -100,7 +101,7 @@ public class AdvanceBlockDescription implements XSerializable {
 	 * @param root the root element
 	 */
 	@Override
-	public void load(XElement root) {
+	public void load(XNElement root) {
 		id = root.get("id");
 		displayName = root.get("displayname");
 		String doc = root.get("documentation");
@@ -123,7 +124,7 @@ public class AdvanceBlockDescription implements XSerializable {
 		
 		Map<String, AdvanceType> sharedTypes = Maps.newHashMap();
 		
-		for (XElement tp : root.childrenWithName("type-variable")) {
+		for (XNElement tp : root.childrenWithName("type-variable")) {
 			AdvanceTypeVariable bpd = new AdvanceTypeVariable();
 			bpd.load(tp);
 			if (typeVariables.put(bpd.name, bpd) != null) {
@@ -151,7 +152,7 @@ public class AdvanceBlockDescription implements XSerializable {
 		LinkedList<AdvanceType> typeParams = Lists.newLinkedList();
 		
 		hasVarargs = false;
-		for (XElement inp : root.childrenWithName("input")) {
+		for (XNElement inp : root.childrenWithName("input")) {
 			AdvanceBlockParameterDescription bpd = new AdvanceBlockParameterDescription();
 			bpd.load(inp);
 			hasVarargs |= bpd.varargs;
@@ -164,7 +165,7 @@ public class AdvanceBlockDescription implements XSerializable {
 			}
 			typeParams.add(bpd.type);
 		}
-		for (XElement outp : root.childrenWithName("output")) {
+		for (XNElement outp : root.childrenWithName("output")) {
 			AdvanceBlockParameterDescription bpd = new AdvanceBlockParameterDescription();
 			bpd.load(outp);
 			if (outputs.put(bpd.id, bpd) != null) {
@@ -200,7 +201,7 @@ public class AdvanceBlockDescription implements XSerializable {
 		
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("id", id);
 		destination.set("displayname", displayName);
 		destination.set("documentation", documentation);
@@ -226,10 +227,10 @@ public class AdvanceBlockDescription implements XSerializable {
 	 * @param root the root element conforming the {@code block-description-list.xsd}.
 	 * @return the list of block definitions
 	 */
-	public static List<AdvanceBlockDescription> parse(XElement root) {
+	public static List<AdvanceBlockDescription> parse(XNElement root) {
 		List<AdvanceBlockDescription> result = Lists.newArrayList();
 		
-		for (XElement e : root.childrenWithName("block-description")) {
+		for (XNElement e : root.childrenWithName("block-description")) {
 			AdvanceBlockDescription abd = new AdvanceBlockDescription();
 			abd.load(e);
 			result.add(abd);
@@ -238,12 +239,12 @@ public class AdvanceBlockDescription implements XSerializable {
 		return result;
 	}
 	/**
-	 * Serialize the list of block descriptions into an XElement.
+	 * Serialize the list of block descriptions into an XNElement.
 	 * @param list the list of block descriptions
-	 * @return the XElement
+	 * @return the XNElement
 	 */
-	public static XElement serialize(Iterable<AdvanceBlockDescription> list) {
-		XElement result = new XElement("block-description-list");
+	public static XNElement serialize(Iterable<AdvanceBlockDescription> list) {
+		XNElement result = new XNElement("block-description-list");
 		for (AdvanceBlockDescription item : list) {
 			item.save(result.add("block-description"));
 		}

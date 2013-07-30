@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Collections;
 import java.util.Map;
@@ -32,7 +33,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Load a set of local files. Signature: LocalFileLoadAll(trigger,
@@ -74,10 +74,10 @@ public class LocalFileLoadAll extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
                     execute();
                 }
@@ -98,13 +98,13 @@ public class LocalFileLoadAll extends AdvanceBlock {
      * Load a set of local files.
      */
     private void execute() {
-        final Map<XElement, XElement> result = Collections.emptyMap();
+        final Map<XNElement, XNElement> result = Collections.emptyMap();
         try {
             final String dataSourceStr = getString(DATASOURCE);
             final Pool<LocalConnection> ds = getPool(LocalConnection.class, dataSourceStr);
             final LocalConnection conn = ds.get();
             try {
-                for (XElement e : resolver().getItems(get(COLLECTION))) {
+                for (XNElement e : resolver().getItems(get(COLLECTION))) {
                     final String key = resolver().getString(e);
                     final String value = new String(conn.retrieve(key));
 

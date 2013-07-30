@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Extract a substring from a string. Signature: Substring(string, integer,
@@ -65,8 +66,8 @@ public class Substring extends AdvanceBlock {
     @Override
     protected void invoke() {
         final String string = getString(STRING);
-        final XElement fromEl = get(FROM);
-        final XElement toEl = get(TO);
+        final XNElement fromEl = get(FROM);
+        final XNElement toEl = get(TO);
         
         try {
             

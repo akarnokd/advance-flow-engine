@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.block.file;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.util.Closeables;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +48,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Save the data into a local file.
@@ -74,18 +74,18 @@ public class ConsignmentMMSource extends AdvanceBlock {
     protected AtomicReference<EnumSet<ConsignmentColumn>> columns = new AtomicReference<EnumSet<ConsignmentColumn>>();
     @Override
     public Observer<Void> run() {
-		observeInput(DIRECTORY, new Action1<XElement>() {
+		observeInput(DIRECTORY, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				directory.set(resolver().getString(value));
 			}
 		});
 
-		observeInput(COLUMNS, new Action1<XElement>() {
+		observeInput(COLUMNS, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				EnumSet<ConsignmentColumn> result = EnumSet.noneOf(ConsignmentColumn.class);
-				for (XElement e : resolver().getItems(value)) {
+				for (XNElement e : resolver().getItems(value)) {
 					result.add(ConsignmentColumn.valueOf(resolver().getString(e)));
 				}
 				columns.set(result);
@@ -109,9 +109,9 @@ public class ConsignmentMMSource extends AdvanceBlock {
 			}
 			return new RunObserver();
 		}
-    	observeInput(TRIGGER, new Action1<XElement>() {
+    	observeInput(TRIGGER, new Action1<XNElement>() {
     		@Override
-    		public void invoke(XElement value) {
+    		public void invoke(XNElement value) {
     			if (resolver().getBoolean(value)) {
     				ConsignmentMMSource.this.invoke();
     			}
@@ -134,9 +134,9 @@ public class ConsignmentMMSource extends AdvanceBlock {
 	    	LocalConnection conn = lc.get();
 	    	try {
 	    		File f = conn.file();
-		    	stream(ccs, f, new Action1<Map<XElement, XElement>>() {
+		    	stream(ccs, f, new Action1<Map<XNElement, XNElement>>() {
 		    		@Override
-		    		public void invoke(Map<XElement, XElement> value) {
+		    		public void invoke(Map<XNElement, XNElement> value) {
 		        		dispatch(OUT, resolver().create(value));
 		    		}
 		    	});
@@ -154,7 +154,7 @@ public class ConsignmentMMSource extends AdvanceBlock {
 	 * @param output the output action
 	 * @throws IOException on error
 	 */
-	void stream(EnumSet<ConsignmentColumn> ccs, File f, Action1<Map<XElement, XElement>> output) throws IOException {
+	void stream(EnumSet<ConsignmentColumn> ccs, File f, Action1<Map<XNElement, XNElement>> output) throws IOException {
 		List<MappedColumn> mcs = Lists.newArrayList();
 		List<ConsignmentColumn> cts = Lists.newArrayList();
 		try {
@@ -176,19 +176,19 @@ public class ConsignmentMMSource extends AdvanceBlock {
      * @param types the types
 	 * @param output the output action
      */
-    void stream(List<MappedColumn> cols, List<ConsignmentColumn> types, Action1<Map<XElement, XElement>> output) {
+    void stream(List<MappedColumn> cols, List<ConsignmentColumn> types, Action1<Map<XNElement, XNElement>> output) {
     	int rows = cols.get(0).rows();
-    	List<XElement> columnNames = Lists.newArrayList();
+    	List<XNElement> columnNames = Lists.newArrayList();
     	for (ConsignmentColumn c : types) {
     		columnNames.add(resolver().create(c.toString()));
     	}
-		Map<XElement, XElement> row = Maps.newHashMap();
+		Map<XNElement, XNElement> row = Maps.newHashMap();
     	for (int i = 0; i < rows; i++) {
     		row.clear();
     		for (int j = 0; j < cols.size(); j++) {
     			MappedColumn mm = cols.get(j);
-    			XElement n = columnNames.get(j);
-    			XElement v = null;
+    			XNElement n = columnNames.get(j);
+    			XNElement v = null;
     			switch (types.get(j).type) {
     			case BYTE:
     				v = resolver().create(mm.getByte(i));
@@ -245,17 +245,17 @@ public class ConsignmentMMSource extends AdvanceBlock {
 		Stopwatch sw = new Stopwatch();
 		sw.start();
 		ConsignmentMMSource block = new ConsignmentMMSource();
-		block.settings = new BlockSettings<XElement, AdvanceRuntimeContext>();
+		block.settings = new BlockSettings<XNElement, AdvanceRuntimeContext>();
 		block.settings.resolver = new AdvanceData();
 		
 		final AtomicInteger cnt = new AtomicInteger();
-		block.stream(cols, new File("c:/temp/hubs"), new Action1<Map<XElement, XElement>>() {
+		block.stream(cols, new File("c:/temp/hubs"), new Action1<Map<XNElement, XNElement>>() {
 			@Override
-			public void invoke(Map<XElement, XElement> value) {
+			public void invoke(Map<XNElement, XNElement> value) {
 				cnt.incrementAndGet();
 			}
 		});
 		sw.stop();
-		System.out.printf("Rows: %d, Time: %d%n", cnt.get(), sw.elapsedTime(TimeUnit.SECONDS));
+		System.out.printf("Rows: %d, Time: %d%n", cnt.get(), sw.elapsed(TimeUnit.SECONDS));
 	}
 }

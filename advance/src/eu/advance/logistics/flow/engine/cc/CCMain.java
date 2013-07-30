@@ -27,6 +27,8 @@ import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializables;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -115,8 +117,6 @@ import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * The main window of the engine control center.
@@ -2657,7 +2657,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				@Override
 				public void run() {
 					try {
-						AdvanceCompositeBlock b = AdvanceCompositeBlock.parseFlow(XElement.parseXML(f));
+						AdvanceCompositeBlock b = AdvanceCompositeBlock.parseFlow(XNElement.parseXML(f));
 						engine.updateFlow(realm, b, user.name);
 						r = engine.queryCompilationResult(realm);
 					} catch (Throwable t) {
@@ -2699,7 +2699,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				@Override
 				public void run() {
 					try {
-						AdvanceCompositeBlock b = AdvanceCompositeBlock.parseFlow(XElement.parseXML(f));
+						AdvanceCompositeBlock b = AdvanceCompositeBlock.parseFlow(XNElement.parseXML(f));
 						r = engine.verifyFlow(b);
 					} catch (Throwable t) {
 						this.t = t;
@@ -3222,7 +3222,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				try {
 					synchronized (keyStores) {
 						keyStores.clear();
-						for (AdvanceKeyStore ks : XSerializables.parseList(XElement.parseXML(keyStoreFile), "keystore", AdvanceKeyStore.CREATOR)) {
+						for (AdvanceKeyStore ks : XNSerializables.parseList(XNElement.parseXML(keyStoreFile), "keystore", AdvanceKeyStore.CREATOR)) {
 							keyStores.put(ks.name, ks);
 						}
 					}
@@ -3237,7 +3237,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		public void save() {
 			try {
 				synchronized (keyStores) {
-					XSerializables.storeList("keystores", "keystore", keyStores.values()).save(keyStoreFile);
+					XNSerializables.storeList("keystores", "keystore", keyStores.values()).save(keyStoreFile);
 				}
 			} catch (Throwable ex) {
 				GUIUtils.errorMessage(CCMain.this, ex);
@@ -3527,7 +3527,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * @param realm the realm name
 	 */
 	void showCompilationResult(JFrame f, AdvanceCompilationResult r, String realm) {
-		XElement x = new XElement("compilation-result");
+		XNElement x = new XNElement("compilation-result");
 		r.save(x);
 		CCDebugRow row = new CCDebugRow();
 		row.value = Option.some(x);
@@ -3550,7 +3550,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * @param realm the realm name
 	 */
 	void showFlow(JFrame f, AdvanceCompositeBlock r, String realm) {
-		XElement x = new XElement("flow-description");
+		XNElement x = new XNElement("flow-description");
 		r.save(x);
 		CCDebugRow row = new CCDebugRow();
 		row.value = Option.some(x);

@@ -23,7 +23,7 @@
  * The flow-description record classes and exceptions thrown when parsing a flow XML.
  * <p>To parse a flow XML conforming the {@code schemas/flow-description.xsd}, use the
  * <pre><code>
- * AdvanceCompositeBlock.parseFlow(XElement.parseXML("flow.xml"));
+ * AdvanceCompositeBlock.parseFlow(XNElement.parseXML("flow.xml"));
  * </code></pre>
  * </p>
  * <p>To serialize a flow, call the {@code serializeFlow() } instance method on a composite block.</p>

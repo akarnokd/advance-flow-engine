@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.engine.block.aggregating;
 
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.logging.Logger;
 
@@ -29,7 +30,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Compute the average of the integer or real values within the collection.
@@ -65,8 +65,8 @@ public class Average extends AdvanceBlock {
         int count = 0;
         double sum = 0.0;
 
-        final XElement xc = get(IN);
-        for (XElement e : resolver().getItems(xc)) {
+        final XNElement xc = get(IN);
+        for (XNElement e : resolver().getItems(xc)) {
         	Pair<String, String> rn = AdvanceData.realName(e);
         	if ("integer".equals(rn.first)) {
             	sum += resolver().getInt(e);

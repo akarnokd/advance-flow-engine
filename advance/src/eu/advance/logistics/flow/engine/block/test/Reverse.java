@@ -21,13 +21,14 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.LinkedList;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A simple generic block that reserves the children of the supplied advance:collection type object.
@@ -46,13 +47,13 @@ public class Reverse extends AdvanceBlock {
 	
 	@Override
 	protected void invoke() {
-		XElement in = params.get(IN);
+		XNElement in = params.get(IN);
 		
-		LinkedList<XElement> out = new LinkedList<XElement>();
-		for (XElement e : resolver().getItems(in)) {
+		LinkedList<XNElement> out = new LinkedList<XNElement>();
+		for (XNElement e : resolver().getItems(in)) {
 			out.addFirst(e.copy());
 		}
-		XElement e = resolver().create();
+		XNElement e = resolver().create();
 		e.children().addAll(out);
 		dispatch(OUT, e);
 	}

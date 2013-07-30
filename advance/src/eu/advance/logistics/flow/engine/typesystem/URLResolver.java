@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.typesystem;
 
 import hu.akarnokd.reactive4java.base.Func1;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,15 +34,13 @@ import javax.xml.stream.XMLStreamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
-
 
 
 /**
  * Utility class to resolve XML schemas relative to a base URL.
  * @author akarnokd, 2011.09.28.
  */
-public class URLResolver implements Func1<String, XElement> {
+public class URLResolver implements Func1<String, XNElement> {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(URLResolver.class);
 	/** The base URL for the resolution. */
@@ -67,12 +66,12 @@ public class URLResolver implements Func1<String, XElement> {
 		this.baseURL = urlString;
 	}
 	@Override
-	public XElement invoke(String param1) {
+	public XNElement invoke(String param1) {
 		try {
 			URL u = new URL(baseURL + "/" + param1);
 			InputStream in = u.openStream();
 			try {
-				return XElement.parseXML(in);
+				return XNElement.parseXML(in);
 			} finally {
 				in.close();
 			}

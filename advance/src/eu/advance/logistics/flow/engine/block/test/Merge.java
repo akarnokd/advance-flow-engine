@@ -26,6 +26,7 @@ import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
 import eu.advance.logistics.flow.engine.runtime.Port;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block that merges the incoming values of its parameters but without waiting for both of them.
@@ -61,11 +61,11 @@ public class Merge extends AdvanceBlock {
 	}
 	@Override
 	protected Observer<Void> runReactiveBlock(
-			List<Port<XElement, AdvanceType>> reactivePorts) {
+			List<Port<XNElement, AdvanceType>> reactivePorts) {
 		addCloseable(Reactive.observeOn(
-				Reactive.merge(reactivePorts), scheduler()).register(new InvokeObserver<XElement>() {
+				Reactive.merge(reactivePorts), scheduler()).register(new InvokeObserver<XNElement>() {
 			@Override
-			public void next(XElement value) {
+			public void next(XNElement value) {
 				dispatchOutput(Collections.singletonMap(OUT, value));
 			}
 		}));
@@ -87,10 +87,10 @@ public class Merge extends AdvanceBlock {
 				addCloseable(scheduler.schedule(new Runnable() {
 					@Override
 					public void run() {
-						for (XElement e : Interactive.select(getConstantPorts(), new Func1<Port<XElement, AdvanceType>, XElement>() {
+						for (XNElement e : Interactive.select(getConstantPorts(), new Func1<Port<XNElement, AdvanceType>, XNElement>() {
 							@Override
-							public XElement invoke(Port<XElement, AdvanceType> param1) {
-								return ((ConstantPort<XElement, AdvanceType>)param1).value;
+							public XNElement invoke(Port<XNElement, AdvanceType> param1) {
+								return ((ConstantPort<XNElement, AdvanceType>)param1).value;
 							}
 						})) {
 							dispatchOutput(Collections.singletonMap(OUT, e));

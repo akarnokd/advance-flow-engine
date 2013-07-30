@@ -24,6 +24,9 @@ package eu.advance.logistics.flow.engine.api.impl;
 import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.reactive4java.scheduler.NewThreadScheduler;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializables;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -50,9 +53,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
-import eu.advance.logistics.flow.engine.util.NewThreadScheduler;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * An {@code AdvanceEngineControl} implementation which translates the API calls into XML message exchanges through
@@ -138,73 +138,73 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 
 	@Override
 	public AdvanceUser getUser() throws IOException, AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("get-user"));
-		return XSerializables.parseItem(response, AdvanceUser.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("get-user"));
+		return XNSerializables.parseItem(response, AdvanceUser.CREATOR);
 	}
 	@Override
 	public List<BlockRegistryEntry> queryBlocks() throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-blocks"));
-		return XSerializables.parseList(response, "block", BlockRegistryEntry.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("query-blocks"));
+		return XNSerializables.parseList(response, "block", BlockRegistryEntry.CREATOR);
 	}
 	@Override
 	public List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-schemas"));
-		return XSerializables.parseList(response, "schema", AdvanceSchemaRegistryEntry.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("query-schemas"));
+		return XNSerializables.parseList(response, "schema", AdvanceSchemaRegistryEntry.CREATOR);
 	}
 	@Override
 	public AdvanceEngineVersion queryVersion() throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-version"));
-		return XSerializables.parseItem(response, AdvanceEngineVersion.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("query-version"));
+		return XNSerializables.parseItem(response, AdvanceEngineVersion.CREATOR);
 	}
 	@Override
-	public void updateSchema(String name, XElement schema)
+	public void updateSchema(String name, XNElement schema)
 			throws IOException, AdvanceControlException {
-		XElement query = XSerializables.createRequest("update-schema", "name", name);
+		XNElement query = XNSerializables.createRequest("update-schema", "name", name);
 		query.add(schema.copy());
 		comm.send(query);
 	}
 	@Override
 	public AdvanceSchemaRegistryEntry querySchema(String name)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-schema", "name", name));
-		return XSerializables.parseItem(response, AdvanceSchemaRegistryEntry.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("query-schema", "name", name));
+		return XNSerializables.parseItem(response, AdvanceSchemaRegistryEntry.CREATOR);
 	}
 	@Override
 	public void deleteKeyEntry(String keyStore, String keyAlias)
 			throws IOException, AdvanceControlException {
-		comm.send(XSerializables.createRequest("delete-key-entry", "keystore", keyStore, "keyalias", keyAlias));
+		comm.send(XNSerializables.createRequest("delete-key-entry", "keystore", keyStore, "keyalias", keyAlias));
 	}
 	@Override
 	public void generateKey(AdvanceGenerateKey key) throws IOException,
 			AdvanceControlException {
-		comm.send(XSerializables.createUpdate("generate-key", key));
+		comm.send(XNSerializables.createUpdate("generate-key", key));
 	}
 	@Override
 	public String exportCertificate(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(XSerializables.createUpdate("export-certificate", request));
+		XNElement response = comm.query(XNSerializables.createUpdate("export-certificate", request));
 		return response.content;
 	}
 	@Override
 	public String exportPrivateKey(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(XSerializables.createUpdate("export-private-key", request));
+		XNElement response = comm.query(XNSerializables.createUpdate("export-private-key", request));
 		return response.content;
 	}
 	@Override
 	public void importCertificate(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
-		XElement xrequest = new XElement("import-certificate");
+		XNElement xrequest = new XNElement("import-certificate");
 		xrequest.content = data;
 		comm.send(xrequest);
 	}
 	@Override
 	public void importPrivateKey(AdvanceKeyStoreExport request, String keyData,
 			String certData) throws IOException, AdvanceControlException {
-		XElement xrequest = new XElement("import-private-key");
+		XNElement xrequest = new XNElement("import-private-key");
 		xrequest.add("private-key").content = keyData;
 		xrequest.add("certificate").content = certData;
 		comm.send(xrequest);
@@ -212,13 +212,13 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	@Override
 	public String exportSigningRequest(AdvanceKeyStoreExport request)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(XSerializables.createUpdate("export-signing-request", request));
+		XNElement response = comm.query(XNSerializables.createUpdate("export-signing-request", request));
 		return response.content;
 	}
 	@Override
 	public void importSigningResponse(AdvanceKeyStoreExport request, String data)
 			throws IOException, AdvanceControlException {
-		XElement xrequest = new XElement("import-signing-response");
+		XNElement xrequest = new XNElement("import-signing-response");
 		request.save(xrequest);
 		xrequest.content = data;
 		comm.send(xrequest);
@@ -226,26 +226,26 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	@Override
 	public String testJDBCDataSource(String dataSourceName) throws IOException,
 			AdvanceControlException {
-		XElement result = comm.query(XSerializables.createRequest("test-jdbc-data-source", "data-source-source", dataSourceName));
+		XNElement result = comm.query(XNSerializables.createRequest("test-jdbc-data-source", "data-source-source", dataSourceName));
 		return result.content;
 	}
 	@Override
 	public String testJMSEndpoint(String jmsName) throws IOException,
 			AdvanceControlException {
-		XElement result = comm.query(XSerializables.createRequest("test-jms-endpoint", "jms-name", jmsName));
+		XNElement result = comm.query(XNSerializables.createRequest("test-jms-endpoint", "jms-name", jmsName));
 		return result.content;
 	}
 	@Override
 	public String testFTPDataSource(String ftpName) throws IOException,
 			AdvanceControlException {
-		XElement result = comm.query(XSerializables.createRequest("test-ftp-endpoint", "ftp-name", ftpName));
+		XNElement result = comm.query(XNSerializables.createRequest("test-ftp-endpoint", "ftp-name", ftpName));
 		return result.content;
 	}
 	@Override
 	public List<AdvanceKeyEntry> queryKeys(String keyStore) throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-keys", "keystore", keyStore));
-		return XSerializables.parseList(response, "keyentry", AdvanceKeyEntry.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("query-keys", "keystore", keyStore));
+		return XNSerializables.parseList(response, "keyentry", AdvanceKeyEntry.CREATOR);
 	}
 	@Override
 	public AdvanceDataStore datastore() {
@@ -254,32 +254,32 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	@Override
 	public void stopRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
-		comm.send(XSerializables.createRequest("stop-realm", "name", name, "by-user", byUser));
+		comm.send(XNSerializables.createRequest("stop-realm", "name", name, "by-user", byUser));
 	}
 	@Override
 	public void startRealm(String name, String byUser) throws IOException,
 			AdvanceControlException {
-		comm.send(XSerializables.createRequest("start-realm", "name", name, "by-user", byUser));
+		comm.send(XNSerializables.createRequest("start-realm", "name", name, "by-user", byUser));
 	}
 	@Override
 	public AdvanceCompositeBlock queryFlow(String realm) throws IOException,
 			AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-flow", "realm", realm));
+		XNElement response = comm.query(XNSerializables.createRequest("query-flow", "realm", realm));
 		return AdvanceCompositeBlock.parseFlow(response);
 	}
 	@Override
 	public void updateFlow(String realm, AdvanceCompositeBlock flow, String byUser)
 			throws IOException, AdvanceControlException {
-		XElement request = XSerializables.createRequest("update-flow", "realm", realm, "by-user", byUser);
+		XNElement request = XNSerializables.createRequest("update-flow", "realm", realm, "by-user", byUser);
 		request.add(flow.serializeFlow());
 		comm.send(request);
 	}
 	@Override
 	public AdvanceCompilationResult verifyFlow(AdvanceCompositeBlock flow)
 			throws IOException, AdvanceControlException {
-		XElement request = XSerializables.createRequest("verify-flow");
+		XNElement request = XNSerializables.createRequest("verify-flow");
 		request.add(flow.serializeFlow());
-		return XSerializables.parseItem(comm.query(request), AdvanceCompilationResult.CREATOR);
+		return XNSerializables.parseItem(comm.query(request), AdvanceCompilationResult.CREATOR);
 	}
 	/**
 	 * {@inheritDoc}
@@ -295,10 +295,10 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 			public Closeable register(final
 					Observer<? super BlockDiagnostic> observer) {
 				
-				return comm.receive(XSerializables.createRequest(
+				return comm.receive(XNSerializables.createRequest(
 						"debug-block", "realm", realm, "block-id", blockId), new NewThreadScheduler())
 					.register(
-						new Observer<XElement>() {
+						new Observer<XNElement>() {
 					@Override
 					public void error(Throwable ex) {
 						observer.error(ex);
@@ -308,8 +308,8 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 						observer.finish();
 					}
 					@Override
-					public void next(XElement value) {
-						observer.next(XSerializables.parseItem(value, BlockDiagnostic.CREATOR));
+					public void next(XNElement value) {
+						observer.next(XNSerializables.parseItem(value, BlockDiagnostic.CREATOR));
 					};
 				});
 			}
@@ -329,9 +329,9 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 			@Override
 			public Closeable register(final
 					Observer<? super PortDiagnostic> observer) {
-				return comm.receive(XSerializables.createRequest(
+				return comm.receive(XNSerializables.createRequest(
 						"debug-parameter", "realm", realm, "block-id", blockId, "port", port), new NewThreadScheduler())
-				.register(new Observer<XElement>() {
+				.register(new Observer<XNElement>() {
 					@Override
 					public void error(Throwable ex) {
 						observer.error(ex);
@@ -341,8 +341,8 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 						observer.finish();
 					}
 					@Override
-					public void next(XElement value) {
-						observer.next(XSerializables.parseItem(value, PortDiagnostic.CREATOR));
+					public void next(XNElement value) {
+						observer.next(XNSerializables.parseItem(value, PortDiagnostic.CREATOR));
 					};
 				});
 			}
@@ -350,41 +350,41 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public void injectValue(String realm, String blockId, String port,
-			XElement value) throws IOException, AdvanceControlException {
-		XElement request = XSerializables.createRequest("inject-value", "realm", realm, "block-id", blockId, "port", port);
+			XNElement value) throws IOException, AdvanceControlException {
+		XNElement request = XNSerializables.createRequest("inject-value", "realm", realm, "block-id", blockId, "port", port);
 		request.add(value.copy());
 		comm.send(request);
 	}
 	@Override
 	public void shutdown() throws IOException, AdvanceControlException {
-		comm.send(XSerializables.createRequest("shutdown"));
+		comm.send(XNSerializables.createRequest("shutdown"));
 	}
 	@Override
 	public void deleteSchema(String name) throws IOException,
 			AdvanceControlException {
-		comm.send(XSerializables.createRequest("delete-schema", "name", name));
+		comm.send(XNSerializables.createRequest("delete-schema", "name", name));
 	}
 	@Override
 	public AdvanceCompilationResult queryCompilationResult(String realm)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-compilation-result", "realm", realm));
-		return XSerializables.parseItem(response, AdvanceCompilationResult.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("query-compilation-result", "realm", realm));
+		return XNSerializables.parseItem(response, AdvanceCompilationResult.CREATOR);
 	}
 	
 	@Override
 	public List<AdvancePortSpecification> queryPorts(String realm)
 			throws IOException, AdvanceControlException {
-		XElement response = comm.query(XSerializables.createRequest("query-ports", "realm", realm));
-		return XSerializables.parseList(response, "ports", AdvancePortSpecification.CREATOR);
+		XNElement response = comm.query(XNSerializables.createRequest("query-ports", "realm", realm));
+		return XNSerializables.parseList(response, "ports", AdvancePortSpecification.CREATOR);
 	}
 	@Override
-	public Observable<XElement> receivePort(final String realm, final String portId)
+	public Observable<XNElement> receivePort(final String realm, final String portId)
 			throws IOException, AdvanceControlException {
-		return new Observable<XElement>() {
+		return new Observable<XNElement>() {
 			@Override
 			public Closeable register(final
-					Observer<? super XElement> observer) {
-				return comm.receive(XSerializables.createRequest(
+					Observer<? super XNElement> observer) {
+				return comm.receive(XNSerializables.createRequest(
 						"receive-port", "realm", realm, "port", portId), new NewThreadScheduler())
 				.register(observer);
 			}
@@ -392,11 +392,11 @@ public class HttpRemoteEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public void sendPort(String realm,
-			Iterable<Pair<String, XElement>> portValues) throws IOException,
+			Iterable<Pair<String, XNElement>> portValues) throws IOException,
 			AdvanceControlException {
-		XElement request = XSerializables.createRequest("send-port", "realm", realm);
-		for (Pair<String, XElement> pv : portValues) {
-			XElement entry = request.add("entry");
+		XNElement request = XNSerializables.createRequest("send-port", "realm", realm);
+		for (Pair<String, XNElement> pv : portValues) {
+			XNElement entry = request.add("entry");
 			entry.set("port", pv.first);
 			entry.add(pv.second.copy());
 		}

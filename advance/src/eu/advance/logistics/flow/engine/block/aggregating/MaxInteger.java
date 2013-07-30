@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns the largest integer in the collection along with its last occurrence
@@ -56,7 +57,7 @@ public class MaxInteger extends AdvanceBlock {
     protected void invoke() {
         int max = Integer.MIN_VALUE;
 
-        for (XElement xelem : resolver().getItems(get(IN))) {
+        for (XNElement xelem : resolver().getItems(get(IN))) {
             max = Math.max(max, settings.resolver.getInt(xelem));
         }
         

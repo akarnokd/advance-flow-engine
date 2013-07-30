@@ -23,6 +23,8 @@ package eu.advance.logistics.flow.engine.runtime;
 
 import hu.akarnokd.reactive4java.base.Func0;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -30,14 +32,11 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
-
 /**
  * The diagnostic port for advance regular ports.
  * @author akarnokd, 2011.06.22.
  */
-public final class PortDiagnostic implements XSerializable {
+public final class PortDiagnostic implements XNSerializable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(PortDiagnostic.class);
 	/** The realm. */
@@ -75,12 +74,12 @@ public final class PortDiagnostic implements XSerializable {
 		this.value = value;
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		realm = source.get("realm");
 		blockId = source.get("block-id");
 		port = source.get("port");
 		try {
-			timestamp = XElement.parseDateTime(source.get("timestamp"));
+			timestamp = XNElement.parseDateTime(source.get("timestamp"));
 		} catch (ParseException ex) {
 			LOG.error(ex.toString(), ex);
 		}
@@ -91,20 +90,20 @@ public final class PortDiagnostic implements XSerializable {
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("realm", realm);
 		destination.set("block-id", blockId);
 		destination.set("port", port);
 		destination.set("timestamp", timestamp);
 		if (Option.isSome(value)) {
 			Object val = value.value();
-			if (val instanceof XElement) {
-				XElement v = (XElement)value.value();
+			if (val instanceof XNElement) {
+				XNElement v = (XNElement)value.value();
 				destination.add(v.copy());
 			} else
-			if (val instanceof XSerializable) {
-				XElement v = new XElement(value.value().getClass().getSimpleName());
-				((XSerializable)val).save(v);
+			if (val instanceof XNSerializable) {
+				XNElement v = new XNElement(value.value().getClass().getSimpleName());
+				((XNSerializable)val).save(v);
 				destination.add(v);
 			} else {
 				if (val != null) {

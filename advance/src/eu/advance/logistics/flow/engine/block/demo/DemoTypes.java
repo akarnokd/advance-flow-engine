@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.demo;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Utility class to create and manage the types of the demo.
@@ -40,8 +40,8 @@ public final class DemoTypes {
 	 * @param destination the destination id
 	 * @return the full pallet
 	 */
-	public static XElement createFullPallet(int destination) {
-		XElement e = new XElement("full-pallet");
+	public static XNElement createFullPallet(int destination) {
+		XNElement e = new XNElement("full-pallet");
 		e.set("full", "true");
 		e.set("destination", destination);
 		return e;
@@ -51,8 +51,8 @@ public final class DemoTypes {
 	 * @param destination the destination id
 	 * @return the half pallet
 	 */
-	public static XElement createHalfPallet(int destination) {
-		XElement e = new XElement("half-pallet");
+	public static XNElement createHalfPallet(int destination) {
+		XNElement e = new XNElement("half-pallet");
 		e.set("half", "true");
 		e.set("destination", destination);
 		return e;
@@ -62,12 +62,12 @@ public final class DemoTypes {
 	 * @param pallets the pallet sequence
 	 * @return the truck
 	 */
-	public static XElement createTruck(Iterable<XElement> pallets) {
-		XElement e = new XElement("truck");
+	public static XNElement createTruck(Iterable<XNElement> pallets) {
+		XNElement e = new XNElement("truck");
 		AdvanceData r = new AdvanceData();
-		XElement palletCollection = AdvanceData.rename(r.create(), "pallets");
+		XNElement palletCollection = AdvanceData.rename(r.create(), "pallets");
 		e.add(palletCollection);
-		for (XElement p : pallets) {
+		for (XNElement p : pallets) {
 			palletCollection.add(AdvanceData.rename(p, "item"));
 		}
 		return e;

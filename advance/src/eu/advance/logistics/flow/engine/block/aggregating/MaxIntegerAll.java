@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -29,7 +31,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns the largest integer value from the collection along with the
@@ -68,7 +69,7 @@ public class MaxIntegerAll extends AdvanceBlock {
     	int max = 0;
         int count = 0;
 
-    	for (XElement e : resolver().getItems(get(IN))) {
+    	for (XNElement e : resolver().getItems(get(IN))) {
 			int v = resolver().getInt(e);
     		
     		if (count == 0 || max < v) {
@@ -85,7 +86,7 @@ public class MaxIntegerAll extends AdvanceBlock {
     	if (count > 0) {
         dispatch(OUT1, resolver().create(max));
     	}
-    	List<XElement> xpos = Lists.newLinkedList();
+    	List<XNElement> xpos = Lists.newLinkedList();
     	for (Integer idx : positions) {
     		xpos.add(resolver().create(idx));
     	}

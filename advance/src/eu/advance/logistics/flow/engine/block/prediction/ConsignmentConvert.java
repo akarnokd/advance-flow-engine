@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Map;
 
@@ -30,7 +31,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Convert a database row into a consignment.
@@ -52,16 +52,16 @@ public class ConsignmentConvert extends AdvanceBlock {
     protected static final String OUT = "consignment";
 
     @Override
-    public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+    public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
         super.init(settings);
     }
 
     @Override
     protected void invoke() {
-        getInput(IN).register(new Observer<XElement>() {
+        getInput(IN).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 process(value);
             }
 
@@ -79,8 +79,8 @@ public class ConsignmentConvert extends AdvanceBlock {
      * Gets a consignment for a database row. 
      * @param x the XML representation of a row
      */
-    private void process(XElement x) {
-        Map<XElement, XElement> data = resolver().getMap(x);
+    private void process(XNElement x) {
+        Map<XNElement, XNElement> data = resolver().getMap(x);
         Consignment c = new Consignment();
         c.id = getInt(data, "ConsignmentId");
         c.hubId = getInt(data, "Hub");
@@ -102,7 +102,7 @@ public class ConsignmentConvert extends AdvanceBlock {
      * @param key table column name
      * @return the value
      */
-    private int getInt(Map<XElement, XElement> data, String key) {
+    private int getInt(Map<XNElement, XNElement> data, String key) {
         return resolver().getInt(data.get(resolver().create(key)));
     }
 
@@ -112,7 +112,7 @@ public class ConsignmentConvert extends AdvanceBlock {
      * @param key table column name
      * @return the value
      */
-    private double getDouble(Map<XElement, XElement> data, String key) {
+    private double getDouble(Map<XNElement, XNElement> data, String key) {
         return resolver().getDouble(data.get(resolver().create(key)));
     }
     
@@ -123,7 +123,7 @@ public class ConsignmentConvert extends AdvanceBlock {
      * @param key table column name
      * @return the value
      */
-    private String getString(Map<XElement, XElement> data, String key) {
+    private String getString(Map<XNElement, XNElement> data, String key) {
         return resolver().getString(data.get(resolver().create(key)));
     }
 }
