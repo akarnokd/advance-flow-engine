@@ -25,39 +25,38 @@ import hu.akarnokd.reactive4java.base.CloseableIterable;
 import hu.akarnokd.reactive4java.base.CloseableIterator;
 import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
-
 /**
  * An interface wrapping a blocking iterable which returns one or multiple values.
  * @author akarnokd, 2011.10.04.
  */
-public class AdvanceXMLExchange implements CloseableIterable<XElement> {
+public class AdvanceXMLExchange implements CloseableIterable<XNElement> {
 	/** Expect multiple responses? */
 	public final boolean multiple;
 	/** The iterable sequence. */
-	private CloseableIterable<XElement> sequence;
+	private CloseableIterable<XNElement> sequence;
 	/**
 	 * No response.
 	 * @return no response
 	 */
 	public static AdvanceXMLExchange none() {
 		AdvanceXMLExchange r = new AdvanceXMLExchange(false);
-		r.sequence = new CloseableIterable<XElement>() {
+		r.sequence = new CloseableIterable<XNElement>() {
 			@Override
-			public CloseableIterator<XElement> iterator() {
-				return new CloseableIterator<XElement>() {
+			public CloseableIterator<XNElement> iterator() {
+				return new CloseableIterator<XNElement>() {
 					@Override
 					public boolean hasNext() {
 						return false;
 					}
 					@Override
-					public XElement next() {
+					public XNElement next() {
 						throw new NoSuchElementException();
 					}
 					@Override
@@ -78,21 +77,21 @@ public class AdvanceXMLExchange implements CloseableIterable<XElement> {
 	 * @param response the response
 	 * @return an exchange object with single response
 	 */
-	public static AdvanceXMLExchange single(XElement response) {
+	public static AdvanceXMLExchange single(XNElement response) {
 		AdvanceXMLExchange r = new AdvanceXMLExchange(false);
-		final Iterable<XElement> singleton = Collections.singletonList(response);
-		r.sequence = new CloseableIterable<XElement>() {
+		final Iterable<XNElement> singleton = Collections.singletonList(response);
+		r.sequence = new CloseableIterable<XNElement>() {
 			@Override
-			public CloseableIterator<XElement> iterator() {
-				return new CloseableIterator<XElement>() {
+			public CloseableIterator<XNElement> iterator() {
+				return new CloseableIterator<XNElement>() {
 					/** The backing iterator. */
-					Iterator<XElement> it = singleton.iterator();
+					Iterator<XNElement> it = singleton.iterator();
 					@Override
 					public boolean hasNext() {
 						return it.hasNext();
 					}
 					@Override
-					public XElement next() {
+					public XNElement next() {
 						return it.next();
 					}
 					@Override
@@ -113,7 +112,7 @@ public class AdvanceXMLExchange implements CloseableIterable<XElement> {
 	 * @param source the source observable
 	 * @return the exchange with multiple objects
 	 */
-	public static AdvanceXMLExchange multiple(Observable<XElement> source) {
+	public static AdvanceXMLExchange multiple(Observable<XNElement> source) {
 		AdvanceXMLExchange r = new AdvanceXMLExchange(true);
 		r.sequence = Reactive.toIterable(source);
 		return r;
@@ -126,7 +125,7 @@ public class AdvanceXMLExchange implements CloseableIterable<XElement> {
 		this.multiple = multiple;
 	}
 	@Override
-	public CloseableIterator<XElement> iterator() {
+	public CloseableIterator<XNElement> iterator() {
 		return sequence.iterator();
 	}
 }

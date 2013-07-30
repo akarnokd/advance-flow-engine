@@ -21,26 +21,26 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 /**
  * Record to store visualization properties of a block, constant or composite block.
  * @author akarnokd, 2011.09.28.
  */
-public class AdvanceBlockVisuals implements XSerializable {
+public class AdvanceBlockVisuals implements XNSerializable {
 	/** The location on screen. */
 	public int x;
 	/** The location on screen. */
 	public int y;
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		x = source.getInt("x", 0);
 		y = source.getInt("y", 0);
 	}
 
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("x", x);
 		destination.set("y", y);
 	}

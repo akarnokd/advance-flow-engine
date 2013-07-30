@@ -21,6 +21,10 @@
 
 package eu.advance.logistics.flow.engine.api.ds;
 
+import hu.akarnokd.utils.Base64;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -28,15 +32,11 @@ import java.util.Date;
 
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.util.Base64;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
-
 /**
  * The creation/modification time and user information.
  * @author akarnokd, 2011.09.19.
  */
-public class AdvanceCreateModifyInfo implements XSerializable {
+public class AdvanceCreateModifyInfo implements XNSerializable {
 	/** The creation timestamp of the object. */
 	public Date createdAt;
 	/** The last modification timestamp of the object. */
@@ -51,7 +51,7 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	 * @param name the attribute name
 	 * @return the password or null if no password
 	 */
-	public static char[] getPassword(XElement source, String name) {
+	public static char[] getPassword(XNElement source, String name) {
 		String pwd = source.get(name);
 		if (pwd != null) {
 			try {
@@ -69,7 +69,7 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	 * @param name the attribute name
 	 * @param password the password characters
 	 */
-	public static void setPassword(XElement destination, String name, char[] password) {
+	public static void setPassword(XNElement destination, String name, char[] password) {
 		if (password != null) {
 			destination.set(name, Base64.encodeBytes(new String(password).getBytes(Charset.forName("UTF-8"))));
 		} else {
@@ -78,11 +78,11 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 		
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		String s = source.get("created-at");
 		if (s != null && !s.isEmpty()) {
 			try {
-				createdAt = XElement.parseDateTime(s);
+				createdAt = XNElement.parseDateTime(s);
 			} catch (ParseException ex) {
 				LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
 			}
@@ -91,7 +91,7 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 		s = source.get("modified-at");
 		if (s != null && !s.isEmpty()) {
 			try {
-				modifiedAt = XElement.parseDateTime(s);
+				modifiedAt = XNElement.parseDateTime(s);
 			} catch (ParseException ex) {
 				LoggerFactory.getLogger(AdvanceCreateModifyInfo.class).error(ex.toString(), ex);
 			}
@@ -99,7 +99,7 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 		modifiedBy = source.get("modified-by");
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("created-at", createdAt);
 		destination.set("created-by", createdBy);
 		destination.set("modified-at", modifiedAt);
@@ -117,7 +117,7 @@ public class AdvanceCreateModifyInfo implements XSerializable {
 	}
 	@Override
 	public String toString() {
-		XElement root = new XElement(getClass().getSimpleName());
+		XNElement root = new XNElement(getClass().getSimpleName());
 		save(root);
 		return root.toString();
 	}

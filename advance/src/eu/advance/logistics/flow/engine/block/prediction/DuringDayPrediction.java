@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.utils.Base64;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -32,8 +34,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.util.Base64;
-import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.MLModel;
 import eu.advance.logistics.prediction.support.MLPrediction;
 
@@ -80,9 +80,9 @@ public class DuringDayPrediction extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        getInput(TRAINED_MODEL).register(new Observer<XElement>() {
+        getInput(TRAINED_MODEL).register(new Observer<XNElement>() {
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 LOG.info("Reading prediction model...");
                 prediction = new MLPrediction();
                 try {
@@ -110,12 +110,12 @@ public class DuringDayPrediction extends AdvanceBlock {
             public void finish() {
             }
         });
-        getInput(CONSIGNMENT).register(new Observer<XElement>() {
+        getInput(CONSIGNMENT).register(new Observer<XNElement>() {
             private int counter;
             private long lastTime;
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (prediction != null) {
                     process(value);
                     counter++;
@@ -147,14 +147,14 @@ public class DuringDayPrediction extends AdvanceBlock {
      *
      * @param x the XML representation of the consignment
      */
-    private void process(XElement x) {
+    private void process(XNElement x) {
         try {
             Consignment c = Consignment.parse(x);
             if (c.id != -1) {
                 prediction.process(new ConsignmentAccessorImpl(c));
             } else {
                 Map<String, Double> results = prediction.done();
-                Map<XElement, XElement> forecast = Maps.newHashMap();
+                Map<XNElement, XNElement> forecast = Maps.newHashMap();
                 for (Map.Entry<String, Double> e : results.entrySet()) {
                     forecast.put(resolver().create(e.getKey()),
                             resolver().create(e.getValue()));
@@ -182,7 +182,7 @@ public class DuringDayPrediction extends AdvanceBlock {
      * @return the model
      * @throws Exception if unable to convert base64 string
      */
-    private MLModel fromXml(XElement root) throws Exception {
+    private MLModel fromXml(XNElement root) throws Exception {
         MLModel model = new MLModel();
 
         DuringDayConfigData cfg = new DuringDayConfigData();
@@ -191,9 +191,9 @@ public class DuringDayPrediction extends AdvanceBlock {
         selectedAttributesProvider.load(root.childElement("attributes-set"));
         model.config = cfg.createTestSet(selectedAttributesProvider);
 
-        XElement classifiers = root.childElement("classifiers");
+        XNElement classifiers = root.childElement("classifiers");
         model.classifiers = Maps.newHashMap();
-        for (XElement classifier : classifiers.children()) {
+        for (XNElement classifier : classifiers.children()) {
             model.classifiers.put(classifier.get("name"), Base64.decode(classifier.content));
         }
 

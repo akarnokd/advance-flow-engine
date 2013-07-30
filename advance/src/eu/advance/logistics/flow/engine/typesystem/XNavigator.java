@@ -24,6 +24,9 @@ package eu.advance.logistics.flow.engine.typesystem;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.interactive.Interactive;
+import hu.akarnokd.utils.lang.Tuple3;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNElement.XAttributeName;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,10 +58,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 
-import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XElement.XAttributeName;
-
 /**
  * An implementation for Jaxen's XPath engine.
  * @author akarnokd, 2011.07.19.
@@ -69,8 +68,8 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public Iterator<?> getChildAxisIterator(Object contextNode) {
-		if (contextNode instanceof XElement) {
-			final XElement e = (XElement) contextNode;
+		if (contextNode instanceof XNElement) {
+			final XNElement e = (XNElement) contextNode;
 			if (e.content != null) {
 				return Iterators.concat(Iterators.singletonIterator(Pair.of(e, e.content)), 
 						e.children().iterator());
@@ -82,8 +81,8 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public Iterator<?> getDescendantAxisIterator(Object contextNode) {
-		if (contextNode instanceof XElement) {
-			final XElement e = (XElement) contextNode;
+		if (contextNode instanceof XNElement) {
+			final XNElement e = (XNElement) contextNode;
 			return new Iterator<Object>() {
 				/** The current iterator. */
 				Iterator<?> current = getChildAxisIterator(e);
@@ -375,8 +374,8 @@ public class XNavigator implements Navigator {
 	@Override
 	public Iterator<?> getAttributeAxisIterator(Object contextNode)
 			throws UnsupportedAxisException {
-		if (contextNode instanceof XElement) {
-			final XElement e = (XElement) contextNode;
+		if (contextNode instanceof XNElement) {
+			final XNElement e = (XNElement) contextNode;
 			return 
 			Interactive.select(
 				Interactive.where(e.attributes().entrySet(), 
@@ -387,11 +386,11 @@ public class XNavigator implements Navigator {
 								|| !input.getKey().namespace.startsWith("http://www.w3.org/2000/xmlns/");
 					}
 				}),
-				new Func1<Map.Entry<XAttributeName, String>, Triplet<XElement, XAttributeName, String>>() {
+				new Func1<Map.Entry<XAttributeName, String>, Tuple3<XNElement, XAttributeName, String>>() {
 					@Override
-					public Triplet<XElement, XAttributeName, String> invoke(
+					public Tuple3<XNElement, XAttributeName, String> invoke(
 							Entry<XAttributeName, String> param1) {
-						return Triplet.of(e, param1.getKey(), param1.getValue());
+						return Tuple3.of(e, param1.getKey(), param1.getValue());
 					}
 				}
 			).iterator();
@@ -401,11 +400,11 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public Iterator<?> getNamespaceAxisIterator(Object contextNode) {
-		// the nearest XElement
+		// the nearest XNElement
 		if (contextNode instanceof Pair<?, ?>) {
 			contextNode = ((Pair<?, ?>)contextNode).first;
 		}
-		XElement e = (XElement)contextNode;
+		XNElement e = (XNElement)contextNode;
 		Map<String, String> namespaces = Maps.newHashMap();
 		namespaces.put("xml", "http://www.w3.org/XML/1998/namespace");
 		while (e != null) {
@@ -452,7 +451,7 @@ public class XNavigator implements Navigator {
 			URI ouri = new URI(uri);
 			InputStream in = ouri.toURL().openStream();
 			try {
-				return XElement.parseXML(in);
+				return XNElement.parseXML(in);
 			} finally {
 				in.close();
 			}
@@ -467,15 +466,15 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public Object getDocumentNode(Object contextNode) {
-		XElement e = null;
+		XNElement e = null;
 		if (contextNode instanceof Pair<?, ?>) {
-			e = (XElement)(((Pair<?, ?>)contextNode).first);
+			e = (XNElement)(((Pair<?, ?>)contextNode).first);
 		}
-		if (contextNode instanceof Triplet<?, ?, ?>) {
-			e = (XElement)(((Triplet<?, ?, ?>)contextNode).first);
+		if (contextNode instanceof Tuple3<?, ?, ?>) {
+			e = (XNElement)(((Tuple3<?, ?, ?>)contextNode).a);
 		}
-		if (contextNode instanceof XElement) {
-			e = (XElement) contextNode;
+		if (contextNode instanceof XNElement) {
+			e = (XNElement) contextNode;
 			while (e.parent != null) {
 				e = e.parent;
 			}
@@ -485,46 +484,46 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public Object getParentNode(Object contextNode) {
-		if (contextNode instanceof Triplet<?, ?, ?>) {
-			Triplet<?, ?, ?> triplet = (Triplet<?, ?, ?>) contextNode;
-			return triplet.first;
+		if (contextNode instanceof Tuple3<?, ?, ?>) {
+			Tuple3<?, ?, ?> triplet = (Tuple3<?, ?, ?>) contextNode;
+			return triplet.a;
 		} else
 		if (contextNode instanceof Pair<?, ?>) {
 			Pair<?, ?> pair = (Pair<?, ?>) contextNode;
 			return pair.first;
 		}
-		return ((XElement)contextNode).parent;
+		return ((XNElement)contextNode).parent;
 	}
 
 	@Override
 	public String getElementNamespaceUri(Object element) {
-		return ((XElement)element).namespace;
+		return ((XNElement)element).namespace;
 	}
 
 	@Override
 	public String getElementName(Object element) {
-		return ((XElement)element).name;
+		return ((XNElement)element).name;
 	}
 
 	@Override
 	public String getElementQName(Object element) {
-		XElement e = (XElement)element;
+		XNElement e = (XNElement)element;
 		return e.prefix != null ? e.prefix + ":" + e.name : e.name;
 	}
 
 	@Override
 	public String getAttributeNamespaceUri(Object attr) {
-		return ((XAttributeName)((Triplet<?, ?, ?>)attr).second).namespace;
+		return ((XAttributeName)((Tuple3<?, ?, ?>)attr).b).namespace;
 	}
 
 	@Override
 	public String getAttributeName(Object attr) {
-		return ((XAttributeName)((Triplet<?, ?, ?>)attr).second).name;
+		return ((XAttributeName)((Tuple3<?, ?, ?>)attr).b).name;
 	}
 
 	@Override
 	public String getAttributeQName(Object attr) {
-		XAttributeName e = ((XAttributeName)((Triplet<?, ?, ?>)attr).second);
+		XAttributeName e = ((XAttributeName)((Tuple3<?, ?, ?>)attr).b);
 		return e.prefix != null ? e.prefix + ":" + e.name : e.name;
 	}
 
@@ -540,17 +539,17 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public boolean isDocument(Object object) {
-		return (object instanceof XElement) && ((XElement)object).parent == null;
+		return (object instanceof XNElement) && ((XNElement)object).parent == null;
 	}
 
 	@Override
 	public boolean isElement(Object object) {
-		return object instanceof XElement;
+		return object instanceof XNElement;
 	}
 
 	@Override
 	public boolean isAttribute(Object object) {
-		return object instanceof Triplet<?, ?, ?>;
+		return object instanceof Tuple3<?, ?, ?>;
 	}
 
 	@Override
@@ -580,13 +579,13 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public String getElementStringValue(Object element) {
-		String s = ((XElement)element).content;
+		String s = ((XNElement)element).content;
 		return s != null ? s : "";
 	}
 
 	@Override
 	public String getAttributeStringValue(Object attr) {
-		return (String)((Triplet<?, ?, ?>)attr).third;
+		return (String)((Tuple3<?, ?, ?>)attr).c;
 	}
 
 	@Override
@@ -623,7 +622,7 @@ public class XNavigator implements Navigator {
 
 	@Override
 	public Object getElementById(Object contextNode, String elementId) {
-		// FIXME not captured by XElement
+		// FIXME not captured by XNElement
 		return null;
 	}
 

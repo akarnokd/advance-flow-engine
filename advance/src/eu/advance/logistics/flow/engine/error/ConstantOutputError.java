@@ -22,12 +22,12 @@
 package eu.advance.logistics.flow.engine.error;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A wire is bound to a constant on its destination side.
@@ -53,12 +53,12 @@ public class ConstantOutputError implements AdvanceCompilationError, HasBinding 
 		return "Wire " + binding.id + " output is bound to a constant " + binding.destinationBlock;
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		binding = new AdvanceBlockBind();
 		binding.load(source.childElement("binding"));
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("type", getClass().getSimpleName());
 		destination.set("message", toString());
 		binding.save(destination.add("binding"));

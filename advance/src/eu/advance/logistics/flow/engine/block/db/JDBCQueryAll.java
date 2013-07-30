@@ -24,6 +24,7 @@ package eu.advance.logistics.flow.engine.block.db;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -39,7 +40,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Issues an SQL query into the datasource once a trigger object arrives and
@@ -84,10 +84,10 @@ public class JDBCQueryAll extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
                     execute();
                 }
@@ -117,7 +117,7 @@ public class JDBCQueryAll extends AdvanceBlock {
 	                final ResultSet rs = stm.executeQuery(query);
 	                try {
 	                    final ResultSetMetaData rsmd = rs.getMetaData();
-	                    List<XElement> result = Lists.newArrayList();
+	                    List<XNElement> result = Lists.newArrayList();
 	                    while (rs.next()) {
 	                    	result.add(JDBCConverter.create(resolver(), rs, rsmd));
 	                    }

@@ -21,20 +21,20 @@
 
 package eu.advance.logistics.flow.engine.typesystem;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 
 /**
  * An XML type variable.
  * @author akarnokd, 2011.11.15.
  */
-public class XGenericVariable implements XSerializable {
+public class XGenericVariable implements XNSerializable {
 	/** The variable name. */
 	public String name;
 	/** Does this have an upper bound? */
@@ -74,14 +74,14 @@ public class XGenericVariable implements XSerializable {
 		return result;
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
-		Iterator<XElement> ub = source.childrenWithName("upper-bound").iterator();
-		Iterator<XElement> lb = source.childrenWithName("upper-bound").iterator();
+		Iterator<XNElement> ub = source.childrenWithName("upper-bound").iterator();
+		Iterator<XNElement> lb = source.childrenWithName("upper-bound").iterator();
 		if (ub.hasNext()) {
 			isUpper = true;
 		}
-		Iterator<XElement> it = isUpper ? ub : lb;
+		Iterator<XNElement> it = isUpper ? ub : lb;
 		while (it.hasNext()) {
 			XGenericType ta = new XGenericType();
 			ta.load(it.next());
@@ -90,7 +90,7 @@ public class XGenericVariable implements XSerializable {
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		throw new UnsupportedOperationException();
 	}
 }

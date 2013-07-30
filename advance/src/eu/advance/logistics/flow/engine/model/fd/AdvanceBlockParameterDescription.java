@@ -21,20 +21,21 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * An input or output parameter description of an ADVANCE block.
  * @author akarnokd, 2011.06.21.
  */
-public class AdvanceBlockParameterDescription implements XSerializable, Copyable<AdvanceBlockParameterDescription> {
+public class AdvanceBlockParameterDescription implements XNSerializable, Copyable<AdvanceBlockParameterDescription> {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceBlockParameterDescription.class);
 	/** The unique (among other inputs or outputs of this block) identifier of the input parameter. This ID will be used by the block wiring within the flow description. */
@@ -50,7 +51,7 @@ public class AdvanceBlockParameterDescription implements XSerializable, Copyable
 	/** Indicates that this input is required. */
 	public boolean required;
 	/** If non-null, it contains the default constant. */
-	public XElement defaultValue;
+	public XNElement defaultValue;
 	/** Indicates that the parameter is actually a variable argument. */
 	public boolean varargs;
 	/**
@@ -58,12 +59,12 @@ public class AdvanceBlockParameterDescription implements XSerializable, Copyable
 	 * @param root the root element of an input/output node.
 	 */
 	@Override
-	public void load(XElement root) {
+	public void load(XNElement root) {
 		id = root.get("id");
 		displayName = root.get("displayname");
 		documentation = root.get("documentation");
 		required = root.getBoolean("required", true);
-		XElement c = root.childElement("default");
+		XNElement c = root.childElement("default");
 		if (c != null) {
 			if (c.children().size() == 1) {
 				defaultValue = c.children().get(0);
@@ -76,7 +77,7 @@ public class AdvanceBlockParameterDescription implements XSerializable, Copyable
 		type.load(root);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("id", id);
 		destination.set("displayname", displayName);
 		destination.set("documentation", documentation);

@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Removes the given value from the input collection and return a new collection
@@ -71,14 +72,14 @@ public class RemoveItem extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> list = resolver().getList(get(COLLECTION));
-        final XElement value = get(VALUE);
+        final List<XNElement> list = resolver().getList(get(COLLECTION));
+        final XNElement value = get(VALUE);
 
         int count = 0;
         if (list.contains(value)) {
 
             int index = 0;
-            for (XElement el : list) {
+            for (XNElement el : list) {
                 if (el.equals(value)) {
                     list.remove(index);
                     count++;

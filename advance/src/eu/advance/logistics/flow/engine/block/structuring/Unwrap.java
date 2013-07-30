@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Extracts elements from a collection and dispatches them one-by-one.
@@ -46,7 +47,7 @@ public class Unwrap extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-        for (XElement element : resolver().getList(get(IN))) {
+        for (XNElement element : resolver().getList(get(IN))) {
             dispatch(OUT, element);
         }
     }

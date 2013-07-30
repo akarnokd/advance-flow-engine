@@ -22,11 +22,11 @@
 package eu.advance.logistics.flow.engine.error;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Map;
 
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The varargs parameter has no counts set in the block reference.
@@ -56,13 +56,13 @@ public class UnsetVarargsError implements AdvanceCompilationError {
 		
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		id = source.get("id");
 		type = source.get("type");
 		input = source.get("input");
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("type", getClass().getSimpleName());
 		destination.set("message", toString());
 		destination.set("id", id, "type", type, "input", input);

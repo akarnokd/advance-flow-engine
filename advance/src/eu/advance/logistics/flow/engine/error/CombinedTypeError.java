@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.error;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -29,7 +30,6 @@ import java.util.Map;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The combination (e.g., union) of two types could not be created.
@@ -63,7 +63,7 @@ public class CombinedTypeError implements AdvanceCompilationError, HasBinding, H
 		
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		binding = new AdvanceBlockBind();
 		binding.load(source.childElement("binding"));
 		left = new AdvanceType();
@@ -72,7 +72,7 @@ public class CombinedTypeError implements AdvanceCompilationError, HasBinding, H
 		right.load(source.childElement("right-type"));
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("type", getClass().getSimpleName());
 		destination.set("message", toString());
 		binding.save(destination.add("binding"));

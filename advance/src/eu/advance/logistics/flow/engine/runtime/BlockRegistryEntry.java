@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine.runtime;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,15 +37,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The block registry entry of the block-registry.xml and xsd.
  * @author akarnokd, 2011.07.05.
  */
 public class BlockRegistryEntry extends AdvanceBlockDescription 
-implements XSerializable {
+implements XNSerializable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(BlockRegistryEntry.class);
 	/** The implementation class. */
@@ -74,7 +74,7 @@ implements XSerializable {
 		super.assign(desc);
 	}
 	@Override
-	public void load(XElement root) {
+	public void load(XNElement root) {
 		super.load(root);
 		clazz = root.get("class");
 		String s = root.get("scheduler");
@@ -85,7 +85,7 @@ implements XSerializable {
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		super.save(destination);
 		destination.set("class", clazz);
 		destination.set("scheduler", scheduler.name());
@@ -93,7 +93,7 @@ implements XSerializable {
 	@Override
 	public BlockRegistryEntry copy() {
 		BlockRegistryEntry result = new BlockRegistryEntry();
-		XElement e = new XElement("e");
+		XNElement e = new XNElement("e");
 		save(e);
 		result.load(e);
 		return result;
@@ -103,10 +103,10 @@ implements XSerializable {
 	 * @param root the root element conforming the {@code block-registry.xsd}.
 	 * @return the list of block registry definitions
 	 */
-	public static List<BlockRegistryEntry> parseRegistry(XElement root) {
+	public static List<BlockRegistryEntry> parseRegistry(XNElement root) {
 		List<BlockRegistryEntry> result = Lists.newArrayList();
 		
-		for (XElement e : root.childrenWithName("block-description")) {
+		for (XNElement e : root.childrenWithName("block-description")) {
 			BlockRegistryEntry abd = new BlockRegistryEntry();
 			abd.load(e);
 			result.add(abd);
@@ -117,10 +117,10 @@ implements XSerializable {
 	/**
 	 * Serialize the given source of registry entries.
 	 * @param entries the source of registry entries
-	 * @return the XElement representation of the block registry
+	 * @return the XNElement representation of the block registry
 	 */
-	public static XElement serializeRegistry(Iterable<BlockRegistryEntry> entries) {
-		XElement result = new XElement("block-registry");
+	public static XNElement serializeRegistry(Iterable<BlockRegistryEntry> entries) {
+		XNElement result = new XNElement("block-registry");
 		for (BlockRegistryEntry e : entries) {
 			e.save(result.add("block-description"));
 		}
@@ -133,7 +133,7 @@ implements XSerializable {
 		try {
 			InputStream in = BlockRegistryEntry.class.getResourceAsStream("/block-registry.xml");
 			try {
-				return parseRegistry(XElement.parseXML(in));
+				return parseRegistry(XNElement.parseXML(in));
 			} finally {
 				in.close();
 			}
@@ -146,7 +146,7 @@ implements XSerializable {
 	}
 	@Override
 	public String toString() {
-		XElement e = new XElement("block-description");
+		XNElement e = new XNElement("block-description");
 		save(e);
 		return e.toString();
 	}

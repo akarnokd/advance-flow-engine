@@ -21,11 +21,11 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Creates a type token from the supplied type instance.
@@ -45,8 +45,8 @@ public class CreateType extends AdvanceBlock {
     protected static final String OUT = "out";
 	@Override
 	protected void invoke() {
-		XElement in = get(IN);
-		XElement t = new XElement("type");
+		XNElement in = get(IN);
+		XNElement t = new XNElement("type");
 		t.set("type", "advance:" + in.name);
 		dispatch(OUT, t);
 		// FIXME use runtime type information of generics!!!

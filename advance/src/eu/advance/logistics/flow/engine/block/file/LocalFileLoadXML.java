@@ -22,13 +22,13 @@ package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Load the data from the local file. Signature: LocalFileLoad(trigger,
@@ -69,10 +69,10 @@ public class LocalFileLoadXML extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
                     execute();
                 }
@@ -96,7 +96,7 @@ public class LocalFileLoadXML extends AdvanceBlock {
             final Pool<LocalConnection> ds = getPool(LocalConnection.class, dataSourceStr);
             final LocalConnection conn = ds.get();
             try {
-                dispatch(OUT, XElement.parseXML(conn.file()));
+                dispatch(OUT, XNElement.parseXML(conn.file()));
             } finally {
                 ds.put(conn);
             }

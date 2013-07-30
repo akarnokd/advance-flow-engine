@@ -21,15 +21,15 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Definition for binding parameters of blocks in the {@code flow-description.xsd}.
  * @author akarnokd, 2011.06.21.
  */
-public class AdvanceBlockBind implements XSerializable {
+public class AdvanceBlockBind implements XNSerializable {
 	/** Identifier of this binding. May be used to communicate problematic bindings for the Flow Editor / Compiler. */
 	@NonNull
 	public String id;
@@ -53,7 +53,7 @@ public class AdvanceBlockBind implements XSerializable {
 	 * @param root the element
 	 */
 	@Override
-	public void load(XElement root) {
+	public void load(XNElement root) {
 		id = root.get("id");
 		String sb = root.get("source-block");
 		sourceBlock = sb != null ? sb : "";
@@ -63,7 +63,7 @@ public class AdvanceBlockBind implements XSerializable {
 		destinationParameter = root.get("destination-parameter");
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("id", id);
 		destination.set("source-block", sourceBlock);
 		destination.set("source-parameter", sourceParameter);

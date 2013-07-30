@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Concatenate two collections. Signature: ConcatCollection(collection<t>,
@@ -62,8 +63,8 @@ public class ConcatCollection extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> list1 = resolver().getList(get(IN1));
-        final List<XElement> list2 = resolver().getList(get(IN2));
+        final List<XNElement> list1 = resolver().getList(get(IN1));
+        final List<XNElement> list2 = resolver().getList(get(IN2));
         
         list1.addAll(list2);
         

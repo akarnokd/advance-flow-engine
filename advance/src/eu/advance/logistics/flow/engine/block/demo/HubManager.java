@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.demo;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Random;
 import java.util.Set;
@@ -38,7 +39,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
 import eu.advance.logistics.flow.engine.runtime.Port;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *.
@@ -81,13 +81,13 @@ public class HubManager extends AdvanceBlock {
     }
     @Override
     public Observer<Void> run() {
-    	Port<XElement, AdvanceType> cll = getInput(CRITICAL_LOAD_LIMIT);
+    	Port<XNElement, AdvanceType> cll = getInput(CRITICAL_LOAD_LIMIT);
     	if (cll instanceof ConstantPort) {
-    		criticalLoadLimit.set(resolver().getInt(((ConstantPort<XElement, AdvanceType>)cll).value));
+    		criticalLoadLimit.set(resolver().getInt(((ConstantPort<XNElement, AdvanceType>)cll).value));
     	} else {
-    		addCloseable(Reactive.observeOn(cll, scheduler()).register(new Observer<XElement>() {
+    		addCloseable(Reactive.observeOn(cll, scheduler()).register(new Observer<XNElement>() {
     			@Override
-    			public void next(XElement value) {
+    			public void next(XNElement value) {
     				criticalLoadLimit.set(resolver().getInt(value));    				
     			}
     			@Override
@@ -100,9 +100,9 @@ public class HubManager extends AdvanceBlock {
     			}
     		}));
     	}
-    	addCloseable(Reactive.observeOn(getInput(END_OF_SHIFT), scheduler()).register(new Observer<XElement>() {
+    	addCloseable(Reactive.observeOn(getInput(END_OF_SHIFT), scheduler()).register(new Observer<XNElement>() {
     		@Override
-    		public void next(XElement value) {
+    		public void next(XNElement value) {
     			doEndOfShift();
     		}
     		@Override
@@ -114,9 +114,9 @@ public class HubManager extends AdvanceBlock {
 				// ignored
     		}
     	}));
-    	addCloseable(Reactive.observeOn(getInput(TRUCK), scheduler()).register(new Observer<XElement>() {
+    	addCloseable(Reactive.observeOn(getInput(TRUCK), scheduler()).register(new Observer<XNElement>() {
     		@Override
-    		public void next(XElement value) {
+    		public void next(XNElement value) {
     			doTruckArrived(value);
     		}
     		@Override
@@ -135,7 +135,7 @@ public class HubManager extends AdvanceBlock {
     	DemoDatastore ds = DemoDatastore.instance();
     	int n = ds.getMaxDestinations();
     	
-    	XElement throughput = resolver().create();
+    	XNElement throughput = resolver().create();
    	
     	for (int i = 0; i < n; i++) {
     		int bayCount = ds.bayCount(i);
@@ -150,10 +150,10 @@ public class HubManager extends AdvanceBlock {
      * Initiate the actions when a truck arrived.
      * @param truck the truck object 
      */
-    synchronized void doTruckArrived(XElement truck) {
+    synchronized void doTruckArrived(XNElement truck) {
     	DemoDatastore ds = DemoDatastore.instance();
     	Set<Integer> baysAffected = Sets.newHashSet();
-    	for (XElement pallet : truck.childElement("pallets").childrenWithName("item")) {
+    	for (XNElement pallet : truck.childElement("pallets").childrenWithName("item")) {
     		baysAffected.add(ds.addToBay(AdvanceData.unrename(pallet)));
     	}
     	sendStatus(ds);
@@ -165,7 +165,7 @@ public class HubManager extends AdvanceBlock {
 	public void sendStatus(DemoDatastore ds) {
 		int cll = criticalLoadLimit.get();
     	int n = ds.getMaxDestinations();
-    	XElement bayLoads = resolver().create();
+    	XNElement bayLoads = resolver().create();
     	boolean alert = false;
     	for (int i = 0; i < n; i++) {
     		int bayCount = ds.bayCount(i);

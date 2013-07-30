@@ -20,10 +20,10 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.text.ParseException;
 import java.util.Date;
-
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Event represented by consignment, type and date.
@@ -41,10 +41,10 @@ public class Event {
      * @param elementName name of the XML element
      * @return XML representation
      */
-    public XElement toXML(String elementName) {
-        XElement x = new XElement(elementName);
+    public XNElement toXML(String elementName) {
+        XNElement x = new XNElement(elementName);
         x.set("name", name);
-        x.set("timestamp", XElement.formatDateTime(timestamp));
+        x.set("timestamp", XNElement.formatDateTime(timestamp));
         return x;
     }
 
@@ -54,10 +54,10 @@ public class Event {
      * @return new event object
      * @throws ParseException exception while parsing date
      */
-    public static Event parse(XElement x) throws ParseException {
+    public static Event parse(XNElement x) throws ParseException {
         Event e = new Event();
         e.name = x.get("name");
-        e.timestamp = XElement.parseDateTime(x.get("timestamp"));
+        e.timestamp = XNElement.parseDateTime(x.get("timestamp"));
         return e;
     }
 }

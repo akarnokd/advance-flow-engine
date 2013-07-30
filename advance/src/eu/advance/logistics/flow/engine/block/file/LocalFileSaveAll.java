@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -32,7 +33,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Save a set of files locally. Signature: LocalFileSaveAll(trigger,
@@ -78,10 +78,10 @@ public class LocalFileSaveAll extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
                     execute();
                 }
@@ -103,16 +103,16 @@ public class LocalFileSaveAll extends AdvanceBlock {
      */
     private void execute() {
         try {
-            final Map<XElement, XElement> map = resolver().getMap(get(CONTENT));
+            final Map<XNElement, XNElement> map = resolver().getMap(get(CONTENT));
             final String dataSourceStr = getString(DATASOURCE);
 
             final Pool<LocalConnection> ds = getPool(LocalConnection.class, dataSourceStr);
             final LocalConnection conn = ds.get();
             try {
 
-                for (Map.Entry<XElement, XElement> e : map.entrySet()) {
-                    final XElement key = e.getKey();
-                    final XElement value = e.getValue();
+                for (Map.Entry<XNElement, XNElement> e : map.entrySet()) {
+                    final XNElement key = e.getKey();
+                    final XNElement value = e.getValue();
 
                     conn.send(resolver().getString(key), resolver().getString(value).getBytes());
                 }

@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.block.test;
 
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Map;
 
@@ -34,7 +35,6 @@ import javax.script.SimpleBindings;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockState;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A generic block which takes a javascript function and applies the rest of the parameters to it.
@@ -51,7 +51,7 @@ public abstract class Lambda extends AdvanceBlock {
 			String spn = scriptParamName();
 			String script = getString(spn);
 			
-			for (Map.Entry<String, XElement> e : params.entrySet()) {
+			for (Map.Entry<String, XNElement> e : params.entrySet()) {
 				if (!spn.equals(e.getKey())) {
 					bind.put(e.getKey(), e.getValue());
 				}
@@ -77,5 +77,5 @@ public abstract class Lambda extends AdvanceBlock {
 	 * @param params the initial parameters
 	 * @param o the object returned by the script
 	 */
-	protected abstract void scriptValue(Map<String, XElement> params, Object o);
+	protected abstract void scriptValue(Map<String, XNElement> params, Object o);
 }

@@ -25,6 +25,10 @@ import hu.akarnokd.reactive4java.base.Action0;
 import hu.akarnokd.reactive4java.base.Func0;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.interactive.Interactive;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+import hu.akarnokd.utils.xml.XNSerializables;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -81,10 +85,6 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteEngineControl;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
-import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * The remote logind dialog.
@@ -116,7 +116,7 @@ public class CCRemoteLogin extends JDialog {
 	/** The opened engine URL. */
 	protected URL engineURL;
 	/** The remote login details. */
-	class RemoteLogin implements XSerializable {
+	class RemoteLogin implements XNSerializable {
 		/** The remote address. */
 		String address;
 		/** The user. */
@@ -134,7 +134,7 @@ public class CCRemoteLogin extends JDialog {
 		/** The concrete certificate file. */
 		String cert;
 		@Override
-		public void load(XElement source) {
+		public void load(XNElement source) {
 			address = source.get("address");
 			verify = source.get("verify");
 			cert = source.get("cert");
@@ -148,13 +148,13 @@ public class CCRemoteLogin extends JDialog {
 				type = AdvanceLoginType.valueOf(stype);
 			}
 			try {
-				timestamp = XElement.parseDateTime(source.get("timestamp"));
+				timestamp = XNElement.parseDateTime(source.get("timestamp"));
 			} catch (ParseException ex) {
 				LOG.error(ex.toString(), ex);
 			}
 		}
 		@Override
-		public void save(XElement destination) {
+		public void save(XNElement destination) {
 			destination.set("address", address, "user", user, 
 					"keystore", keystore, "type", type, 
 					"timestamp", timestamp, "verify", verify, "cert", cert);
@@ -170,7 +170,7 @@ public class CCRemoteLogin extends JDialog {
 	/** Delete selected entries. */
 	protected JButton deleteButton;
 	/** The keystore to use for verifying the server key. */
-	protected JComboBox serverVerify;
+	protected JComboBox<String> serverVerify;
 	/** The server certificate file. */
 	protected JTextField serverCert;
 	/**
@@ -212,7 +212,7 @@ public class CCRemoteLogin extends JDialog {
 		address = new JTextField();
 		records = new JLabel(labels.format("Records: %d", 0));
 		
-		serverVerify = new JComboBox();
+		serverVerify = new JComboBox<>();
 		serverCert = new JTextField();
 		JLabel serverCertLabel = new JLabel(labels.get("Server certificate file:"));
 		
@@ -483,7 +483,7 @@ public class CCRemoteLogin extends JDialog {
 		File cf = new File(workingDirectory, configFile);
 		if (cf.canRead()) {
 			try {
-				for (RemoteLogin rl : XSerializables.parseList(XElement.parseXML(cf), "remote-login", new Func0<RemoteLogin>() {
+				for (RemoteLogin rl : XNSerializables.parseList(XNElement.parseXML(cf), "remote-login", new Func0<RemoteLogin>() {
 					@Override
 					public RemoteLogin invoke() {
 						return new RemoteLogin();
@@ -500,8 +500,8 @@ public class CCRemoteLogin extends JDialog {
 		cf = new File(workingDirectory, "login-info.xml");
 		if (cf.canRead()) {
 			try {
-				XElement e = XElement.parseXML(cf);
-				for (XElement xi : e.childrenWithName("item")) {
+				XNElement e = XNElement.parseXML(cf);
+				for (XNElement xi : e.childrenWithName("item")) {
 					String address = xi.get("address");
 					if (!address.startsWith("file:")) {
 						RemoteLogin ll = new RemoteLogin();
@@ -548,7 +548,7 @@ public class CCRemoteLogin extends JDialog {
 	 */
 	protected void save() {
 		try {
-			XSerializables.storeList("remote-logins", "remote-login", rows).save(new File(workingDirectory, configFile));
+			XNSerializables.storeList("remote-logins", "remote-login", rows).save(new File(workingDirectory, configFile));
 		} catch (IOException ex) {
 			LOG.error(ex.toString(), ex);
 		}
@@ -572,7 +572,7 @@ public class CCRemoteLogin extends JDialog {
 				return param1.name;
 			}
 		}));
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
 		model.addElement("");
 		for (AdvanceKeyStore ks : keystores) {
 			model.addElement(ks.name);

@@ -24,6 +24,8 @@ package eu.advance.logistics.flow.engine;
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.scheduler.DefaultScheduler;
 import hu.akarnokd.reactive4java.util.Closeables;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.Closeable;
 import java.io.File;
@@ -65,8 +67,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
 import eu.advance.logistics.flow.engine.runtime.SchedulerPriority;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The engine configuration record.
@@ -80,7 +80,7 @@ public class AdvanceEngineConfig {
 	/** The block registry. */
 	public String blockRegistry;
 	/** The block resolver. */
-	public Map<String, AdvanceBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>> defaultBlocks;
+	public Map<String, AdvanceBlockResolver<XNElement, AdvanceType, AdvanceRuntimeContext>> defaultBlocks;
 	/** The schema directories. */
 	public final List<String> schemas = Lists.newArrayList();
 	/** A JDBC based datastore datasource. */
@@ -102,28 +102,28 @@ public class AdvanceEngineConfig {
 	/** The connection pool managers. */
 	protected AdvancePools pools;
 	/** The plugin manager. */
-	protected AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext> pluginManager;
+	protected AdvancePluginManager<XNElement, AdvanceType, AdvanceRuntimeContext> pluginManager;
 	/** The plugin manager closeable. */
 	protected Closeable pluginManagerCloseable;
 	/**
 	 * Create the lookup.
 	 * @param blockRegistries The block registries
 	 */
-	protected void initBlockRegistry(Iterable<XElement> blockRegistries) {
+	protected void initBlockRegistry(Iterable<XNElement> blockRegistries) {
 		Map<String, BlockRegistryEntry> blocks = Maps.newHashMap();
 		try {
 			InputStream in = getClass().getResourceAsStream("/block-registry.xml");
 			try {
 				for (BlockRegistryEntry e : BlockRegistryEntry.parseRegistry(
-						XElement.parseXML(in))) {
+						XNElement.parseXML(in))) {
 					blocks.put(e.id, e);
 				}
 			} finally {
 				in.close();
 			}
-			for (XElement br : blockRegistries) {
+			for (XNElement br : blockRegistries) {
 				for (BlockRegistryEntry e : BlockRegistryEntry.parseRegistry(
-						XElement.parseXML(workDir + "/" + br.get("file")))) {
+						XNElement.parseXML(workDir + "/" + br.get("file")))) {
 					blocks.put(e.id, e);
 				}
 			}
@@ -132,8 +132,8 @@ public class AdvanceEngineConfig {
 		} catch (IOException ex) {
 			throw new IllegalArgumentException(ex);
 		}
-		AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext> br = 
-				new AdvanceDefaultBlockResolver<XElement, AdvanceType, AdvanceRuntimeContext>(blocks);
+		AdvanceDefaultBlockResolver<XNElement, AdvanceType, AdvanceRuntimeContext> br = 
+				new AdvanceDefaultBlockResolver<XNElement, AdvanceType, AdvanceRuntimeContext>(blocks);
 		defaultBlocks = Maps.newHashMap();
 		for (String blockId : blocks.keySet()) {
 			defaultBlocks.put(blockId, br);
@@ -154,7 +154,7 @@ public class AdvanceEngineConfig {
 	 * @param configXML the configuration tree
 	 * @param workDir the working directory to resolve relative configuration entries
 	 */
-	public void initialize(XElement configXML, String workDir) {
+	public void initialize(XNElement configXML, String workDir) {
 		this.workDir = workDir;
 		// load listeners
 		listener = new AdvanceListenerConfig();
@@ -167,12 +167,12 @@ public class AdvanceEngineConfig {
 		initSchedulers(configXML.childrenWithName("scheduler"));
 		// load schema locations
 		schemas.clear();
-		for (XElement xs : configXML.childrenWithName("schemas")) {
+		for (XNElement xs : configXML.childrenWithName("schemas")) {
 			schemas.add(workDir + "/" + xs.get("location"));
 		}
 		
 		// initialize keystores
-		for (XElement xks : configXML.childrenWithName("keystore")) {
+		for (XNElement xks : configXML.childrenWithName("keystore")) {
 			AdvanceKeyStore e = new AdvanceKeyStore();
 			e.name = xks.get("name");
 			e.location = workDir + "/" + xks.get("file");
@@ -194,7 +194,7 @@ public class AdvanceEngineConfig {
 			keystores.put(e.name, e);
 		}
 		// initialize datastore
-		XElement ds = configXML.childElement("datastore");
+		XNElement ds = configXML.childElement("datastore");
 		jdbcDataSource = new AdvanceJDBCDataSource();
 		
 		jdbcDataSource.driver = ds.get("driver");
@@ -220,11 +220,11 @@ public class AdvanceEngineConfig {
 		pools = new AdvancePools(new AdvancePoolCreator(datastore()));
 		
 		String pluginDir = workDir + "/plugins"; 
-		XElement xpluginDir = configXML.childElement("plugins");
+		XNElement xpluginDir = configXML.childElement("plugins");
 		if (xpluginDir != null) {
 			pluginDir = workDir + "/" + xpluginDir.content;
 		}
-		pluginManager = new AdvancePluginManager<XElement, AdvanceType, AdvanceRuntimeContext>(pluginDir);
+		pluginManager = new AdvancePluginManager<XNElement, AdvanceType, AdvanceRuntimeContext>(pluginDir);
 		pluginManager.run();
 		pluginManagerCloseable = get(SchedulerPreference.IO).schedule(pluginManager, 5, 5, TimeUnit.SECONDS);
 	}
@@ -263,9 +263,9 @@ public class AdvanceEngineConfig {
 	 * Initialize the schedulers from the configuration.
 	 * @param schedulerConfigs the sequence of configurations
 	 */
-	protected void initSchedulers(Iterable<XElement> schedulerConfigs) {
+	protected void initSchedulers(Iterable<XNElement> schedulerConfigs) {
 		initNowScheduler();
-		for (XElement sc : schedulerConfigs) {
+		for (XNElement sc : schedulerConfigs) {
 			createScheduler(SchedulerPreference.valueOf(sc.get("type")), sc.get("concurrency"), 
 					sc.get("priority"));
 		}
@@ -375,9 +375,9 @@ public class AdvanceEngineConfig {
 	 * Creates a compiler settings based on this configuration.
 	 * @return a compiler settings based on this configuration.
 	 */
-	public AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> createCompilerSettings() {
-		AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = 
-				new AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext>();
+	public AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext> createCompilerSettings() {
+		AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = 
+				new AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext>();
 		compilerSettings.defaultSchemas = schemas; 
 		compilerSettings.defaultBlocks = defaultBlocks; 
 		compilerSettings.schedulers = schedulerMap;

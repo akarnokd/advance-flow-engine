@@ -22,6 +22,8 @@ package eu.advance.logistics.flow.engine.typesystem;
 
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNElement.XAttributeName;
 
 import java.io.Closeable;
 import java.io.File;
@@ -53,8 +55,6 @@ import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.inference.TypeRelation;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XElement.XAttributeName;
 
 
 /**
@@ -74,15 +74,15 @@ public final class XSchema {
 	 * @param resolver the function which will return a schema XML for the supplied name
 	 * @return the XML type representing the schema
 	 */
-	public static XType parse(XElement schema, Func1<String, XElement> resolver) {
-		List<XElement> roots = Lists.newArrayList(schema.childrenWithName("element", XElement.XSD));
+	public static XType parse(XNElement schema, Func1<String, XNElement> resolver) {
+		List<XNElement> roots = Lists.newArrayList(schema.childrenWithName("element", XNElement.XSD));
 		if (roots.size() != 1) {
 			throw new IllegalArgumentException("Zero or multi-rooted schema not supported:\r\n" + schema);
 		}
-		XElement root = roots.get(0);
+		XNElement root = roots.get(0);
 
 		
-		List<XElement> typedefs = new ArrayList<XElement>();
+		List<XNElement> typedefs = new ArrayList<XNElement>();
 
 		searchTypes(schema, typedefs, new HashSet<String>(), resolver);
 		
@@ -101,7 +101,7 @@ public final class XSchema {
 	 * @param memory the type memory
 	 * @return the created capability
 	 */
-	static XCapability setElement(XElement root, List<XElement> typedefs,
+	static XCapability setElement(XNElement root, List<XNElement> typedefs,
 			XType result, Map<String, XType> memory) {
 		XCapability c = new XCapability();
 		c.name = new XName();
@@ -118,11 +118,11 @@ public final class XSchema {
 			if (rootSimpleType != null) {
 				c.valueType = rootSimpleType;
 			} else {
-				XElement simpleType = findType(rootType, "simpleType", typedefs);
+				XNElement simpleType = findType(rootType, "simpleType", typedefs);
 				if (simpleType != null) {
 					setSimpleType(c, simpleType, typedefs);
 				} else {
-					XElement complexType = findType(rootType, "complexType", typedefs);
+					XNElement complexType = findType(rootType, "complexType", typedefs);
 					if (complexType != null) {
 						 setComplexType(c, complexType, typedefs, memory);
 					} else {
@@ -139,11 +139,11 @@ public final class XSchema {
 			// TODO implement reference mode! 
 			if (rootType == null) {
 				// check for local definitions
-				XElement simpleType = root.childElement("simpleType", XElement.XSD);
+				XNElement simpleType = root.childElement("simpleType", XNElement.XSD);
 				if (simpleType != null) {
 					setSimpleType(c, simpleType, typedefs);
 				} else {
-					XElement complexType = root.childElement("complexType", XElement.XSD);
+					XNElement complexType = root.childElement("complexType", XNElement.XSD);
 					if (complexType != null) {
 						setComplexType(c, complexType, typedefs, memory);
 					} else {
@@ -163,7 +163,7 @@ public final class XSchema {
 	 * @return the created complex type
 	 */
 	static XType setComplexType(XCapability c, 
-			XElement typedef, List<XElement> types, Map<String, XType> memory) {
+			XNElement typedef, List<XNElement> types, Map<String, XType> memory) {
 		String typeName = typedef.get("name"); // FIXME named local definitions?
 		if (typeName != null) {
 			XType t = memory.get(typeName);
@@ -177,11 +177,11 @@ public final class XSchema {
 			c.complexType = new XType();
 		}
 		
-		LinkedList<XElement> seqs = new LinkedList<XElement>();
+		LinkedList<XNElement> seqs = new LinkedList<XNElement>();
 		seqs.addAll(typedef.children());
 		while (seqs.size() > 0) {
-			XElement sequence = seqs.removeFirst();
-			if (sequence.namespace.equals(XElement.XSD)) {
+			XNElement sequence = seqs.removeFirst();
+			if (sequence.namespace.equals(XNElement.XSD)) {
 				if (sequence.name.equals("element")) {
 					setElement(sequence, types, c.complexType, memory);
 				} else
@@ -193,7 +193,7 @@ public final class XSchema {
 					seqs.addAll(0, sequence.children());
 				} else
 				if (sequence.name.equals("simpleContent")) {
-					XElement restriction = sequence.childElement("restriction");
+					XNElement restriction = sequence.childElement("restriction");
 					if (restriction != null) {
 						XCapability cap = new XCapability();
 						cap.name = c.name;
@@ -201,11 +201,11 @@ public final class XSchema {
 						c.complexType.capabilities.add(cap);
 						setSimpleRestriction(cap, sequence, types, restriction);
 					} else {
-						XElement extension = sequence.childElement("extension");
+						XNElement extension = sequence.childElement("extension");
 						if (extension != null) {
 							// copy existing definition
 							String base = extension.get("base");
-							XElement simpleBase = findType(base, "simpleType", types);
+							XNElement simpleBase = findType(base, "simpleType", types);
 							if (simpleBase != null) {
 								XCapability cap = new XCapability();
 								cap.name = c.name;
@@ -214,7 +214,7 @@ public final class XSchema {
 								c.complexType.capabilities.add(cap);
 								setAttributes(c, extension, types, memory);
 							} else {
-								XElement complexType = findType(base, "complexType", types);
+								XNElement complexType = findType(base, "complexType", types);
 								if (complexType != null) {
 									setComplexType(c, complexType, types, memory);
 									setAttributes(c, extension, types, memory);
@@ -230,7 +230,7 @@ public final class XSchema {
 					}
 				} else
 				if (sequence.name.equals("complexContent")) {
-					XElement restriction = sequence.childElement("restriction");
+					XNElement restriction = sequence.childElement("restriction");
 					if (restriction != null) {
 						XCapability cap = new XCapability();
 						cap.name = c.name;
@@ -239,10 +239,10 @@ public final class XSchema {
 						setSimpleRestriction(cap, sequence, types, restriction);
 						setComplexType(c, restriction, types, memory);
 					} else {
-						XElement extension = sequence.childElement("extension");
+						XNElement extension = sequence.childElement("extension");
 						if (extension != null) {
 							String base = extension.get("base");
-							XElement simpleBase = findType(base, "simpleType", types);
+							XNElement simpleBase = findType(base, "simpleType", types);
 							if (simpleBase != null) {
 								c.complexType = c.complexType.copy();
 								
@@ -254,7 +254,7 @@ public final class XSchema {
 
 								c.complexType.capabilities.add(cap);
 							} else {
-								XElement complexType = findType(base, "complexType", types);
+								XNElement complexType = findType(base, "complexType", types);
 								if (complexType != null) {
 									setComplexType(c, complexType, types, memory);
 									XType baseCopy = c.complexType.copy();
@@ -283,9 +283,9 @@ public final class XSchema {
 	 * @param types the list of types
 	 * @param memory the memory for existing name types
 	 */
-	static void setAttributes(XCapability c, XElement typedef,
-			List<XElement> types, Map<String, XType> memory) {
-		for (XElement attr : typedef.childrenWithName("attribute", XElement.XSD)) {
+	static void setAttributes(XCapability c, XNElement typedef,
+			List<XNElement> types, Map<String, XType> memory) {
+		for (XNElement attr : typedef.childrenWithName("attribute", XNElement.XSD)) {
 			XCapability cap = setElement(attr, types, c.complexType, memory);
 			String use = attr.get("use");
 			if ("forbidden".equals(use)) {
@@ -302,10 +302,10 @@ public final class XSchema {
 				}
 			}
 		}
-		LinkedList<XElement> attrgr = new LinkedList<XElement>();
-		Iterables.addAll(attrgr, typedef.childrenWithName("attributeGroup", XElement.XSD));
+		LinkedList<XNElement> attrgr = new LinkedList<XNElement>();
+		Iterables.addAll(attrgr, typedef.childrenWithName("attributeGroup", XNElement.XSD));
 		while (attrgr.size() > 0) {
-			XElement ag = attrgr.removeFirst();
+			XNElement ag = attrgr.removeFirst();
 			String ref = ag.get("ref");
 			if (ref != null) {
 				ag = findType(ref, "attributeGroup", types);
@@ -313,7 +313,7 @@ public final class XSchema {
 					throw new AssertionError("Unknown attribute group: " + ref);
 				}
 			}
-			for (XElement attr : typedef.childrenWithName("attribute", XElement.XSD)) {
+			for (XNElement attr : typedef.childrenWithName("attribute", XNElement.XSD)) {
 				setElement(attr, types, c.complexType, memory);
 				XCapability cap = setElement(attr, types, c.complexType, memory);
 				String use = attr.get("use");
@@ -326,7 +326,7 @@ public final class XSchema {
 					cap.cardinality = XCardinality.ZERO;
 				}
 			}
-			Iterables.addAll(attrgr, ag.childrenWithName("attributeGroup", XElement.XSD));
+			Iterables.addAll(attrgr, ag.childrenWithName("attributeGroup", XNElement.XSD));
 		}
 	}
 	/**
@@ -335,13 +335,13 @@ public final class XSchema {
 	 * @param typedef the current type definition
 	 * @param types the list of other simple types
 	 */
-	static void setSimpleType(XCapability c, XElement typedef, 
-			List<XElement> types) {
-		XElement restrict = typedef.childElement("restriction", XElement.XSD);
+	static void setSimpleType(XCapability c, XNElement typedef, 
+			List<XNElement> types) {
+		XNElement restrict = typedef.childElement("restriction", XNElement.XSD);
 		if (restrict != null) {
 			setSimpleRestriction(c, typedef, types, restrict);
 		} else {
-			XElement list = typedef.childElement("list", XElement.XSD);
+			XNElement list = typedef.childElement("list", XNElement.XSD);
 			if (list != null) {
 				
 				String itemType = list.get("itemType");
@@ -356,7 +356,7 @@ public final class XSchema {
 					c.complexType.capabilities.add(c1);
 				} else {
 					// find among children
-					XElement parent = findType(itemType, "simpleType", list.childrenWithName("simpleType", XElement.XSD));
+					XNElement parent = findType(itemType, "simpleType", list.childrenWithName("simpleType", XNElement.XSD));
 					if (parent == null) {
 						parent = findType(itemType, "simpleType", types);
 					}
@@ -368,7 +368,7 @@ public final class XSchema {
 				}
 				
 			} else {
-				XElement union = typedef.childElement("union", XElement.XSD);
+				XNElement union = typedef.childElement("union", XNElement.XSD);
 				if (union != null) {
 					c.valueType = XValueType.STRING;
 				} else {
@@ -384,13 +384,13 @@ public final class XSchema {
 	 * @param types the available global types
 	 * @param restrict the restriction element definition
 	 */
-	static void setSimpleRestriction(XCapability c, XElement typedef,
-			List<XElement> types, XElement restrict) {
+	static void setSimpleRestriction(XCapability c, XNElement typedef,
+			List<XNElement> types, XNElement restrict) {
 		String base = restrict.get("base");
 		XValueType primitiveType = getSimpleType(restrict.prefix, base);
 		if (primitiveType == XValueType.REAL) {
 			// if restiction present check for zero fraction
-			XElement frac = restrict.childElement("fractionDigits", XElement.XSD);
+			XNElement frac = restrict.childElement("fractionDigits", XNElement.XSD);
 			if (frac != null) {
 				if ("0".equals(frac.get("value"))) {
 					primitiveType = XValueType.INTEGER;
@@ -401,7 +401,7 @@ public final class XSchema {
 			c.valueType = primitiveType;
 		} else {
 			// find among children
-			XElement parent = findType(base, "simpleType", restrict.childrenWithName("simpleType", XElement.XSD));
+			XNElement parent = findType(base, "simpleType", restrict.childrenWithName("simpleType", XNElement.XSD));
 			if (parent == null) {
 				parent = findType(base, "simpleType", types);
 			}
@@ -419,16 +419,16 @@ public final class XSchema {
 	 * @param memory the memory for already visited resources
 	 * @param resolver the function to return a schema for the supplied name
 	 */
-	static void searchTypes(XElement root, List<XElement> typedefs, 
-			Set<String> memory, Func1<String, XElement> resolver) {
-		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XElement.XSD));
-		Iterables.addAll(typedefs, root.childrenWithName("complexType", XElement.XSD));
-		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XElement.XSD));
-		Iterable<XElement> includes = root.childrenWithName("include", XElement.XSD);
-		for (XElement inc : includes) {
+	static void searchTypes(XNElement root, List<XNElement> typedefs, 
+			Set<String> memory, Func1<String, XNElement> resolver) {
+		Iterables.addAll(typedefs, root.childrenWithName("simpleType", XNElement.XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("complexType", XNElement.XSD));
+		Iterables.addAll(typedefs, root.childrenWithName("attributeGroup", XNElement.XSD));
+		Iterable<XNElement> includes = root.childrenWithName("include", XNElement.XSD);
+		for (XNElement inc : includes) {
 			String loc = inc.get("schemaLocation");
 			if (loc != null && memory.add(loc)) {
-				XElement in = resolver.invoke(loc);
+				XNElement in = resolver.invoke(loc);
 				if (in != null) {
 					searchTypes(in, typedefs, memory, resolver);
 				} else {
@@ -454,8 +454,8 @@ public final class XSchema {
 	 * @param types the list of types
 	 * @return the target type definition or null if not found
 	 */
-	static XElement findType(String name, String type, Iterable<XElement> types) {
-		for (XElement e : types) {
+	static XNElement findType(String name, String type, Iterable<XNElement> types) {
+		for (XNElement e : types) {
 			if (Objects.equal(e.get("name"), name) && e.name.equals(type)) {
 				return e;
 			}
@@ -467,7 +467,7 @@ public final class XSchema {
 	 * @param e the element definition
 	 * @return the cardinality
 	 */
-	public static XCardinality getCardinality(XElement e) {
+	public static XCardinality getCardinality(XNElement e) {
 		String mino = e.get("minOccurs");
 		String maxo = e.get("maxOccurs");
 		if (mino == null) {
@@ -632,7 +632,7 @@ public final class XSchema {
 	 * @param xmlRoot the XML instance root
 	 * @return the associated type
 	 */
-	public static XType fromInstance(XElement xmlRoot) {
+	public static XType fromInstance(XNElement xmlRoot) {
 		XType result = new XType();
 		
 		XCapability rcap = new XCapability();
@@ -651,7 +651,7 @@ public final class XSchema {
 			// add attributes as capabilities
 			for (XAttributeName an : xmlRoot.getAttributeNames()) {
 				// except XSI attributes
-				if (!XElement.XSI.equals(an.namespace)) {
+				if (!XNElement.XSI.equals(an.namespace)) {
 					XCapability c = new XCapability();
 					c.name = new XName();
 					c.name.name = an.name;
@@ -672,12 +672,12 @@ public final class XSchema {
 	 * @param element the element to analyse
 	 * @param elementType the element type to fill in with capabilities
 	 */
-	static void analyseChildren(XElement element, XType elementType) {
+	static void analyseChildren(XNElement element, XType elementType) {
 		// group all elements
-		Map<Pair<String, String>, List<XElement>> elementGroups = Maps.newHashMap();
-		for (XElement e : element.children()) {
+		Map<Pair<String, String>, List<XNElement>> elementGroups = Maps.newHashMap();
+		for (XNElement e : element.children()) {
 			Pair<String, String> name = Pair.of(e.name, e.namespace);
-			List<XElement> elements = elementGroups.get(name);
+			List<XNElement> elements = elementGroups.get(name);
 			if (elements == null) {
 				elements = Lists.newArrayList();
 				elementGroups.put(name, elements);
@@ -704,7 +704,7 @@ public final class XSchema {
 			XValueType contentSimpleType = null;
 			boolean childrenPresent = false;
 			List<XType> childTypes = Lists.newArrayList();
-			for (XElement e : elementGroups.get(eg)) {
+			for (XNElement e : elementGroups.get(eg)) {
 				childrenPresent |= e.hasChildren();
 				
 				if (e.hasChildren()) {
@@ -986,13 +986,13 @@ public final class XSchema {
 	 * @throws Exception ignored
 	 */
 	public static void main(String[] args) throws Exception {
-		Func1<String, XElement> resolver = new Func1<String, XElement>() {
+		Func1<String, XNElement> resolver = new Func1<String, XNElement>() {
 			@Override
-			public XElement invoke(String param1) {
+			public XNElement invoke(String param1) {
 				File f = new File("schemas", param1);
 				if (f.canRead()) {
 					try {
-						return XElement.parseXML(f);
+						return XNElement.parseXML(f);
 					} catch (XMLStreamException ex) {
 						LOG.error(ex.toString(), ex);
 					} catch (IOException ex) {
@@ -1002,11 +1002,11 @@ public final class XSchema {
 				return null;
 			}
 		};
-//		System.out.println(XSchema.parse(XElement.parseXML("schemas/collection.xsd"), resolver));
-//		System.out.println(XSchema.parse(XElement.parseXML("schemas/pair.xsd"), resolver));
-		System.out.println(XSchema.parse(XElement.parseXML("schemas/map.xsd"), resolver));
+//		System.out.println(XSchema.parse(XNElement.parseXML("schemas/collection.xsd"), resolver));
+//		System.out.println(XSchema.parse(XNElement.parseXML("schemas/pair.xsd"), resolver));
+		System.out.println(XSchema.parse(XNElement.parseXML("schemas/map.xsd"), resolver));
 		
-		XElement type = XElement.parseXML("schemas/type.xsd");
+		XNElement type = XNElement.parseXML("schemas/type.xsd");
 		
 		XType xt = XSchema.parse(type, resolver);
 		

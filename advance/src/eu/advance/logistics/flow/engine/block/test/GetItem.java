@@ -21,11 +21,11 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A simple generic block that extracts an item from an advance:collection type construct.
@@ -48,7 +48,7 @@ public class GetItem extends AdvanceBlock {
 	@Override
 	protected void invoke() {
 		int index = getInt(INDEX);
-		XElement in = params.get(IN);
+		XNElement in = params.get(IN);
 		if (in.children().size() > index) {
 			dispatch(OUT, resolver().getItem(in, index));
 		}

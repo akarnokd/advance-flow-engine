@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,7 +53,6 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A datastore wrapper which checks at each query whether the user
@@ -466,21 +467,21 @@ public class CheckedDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public XElement queryBlockState(String realm, String blockId)
+	public XNElement queryBlockState(String realm, String blockId)
 			throws IOException, AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.DEBUG);
 		return datastore.queryBlockState(realm, blockId);
 	}
 
 	@Override
-	public void updateBlockState(String realm, String blockId, XElement state)
+	public void updateBlockState(String realm, String blockId, XNElement state)
 			throws IOException, AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.DEBUG);
 		datastore.updateBlockState(realm, blockId, state);
 	}
 
 	@Override
-	public XElement queryFlow(String realm) throws IOException, AdvanceControlException {
+	public XNElement queryFlow(String realm) throws IOException, AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.READ);
 		return datastore.queryFlow(realm);
 	}
@@ -491,7 +492,7 @@ public class CheckedDataStore implements AdvanceDataStore {
 		datastore.deleteBlockStates(realm);
 	}
 	@Override
-	public void updateFlow(String realm, XElement flow) throws IOException,
+	public void updateFlow(String realm, XNElement flow) throws IOException,
 			AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.WRITE);
 		datastore.updateFlow(realm, flow);

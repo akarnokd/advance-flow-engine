@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -31,14 +34,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.typesystem.XType;
 import eu.advance.logistics.flow.engine.util.Strings;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Represents a constant block in the flow descriptor.
  * @author akarnokd, 2011.06.24.
  */
-public class AdvanceConstantBlock implements XSerializable {
+public class AdvanceConstantBlock implements XNSerializable {
 	/** The unique identifier of this block among the current level of blocks. */
 	@NonNull
 	public String id;
@@ -53,7 +54,7 @@ public class AdvanceConstantBlock implements XSerializable {
 	public String displayName;
 	/** The constant value. */
 	@NonNull
-	public XElement value;
+	public XNElement value;
 	/** The user-entered documentation of this parameter. */
 	@Nullable
 	public String documentation;
@@ -66,7 +67,7 @@ public class AdvanceConstantBlock implements XSerializable {
 	 * @param source the root element of an input/output node.
 	 */
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		id = source.get("id");
 		displayName = source.get("displayname");
 		typeString = source.get("type");
@@ -79,7 +80,7 @@ public class AdvanceConstantBlock implements XSerializable {
 		visuals.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("id", id);
 		destination.set("type", typeString);
 		destination.set("documentation", documentation);

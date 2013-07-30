@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.demo;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -46,7 +48,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block which displays a single frame with a single titled button.
@@ -74,7 +75,7 @@ public class BayStatus extends AdvanceBlock {
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	@Override
-	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+	public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
 		if (settings.constantValues.containsKey(TITLE)) {
 			title.set(resolver().getString(settings.constantValues.get(TITLE)));
@@ -188,13 +189,13 @@ public class BayStatus extends AdvanceBlock {
 	protected void invoke() {
 		title.set(getString(TITLE));
 		criticalLoadLimit.set(getInt(CRITICAL_LOAD_LIMIT));
-		final List<XElement> list = resolver().getList(get(LOAD));
+		final List<XNElement> list = resolver().getList(get(LOAD));
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				frame.setTitle(title.get());
 				values.clear();
-				for (XElement e : list) {
+				for (XNElement e : list) {
 					values.add(resolver().getInt(e));
 				}
 				graph.revalidate();

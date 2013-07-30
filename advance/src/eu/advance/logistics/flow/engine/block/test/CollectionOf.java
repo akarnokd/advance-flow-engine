@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -31,7 +33,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.Port;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block that merges the incoming values of its parameters but without waiting for all of them.
@@ -48,9 +49,9 @@ public class CollectionOf extends AdvanceBlock {
 	
 	@Override
 	protected void invoke() {
-		List<XElement> result = Lists.newArrayList();
+		List<XNElement> result = Lists.newArrayList();
 		
-		for (Port<XElement, AdvanceType> p : inputs()) {
+		for (Port<XNElement, AdvanceType> p : inputs()) {
 			if (p.name().startsWith(IN)) {
 				result.add(get(p.name()));
 			}

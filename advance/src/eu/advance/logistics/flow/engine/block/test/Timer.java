@@ -21,18 +21,18 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.reactive4java.util.Closeables;
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.Closeable;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.io.Closeables;
-
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Represents a Timer which periodically relays the last value of its {@code in} parameter.
@@ -57,7 +57,7 @@ public class Timer extends AdvanceBlock {
 	/** The current interval. */
 	protected int interval = -1;
 	/** The last value to submit. */
-	protected final AtomicReference<XElement> last = new AtomicReference<XElement>();
+	protected final AtomicReference<XNElement> last = new AtomicReference<XNElement>();
 	@Override
 	protected void invoke() {
 		final int delay = getInt(DELAY);
@@ -71,11 +71,11 @@ public class Timer extends AdvanceBlock {
 	 * Start the timer.
 	 */
 	public void startTimer() {
-		Closeables.closeQuietly(timer);
+		Closeables.closeSilently(timer);
 		timer = scheduler().schedule(new Runnable() {
 			@Override
 			public void run() {
-				XElement e = last.get();
+				XNElement e = last.get();
 				if (e != null) {
 					dispatchOutput(Collections.singletonMap(OUT, e));
 				}
@@ -84,7 +84,7 @@ public class Timer extends AdvanceBlock {
 	}
 	@Override
 	public void done() {
-		Closeables.closeQuietly(timer);
+		Closeables.closeSilently(timer);
 		super.done();
 	}
 }

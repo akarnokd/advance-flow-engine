@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Func2;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.prediction.KMeansARXLearn.TimeseriesAggregator;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The prediction calculator for the K-means ARX model for multiple groups.
@@ -69,7 +69,7 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 		
 		final Map<String, Integer> groupToModel = Maps.newHashMap();
 		
-		for (Map.Entry<XElement, XElement> e : resolver().getMap(get(CLASS)).entrySet()) {
+		for (Map.Entry<XNElement, XNElement> e : resolver().getMap(get(CLASS)).entrySet()) {
 			String key = resolver().getString(e.getKey());
 			int value = resolver().getInt(e.getValue());
 			groupToModel.put(key, value);
@@ -88,11 +88,11 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 		}
 		
 		
-		List<XElement> models = Lists.newArrayList(resolver().getItems(get(MODEL)));
+		List<XNElement> models = Lists.newArrayList(resolver().getItems(get(MODEL)));
 
 		BiMap<Integer, String> indexToGroup = series.groupIndex.inverse();
 		
-		Map<XElement, XElement> result = Maps.newHashMap();
+		Map<XNElement, XNElement> result = Maps.newHashMap();
 		for (Map.Entry<Integer, String> ig : indexToGroup.entrySet()) {
 			int didx = ig.getKey();
 			
@@ -104,7 +104,7 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 				continue;
 			}
 			
-			XElement xm = models.get(modelIndex);
+			XNElement xm = models.get(modelIndex);
 			
 			int p = xm.getInt("model-order");
 			int m = 5;
@@ -122,12 +122,12 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 
 			// setup coefficients
 			int i = 0;
-			for (XElement ac : xm.childrenWithName("model-coefficient")) {
+			for (XNElement ac : xm.childrenWithName("model-coefficient")) {
 				arxModel.setArCoefficient(i, resolver().getDouble(ac));
 				i++;
 			}
 			i = 0;
-			for (XElement uc : xm.childrenWithName("external-coefficient")) {
+			for (XNElement uc : xm.childrenWithName("external-coefficient")) {
 				arxModel.setUCoefficient(i, resolver().getDouble(uc));
 				i++;
 			}
@@ -135,7 +135,7 @@ public class KMeansARXPredictAll extends AdvanceBlock {
 			// calculte forecasts
 			double[] forecasts = arxModel.forecastAll(series.timeSeriesMatrix[didx], horizon);
 	
-			List<XElement> forecastList = Lists.newArrayList();
+			List<XNElement> forecastList = Lists.newArrayList();
 			for (double d : forecasts) {
 				forecastList.add(resolver().create(d));
 			}

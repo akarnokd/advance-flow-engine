@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.streaming;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns a new collection with the given value appended to its end. Signature:
@@ -66,8 +67,8 @@ public class AppendCollection extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final XElement element = get(COLLECTION);
-        final List<XElement> list = resolver().getList(get(VALUE));
+        final XNElement element = get(COLLECTION);
+        final List<XNElement> list = resolver().getList(get(VALUE));
         
         list.add(element);
         

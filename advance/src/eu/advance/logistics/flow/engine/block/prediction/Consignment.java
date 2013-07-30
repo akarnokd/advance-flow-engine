@@ -20,13 +20,13 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Consignment read from the database.
@@ -92,10 +92,10 @@ public class Consignment {
      * Serialize the class to XML.
      *
      * @param name the name of the element
-     * @return an XElement representing the class
+     * @return an XNElement representing the class
      */
-    public XElement toXML(String name) {
-        XElement x = new XElement(name);
+    public XNElement toXML(String name) {
+        XNElement x = new XNElement(name);
         x.set("id", id);
         x.set("hubId", hubId);
         x.set("collectionDepotId", collectionDepotId);
@@ -127,7 +127,7 @@ public class Consignment {
      * @return the class represented by the element
      * @throws ParseException if the element cannot be parsed
      */
-    public static Consignment parse(XElement x) throws ParseException {
+    public static Consignment parse(XNElement x) throws ParseException {
         Consignment c = new Consignment();
         c.id = Integer.parseInt(x.get("id"));
         c.hubId = Integer.parseInt(x.get("hubId"));
@@ -141,14 +141,14 @@ public class Consignment {
         c.number = x.get("number");
         c.volume = Double.parseDouble(x.get("volume"));
         c.events = new ArrayList<Event>();
-        for (XElement xe : x.childrenWithName("event")) {
+        for (XNElement xe : x.childrenWithName("event")) {
             Event e = Event.parse(xe);
             if (e != null) {
                 c.events.add(e);
             }
         }
         c.flags = new ArrayList<Flag>();
-        for (XElement xe : x.childrenWithName("flag")) {
+        for (XNElement xe : x.childrenWithName("flag")) {
             Flag e = Flag.parse(xe);
             if (e != null) {
                 c.flags.add(e);

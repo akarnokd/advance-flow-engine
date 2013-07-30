@@ -22,14 +22,14 @@
 package eu.advance.logistics.flow.engine.api;
 
 import hu.akarnokd.reactive4java.base.Func0;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 /**
  * Contains version information and engine details.
  * @author akarnokd, 2011.09.19.
  */
-public class AdvanceEngineVersion implements XSerializable {
+public class AdvanceEngineVersion implements XNSerializable {
 	/**
 	 * The minor version number. When displayed, this should be a two digit zero padded number, e.g., 1 is 1.01 and 20 is 1.20. 
 	 */
@@ -46,11 +46,11 @@ public class AdvanceEngineVersion implements XSerializable {
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		parse(source.get("version"));
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("version", format());
 	}
 	/**

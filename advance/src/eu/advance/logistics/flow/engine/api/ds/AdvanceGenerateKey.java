@@ -22,8 +22,8 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
-import eu.advance.logistics.flow.engine.util.DistinguishedName;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.crypto.DistinguishedName;
+import hu.akarnokd.utils.xml.XNElement;
 
 /**
  * Request to generate a new key.
@@ -50,7 +50,7 @@ public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		algorithm = source.get("algorithm");
 		keySize = source.getInt("keysize");
 		issuerDn = new DistinguishedName(source.get("issuer-dn"));
@@ -60,7 +60,7 @@ public class AdvanceGenerateKey extends AdvanceKeyStoreExport {
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("algorithm", algorithm, "keysize", keySize, 
 				"issuer-dn", issuerDn, "subject-dn", subjectDn, "domain", domain, "modified-by", modifiedBy);
 		super.save(destination);

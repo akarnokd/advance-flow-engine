@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.demo;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.awt.Color;
 import java.awt.Container;
 
@@ -36,7 +38,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block which displays a single frame with a single titled button.
@@ -53,7 +54,7 @@ public class Alert extends AdvanceBlock {
 	/** The status indicator panel. */
 	protected JPanel panel;
 	@Override
-	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+	public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

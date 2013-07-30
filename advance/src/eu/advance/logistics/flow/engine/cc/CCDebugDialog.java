@@ -30,6 +30,9 @@ import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 import hu.akarnokd.reactive4java.scheduler.CachedThreadPoolScheduler;
 import hu.akarnokd.reactive4java.swing.DefaultEdtScheduler;
+import hu.akarnokd.utils.lang.Tuple3;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializables;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -87,9 +90,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
-import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializables;
 
 /**
  * Debug flow dialog.
@@ -115,15 +115,15 @@ public class CCDebugDialog extends JFrame {
 	/** Clear filter button. */
 	protected JButton clearFilter;
 	/** The filter function. */
-	protected JComboBox filter;
+	protected JComboBox<String> filter;
 	/** The maximum number of rows. */
 	protected JFormattedTextField rowLimit;
 	/** The realm list. */
-	protected JComboBox realms;
+	protected JComboBox<String> realms;
 	/** The block list. */
-	protected JComboBox blocks;
+	protected JComboBox<String> blocks;
 	/** The port list. */
-	protected JComboBox ports;
+	protected JComboBox<String> ports;
 	/** Refresh realms. */
 	protected JButton refreshRealms;
 	/** Watch at block level. */
@@ -178,7 +178,7 @@ public class CCDebugDialog extends JFrame {
 		
 		records = new JLabel(labels.format("Records %d / %d", 0, 0));
 		JSeparator topSeparator = new JSeparator(JSeparator.HORIZONTAL);
-		realms = new JComboBox();
+		realms = new JComboBox<>();
 		realms.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -188,7 +188,7 @@ public class CCDebugDialog extends JFrame {
 				}				
 			}
 		});
-		blocks = new JComboBox();
+		blocks = new JComboBox<>();
 		blocks.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -197,7 +197,7 @@ public class CCDebugDialog extends JFrame {
 					AdvanceBlockReference r = blockRefs.get(blocks.getSelectedIndex());
 					BlockRegistryEntry re = blockTypes.get(r.type);
 					if (re != null) {
-						DefaultComboBoxModel pm = new DefaultComboBoxModel();
+						DefaultComboBoxModel<String> pm = new DefaultComboBoxModel<>();
 						portList.clear();
 						for (AdvanceBlockParameterDescription p : re.inputs.values()) {
 							portList.add(p);
@@ -212,9 +212,9 @@ public class CCDebugDialog extends JFrame {
 				}
 			}
 		});
-		ports = new JComboBox();
+		ports = new JComboBox<>();
 		
-		filter = new JComboBox();
+		filter = new JComboBox<>();
 		filter.setEditable(true);
 		applyFilter = new JButton(new ImageIcon(getClass().getResource("filter.png")));
 		clearFilter = new JButton(new ImageIcon(getClass().getResource("clear.png")));
@@ -443,7 +443,7 @@ public class CCDebugDialog extends JFrame {
 		r.watch.blockType = "Merge";
 		r.watch.port = "in";
 		r.timestamp = new Date();
-		r.value = Option.some(XSerializables.storeList("block-registry", "block", BlockRegistryEntry.parseDefaultRegistry()));
+		r.value = Option.some(XNSerializables.storeList("block-registry", "block", BlockRegistryEntry.parseDefaultRegistry()));
 		rows.add(r);
 		
 		r = new CCDebugRow();
@@ -699,7 +699,7 @@ public class CCDebugDialog extends JFrame {
 				if (t != null) {
 					GUIUtils.errorMessage(CCDebugDialog.this, t);
 				} else {
-					realms.setModel(new DefaultComboBoxModel(list.toArray(new String[0])));
+					realms.setModel(new DefaultComboBoxModel<>(list.toArray(new String[0])));
 					realms.setSelectedIndex(-1);
 					blockTypes.clear();
 					blockTypes.putAll(map);
@@ -740,7 +740,7 @@ public class CCDebugDialog extends JFrame {
 				} else {
 					blockRefs.clear();
 					blockRefs.addAll(refs);
-					DefaultComboBoxModel cm = new DefaultComboBoxModel();
+					DefaultComboBoxModel<String> cm = new DefaultComboBoxModel<>();
 					for (AdvanceBlockReference r : refs) {
 						cm.addElement(r.id + ": " + r.type + " " + r.keywords);
 					}
@@ -805,11 +805,11 @@ public class CCDebugDialog extends JFrame {
 				@Override
 				public void run() {
 					try {
-						XElement result = new XElement("debug-export");
+						XNElement result = new XNElement("debug-export");
 						for (CCDebugRow dr : rows2) {
-							XElement parent = result;
+							XNElement parent = result;
 							if (full) {
-								XElement entry = result.add("entry");
+								XNElement entry = result.add("entry");
 								entry.set("realm", dr.watch.realm, "block", dr.watch.block, 
 										"block-type", dr.watch.blockType, "port", dr.watch.port,
 										"timestamp", dr.timestamp
@@ -823,8 +823,8 @@ public class CCDebugDialog extends JFrame {
 								parent.add("none");
 							} else {
 								Object o = dr.value.value();
-								if (o instanceof XElement) {
-									parent.add(((XElement)o).copy());
+								if (o instanceof XNElement) {
+									parent.add(((XNElement)o).copy());
 								} else {
 									parent.add("value").content = o.toString();
 								}
@@ -976,16 +976,16 @@ public class CCDebugDialog extends JFrame {
 	}
 	/** Stop watch port. */
 	void doStopWatchPort() {
-		Set<Triplet<String, String, String>> realmsAndBlock = Sets.newHashSet(
-				Interactive.select(selectedRows(), new Func1<CCDebugRow, Triplet<String, String, String>>() {
+		Set<Tuple3<String, String, String>> realmsAndBlock = Sets.newHashSet(
+				Interactive.select(selectedRows(), new Func1<CCDebugRow, Tuple3<String, String, String>>() {
 			@Override
-			public Triplet<String, String, String> invoke(CCDebugRow param1) {
-				return Triplet.of(param1.watch.realm, param1.watch.block, param1.watch.port);
+			public Tuple3<String, String, String> invoke(CCDebugRow param1) {
+				return Tuple3.of(param1.watch.realm, param1.watch.block, param1.watch.port);
 			}
 		}));
 		for (int i = watchers.size() - 1; i >= 0; i--) {
 			CCWatchSettings ws = watchers.get(i);
-			if (ws.port != null && realmsAndBlock.contains(Triplet.of(ws.realm, ws.block, ws.port))) {
+			if (ws.port != null && realmsAndBlock.contains(Tuple3.of(ws.realm, ws.block, ws.port))) {
 				watchers.remove(i);
 				try {
 					ws.handler.close();

@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.api.impl;
 
 import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,7 +46,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Wraps the given engine control object and for each call, it checks
@@ -133,7 +133,7 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 	}
 
 	@Override
-	public void updateSchema(String name, XElement schema)
+	public void updateSchema(String name, XNElement schema)
 			throws IOException, AdvanceControlException {
 		check(AdvanceUserRights.CREATE_SCHEMA, AdvanceUserRights.MODIFY_SCHEMA);
 		control.updateSchema(name, schema);
@@ -292,7 +292,7 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 
 	@Override
 	public void injectValue(String realm, String blockId, String port,
-			XElement value) throws IOException, AdvanceControlException {
+			XNElement value) throws IOException, AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.DEBUG);
 		control.injectValue(realm, blockId, port, value);
 	}
@@ -315,14 +315,14 @@ public class CheckedEngineControl implements AdvanceEngineControl {
 		return control.queryPorts(realm);
 	}
 	@Override
-	public Observable<XElement> receivePort(String realm, String portId)
+	public Observable<XNElement> receivePort(String realm, String portId)
 			throws IOException, AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.IO);
 		return control.receivePort(realm, portId);
 	}
 	@Override
 	public void sendPort(String realm,
-			Iterable<Pair<String, XElement>> portValues) throws IOException,
+			Iterable<Pair<String, XNElement>> portValues) throws IOException,
 			AdvanceControlException {
 		check(realm, AdvanceUserRealmRights.IO);
 		control.sendPort(realm, portValues);

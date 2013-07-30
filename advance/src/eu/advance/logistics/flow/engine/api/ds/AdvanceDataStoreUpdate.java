@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.ds;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +30,6 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Interface having only the {@code updateXYZ} methods of the datastore.
@@ -41,11 +42,11 @@ public interface AdvanceDataStoreUpdate {
 	 * Save the block state.
 	 * @param realm the target realm
 	 * @param blockId the target block identifier
-	 * @param state the state XElement or null
+	 * @param state the state XNElement or null
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */
-	void updateBlockState(@NonNull String realm, @NonNull String blockId, @Nullable XElement state) throws IOException, AdvanceControlException;
+	void updateBlockState(@NonNull String realm, @NonNull String blockId, @Nullable XNElement state) throws IOException, AdvanceControlException;
 	/**
 	 * Update an email box record.
 	 * @param box the new box record
@@ -60,7 +61,7 @@ public interface AdvanceDataStoreUpdate {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */
-	void updateFlow(@NonNull String realm, @Nullable XElement flow) throws IOException, AdvanceControlException;
+	void updateFlow(@NonNull String realm, @Nullable XNElement flow) throws IOException, AdvanceControlException;
 	/**
 	 * Update the FTP data source.
 	 * @param dataSource the data source object

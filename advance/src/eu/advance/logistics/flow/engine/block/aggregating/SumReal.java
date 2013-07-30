@@ -21,13 +21,14 @@
 package eu.advance.logistics.flow.engine.block.aggregating;
 
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Compute the sum of the elements within the collection which have the type of
@@ -57,7 +58,7 @@ public class SumReal extends AdvanceBlock {
     protected void invoke() {
         double sum = 0.0;
         
-        for (XElement xelem : resolver().getItems(get(IN))) {
+        for (XNElement xelem : resolver().getItems(get(IN))) {
             sum += resolver().getDouble(xelem);
         }
         

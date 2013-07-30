@@ -21,11 +21,11 @@
 
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Configuration block for the K-Means ARX learner.
@@ -58,7 +58,7 @@ public class KMeansARXConfig extends AdvanceBlock {
     protected static final String OUT = "out";
 	@Override
 	protected void invoke() {
-		XElement result = new XElement("kmeans_arx_config");
+		XNElement result = new XNElement("kmeans_arx_config");
 		
 		result.set("model-order", getInt(MODEL_ORDER));
 		result.set("cluster-count", getInt(CLUSTER_COUNT));

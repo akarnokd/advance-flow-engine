@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine.compiler;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,14 +49,12 @@ import eu.advance.logistics.flow.engine.inference.InferenceResult;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockBind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Record to store compiler errors, warnings and the computed types of various wires.
  * @author akarnokd, 2011.09.28.
  */
-public class AdvanceCompilationResult implements XSerializable, InferenceResult<AdvanceType, AdvanceBlockBind> {
+public class AdvanceCompilationResult implements XNSerializable, InferenceResult<AdvanceType, AdvanceBlockBind> {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(AdvanceCompilationResult.class);
 	/**
@@ -73,8 +73,8 @@ public class AdvanceCompilationResult implements XSerializable, InferenceResult<
 		}
 	};
 	@Override
-	public void load(XElement source) {
-		for (XElement e : source.childElement("errors").childrenWithName("error")) {
+	public void load(XNElement source) {
+		for (XNElement e : source.childElement("errors").childrenWithName("error")) {
 			String errorType = e.get("type");
 			Func0<? extends AdvanceCompilationError> errFun = ErrorLookup.get(errorType);
 			if (errFun == null) {
@@ -88,7 +88,7 @@ public class AdvanceCompilationResult implements XSerializable, InferenceResult<
 			}
 			
 		}
-		for (XElement e : source.childElement("wire-types").childrenWithName("wire-type")) {
+		for (XNElement e : source.childElement("wire-types").childrenWithName("wire-type")) {
 			AdvanceType at = new AdvanceType();
 			at.load(e.children().get(0));
 			wireTypes.put(e.get("wire-id"), at);
@@ -100,7 +100,7 @@ public class AdvanceCompilationResult implements XSerializable, InferenceResult<
 	 * @param data the error data XML
 	 * @return true if successful
 	 */
-	boolean tryLoadError(String errorClass, XElement data) {
+	boolean tryLoadError(String errorClass, XNElement data) {
 		try {
 			Class<?> clazz = Class.forName(errorClass);
 			if (AdvanceCompilationError.class.isAssignableFrom(clazz)) {
@@ -119,20 +119,20 @@ public class AdvanceCompilationResult implements XSerializable, InferenceResult<
 		return false;
 	}
 	@Override
-	public void save(XElement destination) {
-		XElement errors = destination.add("errors");
+	public void save(XNElement destination) {
+		XNElement errors = destination.add("errors");
 		for (Object e : this.errors) {
-			XElement xerror = errors.add("error");
-			if (e instanceof XSerializable) {
-				((XSerializable)e).save(xerror);
+			XNElement xerror = errors.add("error");
+			if (e instanceof XNSerializable) {
+				((XNSerializable)e).save(xerror);
 			} else {
 				xerror.set("type", e.getClass().getName());
 				xerror.set("message", e.toString());
 			}
 		}
-		XElement types = destination.add("wire-types");
+		XNElement types = destination.add("wire-types");
 		for (Map.Entry<String, AdvanceType> e : this.wireTypes.entrySet()) {
-			XElement wt = types.add("wire-type");
+			XNElement wt = types.add("wire-type");
 			wt.set("wire-id", e.getKey());
 			e.getValue().save(wt.add("type"));
 		}

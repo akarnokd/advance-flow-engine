@@ -22,11 +22,11 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Represents the connection information to a POP3(s)/IMAP(s) based email-box to 
@@ -34,7 +34,7 @@ import eu.advance.logistics.flow.engine.xml.XSerializable;
  * @author akarnokd, 2011.10.10.
  */
 public class AdvanceEmailBox extends AdvanceCreateModifyInfo implements 
-XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
+XNSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 	/** The identifier for referencing this box. */
 	public String name;
 	/** The receive protocol. */
@@ -77,7 +77,7 @@ XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 	}
 
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
 		receive = AdvanceEmailReceiveProtocols.valueOf(source.get("receive"));
 		send = AdvanceEmailSendProtocols.valueOf(source.get("send"));
@@ -93,7 +93,7 @@ XSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 	}
 
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("name", name, "receive", receive, "send", send, "send-address", sendAddress,
 				"receive-address", receiveAddress,
 				"email", email, "folder", folder, "keystore", keyStore, "user", user, "login-type", login);

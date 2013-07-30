@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.db;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -32,7 +34,6 @@ import java.util.Map;
 
 import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Utility class to convert to and from SQL and XML representation of values in JDBC queries.
@@ -50,11 +51,11 @@ public final class JDBCConverter {
 	 * @return the XML map of the key-value pairs from the row
 	 * @throws SQLException on error
 	 */
-	public static XElement create(DataResolver<XElement> resolver, ResultSet rs, ResultSetMetaData rsmd) throws SQLException {
-		final Map<XElement, XElement> data = new HashMap<XElement, XElement>();
+	public static XNElement create(DataResolver<XNElement> resolver, ResultSet rs, ResultSetMetaData rsmd) throws SQLException {
+		final Map<XNElement, XNElement> data = new HashMap<XNElement, XNElement>();
 
 		for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-			XElement value = null;
+			XNElement value = null;
 
 			switch (rsmd.getColumnType(i)) {
 			case java.sql.Types.BOOLEAN:
@@ -102,8 +103,8 @@ public final class JDBCConverter {
      * @return the next index
      * @throws SQLException on error
      */
-    public static int convert(DataResolver<XElement> resolver, 
-    		XElement value, PreparedStatement pstm, int counter) throws SQLException {
+    public static int convert(DataResolver<XNElement> resolver, 
+    		XNElement value, PreparedStatement pstm, int counter) throws SQLException {
 
         final String val = AdvanceData.realName(value).first;
         if (val.equalsIgnoreCase("integer")) {

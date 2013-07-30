@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.text.ParseException;
 
@@ -28,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * During day prediction configuration.
@@ -118,7 +118,7 @@ public class DuringDayConfig extends AdvanceBlock {
             LOG.error(null, ex);
         }
         cfg.events = getStringArray(get(EVENTS));        
-        XElement x = new XElement("DuringDayConfig");
+        XNElement x = new XNElement("DuringDayConfig");
         x.set(cfg);
         dispatch(CONFIG, x);
         LOG.info("DuringDayConfig - done");
@@ -129,7 +129,7 @@ public class DuringDayConfig extends AdvanceBlock {
      * @param collection the XML element
      * @return the string array
      */
-    private String[] getStringArray(XElement collection) {
+    private String[] getStringArray(XNElement collection) {
         return collection.content.split(",");
     }
 }

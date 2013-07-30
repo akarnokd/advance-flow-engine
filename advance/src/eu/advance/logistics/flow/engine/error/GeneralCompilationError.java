@@ -21,8 +21,8 @@
 
 package eu.advance.logistics.flow.engine.error;
 
+import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.flow.engine.model.AdvanceCompilationError;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A general compilation error indicator when the error details are stored in XML.
@@ -30,20 +30,20 @@ import eu.advance.logistics.flow.engine.xml.XElement;
  */
 public class GeneralCompilationError implements AdvanceCompilationError {
 	/** The error contents. */
-	public XElement content;
+	public XNElement content;
 	/**
 	 * Constructor.
 	 * @param content the wrapped content
 	 */
-	public GeneralCompilationError(XElement content) {
+	public GeneralCompilationError(XNElement content) {
 		this.content = content.copy();
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		source.add(content.copy());
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("type", getClass().getSimpleName());
 		destination.add(content.copy());
 	}

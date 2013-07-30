@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.engine.block.db;
 
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Delete a batch of entries from the given datastore by using the query and
@@ -84,21 +85,21 @@ public class JDBCDeleteAll extends AdvanceBlock {
 
         if (conn != null) {
             final String query = getString(QUERY);
-            final List<XElement> paramList = resolver().getList(get(LIST));
+            final List<XNElement> paramList = resolver().getList(get(LIST));
 
             if (query != null) {
                 try {
 
                     final PreparedStatement pstm = conn.getConnection().prepareStatement(query);
                     int results = 0;
-                    for (XElement el : paramList) {
+                    for (XNElement el : paramList) {
 
-                        final Map<XElement, XElement> paramMap = resolver().getMap(el);
-                        final Set<XElement> keySet = paramMap.keySet();
+                        final Map<XNElement, XNElement> paramMap = resolver().getMap(el);
+                        final Set<XNElement> keySet = paramMap.keySet();
 
                         // basing on types fill the prepared_statement
                         int paramCount = 1;
-                        for (XElement e : keySet) {
+                        for (XNElement e : keySet) {
                             paramCount = JDBCConverter.convert(resolver(), paramMap.get(e), pstm, paramCount);
                             pstm.addBatch();
                         }

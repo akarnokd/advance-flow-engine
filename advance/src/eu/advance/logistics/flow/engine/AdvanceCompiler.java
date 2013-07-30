@@ -24,6 +24,8 @@ package eu.advance.logistics.flow.engine;
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Pair;
 import hu.akarnokd.reactive4java.base.Scheduler;
+import hu.akarnokd.utils.lang.Tuple3;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -91,8 +93,6 @@ import eu.advance.logistics.flow.engine.runtime.ReactivePort;
 import eu.advance.logistics.flow.engine.runtime.SchedulerPreference;
 import eu.advance.logistics.flow.engine.typesystem.XSchema;
 import eu.advance.logistics.flow.engine.typesystem.XType;
-import eu.advance.logistics.flow.engine.util.Triplet;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The ADVANCE block compiler which turns the the flow description into runnable advance blocks.
@@ -123,7 +123,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 	public AdvanceCompiler(AdvanceCompilerSettings<T, X, C> settings) {
 		this.settings = settings;
 		AdvanceSchemaResolver res = new AdvanceDefaultSchemaResolver(
-				settings.defaultSchemas, Maps.<String, XElement>newHashMap());
+				settings.defaultSchemas, Maps.<String, XNElement>newHashMap());
 		for (URI u : settings.resolver.baseTypes()) {
 			baseTypes.add(Pair.of(res.resolve(u.toString()), u));
 		}
@@ -141,12 +141,12 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 		this.schemas = null;
 		
 		final Map<String, AdvanceBlockResolver<T, X, C>> blocks = Maps.newHashMap(settings.defaultBlocks);
-		final Map<String, XElement> schemas = Maps.newHashMap();
+		final Map<String, XNElement> schemas = Maps.newHashMap();
 	
 		for (AdvancePluginDetails<T, X, C> p : settings.pluginManager.plugins()) {
 			AdvancePlugin<T, X, C> plugin = p.open();
 
-			for (Map.Entry<String, XElement> s : plugin.schemas().entrySet()) {
+			for (Map.Entry<String, XNElement> s : plugin.schemas().entrySet()) {
 				if (schemas.containsKey(s.getKey())) {
 					LOG.error("Plugin " + plugin.details() + " contains a conflicting schema definition: " + s.getKey());
 					continue;
@@ -595,7 +595,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 		LinkedList<AdvanceCompositeBlock> blockRecursion = Lists.newLinkedList();
 		blockRecursion.add(enclosingBlock);
 		
-		Map<Triplet<AdvanceCompositeBlock, String, String>, AdvanceType> compositePortTypes = Maps.newHashMap();
+		Map<Tuple3<AdvanceCompositeBlock, String, String>, AdvanceType> compositePortTypes = Maps.newHashMap();
 		
 		schemaTypeCache.clear();
 		
@@ -658,8 +658,8 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 				} else
 				if (cb.composites.containsKey(bb.sourceBlock)) {
 					AdvanceCompositeBlock cb1 = cb.composites.get(bb.sourceBlock);
-					Triplet<AdvanceCompositeBlock, String, String> typePort = 
-							Triplet.of(cb1, "", bb.sourceParameter);
+					Tuple3<AdvanceCompositeBlock, String, String> typePort = 
+							Tuple3.of(cb1, "", bb.sourceParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME
@@ -673,7 +673,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 				} else
 				if (!bb.hasSourceBlock() && cb.hasInput(bb.sourceParameter)) {
 					// SOURCE: enclosing composite input
-					Triplet<AdvanceCompositeBlock, String, String> typePort = Triplet.of(cb, "", bb.sourceParameter);
+					Tuple3<AdvanceCompositeBlock, String, String> typePort = Tuple3.of(cb, "", bb.sourceParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME
@@ -707,8 +707,8 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 				} else
 				if (cb.composites.containsKey(bb.destinationBlock)) {
 					AdvanceCompositeBlock cb1 = cb.composites.get(bb.destinationBlock);
-					Triplet<AdvanceCompositeBlock, String, String> typePort = 
-							Triplet.of(cb1, "", bb.destinationParameter);
+					Tuple3<AdvanceCompositeBlock, String, String> typePort = 
+							Tuple3.of(cb1, "", bb.destinationParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME
@@ -723,7 +723,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 				} else
 				if (!bb.hasDestinationBlock() && cb.hasOutput(bb.destinationParameter)) {
 					// DESTINATION: enclosing composite output
-					Triplet<AdvanceCompositeBlock, String, String> typePort = Triplet.of(cb, "", bb.destinationParameter);
+					Tuple3<AdvanceCompositeBlock, String, String> typePort = Tuple3.of(cb, "", bb.destinationParameter);
 					AdvanceType at = compositePortTypes.get(typePort);
 					if (at == null) {
 						// FIXME

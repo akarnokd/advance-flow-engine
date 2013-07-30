@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.Map;
 
@@ -33,7 +34,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Move/rename a set of local files. Signature: LocalFileMoveAll(trigger,
@@ -72,10 +72,10 @@ public class LocalFileMoveAll extends AdvanceBlock {
 
     @Override
     public Observer<Void> run() {
-        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XElement>() {
+        addCloseable(Reactive.observeOn(getInput(TRIGGER), scheduler()).register(new Observer<XNElement>() {
 
             @Override
-            public void next(XElement value) {
+            public void next(XNElement value) {
                 if (resolver().getBoolean(value)) {
                     execute();
                 }
@@ -97,13 +97,13 @@ public class LocalFileMoveAll extends AdvanceBlock {
      */
     private void execute() {
         try {
-            final Map<XElement, XElement> map = resolver().getMap(get(MAP));
+            final Map<XNElement, XNElement> map = resolver().getMap(get(MAP));
             
             final int size = map.size();
             int count = 0;
             
-            for (XElement key : map.keySet()) {
-                final XElement value = map.get(key);
+            for (XNElement key : map.keySet()) {
+                final XNElement value = map.get(key);
                 final String keyStr = resolver().getString(key);
                 final String valueStr = resolver().getString(value);
 

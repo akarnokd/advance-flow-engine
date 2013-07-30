@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Get the collection of keys where the given value is present. Signature:
@@ -68,13 +69,13 @@ public class GetKeys extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> result = new ArrayList<XElement>();
+        final List<XNElement> result = new ArrayList<XNElement>();
 
-        final Map<XElement, XElement> map = resolver().getMap(get(MAP));
-        final Set<XElement> keySet = map.keySet();
-        final XElement objElem = get(VALUE);
-        for (XElement key : keySet) {
-            final XElement value = map.get(key);
+        final Map<XNElement, XNElement> map = resolver().getMap(get(MAP));
+        final Set<XNElement> keySet = map.keySet();
+        final XNElement objElem = get(VALUE);
+        for (XNElement key : keySet) {
+            final XNElement value = map.get(key);
 
             if (value.equals(objElem)) {
                 result.add(key);

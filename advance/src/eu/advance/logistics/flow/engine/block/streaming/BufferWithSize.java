@@ -22,6 +22,7 @@ package eu.advance.logistics.flow.engine.block.streaming;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.LinkedList;
 import java.util.logging.Logger;
@@ -35,7 +36,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
 import eu.advance.logistics.flow.engine.runtime.Port;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Buffers the incoming values into a collection with a maximum size and forwards this collection once fully filled.
@@ -59,7 +59,7 @@ public class BufferWithSize extends AdvanceBlock {
     @Output("advance:collection<?T>")
     protected static final String OUT = "out";
     /** The elements. */
-    private LinkedList<XElement> elements = Lists.newLinkedList();
+    private LinkedList<XNElement> elements = Lists.newLinkedList();
     /** The maximum size. */
     private int maxSize = 0;
     /** The actual size. */
@@ -68,16 +68,16 @@ public class BufferWithSize extends AdvanceBlock {
     private boolean eager = false;
     @Override
     public Observer<Void> run() {
-        Port<XElement, AdvanceType> sizePort = inputs.get(SIZE);
-        Port<XElement, AdvanceType> eagerPort = inputs.get(EAGER);
-        Port<XElement, AdvanceType> elementPort = inputs.get(ELEMENT);
+        Port<XNElement, AdvanceType> sizePort = inputs.get(SIZE);
+        Port<XNElement, AdvanceType> eagerPort = inputs.get(EAGER);
+        Port<XNElement, AdvanceType> elementPort = inputs.get(ELEMENT);
         if (sizePort instanceof ConstantPort) {
-            maxSize = resolver().getInt(((ConstantPort<XElement, AdvanceType>)sizePort).value);
+            maxSize = resolver().getInt(((ConstantPort<XNElement, AdvanceType>)sizePort).value);
         } else if (sizePort != null) {
-            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
+            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XNElement>() {
 
                 @Override
-                public void next(XElement value) {
+                public void next(XNElement value) {
                     int nSize = resolver().getInt(value);
                     if (actualSize > nSize) {
                         for (int i = 0; i < actualSize - nSize; i++) {
@@ -90,23 +90,23 @@ public class BufferWithSize extends AdvanceBlock {
             }));
         }
         if (eagerPort instanceof ConstantPort) {
-            eager = resolver().getBoolean(((ConstantPort<XElement, AdvanceType>)eagerPort).value);
+            eager = resolver().getBoolean(((ConstantPort<XNElement, AdvanceType>)eagerPort).value);
         } else if (eagerPort != null) {
-            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
+            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XNElement>() {
 
                 @Override
-                public void next(XElement value) {
+                public void next(XNElement value) {
                     eager = resolver().getBoolean(value);
                 }
             }));
         }
         if (elementPort instanceof ConstantPort) {
-            invoke(((ConstantPort<XElement, AdvanceType>)elementPort).value);
+            invoke(((ConstantPort<XNElement, AdvanceType>)elementPort).value);
         } else if (eagerPort != null) {
-            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XElement>() {
+            addCloseable(Reactive.observeOn(sizePort, scheduler()).register(new InvokeObserver<XNElement>() {
 
                 @Override
-                public void next(XElement value) {
+                public void next(XNElement value) {
                     invoke(value);
                 }
             }));
@@ -118,7 +118,7 @@ public class BufferWithSize extends AdvanceBlock {
      * Invoke the computation.
      * @param element the element value
      */
-    private void invoke(XElement element) {
+    private void invoke(XNElement element) {
         if (actualSize == maxSize) {
             elements.poll();
             actualSize--;

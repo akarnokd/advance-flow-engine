@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.block.projecting;
 
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.List;
 
@@ -32,7 +33,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Aggregates the incoming SOME options until a NONE is detected and emits a regular collection of elements.
@@ -51,10 +51,10 @@ public class CollectOptions extends AdvanceBlock {
     @Output("advance:collection<?T>")
     protected static final String OUT = "out";
     /** The aggregator. */
-    protected List<XElement> collection = Lists.newArrayList();
+    protected List<XNElement> collection = Lists.newArrayList();
     @Override
     protected void invoke() {
-    	Option<XElement> opt = AdvanceData.getOption(get(IN));
+    	Option<XNElement> opt = AdvanceData.getOption(get(IN));
     	if (Option.isSome(opt)) {
     		collection.add(opt.value());
     	} else

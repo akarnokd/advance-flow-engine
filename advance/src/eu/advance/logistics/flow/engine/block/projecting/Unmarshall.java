@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.StringReader;
 import java.util.logging.Logger;
 
@@ -29,7 +31,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Unmarshalls the given string representation of an object back into its object form.
@@ -57,7 +58,7 @@ public class Unmarshall extends AdvanceBlock {
     @Override
     protected void invoke() {
     	try {
-    		XElement e = XElement.parseXML(new StringReader(getString(IN)));
+    		XNElement e = XNElement.parseXML(new StringReader(getString(IN)));
     		dispatch(OUT, e);
     	} catch (XMLStreamException ex) {
     		log(ex);

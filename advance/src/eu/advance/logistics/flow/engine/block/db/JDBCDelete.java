@@ -21,6 +21,8 @@
 package eu.advance.logistics.flow.engine.block.db;
 
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.sql.PreparedStatement;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +34,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Delete entries from the given datastore by using the query and parameters.
@@ -82,16 +83,16 @@ public class JDBCDelete extends AdvanceBlock {
             conn = ds.get();
             try {
                 final String query = getString(QUERY);
-                final Map<XElement, XElement> paramMap = resolver().getMap(get(MAP));
+                final Map<XNElement, XNElement> paramMap = resolver().getMap(get(MAP));
 
                 if (query != null) {
                     try {
-                        final Set<XElement> keySet = paramMap.keySet();
+                        final Set<XNElement> keySet = paramMap.keySet();
                         final String[] columns = new String[keySet.size()];
 
                         //retrieve columns names
                         int count = 0;
-                        for (XElement e : keySet) {
+                        for (XNElement e : keySet) {
                             columns[count] = resolver().getString(e);
                             count++;
                         }
@@ -100,7 +101,7 @@ public class JDBCDelete extends AdvanceBlock {
 
                         // basing on types fill the prepared_statement
                         int paramCount = 1;
-                        for (XElement e : keySet) {
+                        for (XNElement e : keySet) {
                             paramCount = JDBCConverter.convert(resolver(), paramMap.get(e), pstm, paramCount);
                         }
 

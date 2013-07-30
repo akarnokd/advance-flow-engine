@@ -20,13 +20,14 @@
  */
 package eu.advance.logistics.flow.engine.block.aggregating;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Computes the standard deviation of the collection of integers. Signature:
@@ -58,7 +59,7 @@ public class STDDeviationInteger extends AdvanceBlock {
     	double mean = 0d;
     	double m2 = 0d;
     	
-    	for (XElement e : resolver().getItems(get(IN))) {
+    	for (XNElement e : resolver().getItems(get(IN))) {
     		double v = resolver().getInt(e);
     		n++;
     		

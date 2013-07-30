@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.typesystem;
 
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A schema parser which can work with generic type definitions of an XSD schemas
@@ -52,9 +52,9 @@ public class XGenerics {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(XSchema.class);
 	/** The external schema resolver. */
-	protected final Func1<String, XElement> resolver;
+	protected final Func1<String, XNElement> resolver;
 	/** Maps the schema file to map of type definitions. */
-	protected final Map<String, Map<String, XElement>> types = Maps.newLinkedHashMap();
+	protected final Map<String, Map<String, XNElement>> types = Maps.newLinkedHashMap();
 	/** The schema prefix. */
 	protected String prefix;
 	/**
@@ -65,7 +65,7 @@ public class XGenerics {
 	 * Constructor.
 	 * @param resolver the resolver
 	 */
-	public XGenerics(Func1<String, XElement> resolver) {
+	public XGenerics(Func1<String, XNElement> resolver) {
 		this.resolver = resolver;
 	}
 	/**
@@ -73,7 +73,7 @@ public class XGenerics {
 	 * @param schema the schema to parse
 	 * @return the generic type representing the schema
 	 */
-	public XGenericBaseType parse(XElement schema) {
+	public XGenericBaseType parse(XNElement schema) {
 		path.clear();
 		types.clear();
 		prefix = schema.prefix;
@@ -81,13 +81,13 @@ public class XGenerics {
 		
 		XGenericBaseType result = new XGenericBaseType();
 		
-		for (XElement e : schema.children()) {
+		for (XNElement e : schema.children()) {
 			
-			if (e.name.equals("element") && XElement.XSD.equals(e.namespace)) {
+			if (e.name.equals("element") && XNElement.XSD.equals(e.namespace)) {
 				parseElement(e, result);
 				break;
 			} else
-			if (e.name.equals("complexType") && XElement.XSD.equals(e.namespace)) {
+			if (e.name.equals("complexType") && XNElement.XSD.equals(e.namespace)) {
 				parseComplexType(e, result);
 				break;
 			}
@@ -102,7 +102,7 @@ public class XGenerics {
 	 * @param xsdType the type as defined in the XSD (e.g., with the prefix).
 	 * @param restriction the optional restriction
 	 */
-	void assignSimpleType(XGenericCapability capability, String xsdType, XElement restriction) {
+	void assignSimpleType(XGenericCapability capability, String xsdType, XNElement restriction) {
 		if (xsdType.equals(prefix + ":anyType")) {
 			capability.complexType(new XGenericBaseType());
 		} else {
@@ -121,8 +121,8 @@ public class XGenerics {
 	 * @param element the element
 	 * @param out the output
 	 */
-	void parseElement(XElement element, XGenericBaseType out) {
-		XElement elementDef = element;
+	void parseElement(XNElement element, XGenericBaseType out) {
+		XNElement elementDef = element;
 		String ref = elementDef.get("ref");
 		if (ref != null) {
 			elementDef = findTypeDef(ref);
@@ -136,7 +136,7 @@ public class XGenerics {
 		out.add(capability);
 		
 		// TODO generic type arguments
-		XElement typeAnnotation = getGenericTypeInfo(elementDef);
+		XNElement typeAnnotation = getGenericTypeInfo(elementDef);
 		if (typeAnnotation != null) {
 			parseGenericTypes(capability, typeAnnotation);
 		}
@@ -146,14 +146,14 @@ public class XGenerics {
 			if (type.startsWith(prefix + ":")) {
 				assignSimpleType(capability, type, null);
 			} else {
-				XElement typeDef = findTypeDef(type);
+				XNElement typeDef = findTypeDef(type);
 				if (typeDef == null) {
 					throw new IllegalArgumentException("Missing referenced element type: " + elementDef);
 				}
-				if (typeDef.hasName("simpleType", XElement.XSD)) {
+				if (typeDef.hasName("simpleType", XNElement.XSD)) {
 					parseSimpleType(typeDef, capability);
 				} else
-				if (typeDef.hasName("complexType", XElement.XSD)) {
+				if (typeDef.hasName("complexType", XNElement.XSD)) {
 					capability.complexType(new XGenericBaseType());
 					
 					path.addLast(capability.complexType());
@@ -165,8 +165,8 @@ public class XGenerics {
 			}
 		} else {
 			// local definition
-			XElement simpleType = elementDef.childElement("simpleType", XElement.XSD);
-			XElement complexType = elementDef.childElement("complexType", XElement.XSD);
+			XNElement simpleType = elementDef.childElement("simpleType", XNElement.XSD);
+			XNElement complexType = elementDef.childElement("complexType", XNElement.XSD);
 			if (simpleType != null) {
 				parseSimpleType(simpleType, capability);
 			} else
@@ -188,8 +188,8 @@ public class XGenerics {
 	 * @param typeAnnotation the type {@code advance-type-info} element.
 	 */
 	public void parseGenericTypes(XGenericCapability capability,
-			XElement typeAnnotation) {
-		for (XElement ta : typeAnnotation.childrenWithName("type")) {
+			XNElement typeAnnotation) {
+		for (XNElement ta : typeAnnotation.childrenWithName("type")) {
 			XGenericType gt = new XGenericType();
 			gt.load(ta);
 			capability.arguments.add(gt);
@@ -200,16 +200,16 @@ public class XGenerics {
 	 * @param element the type definition
 	 * @param out the output of the type
 	 */
-	void parseComplexType(XElement element, XGenericBaseType out) {
+	void parseComplexType(XNElement element, XGenericBaseType out) {
 		parseTypeVariables(element, out);
 		// one of the following: simpleContent, complexContent, group all, choice, sequence
 		// then any of the following: attribute, attributeGroup
 		
-		for (XElement e : element.children()) {
-			if (e.hasName("simpleContent", XElement.XSD)) {
+		for (XNElement e : element.children()) {
+			if (e.hasName("simpleContent", XNElement.XSD)) {
 				parseSimpleContent(e, out);
 			} else
-			if (e.hasName("complexContent", XElement.XSD)) {
+			if (e.hasName("complexContent", XNElement.XSD)) {
 				parseComplexContent(e, out);
 			}
 		}
@@ -220,33 +220,33 @@ public class XGenerics {
 	 * @param element the outer definition element.
 	 * @param out the output for the types
 	 */
-	void parseComplexTypeBody(XElement element, XGenericBaseType out) {
-		for (XElement e : element.children()) {
-			if (e.hasName("group", XElement.XSD)) {
+	void parseComplexTypeBody(XNElement element, XGenericBaseType out) {
+		for (XNElement e : element.children()) {
+			if (e.hasName("group", XNElement.XSD)) {
 				// @ref to call in a group
 				parseGroup(e, out);
 			} else
-			if (e.hasName("all", XElement.XSD)) {
+			if (e.hasName("all", XNElement.XSD)) {
 				// element*
 				parseComposite(e, out);
 			} else
-			if (e.hasName("choice", XElement.XSD)) {
+			if (e.hasName("choice", XNElement.XSD)) {
 				// element*, group*, choice*, sequence, any
 				parseComposite(e, out);
 			} else
-			if (e.hasName("sequence", XElement.XSD)) {
+			if (e.hasName("sequence", XNElement.XSD)) {
 				// element*, group*, choice*, sequence, any
 				parseComposite(e, out);
 			} else
-			if (e.hasName("attribute", XElement.XSD)) {
+			if (e.hasName("attribute", XNElement.XSD)) {
 				XGenericCapability attributeCapability = new XGenericCapability();
 				parseAttribute(e, attributeCapability);
 				out.add(attributeCapability);
 			} else
-			if (e.hasName("attributeGroup", XElement.XSD)) {
+			if (e.hasName("attributeGroup", XNElement.XSD)) {
 				parseAttributeGroup(e, out);
 			} else
-			if (e.hasName("anyAttribute", XElement.XSD)) {
+			if (e.hasName("anyAttribute", XNElement.XSD)) {
 				// any attribute ignored 
 				continue;
 			}
@@ -258,8 +258,8 @@ public class XGenerics {
 	 * @param group the group definition
 	 * @param out the output for types
 	 */
-	void parseGroup(XElement group, XGenericBaseType out) {
-		XElement groupDef = group;
+	void parseGroup(XNElement group, XGenericBaseType out) {
+		XNElement groupDef = group;
 		String ref = group.get("ref");
 		if (ref != null) {
 			groupDef = findTypeDef(ref);
@@ -267,8 +267,8 @@ public class XGenerics {
 				throw new IllegalArgumentException("Missing group: " + group);
 			}
 		}
-		for (XElement c : groupDef.children()) {
-			if (c.hasName("all", XElement.XSD)) {
+		for (XNElement c : groupDef.children()) {
+			if (c.hasName("all", XNElement.XSD)) {
 				// restrict children cardinality to max 1
 				XGenericBaseType type = new XGenericBaseType();
 				parseComposite(c, type);
@@ -284,11 +284,11 @@ public class XGenerics {
 				}
 				break;
 			} else
-			if (c.hasName("choice", XElement.XSD)) {
+			if (c.hasName("choice", XNElement.XSD)) {
 				parseComposite(c, out);
 				break;
 			} else
-			if (c.hasName("sequence", XElement.XSD)) {
+			if (c.hasName("sequence", XNElement.XSD)) {
 				parseComposite(c, out);
 				break;
 			}
@@ -299,32 +299,32 @@ public class XGenerics {
 	 * @param parent the parent composite
 	 * @param out the output type
 	 */
-	void parseComposite(XElement parent, XGenericBaseType out) {
-		for (XElement c : parent.children()) {
+	void parseComposite(XNElement parent, XGenericBaseType out) {
+		for (XNElement c : parent.children()) {
 			// skip annotation an any
-			if (c.hasName("annotation", XElement.XSD)
-					|| c.hasName("any", XElement.XSD)) {
+			if (c.hasName("annotation", XNElement.XSD)
+					|| c.hasName("any", XNElement.XSD)) {
 				continue;
 			} else
-			if (c.hasName("element", XElement.XSD)) {
+			if (c.hasName("element", XNElement.XSD)) {
 				// element*
 				parseElement(c, out);
 				continue;
 			}
 			XGenericCapability cap = new XGenericCapability();
 			cap.cardinality = XSchema.getCardinality(c);
-			if (c.hasName("group", XElement.XSD)) {
+			if (c.hasName("group", XNElement.XSD)) {
 				// @ref to call in a group
 				parseGroup(c, out);
 			} else
-			if (c.hasName("choice", XElement.XSD)) {
+			if (c.hasName("choice", XNElement.XSD)) {
 				// element*, group*, choice*, sequence, any
 				cap.complexType(new XGenericBaseType());
 				path.addLast(cap.complexType());
 				parseComposite(c, cap.complexType());
 				path.removeLast();
 			} else
-			if (c.hasName("sequence", XElement.XSD)) {
+			if (c.hasName("sequence", XNElement.XSD)) {
 				// element*, group*, choice*, sequence, any
 				cap.complexType(new XGenericBaseType());
 				path.addLast(cap.complexType());
@@ -339,9 +339,9 @@ public class XGenerics {
 	 * @param complexContent the complex content element
 	 * @param out the output
 	 */
-	void parseComplexContent(XElement complexContent, XGenericBaseType out) {
-		XElement restriction = complexContent.childElement("restriction", XElement.XSD);
-		XElement extension = complexContent.childElement("extension", XElement.XSD);
+	void parseComplexContent(XNElement complexContent, XGenericBaseType out) {
+		XNElement restriction = complexContent.childElement("restriction", XNElement.XSD);
+		XNElement extension = complexContent.childElement("extension", XNElement.XSD);
 		if ((restriction != null) == (extension != null)) {
 			throw new IllegalArgumentException("Can't have both restriction and extensions missing or present at the same time: " + complexContent);
 		}
@@ -350,7 +350,7 @@ public class XGenerics {
 
 			String base = extension.get("base");
 			if (!base.equals(prefix + ":anyType")) {
-				XElement baseTypeDef = findTypeDef(base);
+				XNElement baseTypeDef = findTypeDef(base);
 				if (baseTypeDef == null) {
 					throw new IllegalArgumentException("Missing extension base " + complexContent);
 				}
@@ -361,7 +361,7 @@ public class XGenerics {
 			
 			out.add(baseType.capabilities());
 			
-			XElement typeAnnotations = getGenericTypeInfo(extension);
+			XNElement typeAnnotations = getGenericTypeInfo(extension);
 			if (typeAnnotations != null) {
 				XGenericCapability helper = new XGenericCapability();
 				parseGenericTypes(helper, typeAnnotations);
@@ -375,7 +375,7 @@ public class XGenerics {
 			String base = restriction.get("base");
 			
 			XGenericBaseType baseType = new XGenericBaseType();
-			XElement baseTypeDef = findTypeDef(base);
+			XNElement baseTypeDef = findTypeDef(base);
 			if (baseTypeDef == null) {
 				throw new IllegalArgumentException("Missing restriction base " + complexContent);
 			}
@@ -410,9 +410,9 @@ public class XGenerics {
 	 * @param simpleContent the simple content element
 	 * @param out the output
 	 */
-	void parseSimpleContent(XElement simpleContent, XGenericBaseType out) {
-		XElement restriction = simpleContent.childElement("restriction", XElement.XSD);
-		XElement extension = simpleContent.childElement("extension", XElement.XSD);
+	void parseSimpleContent(XNElement simpleContent, XGenericBaseType out) {
+		XNElement restriction = simpleContent.childElement("restriction", XNElement.XSD);
+		XNElement extension = simpleContent.childElement("extension", XNElement.XSD);
 		if ((restriction != null) == (extension != null)) {
 			throw new IllegalArgumentException("Can't have both restriction and extensions missing or present at the same time: " + simpleContent);
 		}
@@ -424,7 +424,7 @@ public class XGenerics {
 			if (base.startsWith(prefix + ":")) {
 				assignSimpleType(capability, base, null);
 			} else {
-				XElement simpleTypeDef = findTypeDef(base);
+				XNElement simpleTypeDef = findTypeDef(base);
 				if (simpleTypeDef != null) {
 					parseSimpleType(simpleTypeDef, capability);
 				} else {
@@ -432,13 +432,13 @@ public class XGenerics {
 				}
 			}
 			out.add(capability);
-			for (XElement attributes : extension.children()) {
-				if (attributes.hasName("attribute", XElement.XSD)) {
+			for (XNElement attributes : extension.children()) {
+				if (attributes.hasName("attribute", XNElement.XSD)) {
 					XGenericCapability attributeCapability = new XGenericCapability();
 					parseAttribute(attributes, attributeCapability);
 					out.add(attributeCapability);
 				} else
-				if (attributes.hasName("attributeGroup", XElement.XSD)) {
+				if (attributes.hasName("attributeGroup", XNElement.XSD)) {
 					parseAttributeGroup(attributes, out);
 				}
 			}
@@ -462,10 +462,10 @@ public class XGenerics {
 	 * @param restriction the {@code xsd:restriction} element.
 	 * @param capability the target capability
 	 */
-	public void fixDecimalType(@NonNull XElement restriction,
+	public void fixDecimalType(@NonNull XNElement restriction,
 			@NonNull XGenericCapability capability) {
 		if (capability.valueType == XValueType.REAL) {
-			XElement fractionDigits = restriction.childElement("fractionDigits", XElement.XSD);
+			XNElement fractionDigits = restriction.childElement("fractionDigits", XNElement.XSD);
 			if (fractionDigits != null) {
 				if (fractionDigits.getInt("value") == 0) {
 					capability.valueType = XValueType.INTEGER;
@@ -478,8 +478,8 @@ public class XGenerics {
 	 * @param attribute the attribute definition
 	 * @param capability the capability for the output
 	 */
-	void parseAttribute(XElement attribute, XGenericCapability capability) {
-		XElement attributeDef = attribute;
+	void parseAttribute(XNElement attribute, XGenericCapability capability) {
+		XNElement attributeDef = attribute;
 		String ref = attributeDef.get("ref");
 		if (ref != null) {
 			attributeDef = findTypeDef(ref);
@@ -502,7 +502,7 @@ public class XGenerics {
 			if (typeRef.startsWith(prefix + ":")) {
 				assignSimpleType(capability, typeRef, null);
 			} else {
-				XElement simpleType = findTypeDef(typeRef);
+				XNElement simpleType = findTypeDef(typeRef);
 				if (simpleType == null) {
 					throw new IllegalArgumentException("Missing simple type " + attributeDef);
 				}
@@ -510,7 +510,7 @@ public class XGenerics {
 			}
 		} else {
 			// local definition
-			XElement simpleType = attributeDef.childElement("simpleType", XElement.XSD);
+			XNElement simpleType = attributeDef.childElement("simpleType", XNElement.XSD);
 			if (simpleType != null) {
 				parseSimpleType(simpleType, capability);
 			} else {
@@ -524,8 +524,8 @@ public class XGenerics {
 	 * @param attributeGroup the definition
 	 * @param out the output type
 	 */
-	void parseAttributeGroup(XElement attributeGroup, XGenericBaseType out) {
-		XElement attributeGroupDef = attributeGroup;
+	void parseAttributeGroup(XNElement attributeGroup, XGenericBaseType out) {
+		XNElement attributeGroupDef = attributeGroup;
 		String ref = attributeGroupDef.get("ref");
 		if (ref != null) {
 			attributeGroupDef = findTypeDef(ref);
@@ -533,13 +533,13 @@ public class XGenerics {
 				throw new IllegalArgumentException("Missing attribute group: " + attributeGroup);
 			}
 		}
-		for (XElement e : attributeGroupDef.children()) {
-			if (e.hasName("attribute", XElement.XSD)) {
+		for (XNElement e : attributeGroupDef.children()) {
+			if (e.hasName("attribute", XNElement.XSD)) {
 				XGenericCapability cap = new XGenericCapability();
 				parseAttribute(e, cap);
 				out.add(cap);
 			} else
-			if (e.hasName("attributeGroup", XElement.XSD)) {
+			if (e.hasName("attributeGroup", XNElement.XSD)) {
 				parseAttributeGroup(e, out);
 			}
 		}
@@ -549,16 +549,16 @@ public class XGenerics {
 	 * @param simpleType the simple type definition
 	 * @param capability the output
 	 */
-	void parseSimpleType(XElement simpleType, XGenericCapability capability) {
-		XElement restrict = simpleType.childElement("restriction", XElement.XSD);
-		XElement list = simpleType.childElement("list", XElement.XSD);
-		XElement union = simpleType.childElement("union", XElement.XSD);
+	void parseSimpleType(XNElement simpleType, XGenericCapability capability) {
+		XNElement restrict = simpleType.childElement("restriction", XNElement.XSD);
+		XNElement list = simpleType.childElement("list", XNElement.XSD);
+		XNElement union = simpleType.childElement("union", XNElement.XSD);
 		if (restrict != null) {
 			String base = restrict.get("base");
 			if (base.startsWith(prefix + ":")) {
 				assignSimpleType(capability, base, restrict);
 			} else {
-				XElement ref = findTypeDef(base);
+				XNElement ref = findTypeDef(base);
 				if (ref == null) {
 					throw new IllegalArgumentException("Missing referenced simple type: " + simpleType);
 				}
@@ -576,7 +576,7 @@ public class XGenerics {
 				if (itemType.startsWith(prefix + ":")) {
 					assignSimpleType(cap, itemType, restrict);
 				} else {
-					XElement ref = findTypeDef(itemType);
+					XNElement ref = findTypeDef(itemType);
 					if (ref == null) {
 						throw new IllegalArgumentException("Missing referenced simple type: " + simpleType);
 					}
@@ -595,7 +595,7 @@ public class XGenerics {
 					if (type.startsWith(prefix + ":")) { 
 						assignSimpleType(cap, type, restrict);
 					} else {
-						XElement ref = findTypeDef(type);
+						XNElement ref = findTypeDef(type);
 						if (ref == null) {
 							throw new IllegalArgumentException("Missing referenced simple type: " + simpleType);
 						}
@@ -603,8 +603,8 @@ public class XGenerics {
 					}
 				}
 			} else {
-				for (XElement mt : union.children()) {
-					if (mt.hasName("simpleType", XElement.XSD)) {
+				for (XNElement mt : union.children()) {
+					if (mt.hasName("simpleType", XNElement.XSD)) {
 						XGenericCapability cap = new XGenericCapability();
 						cap.cardinality = XCardinality.ONE;
 						capability.complexType().add(cap);
@@ -619,10 +619,10 @@ public class XGenerics {
 	 * @param element the type element
 	 * @param out the output for the generic information
 	 */
-	void parseTypeVariables(XElement element, XGenericBaseType out) {
-		XElement typeInfo = getGenericTypeInfo(element);
+	void parseTypeVariables(XNElement element, XGenericBaseType out) {
+		XNElement typeInfo = getGenericTypeInfo(element);
 		if (typeInfo != null) {
-			for (XElement tv : typeInfo.childrenWithName("type-variable")) {
+			for (XNElement tv : typeInfo.childrenWithName("type-variable")) {
 				XGenericVariable var = new XGenericVariable();
 				var.load(tv);
 				out.variables.add(var);
@@ -633,18 +633,18 @@ public class XGenerics {
 	 * Load the includes of the schema.
 	 * @param schema the schema root
 	 */
-	void loadIncludes(XElement schema) {
-		Deque<Pair<XElement, String>> queue = Lists.newLinkedList();
+	void loadIncludes(XNElement schema) {
+		Deque<Pair<XNElement, String>> queue = Lists.newLinkedList();
 		queue.add(Pair.of(schema, ""));
 		Set<String> memory = Sets.newHashSet();
 		while (!queue.isEmpty()) {
-			Pair<XElement, String> e = queue.removeFirst();
+			Pair<XNElement, String> e = queue.removeFirst();
 			setTypes(e.first, e.second);
 			
-			for (XElement inc : e.first.childrenWithName("include", XElement.XSD)) {
+			for (XNElement inc : e.first.childrenWithName("include", XNElement.XSD)) {
 				String schemaLoc = inc.get("schemaLocation");
 				if (memory.add(schemaLoc)) {
-					XElement incSchema = resolver.invoke(schemaLoc);
+					XNElement incSchema = resolver.invoke(schemaLoc);
 					queue.add(Pair.of(incSchema, schemaLoc));
 				}
 			}
@@ -655,9 +655,9 @@ public class XGenerics {
 	 * @param name the type definition
 	 * @return the type found or null
 	 */
-	XElement findTypeDef(String name) {
-		for (Map<String, XElement> defs : types.values()) {
-			XElement t = defs.get(name);
+	XNElement findTypeDef(String name) {
+		for (Map<String, XNElement> defs : types.values()) {
+			XNElement t = defs.get(name);
 			if (t != null) {
 				return t;
 			}
@@ -669,8 +669,8 @@ public class XGenerics {
 	 * @param schemaRoot the schema root
 	 * @param target the target 'namespace'
 	 */
-	void setTypes(XElement schemaRoot, String target) {
-		for (XElement e : schemaRoot.children()) {
+	void setTypes(XNElement schemaRoot, String target) {
+		for (XNElement e : schemaRoot.children()) {
 			add(target, e.get("name"), e);
 		}
 	}
@@ -679,10 +679,10 @@ public class XGenerics {
 	 * @param e the base element
 	 * @return the type info element or null if not present
 	 */
-	XElement getGenericTypeInfo(XElement e) {
-		XElement annot = e.childElement("annotation", XElement.XSD);
+	XNElement getGenericTypeInfo(XNElement e) {
+		XNElement annot = e.childElement("annotation", XNElement.XSD);
 		if (annot != null) {
-			XElement appInfo = annot.childElement("appinfo", XElement.XSD);
+			XNElement appInfo = annot.childElement("appinfo", XNElement.XSD);
 			if (appInfo != null) {
 				return appInfo.childElement("advance-type-info");
 			}
@@ -695,8 +695,8 @@ public class XGenerics {
 	 * @param typeName the type name
 	 * @param definition the definition
 	 */
-	public void add(String target, String typeName, XElement definition) {
-		Map<String, XElement> defs = types.get(target);
+	public void add(String target, String typeName, XNElement definition) {
+		Map<String, XNElement> defs = types.get(target);
 		if (defs == null) {
 			defs = Maps.newLinkedHashMap();
 			types.put(target, defs);
@@ -708,13 +708,13 @@ public class XGenerics {
 	 * @throws Exception ignored
 	 */
 	public static void main(String[] args) throws Exception {
-		Func1<String, XElement> resolver = new Func1<String, XElement>() {
+		Func1<String, XNElement> resolver = new Func1<String, XNElement>() {
 			@Override
-			public XElement invoke(String param1) {
+			public XNElement invoke(String param1) {
 				File f = new File("schemas", param1);
 				if (f.canRead()) {
 					try {
-						return XElement.parseXML(f);
+						return XNElement.parseXML(f);
 					} catch (XMLStreamException ex) {
 						LOG.error(ex.toString(), ex);
 					} catch (IOException ex) {
@@ -726,11 +726,11 @@ public class XGenerics {
 		};
 		XGenerics xg = new XGenerics(resolver);
 
-		XElement xsd = XElement.parseXML(new File("schemas", "map.xsd"));
+		XNElement xsd = XNElement.parseXML(new File("schemas", "map.xsd"));
 		System.out.println(xg.parse(xsd));
 //		for (URI u : AdvanceData.BASE_TYPES) {
 //			try {
-//				xsd = XElement.parseXML(new File("schemas", u.getSchemeSpecificPart() + ".xsd"));
+//				xsd = XNElement.parseXML(new File("schemas", u.getSchemeSpecificPart() + ".xsd"));
 //				System.out.println(xg.parse(xsd));
 //			} catch (Throwable t) {
 //				t.printStackTrace();

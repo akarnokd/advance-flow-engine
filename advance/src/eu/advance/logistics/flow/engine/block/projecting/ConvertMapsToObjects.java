@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +33,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Converts a collection map of key-value pairs into a collection of single-element XML with attributes or child elements as the given map keys and values.
@@ -59,25 +60,25 @@ public class ConvertMapsToObjects extends AdvanceBlock {
 	protected void invoke() {
 		boolean attr = getBoolean(ATTRIBUTES);
 
-		XElement type = get(TYPE);
+		XNElement type = get(TYPE);
 		String elementNames = type.get("type");
 		int idx = elementNames.indexOf(':');
 		if (idx > 0) {
 			elementNames = elementNames.substring(idx + 1);
 		}
 		
-		XElement coll = get(VALUE);
+		XNElement coll = get(VALUE);
 		
-		List<XElement> result = Lists.newLinkedList();
+		List<XNElement> result = Lists.newLinkedList();
 		
-		for (XElement ce : resolver().getItems(coll)) {
-			Map<XElement, XElement> map = resolver().getMap(ce);
+		for (XNElement ce : resolver().getItems(coll)) {
+			Map<XNElement, XNElement> map = resolver().getMap(ce);
 			
 			
-			XElement re = new XElement(elementNames);
+			XNElement re = new XNElement(elementNames);
 			
-			for (Map.Entry<XElement, XElement> e : map.entrySet()) {
-				XElement other = e.getValue();
+			for (Map.Entry<XNElement, XNElement> e : map.entrySet()) {
+				XNElement other = e.getValue();
 				if (attr) {
 					if (other.hasChildren() || other.hasAttributes()) {
 						log(new IllegalArgumentException("Value is not simple value type for attribute representation: " + e.getKey() + " " + other));

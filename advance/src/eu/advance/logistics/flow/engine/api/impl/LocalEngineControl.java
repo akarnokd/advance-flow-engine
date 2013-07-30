@@ -23,6 +23,8 @@ package eu.advance.logistics.flow.engine.api.impl;
 
 import hu.akarnokd.reactive4java.base.Observable;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.crypto.KeystoreFault;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,8 +71,6 @@ import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
 import eu.advance.logistics.flow.engine.runtime.Port;
 import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.ReactivePort;
-import eu.advance.logistics.flow.engine.util.KeystoreFault;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A synchronized local flow engine control object storing data in local XML file.
@@ -85,13 +85,13 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	/** The set of schema locations. */
 	protected final List<String> schemas;
 	/** The flow compiler. */
-	protected final AdvanceFlowCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler;
+	protected final AdvanceFlowCompiler<XNElement, AdvanceType, AdvanceRuntimeContext> compiler;
 	/** The flow executor. */
 	protected final AdvanceFlowExecutor executor;
 	/**
 	 * The realm runtimes.
 	 */
-	protected final Map<String, AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext>> realmRuntime = Maps.newConcurrentMap();
+	protected final Map<String, AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext>> realmRuntime = Maps.newConcurrentMap();
 	/**
 	 * The output of the realm verification.
 	 */
@@ -109,7 +109,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public LocalEngineControl(
 			AdvanceDataStore datastore, 
 			Iterable<String> schemas, 
-			AdvanceFlowCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler,
+			AdvanceFlowCompiler<XNElement, AdvanceType, AdvanceRuntimeContext> compiler,
 			AdvanceFlowExecutor executor,
 			String workDir) {
 		this.datastore = datastore;
@@ -369,9 +369,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	public Observable<BlockDiagnostic> debugBlock(
 			String realm, String blockId)
 			throws IOException, AdvanceControlException {
-		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
+		AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
 		if (runtime != null) {
-			for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
+			for (Block<XNElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
 				if (b.id().equals(blockId)) {
 					return b.getDiagnosticPort();
 				}
@@ -385,9 +385,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			String realm, String blockId,
 			String port) throws IOException,
 			AdvanceControlException {
-		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
+		AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
 		if (runtime != null) {
-			for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
+			for (Block<XNElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
 				if (b.id().equals(blockId)) {
 					for (Port<?, ?> p : b.inputs()) {
 						if (p instanceof ReactivePort && p.name().equals(port)) {
@@ -409,7 +409,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	@Override
 	public AdvanceCompositeBlock queryFlow(
 			String realm) throws IOException, AdvanceControlException {
-		XElement xflow = datastore.queryFlow(realm);
+		XNElement xflow = datastore.queryFlow(realm);
 		if (xflow != null) {
 			return AdvanceCompositeBlock.parseFlow(xflow);
 		}
@@ -448,7 +448,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public void injectValue(String realm,
-			String blockId, String port, XElement value) throws IOException,
+			String blockId, String port, XNElement value) throws IOException,
 			AdvanceControlException {
 		AdvanceRealm r = datastore.queryRealm(realm);
 		if (r == null) {
@@ -457,16 +457,16 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		if (r.status != AdvanceRealmStatus.RUNNING) {
 			throw new AdvanceControlException("Realm " + realm + " is not running");
 		}
-		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
+		AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
 		if (runtime == null) {
 			throw new AdvanceControlException("Realm " + realm + " is not compiled");
 		}
-		for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
+		for (Block<XNElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
 			if (b.id().equals(blockId)) {
-				for (Port<XElement, AdvanceType> p : b.inputs()) {
+				for (Port<XNElement, AdvanceType> p : b.inputs()) {
 					if (p.name().equals(port)) {
 						if (p instanceof ReactivePort) {
-							ReactivePort<XElement, AdvanceType> bp = (ReactivePort<XElement, AdvanceType>) p;
+							ReactivePort<XNElement, AdvanceType> bp = (ReactivePort<XNElement, AdvanceType>) p;
 							bp.next(value);
 							return;
 						} else {
@@ -491,7 +491,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 						if (f.getName().toLowerCase().endsWith(".xsd")) {
 							AdvanceSchemaRegistryEntry e = new AdvanceSchemaRegistryEntry();
 							e.name = f.getName();
-							e.schema = XElement.parseXML(f);
+							e.schema = XNElement.parseXML(f);
 							result.add(e);
 						}
 					}
@@ -513,7 +513,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 						if (f.getName().toLowerCase().endsWith(".xsd")) {
 							AdvanceSchemaRegistryEntry e = new AdvanceSchemaRegistryEntry();
 							e.name = f.getName();
-							e.schema = XElement.parseXML(f);
+							e.schema = XNElement.parseXML(f);
 							return e;
 						}
 					}
@@ -526,7 +526,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public void updateSchema(String name,
-			XElement schema) throws IOException, AdvanceControlException {
+			XNElement schema) throws IOException, AdvanceControlException {
 		if (schemas.size() == 0) {
 			throw new AdvanceControlException("No place for schemas");
 		}
@@ -579,7 +579,7 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		datastore.updateRealm(r);
 		
 		try {
-			XElement xflow = datastore.queryFlow(r.name);
+			XNElement xflow = datastore.queryFlow(r.name);
 			LOG.debug("Parsing flow");
 			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(xflow);
 			LOG.debug("Verifying flow");
@@ -587,12 +587,12 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			realmVerifications.put(r.name, verify);
 			if (verify.success()) {
 				LOG.debug("Compiling flow");
-				AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = compiler.compile(r.name, flow);
+				AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = compiler.compile(r.name, flow);
 				
 				realmRuntime.put(r.name, runtime);
 				LOG.debug("Restoring block state");
-				for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
-					XElement state = datastore.queryBlockState(r.name, b.id());
+				for (Block<XNElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
+					XNElement state = datastore.queryBlockState(r.name, b.id());
 					if (state != null) {
 						b.restoreState(state);
 					}
@@ -640,11 +640,11 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		r.modifiedAt = new Date();
 		datastore.updateRealm(r);
 		try {
-			AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.remove(r.name);
+			AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.remove(r.name);
 			if (runtime != null) {
 				executor.done(runtime.blocks);
-				for (Block<XElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
-					XElement state = b.saveState();
+				for (Block<XNElement, AdvanceType, AdvanceRuntimeContext> b : runtime.blocks) {
+					XNElement state = b.saveState();
 					datastore.updateBlockState(r.name, b.id(), state);
 				}
 			}
@@ -664,10 +664,10 @@ public class LocalEngineControl implements AdvanceEngineControl {
 			throws IOException, AdvanceControlException {
 		List<AdvancePortSpecification> result = Lists.newArrayList();
 		
-		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
+		AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
 		// if the realm is not running, complile the latest flow and return its port specification
 		if (runtime == null) {
-			XElement xflow = datastore.queryFlow(realm);
+			XNElement xflow = datastore.queryFlow(realm);
 			LOG.debug("Parsing flow");
 			AdvanceCompositeBlock flow = AdvanceCompositeBlock.parseFlow(xflow);
 			LOG.debug("Verifying flow");
@@ -699,9 +699,9 @@ public class LocalEngineControl implements AdvanceEngineControl {
 		throw new AdvanceControlException("Realm does not have compiled and running blocks: " + realm);
 	}
 	@Override
-	public Observable<XElement> receivePort(String realm, String portId)
+	public Observable<XNElement> receivePort(String realm, String portId)
 			throws IOException, AdvanceControlException {
-		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
+		AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
 		if (runtime != null) {
 			return runtime.outputs.get(portId);
 		}
@@ -709,17 +709,17 @@ public class LocalEngineControl implements AdvanceEngineControl {
 	}
 	@Override
 	public void sendPort(String realm,
-			Iterable<Pair<String, XElement>> portValues) throws IOException,
+			Iterable<Pair<String, XNElement>> portValues) throws IOException,
 			AdvanceControlException {
 
-		AdvanceRealmRuntime<XElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
+		AdvanceRealmRuntime<XNElement, AdvanceType, AdvanceRuntimeContext> runtime = realmRuntime.get(realm);
 		if (runtime != null) {
-			for (Pair<String, XElement> pv : portValues) {
-				List<Port<XElement, AdvanceType>> list = runtime.inputs.get(pv.first);
+			for (Pair<String, XNElement> pv : portValues) {
+				List<Port<XNElement, AdvanceType>> list = runtime.inputs.get(pv.first);
 				if (list != null && !list.isEmpty()) {
-					for (Port<XElement, AdvanceType> p : list) {
+					for (Port<XNElement, AdvanceType> p : list) {
 						if (p instanceof ReactivePort<?, ?>) {
-							ReactivePort<XElement, AdvanceType> rp = (ReactivePort<XElement, AdvanceType>) p;
+							ReactivePort<XNElement, AdvanceType> rp = (ReactivePort<XNElement, AdvanceType>) p;
 							rp.next(pv.second);
 						} else {
 							LOG.error("Global port " + pv.first + " in realm " + realm + " is not a reactive port.");

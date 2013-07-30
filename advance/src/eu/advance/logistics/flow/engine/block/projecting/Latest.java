@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.block.projecting;
 
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,7 +31,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Remembers the last values of each input and fires the current values whenever one changes.
@@ -54,13 +54,13 @@ public class Latest extends AdvanceBlock {
 	@Output("?U")
 	protected static final String OUT2 = "out2";
 	/** The last value. */
-	protected final AtomicReference<XElement> ref1 = new AtomicReference<XElement>();
+	protected final AtomicReference<XNElement> ref1 = new AtomicReference<XNElement>();
 	/** The last value. */
-	protected final AtomicReference<XElement> ref2 = new AtomicReference<XElement>();
+	protected final AtomicReference<XNElement> ref2 = new AtomicReference<XNElement>();
 	@Override
 	protected synchronized void invoke() {
-		XElement i1 = ref1.get();
-		XElement i2 = ref2.get();
+		XNElement i1 = ref1.get();
+		XNElement i2 = ref2.get();
 		
 		if (i1 != null && i2 != null) {
 			dispatch(OUT1, i1);
@@ -72,17 +72,17 @@ public class Latest extends AdvanceBlock {
 	public Observer<Void> run() {
 		RunObserver run = new RunObserver();
 		
-		observeInput(IN1, new Action1<XElement>() {
+		observeInput(IN1, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				ref1.set(value);
 				Latest.this.invoke();
 			}
 		}, run);
 		
-		observeInput(IN2, new Action1<XElement>() {
+		observeInput(IN2, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				ref2.set(value);
 				Latest.this.invoke();
 			}

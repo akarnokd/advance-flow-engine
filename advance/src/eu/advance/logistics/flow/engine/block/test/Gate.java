@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,7 +45,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block which sends one single message it has accumulated..
@@ -70,9 +71,9 @@ public class Gate extends AdvanceBlock {
 	/** The deferred button title. */
 	protected String buttonTitleDefer = "Click me";
 	/** The queued messages. */
-	protected final Queue<XElement> messages = new LinkedBlockingQueue<XElement>();
+	protected final Queue<XNElement> messages = new LinkedBlockingQueue<XNElement>();
 	@Override
-	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+	public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
 		if (settings.constantValues.containsKey(TITLE)) {
 			buttonTitleDefer = resolver().getString(settings.constantValues.get(TITLE));
@@ -118,7 +119,7 @@ public class Gate extends AdvanceBlock {
 				scheduler().schedule(new Runnable() {
 					@Override
 					public void run() {
-						XElement e = messages.poll();
+						XNElement e = messages.poll();
 						final int size = messages.size();
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override

@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -33,14 +36,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.inference.Type;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.typesystem.XType;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The type parameter bound definition for a generic type parameter.
  * @author akarnokd, 2011.07.01.
  */
-public class AdvanceType implements Type, XSerializable {
+public class AdvanceType implements Type, XNSerializable {
 	/** The counter used for type variables. */
 	public int id;
 	/** Reference to another type parameter within the same set of declarations. */
@@ -110,7 +111,7 @@ public class AdvanceType implements Type, XSerializable {
 	 * @param root the root element of an input/output node.
 	 */
 	@Override
-	public void load(XElement root) {
+	public void load(XNElement root) {
 		typeVariableName = root.get("type-variable");
 		String tu = root.get("type");
 		if ((tu != null) == (typeVariableName != null)) {
@@ -124,14 +125,14 @@ public class AdvanceType implements Type, XSerializable {
 			}
 		}
 		id = root.getInt("type-id", 0);
-		for (XElement ta : root.childrenWithName("type-argument")) {
+		for (XNElement ta : root.childrenWithName("type-argument")) {
 			AdvanceType at = new AdvanceType();
 			at.load(ta);
 			typeArguments.add(at);
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		if (id > 0) {
 			destination.set("type-id", id);
 		}
@@ -236,8 +237,8 @@ public class AdvanceType implements Type, XSerializable {
 	 * @param type the type to convert to XML
 	 * @return the XML representing the type constructor
 	 */
-	public static XElement createType(AdvanceType type) {
-		XElement result = new XElement("type");
+	public static XNElement createType(AdvanceType type) {
+		XNElement result = new XNElement("type");
 		type.save(result);
 		return result;
 	}
@@ -246,7 +247,7 @@ public class AdvanceType implements Type, XSerializable {
 	 * @param type the type XML
 	 * @return the  the type object
 	 */
-	public static AdvanceType getType(XElement type) {
+	public static AdvanceType getType(XNElement type) {
 		AdvanceType t = new AdvanceType();
 		t.load(type);
 		return t;

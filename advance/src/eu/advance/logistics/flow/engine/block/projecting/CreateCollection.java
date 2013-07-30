@@ -21,13 +21,14 @@
 
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Wraps the value into an option.
@@ -47,7 +48,7 @@ public class CreateCollection extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-    	List<XElement> all = getAll(IN);
+    	List<XNElement> all = getAll(IN);
     	dispatch(OUT, resolver().create(all));
     }
 }

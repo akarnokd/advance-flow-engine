@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.prediction;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +30,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
-import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.prediction.support.IntGenerator;
 import eu.advance.logistics.prediction.support.SourceSeries;
 import eu.advance.logistics.prediction.support.TestSet;
@@ -89,14 +90,14 @@ public class DuringDayConfigData {
      * @param x XML element
      * @throws ParseException if unable to convert dates
      */
-    public void parse(XElement x) throws ParseException {
+    public void parse(XNElement x) throws ParseException {
         targetType = x.get("targetType");
         wekaClassifier = x.get("wekaClassifier");
         valueType = x.get("valueType");
         normalise = x.getBoolean("normalise");
         durationIsFoldTime = x.getBoolean("durationIsFoldTime");
-        minEnteredDate = XElement.parseDateTime(x.childElement("minEnteredDate").content);
-        maxEnteredDate = XElement.parseDateTime(x.childElement("maxEnteredDate").content);
+        minEnteredDate = XNElement.parseDateTime(x.childElement("minEnteredDate").content);
+        maxEnteredDate = XNElement.parseDateTime(x.childElement("maxEnteredDate").content);
         targetDepotIDs = adapt(x.childElement("targetDepotIDs"));
         events = adapt(x.childElement("events"));
     }
@@ -107,15 +108,15 @@ public class DuringDayConfigData {
      * @param name the name of the XML element
      * @return the XML representation
      */
-    public XElement toXml(String name) {
-        XElement x = new XElement(name);
+    public XNElement toXml(String name) {
+        XNElement x = new XNElement(name);
         x.set("targetType", targetType);
         x.set("wekaClassifier", wekaClassifier);
         x.set("valueType", valueType);
         x.set("normalise", normalise);
         x.set("durationIsFoldTime", durationIsFoldTime);
-        x.add(new XElement("minEnteredDate", XElement.formatDateTime(minEnteredDate)));
-        x.add(new XElement("maxEnteredDate", XElement.formatDateTime(maxEnteredDate)));
+        x.add(new XNElement("minEnteredDate", XNElement.formatDateTime(minEnteredDate)));
+        x.add(new XNElement("maxEnteredDate", XNElement.formatDateTime(maxEnteredDate)));
         x.add(adapt(targetDepotIDs, "targetDepotIDs"));
         x.add(adapt(events, "events"));
         return x;
@@ -128,10 +129,10 @@ public class DuringDayConfigData {
      * @param name name of the element
      * @return representation of the string array
      */
-    private static XElement adapt(String[] values, String name) {
-        XElement x = new XElement(name);
+    private static XNElement adapt(String[] values, String name) {
+        XNElement x = new XNElement(name);
         for (String value : values) {
-            x.add(new XElement("item", value));
+            x.add(new XNElement("item", value));
         }
         return x;
     }
@@ -142,9 +143,9 @@ public class DuringDayConfigData {
      * @param x XML element
      * @return the string array
      */
-    private static String[] adapt(XElement x) {
+    private static String[] adapt(XNElement x) {
         List<String> values = Lists.newArrayList();
-        for (XElement item : x.childrenWithName("item")) {
+        for (XNElement item : x.childrenWithName("item")) {
             values.add(item.content);
         }
         return values.toArray(new String[values.size()]);
@@ -158,7 +159,7 @@ public class DuringDayConfigData {
      * @throws ParseException if unable to convert dates
      * @return configuration from XML description
      */
-//    public static DuringDayConfigData parse(XElement root)  {
+//    public static DuringDayConfigData parse(XNElement root)  {
 //        ByteArrayDataInput in = ByteStreams.newDataInput(Base64.decode(root.content));
 //        return read(in);
 //        return root.get();
@@ -194,8 +195,8 @@ public class DuringDayConfigData {
 //        return ddc;
 //    }
 
-//    public XElement toXml() {
-//        XElement root = new XElement("DuringDayConfig");
+//    public XNElement toXml() {
+//        XNElement root = new XNElement("DuringDayConfig");
 //        ByteArrayDataOutput out = ByteStreams.newDataOutput();
 //        write(out);
 //        root.content = Base64.encodeBytes(out.toByteArray());
@@ -312,15 +313,15 @@ public class DuringDayConfigData {
      * @param config the test-set configuration
      * @return the XML representation
      */
-    public static XElement toXml(DataResolver<XElement> r, String name, TestSet config) {
-        XElement x = new XElement(name);
+    public static XNElement toXml(DataResolver<XNElement> r, String name, TestSet config) {
+        XNElement x = new XNElement(name);
         x.set("targetType", config.targetType.name());
         x.set("wekaClassifier", config.wekaClassifier.className);
         x.set("valueType", config.valueType.name());
         x.set("normalise", config.normalise);
         x.set("durationIsFoldTime", config.durationIsFoldTime);
-        x.add(new XElement("minEnteredDate", r.create(config.minEnteredDate).content));
-        x.add(new XElement("maxEnteredDate", r.create(config.maxEnteredDate).content));
+        x.add(new XNElement("minEnteredDate", r.create(config.minEnteredDate).content));
+        x.add(new XNElement("maxEnteredDate", r.create(config.maxEnteredDate).content));
         x.add(adapt(config.targetDepotIDs, "targetDepotIDs"));
         List<String> eventNames = Lists.newArrayList();
         eventNames.add(config.primarySeries.eventName);

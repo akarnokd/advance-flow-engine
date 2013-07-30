@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.block.test;
 
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -61,7 +62,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
 import eu.advance.logistics.flow.engine.runtime.ConstantPort;
 import eu.advance.logistics.flow.engine.runtime.Port;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Displays a timestamped list of values it receives.
@@ -85,7 +85,7 @@ public class Log extends AdvanceBlock {
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	/** The log entries. */
-	protected final List<Pair<Date, XElement>> rows = Lists.newArrayList();
+	protected final List<Pair<Date, XNElement>> rows = Lists.newArrayList();
 	/** The model. */
 	protected AbstractTableModel model;
 	/** The table. */
@@ -93,11 +93,11 @@ public class Log extends AdvanceBlock {
 	/** The number of rows. */
 	protected JLabel rowcount;
 	@Override
-	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+	public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
-        Port<XElement, AdvanceType> titlePort = getInput(TITLE);
+        Port<XNElement, AdvanceType> titlePort = getInput(TITLE);
         final String title = titlePort instanceof ConstantPort 
-                ? ((ConstantPort<XElement, AdvanceType>)titlePort).value.content 
+                ? ((ConstantPort<XNElement, AdvanceType>)titlePort).value.content 
                 : settings.id;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -119,7 +119,7 @@ public class Log extends AdvanceBlock {
 			private static final long serialVersionUID = -3454726369103170368L;
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
-				Pair<Date, XElement> pair = rows.get(rowIndex);
+				Pair<Date, XNElement> pair = rows.get(rowIndex);
 				if (columnIndex == 0) {
 					return pair.first;
 				}
@@ -166,7 +166,7 @@ public class Log extends AdvanceBlock {
 					int idx = table.getSelectedRow();
 					if (idx >= 0) {
 						idx = table.convertRowIndexToModel(idx);
-						Pair<Date, XElement> row = rows.get(idx);
+						Pair<Date, XNElement> row = rows.get(idx);
 						
 						CCDebugRow drow = new CCDebugRow();
 						drow.timestamp = row.first;
@@ -232,7 +232,7 @@ public class Log extends AdvanceBlock {
 	}
 	@Override
 	protected void invoke() {
-		final XElement in = params.get(IN);
+		final XNElement in = params.get(IN);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

@@ -21,6 +21,9 @@
 
 package eu.advance.logistics.flow.engine.model.fd;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
+
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
@@ -35,14 +38,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.util.Strings;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The composite block description for the flow description of {@code flow-description.xsd}.
  * @author akarnokd, 2011.06.21.
  */
-public class AdvanceCompositeBlock implements XSerializable {
+public class AdvanceCompositeBlock implements XNSerializable {
 	/** The unique identifier of this block among the current level of blocks. */
 	@NonNull
 	public String id;
@@ -76,7 +77,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 	 * @param source the root element
 	 */
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		id = source.get("id");
 		documentation = source.get("documentation");
 		String kw = source.get("keywords");
@@ -84,7 +85,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 			keywords.addAll(Strings.trim(Strings.split(kw, ',')));
 		}
 		Set<String> ids = Sets.newHashSet();
-		for (XElement e : source.children()) {
+		for (XNElement e : source.children()) {
 			if (e.name.equals("block")) {
 				AdvanceBlockReference p = new AdvanceBlockReference();
 				p.load(e);
@@ -117,7 +118,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 		}
 		visuals.load(source);
 		
-		for (XElement tp : source.childrenWithName("type-variable")) {
+		for (XNElement tp : source.childrenWithName("type-variable")) {
 			AdvanceTypeVariable bpd = new AdvanceTypeVariable();
 			bpd.load(tp);
 			if (!addTypeVariable(bpd)) {
@@ -126,14 +127,14 @@ public class AdvanceCompositeBlock implements XSerializable {
 		}
 		linkTypeVariables();
 
-		for (XElement inp : source.childrenWithName("input")) {
+		for (XNElement inp : source.childrenWithName("input")) {
 			AdvanceCompositeBlockParameterDescription bpd = new AdvanceCompositeBlockParameterDescription();
 			bpd.load(inp);
 			if (!addInput(bpd)) {
 				throw new DuplicateIdentifierException(inp.getXPath(), bpd.id);
 			}
 		}
-		for (XElement outp : source.childrenWithName("output")) {
+		for (XNElement outp : source.childrenWithName("output")) {
 			AdvanceCompositeBlockParameterDescription bpd = new AdvanceCompositeBlockParameterDescription();
 			bpd.load(outp);
 			if (!addOutput(bpd)) {
@@ -143,7 +144,7 @@ public class AdvanceCompositeBlock implements XSerializable {
 		
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("id", id);
 		destination.set("documentation", documentation);
 		if (keywords.size() > 0) {
@@ -201,9 +202,9 @@ public class AdvanceCompositeBlock implements XSerializable {
 	 * @param flow the flow XML tree
 	 * @return the composite block
 	 */
-	public static AdvanceCompositeBlock parseFlow(XElement flow) {
+	public static AdvanceCompositeBlock parseFlow(XNElement flow) {
 		AdvanceCompositeBlock result = new AdvanceCompositeBlock();
-		XElement x = flow.childElement("composite-block");
+		XNElement x = flow.childElement("composite-block");
 		if (x != null) {
 			result.load(x);
 		}
@@ -214,15 +215,15 @@ public class AdvanceCompositeBlock implements XSerializable {
 	 * @param root the root composite block.
 	 * @return the serialized XML
 	 */
-	public static XElement serializeFlow(AdvanceCompositeBlock root) {
-		XElement result = new XElement("flow-description");
+	public static XNElement serializeFlow(AdvanceCompositeBlock root) {
+		XNElement result = new XNElement("flow-description");
 		root.save(result.add("composite-block"));
 		return result;
 	}
 	/**
 	 * @return serialize this composite block into a full a full {@code flow-description.xsd} based XML.
 	 */
-	public XElement serializeFlow() {
+	public XNElement serializeFlow() {
 		return serializeFlow(this);
 	}
 	/**
@@ -450,6 +451,6 @@ public class AdvanceCompositeBlock implements XSerializable {
 	 * @throws Exception ignored
 	 */
 	public static void main(String[] args) throws Exception {
-		parseFlow(XElement.parseXML("c:\\Users\\karnokd\\.advance-flow-editor-ws\\flow-description-21.xml"));
+		parseFlow(XNElement.parseXML("c:\\Users\\karnokd\\.advance-flow-editor-ws\\flow-description-21.xml"));
 	}
 }

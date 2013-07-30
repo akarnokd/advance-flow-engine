@@ -21,6 +21,7 @@
 package eu.advance.logistics.flow.engine.block.aggregating;
 
 import hu.akarnokd.reactive4java.base.Pair;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.util.logging.Logger;
 
@@ -29,7 +30,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Computes the standard deviation of numerical elements of the supplied
@@ -66,7 +66,7 @@ public class STDDeviation extends AdvanceBlock {
         double mean = 0d;
         double m2 = 0d;
 
-        for (XElement e : resolver().getItems(get(IN))) {
+        for (XNElement e : resolver().getItems(get(IN))) {
             Pair<String, String> rn = AdvanceData.realName(e);
             double v = 0.0;
             if ("integer".equals(rn.first)) {

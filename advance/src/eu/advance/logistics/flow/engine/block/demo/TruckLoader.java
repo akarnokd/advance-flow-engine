@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.demo;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.awt.Container;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,7 +42,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  *.
@@ -60,7 +61,7 @@ public class TruckLoader extends AdvanceBlock {
     @Output("advance:truck")
     protected static final String OUT = "truck";
     /** The list of aggregated pallets so far. */
-    protected final List<XElement> pallets = Lists.newArrayList();
+    protected final List<XNElement> pallets = Lists.newArrayList();
 	/** The peer frame. */
 	protected JInternalFrame frame;
 	/** The current load level. */
@@ -68,7 +69,7 @@ public class TruckLoader extends AdvanceBlock {
 	/** The capacity level. */
 	protected final AtomicInteger capacity = new AtomicInteger(5);
 	@Override
-	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+	public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
 		if (settings.constantValues.containsKey(CAPACITY)) {
 			capacity.set(resolver().getInt(settings.constantValues.get(CAPACITY)));
@@ -111,11 +112,11 @@ public class TruckLoader extends AdvanceBlock {
 	}
     @Override
     protected void invoke() {
-    	XElement pallet = get(PALLET);
+    	XNElement pallet = get(PALLET);
     	capacity.set(getInt(CAPACITY));
     	pallets.add(pallet);
     	if (pallets.size() >= capacity.get()) {
-    		XElement truck = DemoTypes.createTruck(pallets);
+    		XNElement truck = DemoTypes.createTruck(pallets);
     		dispatch(OUT, truck);
     		pallets.clear();
     	}

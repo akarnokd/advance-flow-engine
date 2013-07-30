@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.structuring;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -29,7 +31,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.Port;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Create a collection from the inputs. Emits the collection when all inputs change.
@@ -49,8 +50,8 @@ public class Wrap extends AdvanceBlock {
     protected static final String OUT = "out";
     @Override
     protected void invoke() {
-        TreeMap<String, XElement> treeMap = new TreeMap<String, XElement>();
-        for (Port<XElement, AdvanceType> port : getReactivePorts()) {
+        TreeMap<String, XNElement> treeMap = new TreeMap<String, XNElement>();
+        for (Port<XNElement, AdvanceType> port : getReactivePorts()) {
             String name = port.name();
             treeMap.put(name, get(name));
         }

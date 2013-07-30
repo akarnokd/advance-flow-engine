@@ -25,6 +25,7 @@ import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Pred1;
 import hu.akarnokd.reactive4java.query.IterableBuilder;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.text.ParseException;
 import java.util.Collections;
@@ -45,7 +46,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * K-means algorithm for classifying multiple time series.
@@ -85,16 +85,16 @@ public class KMeansARXLearn extends AdvanceBlock {
     	
     	RunObserver obs = new RunObserver();
     	
-		observeInput(CONFIG, new Action1<XElement>() {
+		observeInput(CONFIG, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				config.set(value);
 			}
 		});
 		
-		observeInput(DATA, new Action1<XElement>() {
+		observeInput(DATA, new Action1<XNElement>() {
 			@Override
-			public void invoke(XElement value) {
+			public void invoke(XNElement value) {
 				params.put(DATA, value);
 				KMeansARXLearn.this.invoke();
 			}
@@ -201,12 +201,12 @@ public class KMeansARXLearn extends AdvanceBlock {
 		 * @param items the items
 		 * @return the built aggregator
 		 */
-		public static TimeseriesAggregator load(Iterable<XElement> items) {
+		public static TimeseriesAggregator load(Iterable<XNElement> items) {
 			final TimeseriesAggregator series = new TimeseriesAggregator();
 			
-			for (XElement e : items) {
+			for (XNElement e : items) {
 				try {
-					DateMidnight dt = new DateMidnight(XElement.parseDateTime(e.get("timestamp")).getTime());
+					DateMidnight dt = new DateMidnight(XNElement.parseDateTime(e.get("timestamp")).getTime());
 					String group = e.get("group");
 					double v = e.getDouble("value");
 					series.add(group, dt, v);
@@ -224,7 +224,7 @@ public class KMeansARXLearn extends AdvanceBlock {
 	@Override
 	protected void invoke() {
 
-		XElement cfg = get(CONFIG);
+		XNElement cfg = get(CONFIG);
 		
 		final TimeseriesAggregator series = TimeseriesAggregator.load(resolver().getItems(get(DATA)));
 
@@ -256,11 +256,11 @@ public class KMeansARXLearn extends AdvanceBlock {
 			
 			kMeans.solve();
 	
-			List<XElement> models = Lists.newArrayList();
+			List<XNElement> models = Lists.newArrayList();
 			
 			for (ArxModel md : kMeans.models()) {
 				
-				XElement xm = new XElement("arxmodel");
+				XNElement xm = new XNElement("arxmodel");
 				xm.set("model-order", md.getP());
 				xm.set("external-order", md.getM());
 				
@@ -276,7 +276,7 @@ public class KMeansARXLearn extends AdvanceBlock {
 	
 			int[] classes = kMeans.getClasses();
 	
-			Map<XElement, XElement> classesMap = Maps.newHashMap();
+			Map<XNElement, XNElement> classesMap = Maps.newHashMap();
 			
 			for (int cl : classes) {
 				Set<Integer> rows = kMeans.getTimeseriesRowsForCluster(cl);
@@ -296,8 +296,8 @@ public class KMeansARXLearn extends AdvanceBlock {
 			dispatch(L1_TEST_ERROR, resolver().create(kMeans.getL1TestError()));
 			dispatch(L2_TEST_ERROR, resolver().create(kMeans.getL2TestError()));
 		} else {
-			dispatch(CLASSES, resolver().create(Maps.<XElement, XElement>newHashMap()));
-			dispatch(MODEL, resolver().create(Lists.<XElement>newArrayList()));
+			dispatch(CLASSES, resolver().create(Maps.<XNElement, XNElement>newHashMap()));
+			dispatch(MODEL, resolver().create(Lists.<XNElement>newArrayList()));
 
 			dispatch(L1_TRAIN_ERROR, resolver().create(-1d));
 			dispatch(L2_TRAIN_ERROR, resolver().create(-1d));

@@ -21,14 +21,14 @@
 
 package eu.advance.logistics.flow.engine.block.demo;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The demo datastore to manage pallets, bays, trucks and statistics.
@@ -40,7 +40,7 @@ public final class DemoDatastore {
 	/** The number of destinations. */
 	private int maxDestinations = 5;
     /** The tracks the contents of various destinations. */
-	private final Multimap<Integer, XElement> bays = LinkedListMultimap.create();
+	private final Multimap<Integer, XNElement> bays = LinkedListMultimap.create();
 	/** Singleton class. Use {@code instance()}. */
 	private DemoDatastore() {
 		
@@ -74,7 +74,7 @@ public final class DemoDatastore {
 	 * @param pallet the pallet to add
 	 * @return the target bay number
 	 */
-	public synchronized int addToBay(XElement pallet) {
+	public synchronized int addToBay(XNElement pallet) {
 		int bay = pallet.getInt("destination");
 		bays.put(bay, pallet.copy());
 		return bay;
@@ -108,9 +108,9 @@ public final class DemoDatastore {
 	public synchronized void removeFromBay(int bay, int count) {
 		Random rnd = new Random();
 		for (int i = 0; i < count; i++) {
-			Collection<XElement> b = bays.get(bay);
+			Collection<XNElement> b = bays.get(bay);
 			int which = rnd.nextInt(b.size());
-			Iterator<XElement> it = b.iterator();
+			Iterator<XNElement> it = b.iterator();
 			int j = 0;
 			while (it.hasNext()) {
 				it.next();

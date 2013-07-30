@@ -22,18 +22,18 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The FTP data source record.
  * @author akarnokd, 2011.09.20.
  */
 public class AdvanceFTPDataSource extends AdvanceCreateModifyInfo 
-implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifiable<String> {
+implements XNSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifiable<String> {
 	/** The name used by blocks to reference this data source. */
 	public String name;
 	/** The protocol enumeration. */
@@ -66,7 +66,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		name = source.get("name");
 		protocol = AdvanceFTPProtocols.valueOf(source.get("protocol"));
 		address = source.get("address");
@@ -79,7 +79,7 @@ implements XSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifia
 		super.load(source);
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		
 		destination.set("name", name);
 		destination.set("protocol", protocol);

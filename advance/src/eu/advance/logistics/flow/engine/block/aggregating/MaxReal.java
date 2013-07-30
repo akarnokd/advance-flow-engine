@@ -21,13 +21,14 @@
 package eu.advance.logistics.flow.engine.block.aggregating;
 
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Returns the largest integer in the collection along with its last occurrence
@@ -60,7 +61,7 @@ public class MaxReal extends AdvanceBlock {
     protected void invoke() {
         double max = Double.MIN_VALUE;
 
-        for (XElement e : resolver().getItems(get(IN))) {
+        for (XNElement e : resolver().getItems(get(IN))) {
             max = Math.max(max, resolver().getDouble(e));
         }
 

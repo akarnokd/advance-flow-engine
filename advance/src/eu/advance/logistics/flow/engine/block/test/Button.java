@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.block.test;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +41,6 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A block which displays a single frame with a single titled button.
@@ -59,7 +60,7 @@ public class Button extends AdvanceBlock {
 	/** The peer button. */
 	protected JButton button;
 	@Override
-	public void init(BlockSettings<XElement, AdvanceRuntimeContext> settings) {
+	public void init(BlockSettings<XNElement, AdvanceRuntimeContext> settings) {
 		super.init(settings);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -99,7 +100,7 @@ public class Button extends AdvanceBlock {
 				scheduler().schedule(new Runnable() {
 					@Override
 					public void run() {
-						dispatchOutput(Collections.singletonMap(OUT, new XElement("object")));
+						dispatchOutput(Collections.singletonMap(OUT, new XNElement("object")));
 					}
 				});
 			}

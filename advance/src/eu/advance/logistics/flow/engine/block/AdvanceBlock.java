@@ -21,18 +21,18 @@
 
 package eu.advance.logistics.flow.engine.block;
 
+import hu.akarnokd.utils.xml.XNElement;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.Block;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The generic ADVANCE block.
  * @author akarnokd, 2011.06.22.
  */
-public abstract class AdvanceBlock extends Block<XElement, AdvanceType, AdvanceRuntimeContext> {
+public abstract class AdvanceBlock extends Block<XNElement, AdvanceType, AdvanceRuntimeContext> {
 	/**
 	 * Convenience method to ask for a specific type of pooled objects.
 	 * @param <T> the pooled object type

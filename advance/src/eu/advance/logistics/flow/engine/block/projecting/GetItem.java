@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.projecting;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,7 +29,6 @@ import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Extracts an element from the collection given by the index. Signature:
@@ -65,7 +66,7 @@ public class GetItem extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        final List<XElement> xcollection = resolver().getList(get(COLLECTION));
+        final List<XNElement> xcollection = resolver().getList(get(COLLECTION));
         final int key = getInt(INDEX);
 
         if ((key > 0) && (key < xcollection.size())) {

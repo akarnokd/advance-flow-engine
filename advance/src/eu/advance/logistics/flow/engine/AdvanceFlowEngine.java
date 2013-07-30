@@ -22,6 +22,8 @@
 package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.CloseableIterator;
+import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,8 +72,6 @@ import eu.advance.logistics.flow.engine.api.impl.HttpEngineControlListener;
 import eu.advance.logistics.flow.engine.api.impl.LocalEngineControl;
 import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * The Advance Data Flow Engine main program.
@@ -122,10 +122,10 @@ public class AdvanceFlowEngine implements Runnable {
 		
 		config = new AdvanceEngineConfig();
 		try {
-			XElement xconfig = XElement.parseXML(configFile);
+			XNElement xconfig = XNElement.parseXML(configFile);
 			config.initialize(xconfig, workDir);
-			AdvanceCompilerSettings<XElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = config.createCompilerSettings();
-			AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext> compiler = new AdvanceCompiler<XElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
+			AdvanceCompilerSettings<XNElement, AdvanceType, AdvanceRuntimeContext> compilerSettings = config.createCompilerSettings();
+			AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext> compiler = new AdvanceCompiler<XNElement, AdvanceType, AdvanceRuntimeContext>(compilerSettings);
 			control = new LocalEngineControl(config.datastore(), config.schemas, compiler, compiler, workDir) {
 				@Override
 				public void shutdown() throws IOException,
@@ -207,10 +207,10 @@ public class AdvanceFlowEngine implements Runnable {
 		return new HttpHandler() {
 			@Override
 			public void handle(final HttpExchange request) throws IOException {
-				XElement xrequest = null;
+				XNElement xrequest = null;
 				InputStream in = request.getRequestBody();
 				try {
-					xrequest = XElement.parseXML(in);
+					xrequest = XNElement.parseXML(in);
 				} catch (XMLStreamException ex) {
 					LOG.error(ex.toString(), ex);
 					sendResponse(request, 400, ex.toString());
@@ -218,7 +218,7 @@ public class AdvanceFlowEngine implements Runnable {
 				} finally {
 					in.close();
 				}
-				final XElement frequest = xrequest;
+				final XNElement frequest = xrequest;
 				final String userName = (String)request.getAttribute(LOGIN_USERNAME);
 				
 				request.getResponseHeaders().add("Content-Type", "text/xml;charset=utf-8");
@@ -249,7 +249,7 @@ public class AdvanceFlowEngine implements Runnable {
 						out.write("<?xml version='1.0' encoding='UTF-8'?>".getBytes("UTF-8"));
 					}
 					try {
-						CloseableIterator<XElement> it = xchg.iterator();
+						CloseableIterator<XNElement> it = xchg.iterator();
 						try {
 							while (it.hasNext()) {
 								out.write(it.next().toString().getBytes("UTF-8"));

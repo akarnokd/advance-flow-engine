@@ -70,11 +70,11 @@ public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser
 	/** The sms. */
 	protected JTextField sms;
 	/** The date format. */
-	protected JComboBox dateFormat;
+	protected JComboBox<String> dateFormat;
 	/** The date-time format. */
-	protected JComboBox dateTimeFormat;
+	protected JComboBox<String> dateTimeFormat;
 	/** The number format. */
-	protected JComboBox numberFormat;
+	protected JComboBox<String> numberFormat;
 	/** The thousand separator. */
 	protected JTextField thousandSeparator;
 	/** The decimal separator. */
@@ -237,13 +237,13 @@ public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser
 		email = new JTextField();
 		pager = new JTextField();
 		sms = new JTextField();
-		dateFormat = new JComboBox(new String[] { 
+		dateFormat = new JComboBox<>(new String[] { 
 				"yyyy-MM-dd", 
 				"yyyy/MM/dd", 
 				"MM/dd/YYYY", 
 				"dd/MM/YYYY" 
 		});
-		dateTimeFormat = new JComboBox(new String[] {
+		dateTimeFormat = new JComboBox<>(new String[] {
 			"yyyy-MM-dd HH:mm:ss",
 			"yyyy-MM-dd HH:mm",
 			"yyyy/MM/dd HH:mm:ss", 
@@ -253,7 +253,7 @@ public class CCUserDetails extends JTabbedPane implements CCLoadSave<AdvanceUser
 			"dd/MM/YYYY HH:mm:ss", 
 			"dd/MM/YYYY HH:mm:ss" 
 		});
-		numberFormat = new JComboBox(new String[] {
+		numberFormat = new JComboBox<>(new String[] {
 			"#,###",
 			"#,###.#",
 			"#,###.##",

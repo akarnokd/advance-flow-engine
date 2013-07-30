@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -51,7 +53,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 
 /**
@@ -128,7 +129,7 @@ public class AdvancePluginManager<T, X, C> implements Runnable {
 		public synchronized AdvancePlugin<T, X, C> open() {
 			if (plugin == null) {
 				final Map<String, BlockRegistryEntry> blocks = Maps.newHashMap();
-				final Map<String, XElement> schemas = Maps.newHashMap();
+				final Map<String, XNElement> schemas = Maps.newHashMap();
 				try {
 					final URLClassLoader c = createClassLoader(getFile().toURI().toURL());
 					for (URL u : c.getURLs()) {
@@ -155,7 +156,7 @@ public class AdvancePluginManager<T, X, C> implements Runnable {
 							return br;
 						}
 						@Override
-						public Map<String, XElement> schemas() {
+						public Map<String, XNElement> schemas() {
 							return schemas;
 						}
 					};
@@ -185,7 +186,7 @@ public class AdvancePluginManager<T, X, C> implements Runnable {
 		 * The map of schemas supported by this plugin.
 		 * @return the schema map 
 		 */
-		Map<String, XElement> schemas();
+		Map<String, XNElement> schemas();
 	}
 	/**
 	 * The plugin change event type.
@@ -358,7 +359,7 @@ public class AdvancePluginManager<T, X, C> implements Runnable {
 		InputStream in = registryFile.openStream();
 		try {
 			Map<String, BlockRegistryEntry> result = Maps.newHashMap();
-			for (BlockRegistryEntry e : BlockRegistryEntry.parseRegistry(XElement.parseXML(in))) {
+			for (BlockRegistryEntry e : BlockRegistryEntry.parseRegistry(XNElement.parseXML(in))) {
 				result.put(e.id, e);
 			}
 			return result;
@@ -373,9 +374,9 @@ public class AdvancePluginManager<T, X, C> implements Runnable {
 	 * @throws IOException if an access error occurs
 	 * @throws XMLStreamException if a parse error occurs
 	 */
-	public static Map<String, XElement> getSchemas(URL u) 
+	public static Map<String, XNElement> getSchemas(URL u) 
 			throws IOException, XMLStreamException {
-		Map<String, XElement> result = Maps.newHashMap();
+		Map<String, XNElement> result = Maps.newHashMap();
 		if (u.getProtocol().equals("file")) {
 			try {
 				File directory = new File(u.toURI());
@@ -384,7 +385,7 @@ public class AdvancePluginManager<T, X, C> implements Runnable {
 					if (files != null) {
 						for (File f : files) {
 							if (f.getName().toLowerCase().endsWith(".xsd")) {
-								result.put(f.getName(), XElement.parseXML(f));
+								result.put(f.getName(), XNElement.parseXML(f));
 							}
 						}
 					}
@@ -408,7 +409,7 @@ public class AdvancePluginManager<T, X, C> implements Runnable {
 							&& e.getName().toLowerCase().endsWith(".xsd")) {
 						InputStream in = jf.getInputStream(e);
 						try {
-							result.put(e.getName(), XElement.parseXML(in));
+							result.put(e.getName(), XNElement.parseXML(in));
 						} finally {
 							in.close();
 						}

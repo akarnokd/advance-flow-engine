@@ -23,6 +23,8 @@ package eu.advance.logistics.flow.engine.runtime;
 
 import hu.akarnokd.reactive4java.base.Func0;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -30,15 +32,12 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
-
 
 /**
  * The diagnostic port for the ADVANCE blocks.
  * @author akarnokd, 2011.06.22.
  */
-public final class BlockDiagnostic implements XSerializable {
+public final class BlockDiagnostic implements XNSerializable {
 	/** The logger. */
 	protected static final Logger LOG = LoggerFactory.getLogger(BlockDiagnostic.class);
 	/** The affected block. */
@@ -72,11 +71,11 @@ public final class BlockDiagnostic implements XSerializable {
 		this.state = state;
 	}
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		realm = source.get("realm");
 		blockId = source.get("block-id");
 		try {
-			timestamp = XElement.parseDateTime(source.get("timestamp"));
+			timestamp = XNElement.parseDateTime(source.get("timestamp"));
 		} catch (ParseException ex) {
 			LOG.error(ex.toString(), ex);
 		}
@@ -88,7 +87,7 @@ public final class BlockDiagnostic implements XSerializable {
 		}
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("realm", realm);
 		destination.set("block-id", blockId);
 		destination.set("timestamp", timestamp);

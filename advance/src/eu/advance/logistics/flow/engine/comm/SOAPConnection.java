@@ -21,11 +21,11 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
-
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Represents a SOAP connection.
@@ -49,19 +49,19 @@ public class SOAPConnection implements Closeable {
 	 * @param headers the optional collection of headers.
 	 * @return the envelope object
 	 */
-	public static XElement createSOAPEnvelope(XElement body, Collection<XElement> headers) {
-		XElement envelope = new XElement("Envelope", SOAP_NAMESPACE);
+	public static XNElement createSOAPEnvelope(XNElement body, Collection<XNElement> headers) {
+		XNElement envelope = new XNElement("Envelope", SOAP_NAMESPACE);
 		envelope.prefix = "SOAP-ENV";
 		
 		if (headers.size() > 0) {
-			XElement header = envelope.add("Header", SOAP_NAMESPACE);
+			XNElement header = envelope.add("Header", SOAP_NAMESPACE);
 			header.prefix = "SOAP-ENV";
-			for (XElement h : headers) {
+			for (XNElement h : headers) {
 				header.add(h.copy());
 			}
 		}
 		
-		XElement xbody = envelope.add("Body", SOAP_NAMESPACE);
+		XNElement xbody = envelope.add("Body", SOAP_NAMESPACE);
 		xbody.prefix = "SOAP-ENV";
 		xbody.add(body.copy());
 

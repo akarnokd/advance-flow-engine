@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.flow.engine.block.db;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -32,7 +34,6 @@ import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Issues the given update SQL query into the datasource and fills in the query
@@ -79,12 +80,12 @@ public class JDBCUpdate extends AdvanceBlock {
             conn = ds.get();
             try {
                 final String query = getString(QUERY);
-                final Map<XElement, XElement> paramMap = resolver().getMap(get(MAP));
+                final Map<XNElement, XNElement> paramMap = resolver().getMap(get(MAP));
                 final PreparedStatement pstm = conn.getConnection().prepareStatement(query);
                 try {
 	                // basing on types fill the prepared_statement
 	                int paramCount = 1;
-	                for (XElement e : paramMap.values()) {
+	                for (XNElement e : paramMap.values()) {
 	                    paramCount = JDBCConverter.convert(resolver(), e, pstm, paramCount);
 	                }
 	

@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.runtime;
 
+import hu.akarnokd.utils.xml.XNElement;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -31,7 +33,6 @@ import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * A basic interface to resolve typical Java types from the runtime type data.
@@ -109,7 +110,7 @@ public interface DataResolver<T> {
 	/**
 	 * Creates the runtime representation of the value.
 	 * @param value the value
-	 * @return the XElement
+	 * @return the XNElement
 	 */
 	T create(boolean value);
 	/**
@@ -158,6 +159,7 @@ public interface DataResolver<T> {
 	 * @param ts the list of values
 	 * @return the object representing the collection of the values
 	 */
+	@SuppressWarnings("unchecked")
 	T create(T... ts);
 	/**
 	 * Create a collection of Ts from the supplied values.
@@ -189,6 +191,7 @@ public interface DataResolver<T> {
 	 * @param keyValue the key value pairs
 	 * @return the object representing a map
 	 */
+	@SuppressWarnings("unchecked")
 	T createMap(T... keyValue);
 	/**
 	 * Create a map from the supplied subsequent key-value pairs.
@@ -214,7 +217,7 @@ public interface DataResolver<T> {
 	 * @return the runtime object or null if can't be mapped
 	 */
 	@Nullable
-	T get(@NonNull XElement value);
+	T get(@NonNull XNElement value);
 	/**
 	 * Returns a list of the base type URIs.
 	 * @return the list of base type URIs

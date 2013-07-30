@@ -21,15 +21,15 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * The listener configuration record for the engine.
  * @author akarnokd, 2011.09.29.
  */
-public class AdvanceListenerConfig implements XSerializable {
+public class AdvanceListenerConfig implements XNSerializable {
 	/** The port number where the basic HTTPS listener should be. */
 	public int basicPort;
 	/** The port number where the certificate HTTPS listener should be. */
@@ -43,7 +43,7 @@ public class AdvanceListenerConfig implements XSerializable {
 	/** The keystore where the client certificates are located. */
 	public String clientKeyStore;
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		basicPort = source.getInt("basic-auth-port");
 		certificatePort = source.getInt("cert-auth-port");
 		serverKeyStore = source.get("server-keystore");
@@ -52,7 +52,7 @@ public class AdvanceListenerConfig implements XSerializable {
 		clientKeyStore = source.get("client-keystore");
 	}
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("basic-auth-port", basicPort);
 		destination.set("cert-auth-port", certificatePort);
 		destination.set("server-keystore", serverKeyStore);

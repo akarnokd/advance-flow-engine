@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.block.file;
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.base.Option;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -39,7 +40,6 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.BlockDiagnostic;
 import eu.advance.logistics.flow.engine.runtime.BlockState;
 import eu.advance.logistics.flow.engine.runtime.Port;
-import eu.advance.logistics.flow.engine.xml.XElement;
 
 /**
  * Save the data into a local file, appeding the received input at the end of the file with a timestamp.
@@ -59,13 +59,13 @@ public class FileLogger extends AdvanceBlock {
     @Input("advance:string")
     protected static final String APPEND = "append";
     @Override
-    protected Observer<Void> runReactiveBlock(List<Port<XElement, AdvanceType>> reactivePorts) {
-        for (Port<XElement, AdvanceType> port : reactivePorts) {
+    protected Observer<Void> runReactiveBlock(List<Port<XNElement, AdvanceType>> reactivePorts) {
+        for (Port<XNElement, AdvanceType> port : reactivePorts) {
             if (APPEND.equals(port.name())) {
-                addCloseable(Reactive.observeOn(port, scheduler()).register(new InvokeObserver<XElement>() {
+                addCloseable(Reactive.observeOn(port, scheduler()).register(new InvokeObserver<XNElement>() {
 
                     @Override
-                    public void next(XElement value) {
+                    public void next(XNElement value) {
                         diagnostic.next(new BlockDiagnostic("", description().id, Option.some(BlockState.START)));
                         FileWriter fw = null;
                         try {
@@ -87,10 +87,10 @@ public class FileLogger extends AdvanceBlock {
                     }
                 }));
             } else if (PATH.equals(port.name())) {
-                addCloseable(Reactive.observeOn(port, scheduler()).register(new InvokeObserver<XElement>() {
+                addCloseable(Reactive.observeOn(port, scheduler()).register(new InvokeObserver<XNElement>() {
 
                     @Override
-                    public void next(XElement value) {
+                    public void next(XNElement value) {
                         file = value.content;
                     }
                 }));

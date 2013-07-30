@@ -22,15 +22,15 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.xml.XNElement;
+import hu.akarnokd.utils.xml.XNSerializable;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.XElement;
-import eu.advance.logistics.flow.engine.xml.XSerializable;
 
 /**
  * Describes an input or output port of a running realm.
  * @author karnokd, 2012.02.28.
  */
-public class AdvancePortSpecification implements XSerializable {
+public class AdvancePortSpecification implements XNSerializable {
 	/** Is this an input port? */
 	public boolean isInput;
 	/** The port identifier. */
@@ -45,7 +45,7 @@ public class AdvancePortSpecification implements XSerializable {
 		}
 	};
 	@Override
-	public void load(XElement source) {
+	public void load(XNElement source) {
 		isInput = source.getBoolean("is-input");
 		id = source.get("id");
 		type = new AdvanceType();
@@ -53,7 +53,7 @@ public class AdvancePortSpecification implements XSerializable {
 	}
 
 	@Override
-	public void save(XElement destination) {
+	public void save(XNElement destination) {
 		destination.set("is-input", isInput);
 		destination.set("id", id);
 		type.save(destination);
