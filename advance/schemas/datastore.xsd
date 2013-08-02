@@ -11,6 +11,7 @@
 	<xs:include schemaLocation="datastore-ftp.xsd"/>
 	<xs:include schemaLocation="datastore-local.xsd"/>
 	<xs:include schemaLocation="datastore-flow.xsd"/>
+	<xs:include schemaLocation="datastore-email.xsd"/>
 	<xs:element name="datastore">
 		<xs:annotation>
 			<xs:documentation>The local datastore.</xs:documentation>
@@ -44,6 +45,16 @@
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element ref="keystore" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="email-boxes">
+					<xs:annotation>
+						<xs:documentation>The list of email boxes.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="email-box" minOccurs="0" maxOccurs="unbounded"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

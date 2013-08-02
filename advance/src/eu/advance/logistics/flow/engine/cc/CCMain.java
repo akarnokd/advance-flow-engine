@@ -104,7 +104,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStoreExport;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
@@ -533,7 +533,7 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		menusToEnable.put(addItem(fromMethod(this, "doShutdown"), "Administration", "Shutdown"), AdvanceUserRights.SHUTDOWN);
 
 		menusToEnable.put(addItem(fromMethod(this, "doJDBCDataSources"), "Data sources", "JDBC..."), AdvanceUserRights.LIST_JDBC_DATA_SOURCES);
-		menusToEnable.put(addItem(fromMethod(this, "doSOAPDataSources"), "Data sources", "SOAP..."), AdvanceUserRights.LIST_SOAP_CHANNELS);
+		menusToEnable.put(addItem(fromMethod(this, "doSOAPDataSources"), "Data sources", "SOAP..."), AdvanceUserRights.LIST_SOAP_ENDPOINTS);
 		menusToEnable.put(addItem(fromMethod(this, "doJMSDataSources"), "Data sources", "JMS..."), AdvanceUserRights.LIST_JMS_ENDPOINTS);
 		menusToEnable.put(addItem(fromMethod(this, "doWebDataSources"), "Data sources", "Web..."), AdvanceUserRights.LIST_WEB_DATA_SOURCES);
 		menusToEnable.put(addItem(fromMethod(this, "doFTPDataSources"), "Data sources", "FTP..."), AdvanceUserRights.LIST_FTP_DATA_SOURCES);
@@ -1245,12 +1245,12 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * Do manage SOAP data sources.
 	 */
 	void doSOAPDataSources() {
-		final CCListingFrame<AdvanceSOAPChannel> f = new CCListingFrame<AdvanceSOAPChannel>(this);
+		final CCListingFrame<AdvanceSOAPEndpoint> f = new CCListingFrame<AdvanceSOAPEndpoint>(this);
 		f.setCellTitleFunction(from("Name", String.class, "Endpoint", String.class, 
 				"Created", String.class, "Modified", String.class));
-		f.setCellValueFunction(new Func2<AdvanceSOAPChannel, Integer, Object>() {
+		f.setCellValueFunction(new Func2<AdvanceSOAPEndpoint, Integer, Object>() {
 			@Override
-			public Object invoke(AdvanceSOAPChannel param1, Integer param2) {
+			public Object invoke(AdvanceSOAPEndpoint param1, Integer param2) {
 				switch (param2) {
 				case 0:
 					return param1.name;
@@ -1268,10 +1268,10 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		f.setRetrieveFunction(new Action1<String>() {
 			@Override
 			public void invoke(String value) {
-				GUIUtils.getWorker(new ListWorkItem<AdvanceSOAPChannel>(f) {
+				GUIUtils.getWorker(new ListWorkItem<AdvanceSOAPEndpoint>(f) {
 					@Override
-					public List<AdvanceSOAPChannel> retrieve() throws Exception {
-						return engine.datastore().querySOAPChannels();
+					public List<AdvanceSOAPEndpoint> retrieve() throws Exception {
+						return engine.datastore().querySOAPEndpoints();
 					}
 				}).execute();
 			}
@@ -1284,21 +1284,21 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				}
 			});
 		}
-		f.setDisplayItem(new Action1<AdvanceSOAPChannel>() {
+		f.setDisplayItem(new Action1<AdvanceSOAPEndpoint>() {
 			@Override
-			public void invoke(AdvanceSOAPChannel value) {
+			public void invoke(AdvanceSOAPEndpoint value) {
 				createSOAPDialog(f, f.getRows(), value);
 			}
 		});
-		if (user.rights.contains(AdvanceUserRights.DELETE_SOAP_CHANNEL)) {
+		if (user.rights.contains(AdvanceUserRights.DELETE_SOAP_ENDPOINT)) {
 			f.setExtraButton(1, "Delete", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					deleteItems(f, new Func1<AdvanceSOAPChannel, Throwable>() {
+					deleteItems(f, new Func1<AdvanceSOAPEndpoint, Throwable>() {
 						@Override
-						public Throwable invoke(AdvanceSOAPChannel param1) {
+						public Throwable invoke(AdvanceSOAPEndpoint param1) {
 							try {
-								engine.datastore().deleteSOAPChannel(param1.name);
+								engine.datastore().deleteSOAPEndpoint(param1.name);
 								return null;
 							} catch (Throwable t) {
 								return t;
@@ -2289,33 +2289,33 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 	 * @param selected the selected entry
 	 * @return the dialog object
 	 */
-	CCDetailDialog<AdvanceSOAPChannel> createSOAPDialog(final JFrame f,
-			List<AdvanceSOAPChannel> list, AdvanceSOAPChannel selected) {
+	CCDetailDialog<AdvanceSOAPEndpoint> createSOAPDialog(final JFrame f,
+			List<AdvanceSOAPEndpoint> list, AdvanceSOAPEndpoint selected) {
 		final CCSOAPDetails d = new CCSOAPDetails(this);
 
-		final CCDetailDialog<AdvanceSOAPChannel> dialog = createDetailDialog(list, selected,
+		final CCDetailDialog<AdvanceSOAPEndpoint> dialog = createDetailDialog(list, selected,
 				d,
-				new Func1<AdvanceSOAPChannel, String>() {
+				new Func1<AdvanceSOAPEndpoint, String>() {
 			@Override
-			public String invoke(AdvanceSOAPChannel param1) {
+			public String invoke(AdvanceSOAPEndpoint param1) {
 				return param1.name + " [" + param1.endpoint + "]";
 			}
 		},
-		new Func1<String, Option<AdvanceSOAPChannel>>() {
+		new Func1<String, Option<AdvanceSOAPEndpoint>>() {
 			@Override
-			public Option<AdvanceSOAPChannel> invoke(String param1) {
+			public Option<AdvanceSOAPEndpoint> invoke(String param1) {
 				try {
-					return Option.some(engine.datastore().querySOAPChannel(param1));
+					return Option.some(engine.datastore().querySOAPEndpoint(param1));
 				} catch (Throwable t) {
 					return Option.error(t);
 				}
 			}
 		},
-		new Func1<AdvanceSOAPChannel, Throwable>() {
+		new Func1<AdvanceSOAPEndpoint, Throwable>() {
 			@Override
-			public Throwable invoke(AdvanceSOAPChannel param1) {
+			public Throwable invoke(AdvanceSOAPEndpoint param1) {
 				try {
-					engine.datastore().updateSOAPChannel(param1);
+					engine.datastore().updateSOAPEndpoint(param1);
 					return null;
 				} catch (Throwable t) {
 					return t;

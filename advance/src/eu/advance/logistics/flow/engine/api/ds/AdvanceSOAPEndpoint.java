@@ -40,8 +40,8 @@ import eu.advance.logistics.flow.engine.api.core.Identifiable;
  * Describes a SOAP communication channel.
  * @author akarnokd, 2011.09.20.
  */
-public class AdvanceSOAPChannel extends AdvanceCreateModifyInfo 
-implements XNSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiable<String> {
+public class AdvanceSOAPEndpoint extends AdvanceCreateModifyInfo 
+implements XNSerializable, HasPassword, Copyable<AdvanceSOAPEndpoint>, Identifiable<String> {
 	/** The name used to reference this channel from blocks. */
 	public String name;
 	/** The endpoint URL. */
@@ -70,10 +70,10 @@ implements XNSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiab
 	/**
 	 * Create a new instance of the class.
 	 */
-	public static final Func0<AdvanceSOAPChannel> CREATOR = new Func0<AdvanceSOAPChannel>() {
+	public static final Func0<AdvanceSOAPEndpoint> CREATOR = new Func0<AdvanceSOAPEndpoint>() {
 		@Override
-		public AdvanceSOAPChannel invoke() {
-			return new AdvanceSOAPChannel();
+		public AdvanceSOAPEndpoint invoke() {
+			return new AdvanceSOAPEndpoint();
 		}
 	};
 	@Override
@@ -82,17 +82,17 @@ implements XNSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiab
 		try {
 			endpoint = new URL(source.get("endpoint"));
 		} catch (MalformedURLException ex) {
-			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
+			LoggerFactory.getLogger(AdvanceSOAPEndpoint.class).error(ex.toString(), ex);
 		}
 		try {
 			targetObject = new URI(source.get("target-object"));
 		} catch (URISyntaxException ex) {
-			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
+			LoggerFactory.getLogger(AdvanceSOAPEndpoint.class).error(ex.toString(), ex);
 		}
 		try {
 			targetNamespace = new URI(source.get("target-namespace"));
 		} catch (URISyntaxException ex) {
-			LoggerFactory.getLogger(AdvanceSOAPChannel.class).error(ex.toString(), ex);
+			LoggerFactory.getLogger(AdvanceSOAPEndpoint.class).error(ex.toString(), ex);
 		}
 		method = source.get("method");
 		encrypted = source.getBoolean("encrypted");
@@ -115,8 +115,8 @@ implements XNSerializable, HasPassword, Copyable<AdvanceSOAPChannel>, Identifiab
 		super.save(destination);
 	}
 	@Override
-	public AdvanceSOAPChannel copy() {
-		AdvanceSOAPChannel result = new AdvanceSOAPChannel();
+	public AdvanceSOAPEndpoint copy() {
+		AdvanceSOAPEndpoint result = new AdvanceSOAPEndpoint();
 		result.name = name;
 		result.endpoint = endpoint;
 		result.targetObject = targetObject;

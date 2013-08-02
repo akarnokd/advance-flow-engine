@@ -47,7 +47,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
@@ -348,10 +348,10 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 				AdvanceJMSEndpoint.CREATOR);
 	}
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException {
+	public AdvanceSOAPEndpoint querySOAPEndpoint(String name) throws IOException {
 		return XNSerializables.parseItem(comm.query(
 				XNSerializables.createRequest("query-soap-channel", "name", name)), 
-				AdvanceSOAPChannel.CREATOR);
+				AdvanceSOAPEndpoint.CREATOR);
 	}
 	@Override
 	public AdvanceFTPDataSource queryFTPDataSource(String name)
@@ -393,11 +393,11 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 				XNSerializables.createRequest("query-flow", "realm", realm));
 	}
 	@Override
-	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
+	public List<AdvanceSOAPEndpoint> querySOAPEndpoints() throws IOException,
 			AdvanceControlException {
 		return XNSerializables.parseList(comm.query(
 				XNSerializables.createRequest("query-soap-channels")), 
-				"channel", AdvanceSOAPChannel.CREATOR);
+				"channel", AdvanceSOAPEndpoint.CREATOR);
 	}
 	@Override
 	public void deleteBlockStates(String realm) throws IOException,
@@ -434,12 +434,12 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 		comm.send(XNSerializables.createUpdate("update-email-box", box));
 	}
 	@Override
-	public void deleteSOAPChannel(String name) throws IOException,
+	public void deleteSOAPEndpoint(String name) throws IOException,
 			AdvanceControlException {
 		comm.send(XNSerializables.createRequest("delete-soap-channel", "name", name));		
 	}
 	@Override
-	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+	public void updateSOAPEndpoint(AdvanceSOAPEndpoint channel)
 			throws IOException, AdvanceControlException {
 		comm.send(XNSerializables.createUpdate("update-soap-channel", channel));		
 	}

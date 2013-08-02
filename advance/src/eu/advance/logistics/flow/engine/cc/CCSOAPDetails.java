@@ -51,14 +51,14 @@ import com.google.common.collect.Iterables;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 
 /**
  * The SOAP channel details.
  * @author akarnokd, 2011.10.13.
  */
 public class CCSOAPDetails extends JPanel implements
-		CCLoadSave<AdvanceSOAPChannel> {
+		CCLoadSave<AdvanceSOAPEndpoint> {
 	/** */
 	private static final long serialVersionUID = 447371924967453848L;
 	/** Text field. */
@@ -203,7 +203,7 @@ public class CCSOAPDetails extends JPanel implements
 		);
 	}
 	@Override
-	public void load(AdvanceSOAPChannel value) {
+	public void load(AdvanceSOAPEndpoint value) {
 		name.setText(value.name);
 		name.setEditable(false);
 		endpoint.setText(value.endpoint.toString());
@@ -222,8 +222,8 @@ public class CCSOAPDetails extends JPanel implements
 	}
 
 	@Override
-	public AdvanceSOAPChannel save() {
-		AdvanceSOAPChannel result = new AdvanceSOAPChannel();
+	public AdvanceSOAPEndpoint save() {
+		AdvanceSOAPEndpoint result = new AdvanceSOAPEndpoint();
 		result.name = name.getText();
 		if (result.name.isEmpty()) {
 			GUIUtils.errorMessage(this, labels.get("Please enter a name!"));

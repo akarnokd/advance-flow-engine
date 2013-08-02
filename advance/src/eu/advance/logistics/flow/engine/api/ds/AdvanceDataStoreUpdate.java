@@ -113,12 +113,12 @@ public interface AdvanceDataStoreUpdate {
 	 */
 	void updateRealm(@NonNull AdvanceRealm realm) throws IOException, AdvanceControlException;
 	/**
-	 * Update the SOAP channel.
-	 * @param channel the new channel settings
+	 * Update the SOAP endpoint.
+	 * @param endpoint the new endpoint settings
 	 * @throws IOException if a network error occurs
-	 * @throws AdvanceControlException if the user has no right to update a channel
+	 * @throws AdvanceControlException if the user has no right to update an endpoint
 	 */
-	void updateSOAPChannel(@NonNull AdvanceSOAPChannel channel) throws IOException, AdvanceControlException;
+	void updateSOAPEndpoint(@NonNull AdvanceSOAPEndpoint endpoint) throws IOException, AdvanceControlException;
 	/**
 	 * Update the user's settings.
 	 * @param user the target user object

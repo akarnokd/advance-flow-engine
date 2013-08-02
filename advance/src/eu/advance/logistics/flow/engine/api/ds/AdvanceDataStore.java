@@ -107,7 +107,7 @@ public interface AdvanceDataStore extends AdvanceDataStoreUpdate {
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right to delete a channel
 	 */
-	void deleteSOAPChannel(@NonNull String name) throws IOException, AdvanceControlException;
+	void deleteSOAPEndpoint(@NonNull String name) throws IOException, AdvanceControlException;
 	/**
 	 * Delete the given user.
 	 * @param userName the user's identifier
@@ -308,22 +308,22 @@ public interface AdvanceDataStore extends AdvanceDataStoreUpdate {
 	List<AdvanceRealm> queryRealms()
 	throws IOException, AdvanceControlException;
 	/**
-	 * Return the properties of a a SOAP channel.
-	 * @param name the name of the channel
-	 * @return the channel properties
+	 * Return the properties of a a SOAP endpoint.
+	 * @param name the name of the endpoint
+	 * @return the endpoint properties
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */
 	@NonNull 
-	AdvanceSOAPChannel querySOAPChannel(@NonNull String name) throws IOException, AdvanceControlException;
+	AdvanceSOAPEndpoint querySOAPEndpoint(@NonNull String name) throws IOException, AdvanceControlException;
 	/**
-	 * Return the list of SOAP channels.
-	 * @return the channel properties
+	 * Return the list of SOAP endpoints.
+	 * @return the endpoint properties
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user has no right
 	 */
 	@NonNull 
-	List<AdvanceSOAPChannel> querySOAPChannels() throws IOException, AdvanceControlException;
+	List<AdvanceSOAPEndpoint> querySOAPEndpoints() throws IOException, AdvanceControlException;
 	/**
 	 * Query an individual user.
 	 * @param userName the user identifier

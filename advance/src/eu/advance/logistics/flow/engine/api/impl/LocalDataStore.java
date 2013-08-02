@@ -79,7 +79,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
@@ -110,7 +110,7 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 	/** The JDBC data sources table. */
 	public final Map<String, AdvanceJDBCDataSource> jdbcDataSources = Maps.newHashMap();
 	/** The SOAP channels table. */
-	public final Map<String, AdvanceSOAPChannel> soapChannels = Maps.newHashMap();
+	public final Map<String, AdvanceSOAPEndpoint> soapEndpoints = Maps.newHashMap();
 	/** The JMS endpoints table. */
 	public final Map<String, AdvanceJMSEndpoint> jmsEndpoints = Maps.newHashMap();
 	/** The Web data sources table. */
@@ -132,7 +132,7 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 		keystores.clear();
 		notificationGroups.clear();
 		jdbcDataSources.clear();
-		soapChannels.clear();
+		soapEndpoints.clear();
 		jmsEndpoints.clear();
 		webDataSources.clear();
 		ftpDataSources.clear();
@@ -173,7 +173,7 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 			}
 		}
 		loadInto(source, "jdbc-data-sources", "jdbc-source", jdbcDataSources, AdvanceJDBCDataSource.CREATOR);
-		loadInto(source, "soap-channels", "channel", soapChannels, AdvanceSOAPChannel.CREATOR);
+		loadInto(source, "soap-channels", "channel", soapEndpoints, AdvanceSOAPEndpoint.CREATOR);
 		loadInto(source, "jms-endpoints", "endpoint", jmsEndpoints, AdvanceJMSEndpoint.CREATOR);
 		loadInto(source, "web-data-sources", "web-source", webDataSources, AdvanceWebDataSource.CREATOR);
 		loadInto(source, "ftp-data-sources", "ftp-source", ftpDataSources, AdvanceFTPDataSource.CREATOR);
@@ -277,7 +277,7 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 		}
 		
 		saveInto(destination, "jdbc-data-sources", "jdbc-source", jdbcDataSources);
-		saveInto(destination, "soap-channels", "channel", soapChannels);
+		saveInto(destination, "soap-channels", "channel", soapEndpoints);
 		saveInto(destination, "jms-endpoints", "endpoint", jmsEndpoints);
 		saveInto(destination, "web-data-sources", "web-source", webDataSources);
 		saveInto(destination, "ftp-data-sources", "ftp-source", ftpDataSources);
@@ -942,88 +942,111 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 			}
 		}
 	}
+	/**
+	 * Returns a vaule from the map by synchronizing over it.
+	 * @param <K> the key type
+	 * @param <V> the value type
+	 * @param map the map to read
+	 * @param key the key into the map
+	 * @return the value returned by the map (unknown nullness)
+	 */
+	protected <K, V> V syncGet(Map<K, V> map, K key) {
+		synchronized (map) {
+			return map.get(key);
+		}
+	}
 	@Override
 	public AdvanceJDBCDataSource queryJDBCDataSource(String name)
 			throws IOException {
-		return jdbcDataSources.get(name);
+		return syncGet(jdbcDataSources, name);
 	}
 	@Override
 	public AdvanceJMSEndpoint queryJMSEndpoint(String name) throws IOException {
-		return jmsEndpoints.get(name);
+		return syncGet(jmsEndpoints, name);
 	}
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException {
-		return soapChannels.get(name);
+	public AdvanceSOAPEndpoint querySOAPEndpoint(String name) throws IOException {
+		return syncGet(soapEndpoints, name);
 	}
 	@Override
 	public AdvanceFTPDataSource queryFTPDataSource(String name)
 			throws IOException {
-		return ftpDataSources.get(name);
+		return syncGet(ftpDataSources, name);
 	}
 	@Override
 	public AdvanceWebDataSource queryWebDataSource(String name)
 			throws IOException {
-		return webDataSources.get(name);
+		return syncGet(webDataSources, name);
 	}
 	@Override
 	public AdvanceLocalFileDataSource queryLocalFileDataSource(String name)
 			throws IOException {
-		return localDataSources.get(name);
+		return syncGet(localDataSources, name);
 	}
 	@Override
 	public Collection<String> queryNotificationGroup(
 			AdvanceNotificationGroupType type, String name) throws IOException {
-		Map<String, Collection<String>> map = notificationGroups.get(type);
-		if (map != null) {
-			Collection<String> result = map.get(name);
-			if (result == null) {
-				LOG.error("Missing group " + name + " in type " + type);
-				return Collections.emptyList();
+		synchronized (notificationGroups) {
+			Map<String, Collection<String>> map = notificationGroups.get(type);
+			if (map != null) {
+				Collection<String> result = map.get(name);
+				if (result == null) {
+					LOG.error("Missing group " + name + " in type " + type);
+					return Collections.emptyList();
+				}
+				return result;
 			}
-			return result;
+			LOG.error("Missing group type: " + type);
+			return Collections.emptyList();
 		}
-		LOG.error("Missing group type: " + type);
-		return Collections.emptyList();
 	}
 	@Override
 	public XNElement queryBlockState(String realm, String blockId)
 			throws IOException {
-		Map<String, XNElement> map = blockStates.get(realm);
-		if (map != null) {
-			XNElement result = map.get(blockId);
-			return result;
+		synchronized (blockStates) {
+			Map<String, XNElement> map = blockStates.get(realm);
+			if (map != null) {
+				XNElement result = map.get(blockId);
+				return result;
+			}
+			return null;
 		}
-		return null;
 	}
 	@Override
 	public void updateBlockState(String realm, String blockId, XNElement state)
 			throws IOException {
-		Map<String, XNElement> map = blockStates.get(realm);
-		if (map == null) {
-			map = Maps.newHashMap();
-			blockStates.put(realm, map);
-		}
-		if (state == null) {
-			map.remove(blockId);
-		} else {
-			map.put(blockId, state);
+		synchronized (blockStates) {
+			Map<String, XNElement> map = blockStates.get(realm);
+			if (map == null) {
+				map = Maps.newHashMap();
+				blockStates.put(realm, map);
+			}
+			if (state == null) {
+				map.remove(blockId);
+			} else {
+				map.put(blockId, state);
+			}
 		}
 	}
 	@Override
 	public XNElement queryFlow(String realm) throws IOException {
-		XNElement result = dataflows.get(realm);
-		if (result == null) {
-			// use empty flow
-			result = new AdvanceCompositeBlock().serializeFlow();
+		synchronized (dataflows) {
+			XNElement result = dataflows.get(realm);
+			if (result == null) {
+				// use empty flow
+				result = new AdvanceCompositeBlock().serializeFlow();
+			}
+			return result;
 		}
-		return result;
 	}
 	@Override
-	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
+	public List<AdvanceSOAPEndpoint> querySOAPEndpoints() throws IOException,
 			AdvanceControlException {
-		List<AdvanceSOAPChannel> result = Lists.newArrayList();
-		for (AdvanceSOAPChannel e : soapChannels.values()) {
-			result.add(e.copy());
+		List<AdvanceSOAPEndpoint> result = Lists.newArrayList();
+		synchronized (soapEndpoints) {
+			for (AdvanceSOAPEndpoint e : soapEndpoints.values()) {
+				result.add(e.copy());
+			}
 		}
 		return result;
 	}
@@ -1072,16 +1095,16 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 		update(emailBoxes, box);
 	}
 	@Override
-	public void deleteSOAPChannel(String name) throws IOException,
+	public void deleteSOAPEndpoint(String name) throws IOException,
 			AdvanceControlException {
-		synchronized (soapChannels) {
-			soapChannels.remove(name);
+		synchronized (soapEndpoints) {
+			soapEndpoints.remove(name);
 		}
 	}
 	@Override
-	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+	public void updateSOAPEndpoint(AdvanceSOAPEndpoint channel)
 			throws IOException, AdvanceControlException {
-		update(soapChannels, channel);
+		update(soapEndpoints, channel);
 	}
 	/**
 	 * Update a record.

@@ -32,7 +32,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJMSEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
 import eu.advance.logistics.flow.engine.comm.EmailConnection;
 import eu.advance.logistics.flow.engine.comm.EmailPoolManager;
@@ -96,8 +96,8 @@ public class AdvancePoolCreator implements
 					return Option.some(new UnlimitedPool<LocalConnection>(new LocalPoolManager(ds)));
 				}
 			} else
-			if (param1.equals(SOAPConnection.class) || param1.equals(AdvanceSOAPChannel.class)) {
-				AdvanceSOAPChannel ds = datastore.querySOAPChannel(param2);
+			if (param1.equals(SOAPConnection.class) || param1.equals(AdvanceSOAPEndpoint.class)) {
+				AdvanceSOAPEndpoint ds = datastore.querySOAPEndpoint(param2);
 				if (ds != null) {
 					return Option.some(new UnlimitedPool<SOAPConnection>(new SOAPPoolManager(ds, datastore)));
 				}
