@@ -48,7 +48,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
@@ -82,7 +82,7 @@ public class CheckedDataStore implements AdvanceDataStore {
 		}
 	}
 	/**
-	 * Check if the expected right is present for the user.
+	 * Check if any of the expected right is present for the user.
 	 * @param expected the expected rights
 	 * @throws AdvanceAccessDenied thrown if the user has no right
 	 * @throws IOException if a network error occurs
@@ -429,14 +429,14 @@ public class CheckedDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException, AdvanceControlException {
-		check(AdvanceUserRights.LIST_SOAP_CHANNELS);
-		return clearPassword(datastore.querySOAPChannel(name));
+	public AdvanceSOAPEndpoint querySOAPEndpoint(String name) throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_SOAP_ENDPOINTS);
+		return clearPassword(datastore.querySOAPEndpoint(name));
 	}
 	@Override
-	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException, AdvanceControlException {
-		check(AdvanceUserRights.LIST_SOAP_CHANNELS);
-		return clearPassword(datastore.querySOAPChannels());
+	public List<AdvanceSOAPEndpoint> querySOAPEndpoints() throws IOException, AdvanceControlException {
+		check(AdvanceUserRights.LIST_SOAP_ENDPOINTS);
+		return clearPassword(datastore.querySOAPEndpoints());
 	}
 	@Override
 	public AdvanceFTPDataSource queryFTPDataSource(String name)
@@ -522,15 +522,15 @@ public class CheckedDataStore implements AdvanceDataStore {
 		datastore.updateEmailBox(changeModifiedBy(box));
 	}
 	@Override
-	public void deleteSOAPChannel(String name) throws IOException,
+	public void deleteSOAPEndpoint(String name) throws IOException,
 			AdvanceControlException {
-		check(AdvanceUserRights.DELETE_SOAP_CHANNEL);
-		datastore.deleteSOAPChannel(name);
+		check(AdvanceUserRights.DELETE_SOAP_ENDPOINT);
+		datastore.deleteSOAPEndpoint(name);
 	}
 	@Override
-	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+	public void updateSOAPEndpoint(AdvanceSOAPEndpoint endpoint)
 			throws IOException, AdvanceControlException {
-		check(AdvanceUserRights.MODIFY_SOAP_CHANNEL);
-		datastore.updateSOAPChannel(changeModifiedBy(channel));
+		check(AdvanceUserRights.MODIFY_SOAP_ENDPOINT);
+		datastore.updateSOAPEndpoint(changeModifiedBy(endpoint));
 	}
 }

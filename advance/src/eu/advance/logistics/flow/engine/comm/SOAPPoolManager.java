@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.comm;
 
 import eu.advance.logistics.flow.engine.api.core.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 
 /**
  * A SOAP connection object manager for pool.
@@ -31,7 +31,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
  */
 public class SOAPPoolManager implements PoolManager<SOAPConnection> {
 	/** The channel configuration. */
-	protected final AdvanceSOAPChannel channel;
+	protected final AdvanceSOAPEndpoint channel;
 	/** The datastore for accessing the keystores. */
 	protected final AdvanceDataStore datastore;
 	/**
@@ -39,7 +39,7 @@ public class SOAPPoolManager implements PoolManager<SOAPConnection> {
 	 * @param channel the endpoint settings
 	 * @param datastore the datastore for accessing the keystores
 	 */
-	public SOAPPoolManager(AdvanceSOAPChannel channel, AdvanceDataStore datastore) {
+	public SOAPPoolManager(AdvanceSOAPEndpoint channel, AdvanceDataStore datastore) {
 		this.channel = channel;
 		this.datastore = datastore;
 	}

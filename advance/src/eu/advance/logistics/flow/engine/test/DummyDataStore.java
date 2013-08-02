@@ -59,7 +59,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealmStatus;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
@@ -394,8 +394,8 @@ public class DummyDataStore implements AdvanceDataStore {
 	}
 
 	/** @return create test SOAP record. */
-	public static AdvanceSOAPChannel createTestSOAP() {
-		AdvanceSOAPChannel r = new AdvanceSOAPChannel();
+	public static AdvanceSOAPEndpoint createTestSOAP() {
+		AdvanceSOAPEndpoint r = new AdvanceSOAPEndpoint();
 		r.name = "Test";
 		try {
 			r.endpoint = new URL("http://soap.advance-logistics.eu");
@@ -413,7 +413,7 @@ public class DummyDataStore implements AdvanceDataStore {
 		return r;
 	}
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException,
+	public AdvanceSOAPEndpoint querySOAPEndpoint(String name) throws IOException,
 			AdvanceControlException {
 		return createTestSOAP();
 	}
@@ -467,7 +467,7 @@ public class DummyDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
+	public List<AdvanceSOAPEndpoint> querySOAPEndpoints() throws IOException,
 			AdvanceControlException {
 		return Lists.newArrayList(createTestSOAP());
 	}
@@ -505,13 +505,13 @@ public class DummyDataStore implements AdvanceDataStore {
 		// TODO Auto-generated method stub
 	}
 	@Override
-	public void deleteSOAPChannel(String name) throws IOException,
+	public void deleteSOAPEndpoint(String name) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		
 	}
 	@Override
-	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+	public void updateSOAPEndpoint(AdvanceSOAPEndpoint channel)
 			throws IOException, AdvanceControlException {
 		// TODO Auto-generated method stub
 		

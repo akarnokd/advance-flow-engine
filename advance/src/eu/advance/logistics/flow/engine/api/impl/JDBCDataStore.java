@@ -42,7 +42,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
@@ -132,7 +132,7 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public void deleteSOAPChannel(String name) throws IOException,
+	public void deleteSOAPEndpoint(String name) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		
@@ -301,14 +301,14 @@ public class JDBCDataStore implements AdvanceDataStore {
 	}
 
 	@Override
-	public AdvanceSOAPChannel querySOAPChannel(String name) throws IOException,
+	public AdvanceSOAPEndpoint querySOAPEndpoint(String name) throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<AdvanceSOAPChannel> querySOAPChannels() throws IOException,
+	public List<AdvanceSOAPEndpoint> querySOAPEndpoints() throws IOException,
 			AdvanceControlException {
 		// TODO Auto-generated method stub
 		return null;
@@ -398,9 +398,9 @@ public class JDBCDataStore implements AdvanceDataStore {
 		update.updateRealm(realm);
 	}
 	@Override
-	public void updateSOAPChannel(AdvanceSOAPChannel channel)
+	public void updateSOAPEndpoint(AdvanceSOAPEndpoint channel)
 			throws IOException, AdvanceControlException {
-		update.updateSOAPChannel(channel);
+		update.updateSOAPEndpoint(channel);
 	}
 	@Override
 	public void updateUser(AdvanceUser user) throws IOException,

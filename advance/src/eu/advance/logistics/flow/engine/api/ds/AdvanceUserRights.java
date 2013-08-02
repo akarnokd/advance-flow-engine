@@ -85,13 +85,13 @@ public enum AdvanceUserRights {
 	/** Delete JMS endpoint. */
 	DELETE_JMS_ENDPOINT,
 	/** List SOAP channels. */
-	LIST_SOAP_CHANNELS,
+	LIST_SOAP_ENDPOINTS,
 	/** Create a SOAP channel. */
 	CREATE_SOAP_CHANNEL,
 	/** Modify a SOAP channel. */
-	MODIFY_SOAP_CHANNEL,
+	MODIFY_SOAP_ENDPOINT,
 	/** Delete a SOAP channel. */
-	DELETE_SOAP_CHANNEL,
+	DELETE_SOAP_ENDPOINT,
 	/** List web data sources. */
 	LIST_WEB_DATA_SOURCES,
 	/** Create web data source. */

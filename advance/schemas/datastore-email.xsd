@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="datastore-basic.xsd"/>
+	<xs:element name="email-box">
+		<xs:annotation>
+			<xs:documentation>An Email box.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name used to reference this endpoint.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<!-- TODO remaining attributes!!! -->
+			<xs:attributeGroup ref="create-modify"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

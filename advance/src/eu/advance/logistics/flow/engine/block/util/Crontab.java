@@ -20,15 +20,7 @@
  */
 package eu.advance.logistics.flow.engine.block.util;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Logger;
-
-import org.jcrontab.data.CalendarBuilder;
-import org.jcrontab.data.CrontabEntryBean;
-import org.jcrontab.data.CrontabEntryException;
-import org.jcrontab.data.CrontabParser;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
@@ -61,38 +53,5 @@ public class Crontab extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-        try {
-            final CrontabParser parser = new CrontabParser();
-            final CrontabEntryBean bean = parser.marshall(resolver().getString(get(IN)));
-            final CalendarBuilder builder = new CalendarBuilder();
-            final Date zeroDate = new Date();
-
-            final Timer timer = new Timer(true);
-            timer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    // verify the contab
-                    final Date now = new Date();
-                    final long unixNow = now.getTime();
-                    final Date date = builder.buildCalendar(bean, zeroDate);
-                    final long unixDate = date.getTime();
-
-                    final long delta = unixNow - unixDate;
-                    // if that CrontabEntryBean is to be executed in this minute 
-                    if ((delta > 0) && (delta < 1000)) {
-                        //dispatch the taks
-                        dispatch(OUT, resolver().create(bean.getMethodName()));
-                    }
-
-                    // blocca il timer ??
-                    timer.cancel();
-                }
-            }, 60 * 1000); //ogni minuto
-
-
-        } catch (CrontabEntryException ex) {
-            log(ex);
-        }
     }
 }

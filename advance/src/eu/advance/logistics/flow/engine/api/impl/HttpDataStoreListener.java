@@ -41,7 +41,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
-import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPChannel;
+import eu.advance.logistics.flow.engine.api.ds.AdvanceSOAPEndpoint;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
@@ -205,7 +205,7 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.single(XNSerializables.storeItem("endpoint", ds.queryJMSEndpoint(request.get("name"))));
 		} else
 		if ("query-soap-channel".equals(function)) {
-			return AdvanceXMLExchange.single(XNSerializables.storeItem("channel", ds.querySOAPChannel(request.get("name"))));
+			return AdvanceXMLExchange.single(XNSerializables.storeItem("channel", ds.querySOAPEndpoint(request.get("name"))));
 		} else
 		if ("query-web-data-source".equals(function)) {
 			return AdvanceXMLExchange.single(XNSerializables.storeItem("web-source", ds.queryWebDataSource(request.get("name"))));
@@ -224,7 +224,7 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.single(ds.queryFlow(request.get("realm")));
 		} else
 		if ("query-soap-channels".equals(function)) {
-			return AdvanceXMLExchange.single(XNSerializables.storeList("soap-channels", "channel", ds.querySOAPChannels()));
+			return AdvanceXMLExchange.single(XNSerializables.storeList("soap-channels", "channel", ds.querySOAPEndpoints()));
 		} else
 		if ("update-flow".equals(function)) {
 			ds.updateFlow(request.get("realm"), request.children().get(0).copy());
@@ -249,11 +249,11 @@ public class HttpDataStoreListener implements AdvanceHttpListener  {
 			return AdvanceXMLExchange.none();
 		} else
 		if ("update-soap-channel".equals(function)) {
-			ds.updateSOAPChannel(XNSerializables.parseItem(request, AdvanceSOAPChannel.CREATOR));
+			ds.updateSOAPEndpoint(XNSerializables.parseItem(request, AdvanceSOAPEndpoint.CREATOR));
 			return AdvanceXMLExchange.none();
 		} else
 		if ("delete-soap-channel".equals(function)) {
-			ds.deleteSOAPChannel(request.get("name"));
+			ds.deleteSOAPEndpoint(request.get("name"));
 			return AdvanceXMLExchange.none();
 		} else {
 			throw new AdvanceControlException("Unknown request " + request);
