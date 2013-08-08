@@ -384,7 +384,9 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	public void updateBlockState(String realm, String blockId, XNElement state)
 			throws IOException {
 		XNElement request = XNSerializables.createRequest("update-block-state", "realm", realm, "block-id", blockId);
-		request.add(state);
+		if (state != null) {
+			request.add(state.copy());
+		}
 		comm.send(request);
 	}
 	@Override

@@ -22,8 +22,13 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
@@ -65,6 +70,28 @@ XNSerializable, HasPassword, Copyable<AdvanceEmailBox>, Identifiable<String> {
 		public AdvanceEmailBox invoke() {
 			return new AdvanceEmailBox();
 		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceEmailBox> SELECT = new SQLResult<AdvanceEmailBox>() {
+		@Override
+		public AdvanceEmailBox invoke(ResultSet rs) throws SQLException	{
+			AdvanceEmailBox emailBox = new AdvanceEmailBox();
+			emailBox.name = rs.getString("name");
+			emailBox.receive = AdvanceEmailReceiveProtocols.valueOf(rs.getString("receive"));
+			emailBox.send = AdvanceEmailSendProtocols.valueOf(rs.getString("send"));
+			emailBox.login = AdvanceLoginType.valueOf(rs.getString("login"));
+			emailBox.sendAddress = rs.getString("send_address");
+			emailBox.receiveAddress = rs.getString("receive_address");
+			emailBox.folder = rs.getString("folder");
+			emailBox.email = rs.getString("email");
+			emailBox.keyStore = rs.getString("keystore");
+			emailBox.user = rs.getString("user_or_key");
+			emailBox.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+
+			AdvanceCreateModifyInfo.load(rs, emailBox);
+			return emailBox;
+		}
+
 	};
 	@Override
 	public char[] password() {

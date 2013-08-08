@@ -22,13 +22,12 @@ package eu.advance.logistics.flow.engine.block.prediction;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.database.DB;
 import hu.akarnokd.utils.xml.XNElement;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -154,7 +153,7 @@ public class ConsignmentGet extends AdvanceBlock {
             LOG.info("   connection: " + conn);
             LOG.info("Starting session.");
             try {
-                final Session s = new Session(conn.getConnection(), minDate, maxDate);
+                final Session s = new Session(conn.db(), minDate, maxDate);
                 LOG.info("Session started: " + s);
                 long count = 0, lastTime = 0;
                 try {
@@ -199,7 +198,7 @@ public class ConsignmentGet extends AdvanceBlock {
         /**
          * Query statement.
          */
-        private Statement selectConsignment;
+        private PreparedStatement selectConsignment;
         /**
          * Depots.
          */
@@ -225,9 +224,9 @@ public class ConsignmentGet extends AdvanceBlock {
          * @param maxDate the maximum date
          * @throws SQLException if any error in queries
          */
-        private Session(Connection connection, Date minDate, Date maxDate) throws SQLException {
+        private Session(DB connection, Date minDate, Date maxDate) throws SQLException {
             // fetch all depots
-            PreparedStatement allDepots = connection.prepareStatement("SELECT Name, idDepot FROM depot", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            PreparedStatement allDepots = connection.prepareReadOnly("SELECT Name, idDepot FROM depot");
             rs = allDepots.executeQuery();
             while (rs.next()) {
                 depots.put(rs.getString(1), rs.getInt(2));
@@ -236,7 +235,7 @@ public class ConsignmentGet extends AdvanceBlock {
             allDepots.close();
 
             // fetch all event types
-            PreparedStatement allEventTypes = connection.prepareStatement("SELECT idEventType, Name FROM eventtype", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            PreparedStatement allEventTypes = connection.prepareReadOnly("SELECT idEventType, Name FROM eventtype");
             rs = allEventTypes.executeQuery();
             while (rs.next()) {
                 events.put(rs.getInt(1), rs.getString(2));
@@ -274,13 +273,11 @@ public class ConsignmentGet extends AdvanceBlock {
 
             // TYPE_FORWARD_ONLY & CONCUR_READ_ONLY is the default but we set it
             // explicitly as it is required to stream result sets row-by-row.
-            selectConsignment = connection.createStatement(
-                    ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            selectConsignment = connection.prepareReadOnly(sb);
 
             // magic value to tell the driver to stream the results one row at a time.
             // see http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
-            selectConsignment.setFetchSize(Integer.MIN_VALUE);
-            rs = selectConsignment.executeQuery(sb.toString());
+            rs = selectConsignment.executeQuery();
         }
 
         /**

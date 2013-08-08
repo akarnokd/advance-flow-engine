@@ -26,9 +26,9 @@ import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
 import hu.akarnokd.utils.xml.XNElement;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -112,9 +112,9 @@ public class JDBCQueryAll extends AdvanceBlock {
             conn = ds.get();
             try {
                 final String query = getString(QUERY);
-                final Statement stm = conn.getConnection().createStatement();
+                final PreparedStatement stm = conn.db().prepare(query);
                 try {
-	                final ResultSet rs = stm.executeQuery(query);
+	                final ResultSet rs = stm.executeQuery();
 	                try {
 	                    final ResultSetMetaData rsmd = rs.getMetaData();
 	                    List<XNElement> result = Lists.newArrayList();

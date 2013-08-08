@@ -46,11 +46,6 @@ import eu.advance.logistics.flow.engine.runtime.PortDiagnostic;
 
 /**
  * <p>The API for interacting with the ADVANCE Flow Engine remotely.</p>
- * <p>The API does not have separate {@code insertXYZ} type methods to create
- * new instances of various objects. 
- * The {@code Integer.MIN_VALUE} used as the unique identifier (see {@code id fields} will represent
- * the request to create a new object. Once they were created, the proper non-negative
- * unique identifier replaces this value.</p>
  * @author akarnokd, 2011.09.19.
  */
 public interface AdvanceEngineControl {
@@ -89,7 +84,7 @@ public interface AdvanceEngineControl {
 	List<AdvanceSchemaRegistryEntry> querySchemas() throws IOException, AdvanceControlException;
 	/**
 	 * Query a concrete schema.
-	 * @param name the schema name
+	 * @param name tthe schema's filename (without path)
 	 * @return the schema as XNElement
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to list the schemas.
@@ -106,7 +101,7 @@ public interface AdvanceEngineControl {
 	void updateSchema(@NonNull String name, @NonNull XNElement schema) throws IOException, AdvanceControlException;
 	/**
 	 * Delete the specified schema.
-	 * @param name the schema name
+	 * @param name the schema's filename (without path)
 	 * @throws IOException if a network error occurs
 	 * @throws AdvanceControlException if the user is not allowed to delete schemas
 	 */

@@ -81,7 +81,7 @@ public class JDBCUpdate extends AdvanceBlock {
             try {
                 final String query = getString(QUERY);
                 final Map<XNElement, XNElement> paramMap = resolver().getMap(get(MAP));
-                final PreparedStatement pstm = conn.getConnection().prepareStatement(query);
+                final PreparedStatement pstm = conn.db().prepare(query);
                 try {
 	                // basing on types fill the prepared_statement
 	                int paramCount = 1;

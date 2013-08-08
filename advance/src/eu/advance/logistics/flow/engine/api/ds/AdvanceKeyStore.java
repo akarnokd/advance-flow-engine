@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
 import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
 
@@ -34,6 +35,8 @@ import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
@@ -75,6 +78,20 @@ implements XNSerializable, HasPassword, Copyable<AdvanceKeyStore>, Identifiable<
 		@Override
 		public AdvanceKeyStore invoke() {
 			return new AdvanceKeyStore();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceKeyStore> SELECT = new SQLResult<AdvanceKeyStore>() {
+		@Override
+		public AdvanceKeyStore invoke(ResultSet rs) throws SQLException {
+			AdvanceKeyStore keyStore = new AdvanceKeyStore();
+			keyStore.name = rs.getString("name");
+			keyStore.locationPrefix = rs.getString("location_prefix");
+			keyStore.location = rs.getString("location");
+			keyStore.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+
+			AdvanceCreateModifyInfo.load(rs, keyStore);
+			return keyStore;
 		}
 	};
 	@Override

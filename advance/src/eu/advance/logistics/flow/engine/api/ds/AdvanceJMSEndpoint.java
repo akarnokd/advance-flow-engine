@@ -22,8 +22,13 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
@@ -61,6 +66,24 @@ implements XNSerializable, HasPassword, Copyable<AdvanceJMSEndpoint>, Identifiab
 		@Override
 		public AdvanceJMSEndpoint invoke() {
 			return new AdvanceJMSEndpoint();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceJMSEndpoint> SELECT = new SQLResult<AdvanceJMSEndpoint>() {
+		@Override
+		public AdvanceJMSEndpoint invoke(ResultSet rs) throws SQLException {
+			AdvanceJMSEndpoint jmsEndpoint = new AdvanceJMSEndpoint();
+			jmsEndpoint.name = rs.getString("name");
+			jmsEndpoint.driver = rs.getString("driver");
+			jmsEndpoint.url = rs.getString("url");
+			jmsEndpoint.user = rs.getString("user");
+			jmsEndpoint.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+			jmsEndpoint.queueManager = rs.getString("queue_manager");
+			jmsEndpoint.queue = rs.getString("queue");
+			jmsEndpoint.poolSize = rs.getInt("pool_size");
+
+			AdvanceCreateModifyInfo.load(rs, jmsEndpoint);      
+			return jmsEndpoint;
 		}
 	};
 	@Override

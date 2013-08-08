@@ -21,10 +21,15 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import hu.akarnokd.reactive4java.base.Action1E;
+import hu.akarnokd.reactive4java.base.Func1E;
+import hu.akarnokd.utils.database.DB;
+import hu.akarnokd.utils.database.SQLAction;
 
-import org.slf4j.LoggerFactory;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Wraps a java.sql.Connection and provides some useful methods.
@@ -32,36 +37,75 @@ import org.slf4j.LoggerFactory;
  */
 public class JDBCConnection {
 	/** The underlying connection. */
-	protected final Connection conn;
+	protected final DB db;
 	/**
 	 * Constructor. Initializes the connection.
-	 * @param conn the connection
+	 * @param db the database
 	 */
-	public JDBCConnection(Connection conn) {
-		this.conn = conn;
-	}
-	/**
-	 * Returns the underlying connection.
-	 * @return the connection
-	 */
-	public Connection getConnection() {
-		return conn;
+	public JDBCConnection(DB db) {
+		this.db = db;
 	}
 	/**
 	 * Commit the current transaction.
 	 * @throws SQLException on error
 	 */
 	public void commit() throws SQLException {
-		conn.commit();
+		db.commit();
 	}
 	/**
 	 * Roll back the current transaction without throwing exception.
 	 */
 	public void rollbackSilently() {
-		try {
-			conn.rollback();
-		} catch (SQLException ex) {
-			LoggerFactory.getLogger(JDBCConnection.class).error(ex.toString(), ex);
+		db.rollback();
+	}
+	/**
+	 * Sets a single parameter as string.
+	 */
+	public static final SQLAction<String> DELETE_BY_NAME = new SQLAction<String>() {
+		@Override
+		public void invoke(PreparedStatement pstmt, String s) throws SQLException {
+			pstmt.setString(1, s);
 		}
+	};
+	/**
+	 * Execute a simple, parametric update-like SQL.
+	 * @param sql the SQL query
+	 * @param params the parameters
+	 * @throws SQLException on error
+	 */
+	public void update(CharSequence sql, Object... params) throws SQLException {
+		db.update(sql, params);
+	}
+	/**
+	 * Executes a parametric query and uses the unmarshaller function to
+	 * extract objects from the resultset.
+	 * @param <T> the result element type
+	 * @param sql the SQL query
+	 * @param unmarshaller the unmarshaller
+	 * @param params the parameters
+	 * @return the list of objects from the query
+	 * @throws SQLException on error
+	 */
+	public <T> List<T> query(CharSequence sql, 
+			Func1E<? super ResultSet, ? extends T, ? extends SQLException> unmarshaller, 
+			Object... params) throws SQLException {
+		return db.query(sql, unmarshaller, params);
+	}
+	/**
+	 * Executes a parametric query and uses the unmarshaller function to
+	 * extract objects from the resultset.
+	 * @param sql the SQL query
+	 * @param unmarshaller the unmarshaller
+	 * @param params the parameters
+	 * @throws SQLException on error
+	 */
+	public void query(CharSequence sql, 
+			Action1E<? super ResultSet, ? extends SQLException> unmarshaller, 
+			Object... params) throws SQLException {
+		db.query(sql, unmarshaller, params);
+	}
+	/** @return the underlying database handler. */
+	public DB db() {
+		return db;
 	}
 }

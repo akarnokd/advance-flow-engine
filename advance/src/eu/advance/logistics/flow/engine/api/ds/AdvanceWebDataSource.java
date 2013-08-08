@@ -22,11 +22,14 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +67,26 @@ implements XNSerializable, HasPassword, Copyable<AdvanceWebDataSource>, Identifi
 		@Override
 		public AdvanceWebDataSource invoke() {
 			return new AdvanceWebDataSource();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceWebDataSource> SELECT = new SQLResult<AdvanceWebDataSource>() {
+		@Override
+		public AdvanceWebDataSource invoke(ResultSet rs) throws SQLException {
+			AdvanceWebDataSource wds = new AdvanceWebDataSource();
+			wds.name = rs.getString("name");
+			try	{
+				wds.url = new URL(rs.getString("url"));
+			} catch (MalformedURLException e) {
+				throw new SQLException("Malformed URL.. ", e);
+			}
+			wds.loginType = AdvanceLoginType.valueOf(rs.getString("login_type"));
+			wds.keyStore = rs.getString("keystore");
+			wds.userOrKeyAlias = rs.getString("user_or_key");
+			wds.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+
+			AdvanceCreateModifyInfo.load(rs, wds);            
+			return wds;
 		}
 	};
 	@Override

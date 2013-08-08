@@ -445,12 +445,4 @@ public class AdvanceCompositeBlock implements XNSerializable {
 			}
 		}
 	}
-	/**
-	 * Simple test program.
-	 * @param args no arguments
-	 * @throws Exception ignored
-	 */
-	public static void main(String[] args) throws Exception {
-		parseFlow(XNElement.parseXML("c:\\Users\\karnokd\\.advance-flow-editor-ws\\flow-description-21.xml"));
-	}
 }

@@ -96,7 +96,7 @@ public class JDBCInsert extends AdvanceBlock {
                             count++;
                         }
 
-                        final PreparedStatement pstm = conn.getConnection().prepareStatement(query, columns);
+                        final PreparedStatement pstm = conn.db().prepare(query, (Object[])columns);
 
                         // basing on types fill the prepared_statement
                         int paramCount = 1;

@@ -625,7 +625,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 					if (at == null) {
 						AdvanceConstantBlock constblock = cb.constants.get(bb.sourceBlock);
 						try {
-							AdvanceType at2 = constblock.getAdvanecType();
+							AdvanceType at2 = constblock.getAdvanceType();
 							resolve(at2);
 							typeMemory.put(bb.sourceBlock, Collections.singletonMap("", at2));
 							tr.left = at2;
@@ -847,7 +847,7 @@ public final class AdvanceCompiler<T, X extends Type, C> implements AdvanceFlowC
 			if (cb.constants.containsKey(bb.sourceBlock)) {
 				AdvanceConstantBlock acb = cb.constants.get(bb.sourceBlock);
 				try {
-					acb.getAdvanecType();
+					acb.getAdvanceType();
 					input = acb;
 					inputPort = ""; // default as constants have only a single output
 				} catch (URISyntaxException ex) {
