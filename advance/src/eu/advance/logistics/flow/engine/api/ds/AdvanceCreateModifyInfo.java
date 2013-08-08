@@ -27,6 +27,8 @@ import hu.akarnokd.utils.xml.XNSerializable;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -53,6 +55,14 @@ public class AdvanceCreateModifyInfo implements XNSerializable {
 	 */
 	public static char[] getPassword(XNElement source, String name) {
 		String pwd = source.get(name);
+		return decodePassword(pwd);
+	}
+	/**
+	 * Decodes a Base64 encoded password.
+	 * @param pwd the raw password
+	 * @return the password
+	 */
+	protected static char[] decodePassword(String pwd) {
 		if (pwd != null) {
 			try {
 				return new String(Base64.decode(pwd), Charset.forName("UTF-8")).toCharArray();
@@ -61,6 +71,28 @@ public class AdvanceCreateModifyInfo implements XNSerializable {
 			}
 		}
 		return null;
+	}
+	/**
+	 * Retrieves a Base64 encoded password from the resultset.
+	 * @param rs the result set
+	 * @param name the column name
+	 * @return the password characters or null
+	 * @throws SQLException on error
+	 */
+	public static char[] getPassword(ResultSet rs, String name) throws SQLException {
+		String pwd = rs.getString(name);
+		return decodePassword(pwd);
+	}
+	/**
+	 * Retrieves a Base64 encoded password from the resultset.
+	 * @param rs the result set
+	 * @param index the column index
+	 * @return the password characters or null
+	 * @throws SQLException on error
+	 */
+	public static char[] getPassword(ResultSet rs, int index) throws SQLException {
+		String pwd = rs.getString(index);
+		return decodePassword(pwd);
 	}
 	/**
 	 * Encodes the password into the given {@code source} element under the given {@code name}
@@ -76,6 +108,18 @@ public class AdvanceCreateModifyInfo implements XNSerializable {
 			destination.set(name, null);
 		}
 		
+	}
+	/**
+	 * Load the create-modify information from the resultset.
+	 * @param rs the resultset
+	 * @param out the target object
+	 * @throws SQLException on error
+	 */
+	public static void load(ResultSet rs, AdvanceCreateModifyInfo out) throws SQLException {
+		out.createdAt = rs.getTimestamp("created_at");
+		out.modifiedAt = rs.getTimestamp("modified_at");
+		out.createdBy = rs.getString("created_by");
+		out.modifiedBy = rs.getString("modified_by");
 	}
 	@Override
 	public void load(XNElement source) {

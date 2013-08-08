@@ -22,8 +22,13 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
 
@@ -45,6 +50,18 @@ implements XNSerializable, Copyable<AdvanceRealm>, Identifiable<String> {
 		@Override
 		public AdvanceRealm invoke() {
 			return new AdvanceRealm();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceRealm> SELECT = new SQLResult<AdvanceRealm>() {
+		@Override
+		public AdvanceRealm invoke(ResultSet rs) throws SQLException {
+			AdvanceRealm realm = new AdvanceRealm();
+			realm.name = rs.getString("name");
+			realm.status = AdvanceRealmStatus.valueOf(rs.getString("status"));
+
+			AdvanceCreateModifyInfo.load(rs, realm);
+			return realm;
 		}
 	};
 	@Override

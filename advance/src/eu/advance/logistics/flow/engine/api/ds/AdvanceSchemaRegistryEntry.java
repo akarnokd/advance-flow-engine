@@ -30,7 +30,7 @@ import hu.akarnokd.utils.xml.XNSerializable;
  * @author akarnokd, 2011.09.28.
  */
 public class AdvanceSchemaRegistryEntry implements XNSerializable {
-	/** The schema file name. */
+	/** The schema's filename (without path). */
 	public String name;
 	/** The schema content. */
 	public XNElement schema;

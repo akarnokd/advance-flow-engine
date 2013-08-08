@@ -255,7 +255,7 @@ public class JDBCThrottledQuery extends AdvanceBlock {
 			
 			batchSize = s;
 			
-			pstmt = conn.getConnection().prepareStatement(q);
+			pstmt = conn.db().prepare(q);
 			
 			rs = pstmt.executeQuery();
 			

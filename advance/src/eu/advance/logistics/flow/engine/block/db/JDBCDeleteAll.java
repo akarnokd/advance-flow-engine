@@ -90,7 +90,7 @@ public class JDBCDeleteAll extends AdvanceBlock {
             if (query != null) {
                 try {
 
-                    final PreparedStatement pstm = conn.getConnection().prepareStatement(query);
+                    final PreparedStatement pstm = conn.db().prepare(query);
                     int results = 0;
                     for (XNElement el : paramList) {
 

@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
 
@@ -29,6 +30,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +77,31 @@ implements XNSerializable, HasPassword, Copyable<AdvanceSOAPEndpoint>, Identifia
 		@Override
 		public AdvanceSOAPEndpoint invoke() {
 			return new AdvanceSOAPEndpoint();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceSOAPEndpoint> SELECT = new SQLResult<AdvanceSOAPEndpoint>() {
+		@Override
+		public AdvanceSOAPEndpoint invoke(ResultSet rs) throws SQLException {
+			AdvanceSOAPEndpoint soapChannel = new AdvanceSOAPEndpoint();
+			soapChannel.name = rs.getString("name");
+			try {
+				soapChannel.endpoint = new URL(rs.getString("endpoint"));
+				soapChannel.targetObject = new URI(rs.getString("target_object"));
+				soapChannel.targetNamespace = new URI(rs.getString("target_namespace"));
+			} catch (MalformedURLException e) {
+				throw new SQLException("Malformed URL.. ", e);
+			} catch (URISyntaxException e) {
+				throw new SQLException("Malformed URI.. ", e);
+			}
+			soapChannel.method = rs.getString("method");
+			soapChannel.encrypted = rs.getBoolean("encrypted");
+			soapChannel.keyStore = rs.getString("keystore");
+			soapChannel.keyAlias = rs.getString("keyalias");
+			soapChannel.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+
+			AdvanceCreateModifyInfo.load(rs, soapChannel);
+			return soapChannel;
 		}
 	};
 	@Override

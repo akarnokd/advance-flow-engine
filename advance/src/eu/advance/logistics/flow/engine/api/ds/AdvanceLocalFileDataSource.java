@@ -22,8 +22,13 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
 
@@ -42,6 +47,18 @@ implements XNSerializable, Copyable<AdvanceLocalFileDataSource>, Identifiable<St
 		@Override
 		public AdvanceLocalFileDataSource invoke() {
 			return new AdvanceLocalFileDataSource();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceLocalFileDataSource> SELECT = new SQLResult<AdvanceLocalFileDataSource>() {
+		@Override
+		public AdvanceLocalFileDataSource invoke(ResultSet rs) throws SQLException {
+			AdvanceLocalFileDataSource lfds = new AdvanceLocalFileDataSource();
+			lfds.name = rs.getString("name");
+			lfds.directory = rs.getString("directory");
+
+			AdvanceCreateModifyInfo.load(rs, lfds);      
+			return lfds;
 		}
 	};
 	@Override

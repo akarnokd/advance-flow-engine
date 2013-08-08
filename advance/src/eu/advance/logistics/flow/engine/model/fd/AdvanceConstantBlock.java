@@ -97,7 +97,7 @@ public class AdvanceConstantBlock implements XNSerializable {
 	 * @return the advance type
 	 * @throws URISyntaxException if any of the string uri's is malformed
 	 */
-	public AdvanceType getAdvanecType() throws URISyntaxException {
+	public AdvanceType getAdvanceType() throws URISyntaxException {
 		AdvanceType at = new AdvanceType();
 		
         List<String> tokens = Lists.newArrayList();

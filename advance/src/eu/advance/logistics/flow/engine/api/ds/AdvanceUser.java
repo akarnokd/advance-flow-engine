@@ -22,9 +22,12 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
@@ -88,6 +91,31 @@ implements XNSerializable, HasPassword, Copyable<AdvanceUser>, Identifiable<Stri
 			return new AdvanceUser();
 		}
 	};
+	/** The function to select an instance of this class. */
+	public static final SQLResult<AdvanceUser> SELECT = new SQLResult<AdvanceUser>() {
+		@Override
+		public AdvanceUser invoke(ResultSet rs) throws SQLException {
+			AdvanceUser user = new AdvanceUser();
+			user.name = rs.getString("name");
+			user.enabled = rs.getBoolean("enabled");
+			user.email = rs.getString("email");
+			user.pager = rs.getString("pager");
+			user.sms = rs.getString("sms");
+			user.dateFormat = rs.getString("date_format");
+			user.dateTimeFormat = rs.getString("date_time_format");
+			user.numberFormat = rs.getString("number_format");
+			user.thousandSeparator = rs.getString("thousand_separator").charAt(0);
+			user.decimalSeparator = rs.getString("decimal_separator").charAt(0);
+			user.passwordLogin = rs.getBoolean("password_login");
+			user.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+			user.keyStore = rs.getString("keystore");
+			user.keyAlias = rs.getString("keyalias");
+
+			AdvanceCreateModifyInfo.load(rs, user);
+			return user;
+		}
+	};
+
 	@Override
 	public void load(XNElement source) {
 		enabled = source.getBoolean("enabled");

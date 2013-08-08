@@ -22,8 +22,13 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
@@ -59,6 +64,23 @@ implements XNSerializable, HasPassword, Copyable<AdvanceJDBCDataSource>, Identif
 		@Override
 		public AdvanceJDBCDataSource invoke() {
 			return new AdvanceJDBCDataSource();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceJDBCDataSource> SELECT = new SQLResult<AdvanceJDBCDataSource>() {
+		@Override
+		public AdvanceJDBCDataSource invoke(ResultSet rs) throws SQLException {
+			AdvanceJDBCDataSource jdbcDataSource = new AdvanceJDBCDataSource();
+			jdbcDataSource.name = rs.getString("name");
+			jdbcDataSource.driver = rs.getString("driver");
+			jdbcDataSource.url = rs.getString("url");
+			jdbcDataSource.user = rs.getString("user");
+			jdbcDataSource.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+			jdbcDataSource.schema = rs.getString("schema");
+			jdbcDataSource.poolSize = rs.getInt("pool_size");
+
+			AdvanceCreateModifyInfo.load(rs, jdbcDataSource);
+			return jdbcDataSource;
 		}
 	};
 	@Override

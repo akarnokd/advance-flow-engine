@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
+import hu.akarnokd.utils.database.DB;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -55,17 +57,17 @@ public class JDBCPoolManager implements PoolManager<JDBCConnection> {
 		char[] pw = ds.password();
 		Connection conn = DriverManager.getConnection(ds.url, ds.user, new String(pw != null ? pw : new char[0]));
 		conn.setAutoCommit(false);
-		return new JDBCConnection(conn);
+		return new JDBCConnection(DB.connect(conn));
 	}
 	@Override
 	public boolean verify(JDBCConnection obj) throws Exception {
 		try {
 			try {
-				return obj.conn.isValid(0);
+				return obj.db.isValid(0);
 			} catch (NoSuchMethodError err) {
 				LOG.warn("Driver " + ds.driver + " does not support JDBC 4.0");
-				if (!obj.conn.isClosed()) {
-					ResultSet rs = obj.conn.getMetaData().getTables(null, null, null, null);
+				if (!obj.db.isClosed()) {
+					ResultSet rs = obj.db.getMetaData().getTables(null, null, null, null);
 					try {
 						if (rs.next()) {
 							rs.getString(1);
@@ -83,7 +85,7 @@ public class JDBCPoolManager implements PoolManager<JDBCConnection> {
 	}
 	@Override
 	public void close(JDBCConnection obj) throws Exception {
-		obj.conn.close();
+		obj.db.close();
 	}
 	/**
 	 * Test if the supplied data source can be accessed.

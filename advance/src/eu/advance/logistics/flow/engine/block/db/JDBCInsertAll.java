@@ -107,7 +107,7 @@ public class JDBCInsertAll extends AdvanceBlock {
                     count++;
                 }
 
-                final PreparedStatement pstm = conn.getConnection().prepareStatement(query, columns);
+                final PreparedStatement pstm = conn.db().prepare(query, (Object[])columns);
 
                 
                 for (XNElement el : paramList) {

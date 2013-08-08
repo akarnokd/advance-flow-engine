@@ -22,8 +22,13 @@
 package eu.advance.logistics.flow.engine.api.ds;
 
 import hu.akarnokd.reactive4java.base.Func0;
+import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializable;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import eu.advance.logistics.flow.engine.api.core.Copyable;
 import eu.advance.logistics.flow.engine.api.core.HasPassword;
 import eu.advance.logistics.flow.engine.api.core.Identifiable;
@@ -42,7 +47,7 @@ implements XNSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifi
 	public String address;
 	/** The remote base directory. */
 	public String remoteDirectory;
-	/** The user name used to login. */
+	/** The user name used for login. */
 	public String userOrKey;
 	/**
 	 * The password used to login. 
@@ -63,6 +68,25 @@ implements XNSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifi
 		@Override
 		public AdvanceFTPDataSource invoke() {
 			return new AdvanceFTPDataSource();
+		}
+	};
+	/** The function to select a new instance of this class. */
+	public static final SQLResult<AdvanceFTPDataSource> SELECT = new SQLResult<AdvanceFTPDataSource>() {
+		@Override
+		public AdvanceFTPDataSource invoke(ResultSet rs) throws SQLException {
+			AdvanceFTPDataSource ftpDataSource = new AdvanceFTPDataSource();
+			ftpDataSource.name = rs.getString("name");
+			ftpDataSource.protocol = AdvanceFTPProtocols.valueOf(rs.getString("protocol"));
+			ftpDataSource.address = rs.getString("address");
+			ftpDataSource.remoteDirectory = rs.getString("remote_directory");
+			ftpDataSource.userOrKey = rs.getString("user_or_key");
+			ftpDataSource.password = AdvanceCreateModifyInfo.getPassword(rs, "password");
+			ftpDataSource.passive = rs.getBoolean("passive");
+			ftpDataSource.keyStore = rs.getString("keystore");
+			ftpDataSource.loginType = AdvanceLoginType.valueOf(rs.getString("login_type"));
+
+			AdvanceCreateModifyInfo.load(rs, ftpDataSource);
+			return ftpDataSource;
 		}
 	};
 	@Override

@@ -82,7 +82,7 @@ public class JDBCUpdateAll extends AdvanceBlock {
             try {
                 final String query = getString(QUERY);
                 final List<XNElement> paramList = resolver().getList(get(LIST));
-                final PreparedStatement pstm = conn.getConnection().prepareStatement(query);
+                final PreparedStatement pstm = conn.db().prepare(query);
                 try {
 	                int results = 0;
 	
