@@ -265,7 +265,7 @@ public abstract class Block<T, X, C> {
 		for (int i = 0; i < nameValuePairs.length; i += 2) {
 			String name = (String)nameValuePairs[i];
 			Object value = nameValuePairs[i + 1];
-			if (value instanceof Iterable) {
+			if (!(value instanceof Iterable)) {
 				@SuppressWarnings("unchecked")
 				T v = (T)value;
 				values.put(name, Collections.singleton(v));

@@ -32,26 +32,28 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  * Signature: FromCollection(collection<t>, xpath, schema<u>) -> u
  * @author szmarcell
  */
-@Block(id = "___FromCollection", category = "data-transformations", scheduler = "IO", description = "Converts the elements of the collection into a new structure.")
+@Block(id = "___FromCollection", category = "data-transformations", 
+scheduler = "IO", 
+description = "Converts the elements of the collection into a new structure.",
+parameters = { "T", "U" })
 public class FromCollection extends AdvanceBlock {
     /** The logger. */
-    protected static final Logger LOGGER = Logger.getLogger(FromCollection .class.getName());
-    /** In. */
-    @Input("advance:real")
+    protected static final Logger LOGGER = Logger.getLogger(FromCollection.class.getName());
+    /** The collection of values. */
+    @Input("advance:collection<?T>")
     protected static final String IN = "in";
+    /** The XPath expression.*/
+    @Input("advance:string")
+    protected static final String XPATH = "xpath";
+    /** The type token for the output. */
+    @Input("advance:type<?U>")
+    protected static final String TYPE = "type";
     /** Out. */
-    @Output("advance:real")
+    @Output("?U")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
     // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
     }
     
 }

@@ -35,7 +35,7 @@ import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.Port;
 
 /**
- * A block that merges the incoming values of its parameters but without waiting for all of them.
+ * Creates a collection from the variable parameters.
  * @author akarnokd, 2011.07.01.
  */
 @Block(scheduler = "NOW", description = "Creates a collection from the variable parameters.", parameters = { "T" })

@@ -37,7 +37,7 @@ import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 
 /**
  * Delete entries from the given datastore by using the query and parameters.
- * Returns the number of elements deleted. Signature: JDBCUpdate(datasource,
+ * Returns the number of elements deleted. Signature: JDBCDelete(datasource,
  * string, map<k, v>) -> integer
  *
  * @author TTS

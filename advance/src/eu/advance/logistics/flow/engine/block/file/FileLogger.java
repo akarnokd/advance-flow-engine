@@ -43,7 +43,7 @@ import eu.advance.logistics.flow.engine.runtime.Port;
 
 /**
  * Save the data into a local file, appeding the received input at the end of the file with a timestamp.
- * Signature: LocalFileOutput(string, string) -> void
+ * Signature: FileLogger(string, string) -> void
  * @author szmarcell
  */
 @Block(id = "FileLogger", category = "file", scheduler = "IO", description = "Save the data into a local file, appeding the received input at the end of the file with a timestamp.")

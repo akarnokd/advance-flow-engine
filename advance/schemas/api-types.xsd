@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="distinguishedname">
+		<xs:sequence>
+			<xs:element name="commonName" type="xs:string"/>
+			<xs:element name="organizationUnit" type="xs:string"/>
+			<xs:element name="organizationName" type="xs:string"/>
+			<xs:element name="localityName" type="xs:string"/>
+			<xs:element name="stateName" type="xs:string"/>
+			<xs:element name="country" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AdvanceCompositeBlock">
+		<xs:sequence>
+			<xs:element name="type-variable">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element name="upper-bound" type="Advancetype"/>
+							<xs:element name="lower-bound"/>
+						</xs:choice>
+					</xs:sequence>
+					<xs:attribute name="name"/>
+					<xs:attribute name="documentation"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id"/>
+		<xs:attribute name="documentation"/>
+		<xs:attribute name="keywords"/>
+	</xs:complexType>
+	<xs:complexType name="Advancetype">
+		<xs:sequence>
+			<xs:element name="type-argument" type="Advancetype"/>
+		</xs:sequence>
+		<xs:attribute name="type-id" type="xs:int"/>
+		<xs:attribute name="type-variable"/>
+		<xs:attribute name="type"/>
+	</xs:complexType>
+</xs:schema>

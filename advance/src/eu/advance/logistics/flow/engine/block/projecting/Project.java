@@ -29,29 +29,31 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
 
 /**
  * Applies the XPath expression to extract a value from the incoming value.
- * Signature: Project(t, xpath, schema<u>) -> u
+ * Signature: Project(t, xpath, type&lt;u>) -> u
  * @author szmarcell
  */
-@Block(id = "___Project", category = "projection", scheduler = "IO", description = "Applies the XPath expression to extract a value from the incoming value.")
+@Block(id = "___Project", category = "projection", scheduler = "IO", 
+description = "Applies the XPath expression to extract a value from the incoming value.",
+parameters = { "T", "U" }
+)
 public class Project extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(Project .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("?T")
     protected static final String IN = "in";
+    /** The XPath expression. */
+    @Input("advance:string")
+    protected static final String XPATH = "xpath";
+    /** Type token. */
+    @Input("advance:type<?U>")
+    protected static final String TYPE = "in";
     /** Out. */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
     // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
     }
     
 }

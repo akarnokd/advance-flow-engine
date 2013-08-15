@@ -73,7 +73,6 @@ public class GetItem extends AdvanceBlock {
             dispatch(OUT, resolver().create(xcollection.get(key)));
         } else {
             dispatch(OUT, resolver().createObject());
-
         }
     }
 }

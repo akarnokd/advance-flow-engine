@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="api-types.xsd"/>
+	<xs:element name="generate-key">
+		<xs:complexType>
+			<xs:attribute name="algorithm" type="xs:string"/>
+			<xs:attribute name="keySize" type="xs:int"/>
+			<xs:attribute name="issuerDn" type="xs:string"/>
+			<xs:attribute name="subjectDn" type="xs:string"/>
+			<xs:attribute name="domain" type="xs:string"/>
+			<xs:attribute name="modifiedBy" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

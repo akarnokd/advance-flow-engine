@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  *
  * @author TTS
  */
-@Block(id = "Round", category = "projection", scheduler = "IO", description = "Round the given value to the nearest integer by the 0.5 rule")
+@Block(id = "Round", category = "projection", scheduler = "NOW", description = "Round the given value to the nearest integer by the 0.5 rule")
 public class Round extends AdvanceBlock {
 
     /**

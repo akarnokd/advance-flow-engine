@@ -38,7 +38,7 @@ import eu.advance.logistics.flow.engine.block.AdvanceData;
  * Converts a collection map of key-value pairs into a collection of single-element XML with attributes or child elements as the given map keys and values.
  * @author karnokd, 2012.02.22.
  */
-@Block(id = "ConvertMapToObject", category = "projection", 
+@Block(id = "ConvertsMapToObjects", category = "projection", 
 scheduler = "NOW", 
 description = "Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values.",
 parameters = { "T" }

@@ -32,26 +32,24 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  * Signature: RelayIfTriggered(trigger, t) -> t
  * @author szmarcell
  */
-@Block(id = "___RelayIfTriggered", category = "streaming", scheduler = "IO", description = "Relay a single given value only if the trigger value has arrived.")
+@Block(id = "RelayIfTriggered", category = "streaming", scheduler = "NOW", description = "Relay a single given value only if the trigger value has arrived.",
+parameters = { "T", "U" })
 public class RelayIfTriggered extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(RelayIfTriggered .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("?T")
     protected static final String IN = "in";
+    /** The trigger value. */
+    @Input("?U")
+    protected static final String TRIGGER = "trigger";
     /** Out. */
     @Output("advance:real")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
-    // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
+    	// the trigger is ignored as it is used by the collector to synchronize.
+    	dispatch(OUT, get(IN));
     }
     
 }
