@@ -32,26 +32,32 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  * Signature: FromMap(map<t, u>, xpath, xpath, schema<v>) -> v
  * @author szmarcell
  */
-@Block(id = "___FromMap", category = "data-transformations", scheduler = "IO", description = "Converts the key-value pairs via the two XPath expressions into a new structure.")
+@Block(id = "___FromMap", category = "data-transformations", 
+scheduler = "IO", 
+description = "Converts the key-value pairs via the two XPath expressions into a new structure.",
+parameters = { "T", "U", "V" }
+)
 public class FromMap extends AdvanceBlock {
     /** The logger. */
     protected static final Logger LOGGER = Logger.getLogger(FromMap .class.getName());
     /** In. */
-    @Input("advance:real")
+    @Input("advance:map<?T,?U>")
     protected static final String IN = "in";
-    /** Out. */
-    @Output("advance:real")
+    /** The key XPath. */
+    @Input("advance:string")
+    protected static final String KEY_XPATH = "key_xpath";
+    /** The value XPath. */
+    @Input("advance:string")
+    protected static final String VALUE_XPATH = "value_xpath";
+    /** The type token. */
+    @Input("advance:type<?V>")
+    protected static final String TYPE = "type";
+    /** The output. */
+    @Output("?V")
     protected static final String OUT = "out";
-    /** The running count. */
-    private int count;
-    /** The running sum. */
-    private double value;
     // TODO implement 
     @Override
     protected void invoke() {
-        double val = getDouble(IN);
-        value = (value * count++ + val) / count;
-        dispatch(OUT, resolver().create(value));
     }
     
 }

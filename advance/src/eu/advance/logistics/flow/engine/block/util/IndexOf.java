@@ -33,7 +33,7 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  *
  * @author TTS
  */
-@Block(id = "IndexOf", category = "string", scheduler = "IO", description = "Returns the index of the first occurrence of the substring in the string")
+@Block(id = "IndexOf", category = "string", scheduler = "NOW", description = "Returns the index of the first occurrence of the substring in the string")
 public class IndexOf extends AdvanceBlock {
 
     /**

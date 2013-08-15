@@ -22,8 +22,7 @@ package eu.advance.logistics.flow.engine.block.streaming;
 
 import hu.akarnokd.utils.xml.XNElement;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.logging.Logger;
 
 import eu.advance.logistics.annotations.Block;
@@ -39,7 +38,7 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  */
 @Block(id = "Reverse", 
 	category = "streaming", 
-	scheduler = "IO", 
+	scheduler = "NOW", 
 	description = "Reverses the element order within the collection", 
 	parameters = { "T" }
 )
@@ -62,13 +61,13 @@ public class Reverse extends AdvanceBlock {
 
     @Override
     protected void invoke() {
-       final List<XNElement> elList = resolver().getList(get(IN));
-       final List<XNElement> result = new ArrayList<XNElement>();
-       
-       for (XNElement el : elList) {
-           result.add(0, el);
-       }
-       
-       dispatch(OUT, resolver().create(result));
+		XNElement in = params.get(IN);
+		
+		LinkedList<XNElement> out = new LinkedList<XNElement>();
+		for (XNElement e : resolver().getItems(in)) {
+			out.addFirst(e.copy());
+		}
+		XNElement e = resolver().create(out);
+		dispatch(OUT, e);
     }
 }

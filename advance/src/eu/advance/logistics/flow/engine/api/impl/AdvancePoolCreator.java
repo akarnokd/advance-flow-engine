@@ -21,6 +21,8 @@
 
 package eu.advance.logistics.flow.engine.api.impl;
 
+import java.io.File;
+
 import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Option;
 import eu.advance.logistics.flow.engine.api.core.BoundedPool;
@@ -69,46 +71,48 @@ public class AdvancePoolCreator implements
 	@Override
 	public Option<? extends Pool<?>> invoke(Class<?> param1, String param2) {
 		try {
-			if (param1.equals(JDBCConnection.class)
-					|| param1.equals(java.sql.Connection.class) 
-					|| param1.equals(AdvanceJDBCDataSource.class)) {
+			if (JDBCConnection.class.equals(param1)
+					|| java.sql.Connection.class.equals(param1) 
+					|| AdvanceJDBCDataSource.class.equals(param1)) {
 				AdvanceJDBCDataSource ds = datastore.queryJDBCDataSource(param2);
 				if (ds != null) {
 					return Option.some(new BoundedPool<JDBCConnection>(
 							ds.poolSize, new JDBCPoolManager(ds)));
 				}
 			} else
-			if (param1.equals(FTPConnection.class) || param1.equals(AdvanceFTPDataSource.class)) {
+			if (FTPConnection.class.equals(param1) || AdvanceFTPDataSource.class.equals(param1)) {
 				AdvanceFTPDataSource ds = datastore.queryFTPDataSource(param2);
 				if (ds != null) {
 					return Option.some(new UnlimitedPool<FTPConnection>(new FTPPoolManager(ds, datastore)));
 				}
 			} else
-			if (param1.equals(JMSConnection.class) || param1.equals(AdvanceJMSEndpoint.class)) {
+			if (JMSConnection.class.equals(param1) || AdvanceJMSEndpoint.class.equals(param1)) {
 				AdvanceJMSEndpoint ds = datastore.queryJMSEndpoint(param2);
 				if (ds != null) {
 					return Option.some(new BoundedPool<JMSConnection>(ds.poolSize, new JMSPoolManager(ds)));
 				}
 			} else
-			if (param1.equals(LocalConnection.class) || param1.equals(AdvanceLocalFileDataSource.class)) {
+			if (LocalConnection.class.equals(param1)
+					|| File.class.equals(param1)
+					|| AdvanceLocalFileDataSource.class.equals(param1)) {
 				AdvanceLocalFileDataSource ds = datastore.queryLocalFileDataSource(param2);
 				if (ds != null) {
 					return Option.some(new UnlimitedPool<LocalConnection>(new LocalPoolManager(ds)));
 				}
 			} else
-			if (param1.equals(SOAPConnection.class) || param1.equals(AdvanceSOAPEndpoint.class)) {
+			if (SOAPConnection.class.equals(param1) || AdvanceSOAPEndpoint.class.equals(param1)) {
 				AdvanceSOAPEndpoint ds = datastore.querySOAPEndpoint(param2);
 				if (ds != null) {
 					return Option.some(new UnlimitedPool<SOAPConnection>(new SOAPPoolManager(ds, datastore)));
 				}
 			} else
-			if (param1.equals(WebConnection.class) || param1.equals(AdvanceWebDataSource.class)) {
+			if (WebConnection.class.equals(param1) || AdvanceWebDataSource.class.equals(param1)) {
 				AdvanceWebDataSource ds = datastore.queryWebDataSource(param2);
 				if (ds != null) {
 					return Option.some(new UnlimitedPool<WebConnection>(new WebPoolManager(ds, datastore)));
 				}
 			} else
-			if (param1.equals(EmailConnection.class) || param1.equals(AdvanceEmailBox.class)) {
+			if (EmailConnection.class.equals(param1) || AdvanceEmailBox.class.equals(param1)) {
 				AdvanceEmailBox ds = datastore.queryEmailBox(param2);
 				if (ds != null) {
 					return Option.some(new UnlimitedPool<EmailConnection>(new EmailPoolManager(ds, datastore)));

@@ -35,9 +35,9 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  * Check if the input timestamp is between monday and friday.
  * @author karnokd, 2012.02.24.
  */
-@Block(id = "Not", category = "projection", 
+@Block(id = "IsWeekDay", category = "projection", 
 scheduler = "NOW", 
-description = "Negates the boolean value."
+description = "Checks if the input timestamp is on weekday."
 )
 public class IsWeekday extends AdvanceBlock {
     /** In. */

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="user">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:sequence>
+					<xs:element name="rights">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="right" type="rightType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+				<xs:sequence>
+					<xs:element name="realm-rights">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="realm">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="right" type="rightType"/>
+										</xs:sequence>
+										<xs:attribute name="name" type="xs:string"/>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:sequence>
+			<xs:attribute name="enabled" type="xs:string"/>
+			<xs:attribute name="name" type="xs:string"/>
+			<xs:attribute name="email" type="xs:string"/>
+			<xs:attribute name="pager" type="xs:string"/>
+			<xs:attribute name="sms" type="xs:string"/>
+			<xs:attribute name="dateFormat" type="xs:string"/>
+			<xs:attribute name="dateTimeFormat" type="xs:string"/>
+			<xs:attribute name="numberFormat" type="xs:string"/>
+			<xs:attribute name="thousandSeparator" type="xs:string"/>
+			<xs:attribute name="decimalSeparator" type="xs:string"/>
+			<xs:attribute name="passwordLogin" type="xs:string"/>
+			<xs:attribute name="password" type="xs:string"/>
+			<xs:attribute name="keyStore" type="xs:string"/>
+			<xs:attribute name="keyAlias" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="rightType">
+		<xs:attribute name="value" type="xs:string"/>
+	</xs:complexType>
+</xs:schema>

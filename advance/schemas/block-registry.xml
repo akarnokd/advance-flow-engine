@@ -353,8 +353,16 @@
 
     <!-- Converts the elements of the collection into a new structure. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.FromCollection" id="___FromCollection" scheduler="IO" category="data-transformations" tooltip="Converts the elements of the collection into a new structure.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="U"/>
+        </input>
+        <input id="xpath" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type-variable="U"/>
     </block-description>
 
     <!-- Extracts the keys only from the supplied map -->
@@ -432,8 +440,8 @@
         <output id="out" type="advance:real"/>
     </block-description>
 
-    <!-- Negates the boolean value. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.IsWeekday" id="Not" scheduler="NOW" category="projection" tooltip="Negates the boolean value.">
+    <!-- Checks if the input timestamp is on weekday. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.IsWeekday" id="IsWeekDay" scheduler="NOW" category="projection" tooltip="Checks if the input timestamp is on weekday.">
         <input id="in" required="true" varargs="false" type="advance:timestamp"/>
         <output id="out" type="advance:boolean"/>
     </block-description>
@@ -471,7 +479,13 @@
 
     <!-- Applies the XPath expression to extract a value from the incoming value. -->
     <block-description class="eu.advance.logistics.flow.engine.block.projecting.Project" id="___Project" scheduler="IO" category="projection" tooltip="Applies the XPath expression to extract a value from the incoming value.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <input id="in" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="U"/>
+        </input>
+        <input id="xpath" required="true" varargs="false" type="advance:string"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
@@ -781,8 +795,18 @@
 
     <!-- Converts the key-value pairs via the two XPath expressions into a new structure. -->
     <block-description class="eu.advance.logistics.flow.engine.block.structuring.FromMap" id="___FromMap" scheduler="IO" category="data-transformations" tooltip="Converts the key-value pairs via the two XPath expressions into a new structure.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
-        <output id="out" type="advance:real"/>
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <type-variable name="V"/>
+        <input id="in" required="true" varargs="false" type="advance:map">
+            <type-argument type-variable="T"/><type-argument type-variable="U"/>
+        </input>
+        <input id="key_xpath" required="true" varargs="false" type="advance:string"/>
+        <input id="type" required="true" varargs="false" type="advance:type">
+            <type-argument type-variable="V"/>
+        </input>
+        <input id="value_xpath" required="true" varargs="false" type="advance:string"/>
+        <output id="out" type-variable="V"/>
     </block-description>
 
     <!-- Compute the average of the integer or real values within the collection -->
@@ -1476,7 +1500,7 @@
     </block-description>
 
     <!-- Returns the index of the first occurrence of the substring in the string -->
-    <block-description class="eu.advance.logistics.flow.engine.block.util.IndexOf" id="IndexOf" scheduler="IO" category="string" tooltip="Returns the index of the first occurrence of the substring in the string">
+    <block-description class="eu.advance.logistics.flow.engine.block.util.IndexOf" id="IndexOf" scheduler="NOW" category="string" tooltip="Returns the index of the first occurrence of the substring in the string">
         <input id="in1" required="true" varargs="false" type="advance:string"/>
         <input id="in2" required="true" varargs="false" type="advance:string"/>
         <input id="in3" required="true" varargs="false" type="advance:integer">
@@ -1488,7 +1512,7 @@
     </block-description>
 
     <!-- Round the given value to the nearest integer by the 0.5 rule -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Round" id="Round" scheduler="IO" category="projection" tooltip="Round the given value to the nearest integer by the 0.5 rule">
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.Round" id="Round" scheduler="NOW" category="projection" tooltip="Round the given value to the nearest integer by the 0.5 rule">
         <input id="in" required="true" varargs="false" type="advance:real"/>
         <output id="out" type="advance:real"/>
     </block-description>
@@ -1628,7 +1652,7 @@
     </block-description>
 
     <!-- Reverses the element order within the collection -->
-    <block-description class="eu.advance.logistics.flow.engine.block.streaming.Reverse" id="Reverse" scheduler="IO" category="streaming" tooltip="Reverses the element order within the collection">
+    <block-description class="eu.advance.logistics.flow.engine.block.streaming.Reverse" id="Reverse" scheduler="NOW" category="streaming" tooltip="Reverses the element order within the collection">
         <type-variable name="T"/>
         <input id="in" required="true" varargs="false" type="advance:collection">
             <type-argument type-variable="T"/>
@@ -1823,8 +1847,11 @@
     </block-description>
 
     <!-- Relay a single given value only if the trigger value has arrived. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.streaming.RelayIfTriggered" id="___RelayIfTriggered" scheduler="IO" category="streaming" tooltip="Relay a single given value only if the trigger value has arrived.">
-        <input id="in" required="true" varargs="false" type="advance:real"/>
+    <block-description class="eu.advance.logistics.flow.engine.block.streaming.RelayIfTriggered" id="RelayIfTriggered" scheduler="NOW" category="streaming" tooltip="Relay a single given value only if the trigger value has arrived.">
+        <type-variable name="T"/>
+        <type-variable name="U"/>
+        <input id="in" required="true" varargs="false" type-variable="T"/>
+        <input id="trigger" required="true" varargs="false" type-variable="U"/>
         <output id="out" type="advance:real"/>
     </block-description>
 
@@ -1877,7 +1904,7 @@
     </block-description>
 
     <!-- Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values. -->
-    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertMapsToObjects" id="ConvertMapToObject" scheduler="NOW" category="projection" tooltip="Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values.">
+    <block-description class="eu.advance.logistics.flow.engine.block.projecting.ConvertMapsToObjects" id="ConvertsMapToObjects" scheduler="NOW" category="projection" tooltip="Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values.">
         <type-variable name="T"/>
         <input id="attributes" required="true" varargs="false" type="advance:boolean"/>
         <input id="type" required="true" varargs="false" type="advance:type">
@@ -1921,6 +1948,16 @@
         <input id="datasource" required="true" varargs="false" type="advance:string"/>
         <input id="trigger" required="true" varargs="false" type="advance:boolean"/>
         <output id="out" type="advance:boolean"/>
+    </block-description>
+
+    <!-- Block to retrieve a specific item from the input collection. -->
+    <block-description class="eu.advance.logistics.flow.engine.block.test.GetItem2" id="GetItem2" scheduler="NOW" tooltip="Block to retrieve a specific item from the input collection.">
+        <type-variable name="T"/>
+        <input id="in" required="true" varargs="false" type="advance:collection">
+            <type-argument type-variable="T"/>
+        </input>
+        <input id="index" required="true" varargs="false" type="advance:integer"/>
+        <output id="out" type-variable="T"/>
     </block-description>
 
 </block-registry>

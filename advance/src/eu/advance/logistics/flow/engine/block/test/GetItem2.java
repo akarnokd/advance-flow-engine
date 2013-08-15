@@ -31,10 +31,10 @@ import eu.advance.logistics.flow.engine.block.AdvanceBlock;
  * A simple generic block that extracts an item from an advance:collection type construct.
  * @author akarnokd, 2011.07.01.
  */
-@Block(scheduler = "NOW", 
+@Block(id = "GetItem2", scheduler = "NOW", 
 description = "Block to retrieve a specific item from the input collection.", 
 parameters = { "T" })
-public class GetItem extends AdvanceBlock {
+public class GetItem2 extends AdvanceBlock {
 	/** In. */
     @Input("advance:collection<?T>")
     private static final String IN = "in";

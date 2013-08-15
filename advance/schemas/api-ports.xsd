@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="block-description.xsd"/>
+	<xs:element name="api-ports" type="api-portsType">
+	</xs:element>
+	<xs:complexType name="api-portsType">
+		<xs:complexContent>
+			<xs:extension base="type">
+				<xs:attribute name="is-input" type="xs:string"/>
+				<xs:attribute name="id" type="xs:string"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

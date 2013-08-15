@@ -39,7 +39,7 @@ import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 /**
  * Delete a batch of entries from the given datastore by using the query and
  * parameters. Returns the number of total elements deleted. Signature:
- * JDBCUpdateAll(datasource, string, collection<map<string, object>>) -> integer
+ * JDBCDeleteAll(datasource, string, collection<map<string, object>>) -> integer
  *
  * @author TTS
  */

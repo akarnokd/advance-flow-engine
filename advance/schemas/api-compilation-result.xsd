@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="block-description.xsd"/>
+	<xs:element name="api-compilation-result">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="errors">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence>
+								<xs:element name="error" type="errorType"/>
+							</xs:sequence>
+							<xs:sequence>
+								<xs:element name="wire-types">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="wire-type">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="type" type="type"/>
+													</xs:sequence>
+													<xs:attribute name="wire-id"/>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="errorType">
+		<xs:complexContent>
+			<xs:extension base="xs:anyType">
+				<xs:attribute name="type" type="xs:string"/>
+				<xs:attribute name="message" type="xs:string"/>
+				<xs:anyAttribute/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
