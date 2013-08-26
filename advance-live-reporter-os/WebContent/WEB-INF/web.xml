@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>advance-live-reporter</display-name>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<filter>
+		<filter-name>ResponseHeaderFilter</filter-name>
+		<filter-class>eu.advance.logistics.live.reporter.server.ResponseHeaderFilter</filter-class>
+		<init-param>
+			<param-name>Cache-Control</param-name>
+			<param-value>max-age=86400</param-value>
+		</init-param>
+	</filter>
+	<!-- Watch out for file extension upper/lowercase -->
+	<filter-mapping>
+		<filter-name>ResponseHeaderFilter</filter-name>
+		<url-pattern>*.png</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ResponseHeaderFilter</filter-name>
+		<url-pattern>*.gif</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ResponseHeaderFilter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ResponseHeaderFilter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	
+    <listener>
+        <listener-class>
+                com.sun.xml.ws.transport.http.servlet.WSServletContextListener
+        </listener-class>
+    </listener>
+	
+	
+	<!-- <servlet> <servlet-name>AlertWatcher</servlet-name> <servlet-class>eu.advance.logistics.live.reporter.server.AlertWatcher</servlet-class> 
+		<load-on-startup>1</load-on-startup> </servlet> -->
+	<servlet>
+		<servlet-name>AdvanceFlowEngine</servlet-name>
+		<servlet-class>eu.advance.logistics.live.reporter.server.AdvanceFlowEngineServlet</servlet-class>
+		<!-- Workdir override <init-param> <param-name>WorkDir</param-name> <param-value>C:\work\workspace\advance-live-reporting-tool\WebContent\WEB-INF\advance-flow-engine</param-value> 
+			</init-param> -->
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+   <servlet>
+        <servlet-name>importdata</servlet-name>
+        <servlet-class>
+        	com.sun.xml.ws.transport.http.servlet.WSServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+	<servlet>
+		<servlet-name>Crontab</servlet-name>
+		<servlet-class>eu.advance.logistics.live.reporter.server.CrontabServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AdvanceFlowEngine</servlet-name>
+		<url-pattern>/AdvanceFlowEngine</url-pattern>
+	</servlet-mapping>
+	
+    <servlet-mapping>
+        <servlet-name>importdata</servlet-name>
+        <url-pattern>/importdata</url-pattern>
+    </servlet-mapping>
+	
+	
+	<!-- -->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>securedapp</web-resource-name>
+			<url-pattern>/X*</url-pattern>
+		</web-resource-collection>
+		<user-data-constraint>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<!-- -->
+</web-app>
