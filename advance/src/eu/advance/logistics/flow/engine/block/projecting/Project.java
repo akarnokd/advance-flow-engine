@@ -47,7 +47,7 @@ public class Project extends AdvanceBlock {
     protected static final String XPATH = "xpath";
     /** Type token. */
     @Input("advance:type<?U>")
-    protected static final String TYPE = "in";
+    protected static final String TYPE = "type";
     /** Out. */
     @Output("advance:real")
     protected static final String OUT = "out";

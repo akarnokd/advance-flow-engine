@@ -482,7 +482,7 @@
         <type-variable name="T"/>
         <type-variable name="U"/>
         <input id="in" required="true" varargs="false" type-variable="T"/>
-        <input id="in" required="true" varargs="false" type="advance:type">
+        <input id="type" required="true" varargs="false" type="advance:type">
             <type-argument type-variable="U"/>
         </input>
         <input id="xpath" required="true" varargs="false" type="advance:string"/>

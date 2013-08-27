@@ -62,6 +62,7 @@ import com.sun.net.httpserver.HttpsServer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.api.AdvanceEngineControl;
 import eu.advance.logistics.flow.engine.api.AdvanceXMLExchange;
 import eu.advance.logistics.flow.engine.api.core.AdvanceAccessDenied;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
@@ -440,6 +441,18 @@ public class AdvanceFlowEngine implements Runnable {
 		if (control != null) {
 			control.shutdown();
 		}
+	}
+	/**
+	 * @return the engine control interface
+	 */
+	public AdvanceEngineControl control() {
+		return control;
+	}
+	/**
+	 * @return the datastore interface
+	 */
+	public AdvanceDataStore datastore() {
+		return control.datastore();
 	}
 	/**
 	 * The main program.
