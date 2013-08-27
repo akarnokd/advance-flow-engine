@@ -28,5 +28,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.2.5.jar" sourcepath="lib/httpclient-4.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen-1.1.6.jar" sourcepath="lib/jaxen-1.1.6.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.18.jar" sourcepath="lib/jcommon-1.0.18.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Advance-API"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
