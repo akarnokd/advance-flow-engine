@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.PoolManager;
 import eu.advance.logistics.flow.engine.api.core.MultiIOException;
-import eu.advance.logistics.flow.engine.api.core.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJMSEndpoint;
 
 

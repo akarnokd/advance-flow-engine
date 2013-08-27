@@ -19,15 +19,15 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.impl;
+package eu.advance.logistics.flow.engine;
 
 import java.io.File;
 
 import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Option;
-import eu.advance.logistics.flow.engine.api.core.BoundedPool;
-import eu.advance.logistics.flow.engine.api.core.Pool;
-import eu.advance.logistics.flow.engine.api.core.UnlimitedPool;
+import eu.advance.logistics.flow.engine.api.BoundedPool;
+import eu.advance.logistics.flow.engine.api.Pool;
+import eu.advance.logistics.flow.engine.api.UnlimitedPool;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailBox;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPDataSource;

@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.core;
+package eu.advance.logistics.flow.engine.api;
 
 import java.util.List;
 import java.util.Map;

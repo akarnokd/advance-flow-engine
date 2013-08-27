@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import eu.advance.logistics.flow.engine.api.core.Pool;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
+import eu.advance.logistics.flow.engine.api.Pool;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
 import eu.advance.logistics.prediction.support.attributes.SelectedAttribute;

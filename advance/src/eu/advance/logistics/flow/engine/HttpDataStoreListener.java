@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.impl;
+package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNSerializables;
@@ -46,6 +46,7 @@ import eu.advance.logistics.flow.engine.api.ds.AdvanceUser;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRights;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceWebDataSource;
+import eu.advance.logistics.flow.engine.api.impl.CheckedDataStore;
 
 /**
  * Utility class to parse and compose DataStore request coming as XML format

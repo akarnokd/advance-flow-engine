@@ -21,7 +21,6 @@
 
 package eu.advance.logistics.flow.engine;
 
-import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.inference.TypeRelation;
 import eu.advance.logistics.flow.engine.inference.TypeWrapper;
 import eu.advance.logistics.flow.engine.inference.TypeWrapperFunctions;

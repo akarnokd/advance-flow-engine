@@ -24,7 +24,7 @@ package eu.advance.logistics.flow.engine.block.pattern;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * Classifies the channels based on their time behavior into periodic, regular, cooling-off and daily activating classes.

@@ -19,32 +19,62 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.impl.test;
+package eu.advance.logistics.flow.engine.test;
 
 /**
  * @author csirobi, 2012.12.12.
  */
-public enum DeleteAdvanceDataStore {
+public enum QueryAdvanceDataStore {
 	/** Value. */
-	DELETE_BLOCK_STATE,
+	HAS_USER_RIGHT,
 	/** Value. */
-	DELETE_EMAIL_BOX,
+	HAS_USER_REALM_RIGHT,
 	/** Value. */
-	DELETE_FTP_DATA_SOURCE,
+	QUERY_BLOCK_STATE,
 	/** Value. */
-	DELETE_JDBC_DATA_SOURCE,
+	QUERY_EMAIL_BOX,
 	/** Value. */
-	DELETE_JMS_ENDPOINT,
+	QUERY_EMAIL_BOXES,
 	/** Value. */
-	DELETE_KEYSTORE,
+	QUERY_FLOW,
 	/** Value. */
-	DELETE_LOCAL_FILE_DATA_SOURCE,
+	QUERY_FTP_DATA_SOURCE,
 	/** Value. */
-	DELETE_REALM,
+	QUERY_FTP_DATA_SOURCES,
 	/** Value. */
-	DELETE_SOAP_CHANNEL,
+	QUERY_JDBC_DATA_SOURCE,
 	/** Value. */
-	DELETE_USER,
+	QUERY_JDBC_DATA_SOURCES,
 	/** Value. */
-	DELETE_WEB_DATA_SOURCE;
+	QUERY_JMS_ENDPOINT,
+	/** Value. */
+	QUERY_JMS_ENDPOINTS,
+	/** Value. */
+	QUERY_KEYSTORE,
+	/** Value. */
+	QUERY_KEYSTORES,
+	/** Value. */
+	QUERY_LOCAL_FILE_DATA_SOURCE,
+	/** Value. */
+	QUERY_LOCAL_FILE_DATA_SOURCES,
+	/** Value. */
+	QUERY_NOTIFICATION_GROUP,
+	/** Value. */
+	QUERY_NOTIFICATION_GROUPS,
+	/** Value. */
+	QUERY_REALM,
+	/** Value. */
+	QUERY_REALMS,
+	/** Value. */
+	QUERY_SOAP_CHANNEL,
+	/** Value. */
+	QUERY_SOAP_CHANNELS,
+	/** Value. */
+	QUERY_USER,
+	/** Value. */
+	QUERY_USERS,
+	/** Value. */
+	QUERY_WEB_DATA_SOURCE,
+	/** Value. */
+	QUERY_WEB_DATA_SOURCES;
 }

@@ -50,17 +50,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.core.BoundedPool;
+import eu.advance.logistics.flow.engine.api.BoundedPool;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceKeyStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
-import eu.advance.logistics.flow.engine.api.impl.AdvancePoolCreator;
-import eu.advance.logistics.flow.engine.api.impl.JDBCDataStore;
-import eu.advance.logistics.flow.engine.api.impl.LocalDataStore;
-import eu.advance.logistics.flow.engine.block.AdvanceData;
-import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;

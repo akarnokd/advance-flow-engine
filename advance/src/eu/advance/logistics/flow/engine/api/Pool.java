@@ -19,39 +19,29 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.impl;
+package eu.advance.logistics.flow.engine.api;
+
+import java.io.Closeable;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 
 /**
- * Specifies how an insert-or-update like operation should work in
- * the JDBCDataStore.
- * @author akarnokd, 2013.08.01.
+ * Represents a generic pooling object which supplies and takes back objects.
+ * @author akarnokd, 2011.10.05.
+ * @param <T> the pooled object type
  */
-public enum JDBCDataStoreUpdateMode {
-	/** 
-	 * Execute a select to see if the object exists, then do
-	 * an INSERT or UPDATE.
-	 */
-	SELECT_DECIDES,
+public interface Pool<T> extends Closeable {
 	/**
-	 * Execute an INSERT and if there was a key violation, execute
-	 * the UPDATE.
+	 * Retrieve an object from the pool.
+	 * @return the object retrieved
+	 * @throws Exception if the object could not be supplied
 	 */
-	INSERT_BEFORE_UPDATE,
+	@NonNull
+	T get() throws Exception;
 	/**
-	 * Execute an update and if the record modification count is zero,
-	 * execute an INSERT.
+	 * Return an object to the pool.
+	 * @param obj the object to return
 	 */
-	UPDATE_BEFORE_INSERT,
-	/**
-	 * Use the MySQL's REPLACE syntax.
-	 */
-	MYSQL_REPLACE,
-	/**
-	 * Use Oracle's MERGE syntax.
-	 */
-	ORACLE_MERGE,
-	/**
-	 * Use the MSSQL's MERGE syntax.
-	 */
-	MSSQL_MERGE
+	void put(@NonNull T obj);
 }

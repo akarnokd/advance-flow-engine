@@ -24,7 +24,7 @@ package eu.advance.logistics.flow.engine.block.collab;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * Collects all bids and decides who will get the consignments, then advances the situation time and environment for the next bid.

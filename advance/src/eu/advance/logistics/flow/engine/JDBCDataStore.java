@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.impl;
+package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Action1E;
 import hu.akarnokd.reactive4java.base.Func1E;
@@ -47,8 +47,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu.advance.logistics.flow.engine.api.Pool;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.core.Pool;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStoreUpdate;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceEmailBox;

@@ -21,7 +21,7 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
-import eu.advance.logistics.flow.engine.api.core.PoolManager;
+import eu.advance.logistics.flow.engine.api.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLocalFileDataSource;
 
 /**

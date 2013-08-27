@@ -22,7 +22,7 @@
 package eu.advance.logistics.flow.engine.block.demo;
 
 import hu.akarnokd.utils.xml.XNElement;
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceData;
 
 /**
  * Utility class to create and manage the types of the demo.

@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.core;
+package eu.advance.logistics.flow.engine.api;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +31,8 @@ import javax.annotation.concurrent.GuardedBy;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import eu.advance.logistics.flow.engine.api.core.MultiIOException;
 
 
 /**
