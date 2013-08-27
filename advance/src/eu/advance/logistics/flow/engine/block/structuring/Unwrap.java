@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * Extracts elements from a collection and dispatches them one-by-one.

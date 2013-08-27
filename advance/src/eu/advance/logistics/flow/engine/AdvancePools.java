@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.ds;
+package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Func2;
 import hu.akarnokd.reactive4java.base.Option;
@@ -34,8 +34,8 @@ import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import eu.advance.logistics.flow.engine.api.Pool;
 import eu.advance.logistics.flow.engine.api.core.MultiIOException;
-import eu.advance.logistics.flow.engine.api.core.Pool;
 
 /**
  * A common pool for various communication pools.

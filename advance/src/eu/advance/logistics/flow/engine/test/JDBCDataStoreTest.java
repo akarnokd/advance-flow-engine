@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.impl.test;
+package eu.advance.logistics.flow.engine.test;
 
 import hu.akarnokd.utils.xml.XNElement;
 
@@ -27,11 +27,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import eu.advance.logistics.flow.engine.JDBCDataStore;
+import eu.advance.logistics.flow.engine.api.BoundedPool;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
-import eu.advance.logistics.flow.engine.api.core.BoundedPool;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceNotificationGroupType;
-import eu.advance.logistics.flow.engine.api.impl.JDBCDataStore;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 import eu.advance.logistics.flow.engine.comm.JDBCPoolManager;
 

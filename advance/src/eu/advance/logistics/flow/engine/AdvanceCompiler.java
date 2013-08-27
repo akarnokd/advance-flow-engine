@@ -50,7 +50,7 @@ import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePlugin;
 import eu.advance.logistics.flow.engine.AdvancePluginManager.AdvancePluginDetails;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowCompiler;
 import eu.advance.logistics.flow.engine.api.AdvanceFlowExecutor;
-import eu.advance.logistics.flow.engine.api.core.AdvanceRealmRuntime;
+import eu.advance.logistics.flow.engine.api.AdvanceRealmRuntime;
 import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.error.ConstantBlockTypeSyntaxError;
 import eu.advance.logistics.flow.engine.error.ConstantOutputError;

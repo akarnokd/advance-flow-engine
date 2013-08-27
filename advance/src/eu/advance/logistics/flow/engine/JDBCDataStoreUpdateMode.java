@@ -19,34 +19,39 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.core;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
+package eu.advance.logistics.flow.engine;
 
 /**
- * The pool manager interface for creating, verifying and closing objects.
- * @author akarnokd, 2011-10-05
- * @param <T> the object type
+ * Specifies how an insert-or-update like operation should work in
+ * the JDBCDataStore.
+ * @author akarnokd, 2013.08.01.
  */
-public interface PoolManager<T> {
-	/**
-	 * Creates a new object of type T.
-	 * @return the object
-	 * @throws Exception if the object could not be created
+public enum JDBCDataStoreUpdateMode {
+	/** 
+	 * Execute a select to see if the object exists, then do
+	 * an INSERT or UPDATE.
 	 */
-	@NonNull
-	T create() throws Exception;
+	SELECT_DECIDES,
 	/**
-	 * Verify the validity of the given object.
-	 * @param obj the object to verify
-	 * @return true if the object is valid
-	 * @throws Exception if the verification failure indicates a permanent error
+	 * Execute an INSERT and if there was a key violation, execute
+	 * the UPDATE.
 	 */
-	boolean verify(T obj) throws Exception;
+	INSERT_BEFORE_UPDATE,
 	/**
-	 * Close the specified object.
-	 * @param obj the object to close
-	 * @throws Exception to aggregate exceptions
+	 * Execute an update and if the record modification count is zero,
+	 * execute an INSERT.
 	 */
-	void close(T obj) throws Exception;
+	UPDATE_BEFORE_INSERT,
+	/**
+	 * Use the MySQL's REPLACE syntax.
+	 */
+	MYSQL_REPLACE,
+	/**
+	 * Use Oracle's MERGE syntax.
+	 */
+	ORACLE_MERGE,
+	/**
+	 * Use the MSSQL's MERGE syntax.
+	 */
+	MSSQL_MERGE
 }

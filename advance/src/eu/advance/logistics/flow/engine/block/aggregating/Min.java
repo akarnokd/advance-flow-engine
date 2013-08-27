@@ -27,8 +27,8 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceData;
 
 /**
  * Returns the smallest value in the collection along with its last occurrence.

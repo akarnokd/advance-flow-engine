@@ -19,29 +19,32 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.core;
-
-import java.io.Closeable;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-
+package eu.advance.logistics.flow.engine.test;
 
 /**
- * Represents a generic pooling object which supplies and takes back objects.
- * @author akarnokd, 2011.10.05.
- * @param <T> the pooled object type
+ * @author csirobi, 2012.12.12.
  */
-public interface Pool<T> extends Closeable {
-	/**
-	 * Retrieve an object from the pool.
-	 * @return the object retrieved
-	 * @throws Exception if the object could not be supplied
-	 */
-	@NonNull
-	T get() throws Exception;
-	/**
-	 * Return an object to the pool.
-	 * @param obj the object to return
-	 */
-	void put(@NonNull T obj);
+public enum DeleteAdvanceDataStore {
+	/** Value. */
+	DELETE_BLOCK_STATE,
+	/** Value. */
+	DELETE_EMAIL_BOX,
+	/** Value. */
+	DELETE_FTP_DATA_SOURCE,
+	/** Value. */
+	DELETE_JDBC_DATA_SOURCE,
+	/** Value. */
+	DELETE_JMS_ENDPOINT,
+	/** Value. */
+	DELETE_KEYSTORE,
+	/** Value. */
+	DELETE_LOCAL_FILE_DATA_SOURCE,
+	/** Value. */
+	DELETE_REALM,
+	/** Value. */
+	DELETE_SOAP_CHANNEL,
+	/** Value. */
+	DELETE_USER,
+	/** Value. */
+	DELETE_WEB_DATA_SOURCE;
 }

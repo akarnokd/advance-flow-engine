@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.core.PoolManager;
+import eu.advance.logistics.flow.engine.api.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 
 /**

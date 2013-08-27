@@ -30,7 +30,7 @@ import javax.xml.stream.XMLStreamException;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * Unmarshalls the given string representation of an object back into its object form.

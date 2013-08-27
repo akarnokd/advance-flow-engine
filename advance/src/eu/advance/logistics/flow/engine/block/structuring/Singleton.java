@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.block.structuring;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * Creates a collection with a single element.

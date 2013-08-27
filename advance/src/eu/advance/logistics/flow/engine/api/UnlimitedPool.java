@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.api.core;
+package eu.advance.logistics.flow.engine.api;
 
 import java.io.IOException;
 

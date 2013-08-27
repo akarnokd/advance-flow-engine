@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import eu.advance.logistics.flow.engine.block.AdvanceData;
 import eu.advance.logistics.flow.engine.inference.TypeFunctions;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.inference.TypeRelation;

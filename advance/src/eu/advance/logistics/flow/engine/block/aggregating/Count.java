@@ -29,7 +29,7 @@ import com.google.common.collect.Iterables;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * Counts the elements in the given collection. Signature: Count(collection<T>)

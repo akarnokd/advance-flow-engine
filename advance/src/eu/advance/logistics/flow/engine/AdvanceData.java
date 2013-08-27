@@ -19,7 +19,7 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.block;
+package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Option;

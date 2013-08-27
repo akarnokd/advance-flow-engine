@@ -19,10 +19,9 @@
  *
  */
 
-package eu.advance.logistics.flow.engine.block;
+package eu.advance.logistics.flow.engine;
 
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
-import eu.advance.logistics.flow.engine.api.ds.AdvancePools;
 
 /**
  * The runtime context for the blocks.

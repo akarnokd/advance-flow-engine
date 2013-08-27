@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import eu.advance.logistics.flow.engine.api.core.Pool;
+import eu.advance.logistics.flow.engine.api.Pool;
 
 /**
  * A poll based local or remote file change notifier.

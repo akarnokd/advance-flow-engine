@@ -34,8 +34,8 @@ import javax.swing.SwingUtilities;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.block.AdvanceRuntimeContext;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceRuntimeContext;
 import eu.advance.logistics.flow.engine.block.BlockVisualizer;
 import eu.advance.logistics.flow.engine.runtime.BlockSettings;
 

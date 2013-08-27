@@ -31,8 +31,8 @@ import com.google.common.collect.Lists;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceData;
 
 /**
  * Converts a collection map of key-value pairs into a collection of single-element XML with attributes or child elements as the given map keys and values.

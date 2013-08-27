@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * Send an object via JMS message through the given channel and indicate when it completes.

@@ -23,7 +23,7 @@ package eu.advance.logistics.flow.engine.block.test;
 
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
 
 /**
  * This module provides an invalid parametric type.

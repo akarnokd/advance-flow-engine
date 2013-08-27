@@ -29,8 +29,8 @@ import java.util.Map;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
-import eu.advance.logistics.flow.engine.block.AdvanceBlock;
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceBlock;
+import eu.advance.logistics.flow.engine.AdvanceData;
 
 /**
  * Converts a map of key-value pairs into a single-element XML with attributes or child elements as the given map keys and values.

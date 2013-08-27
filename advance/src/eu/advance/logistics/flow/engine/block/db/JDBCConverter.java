@@ -32,7 +32,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceData;
 import eu.advance.logistics.flow.engine.runtime.DataResolver;
 
 /**
