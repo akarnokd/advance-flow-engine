@@ -122,7 +122,7 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	@Override
 	public void createRealm(String realm, String byUser)
 			throws IOException, AdvanceControlException {
-		comm.send(XNSerializables.createRequest("create-realm", "realm", realm));
+		comm.send(XNSerializables.createRequest("create-realm", "realm", realm, "by-user", byUser));
 	}
 
 	@Override
@@ -153,13 +153,13 @@ public class HttpRemoteDataStore implements AdvanceDataStore {
 	@Override
 	public void enableUser(String userName,
 			boolean enabled, String byUser) throws IOException, AdvanceControlException {
-		comm.send(XNSerializables.createRequest("enable-user", "user-name", userName, "enabled", enabled));
+		comm.send(XNSerializables.createRequest("enable-user", "user-name", userName, "enabled", enabled, "by-user", byUser));
 	}
 
 	@Override
 	public void deleteUser(String userName, String byUser)
 			throws IOException, AdvanceControlException {
-		comm.send(XNSerializables.createRequest("delete-user", "user-name", userName));
+		comm.send(XNSerializables.createRequest("delete-user", "user-name", userName, "by-user", byUser));
 	}
 
 	@Override

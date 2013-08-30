@@ -109,7 +109,7 @@ implements XNSerializable, HasPassword, Copyable<AdvanceFTPDataSource>, Identifi
 		destination.set("protocol", protocol);
 		destination.set("address", address);
 		destination.set("remote-directory", remoteDirectory);
-		destination.set("user", userOrKey);
+		destination.set("user-or-key", userOrKey);
 		setPassword(destination, "password", password);
 		destination.set("passive", passive);
 		destination.set("keystore", keyStore);

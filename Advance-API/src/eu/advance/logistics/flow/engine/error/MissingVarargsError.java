@@ -58,14 +58,14 @@ public class MissingVarargsError implements AdvanceCompilationError {
 	@Override
 	public void load(XNElement source) {
 		id = source.get("id");
-		type = source.get("type");
+		type = source.get("block-type");
 		input = source.get("input");
 	}
 	@Override
 	public void save(XNElement destination) {
 		destination.set("type", getClass().getSimpleName());
 		destination.set("message", toString());
-		destination.set("id", id, "type", type, "input", input);
+		destination.set("id", id, "block-type", type, "input", input);
 	}
 	/** Creates a new instance of this class. */
 	public static final Func0<MissingVarargsError> CREATOR = new Func0<MissingVarargsError>() {
