@@ -54,13 +54,13 @@ public class MissingBlockError implements AdvanceCompilationError {
 	@Override
 	public void load(XNElement source) {
 		id = source.get("id");
-		type = source.get("type");
+		type = source.get("block-type");
 	}
 	@Override
 	public void save(XNElement destination) {
 		destination.set("type", getClass().getSimpleName());
 		destination.set("message", toString());
-		destination.set("id", id, "type", type);
+		destination.set("id", id, "block-type", type);
 	}
 	/** Creates a new instance of this class. */
 	public static final Func0<MissingBlockError> CREATOR = new Func0<MissingBlockError>() {
