@@ -385,21 +385,26 @@ public class HttpCommunicator implements AdvanceXMLCommunicator {
 	 */
 	public static void getHttpError(final HttpURLConnection c)
 			throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(c.getErrorStream(), "UTF-8"));
+		InputStream es = c.getErrorStream();
 		StringBuilder b = new StringBuilder();
-		try {
-			char[] buf = new char[8192];
-			while (!Thread.currentThread().isInterrupted()) {
-				int read = in.read(buf);
-				if (read > 0) {
-					b.append(buf, 0, read);
-				} else
-				if (read < 0) {
-					break;
+		if (es != null) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(es, "UTF-8"));
+			try {
+				char[] buf = new char[8192];
+				while (!Thread.currentThread().isInterrupted()) {
+					int read = in.read(buf);
+					if (read > 0) {
+						b.append(buf, 0, read);
+					} else
+					if (read < 0) {
+						break;
+					}
 				}
+			} finally {
+				in.close();
 			}
-		} finally {
-			in.close();
+		} else {
+			b.append("Error: " + c.getResponseCode() + ": " + c.getResponseMessage());
 		}
 		throw new IOException(b.toString());
 	}
