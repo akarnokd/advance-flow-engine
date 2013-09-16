@@ -356,7 +356,7 @@ public class AdvanceFlowEngine implements Runnable {
 						Certificate[] certs = x.getSSLSession().getPeerCertificates();
 						
 						for (Certificate c : certs) {
-							System.out.println(((X509Certificate)c).getSubjectDN());
+							LOG.debug(((X509Certificate)c).getSubjectDN().toString());
 							try {
 								String alias = clientKeyStore.getCertificateAlias(c);
 								LOG.debug("Found client alias: " + alias);

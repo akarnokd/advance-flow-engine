@@ -2052,6 +2052,37 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 		dialog.buttons.setSave(createSaver(ud, dialog, false, saver));
 		dialog.buttons.setSaveAndClose(createSaver(ud, dialog, true, saver));
 
+		if (selected == null) {
+			// prepare secondary lists
+			GUIUtils.getWorker(new WorkItem() {
+				/** The error. */
+				Throwable t;
+				/** The realms. */
+				List<AdvanceRealm> realms;
+				/** The keystores. */
+				List<AdvanceKeyStore> keystores;
+				@Override
+				public void run() {
+					try {
+						realms = engine.datastore().queryRealms();
+						keystores = engine.datastore().queryKeyStores();
+					} catch (Throwable t) {
+						this.t = t;
+					}
+				}
+				@Override
+				public void done() {
+					if (t != null) {
+						GUIUtils.errorMessage(dialog, t);
+					} else {
+						ud.setRealms(realms);
+						ud.setKeyStores(keystores);
+						dialog.pack();
+					}
+				}
+			}).execute();
+		}
+		
 		return dialog;
 	}
 	@Override
@@ -3150,12 +3181,13 @@ public class CCMain extends JFrame implements LabelManager, CCDialogCreator {
 				if (ks != null) {
 					ks = ks.copy();
 				}
+				ks.locationPrefix = workingDirectory.getAbsolutePath() + "/";
 				return ks;
 			}
 		}
 		@Override
 		public void updateKeyStore(AdvanceKeyStore keyStore) throws Exception {
-			LocalDataStore.updateKeyStore(keyStore, keyStores);
+			LocalDataStore.updateKeyStore(keyStore, keyStores, workingDirectory.getAbsolutePath());
 		}
 		@Override
 		public void deleteKeyStore(String name) throws Exception {

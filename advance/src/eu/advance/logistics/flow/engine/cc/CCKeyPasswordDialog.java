@@ -135,6 +135,7 @@ public class CCKeyPasswordDialog extends JDialog {
 	 * @return the password chars or null if the dialog was cancelled
 	 */
 	public char[] display() {
+		setLocationRelativeTo(null);
 		approved = false;
 		setVisible(true);
 		if (approved) {

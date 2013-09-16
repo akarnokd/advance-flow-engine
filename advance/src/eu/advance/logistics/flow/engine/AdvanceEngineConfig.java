@@ -196,7 +196,7 @@ public class AdvanceEngineConfig {
 		jdbcDataSource.password(AdvanceCreateModifyInfo.getPassword(ds, "password"));
 		
 		if ("LOCAL".equals(jdbcDataSource.driver)) {
-			localDataStore = new LocalDataStore();
+			localDataStore = new LocalDataStore(workDir);
 			if (jdbcDataSource.password() != null) {
 				localDataStore.loadEncrypted(workDir + "/" + jdbcDataSource.url, jdbcDataSource.password());
 			} else {
