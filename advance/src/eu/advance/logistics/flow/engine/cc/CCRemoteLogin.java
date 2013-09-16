@@ -657,8 +657,10 @@ public class CCRemoteLogin extends JDialog {
 					if (s.type == AdvanceLoginType.CERTIFICATE) {
 						for (AdvanceKeyStore aks : keystores) {
 							if (aks.name.equals(s.keystore)) {
+								AdvanceKeyStore aks2 = aks.copy();
+								aks2.locationPrefix = workingDirectory.getAbsolutePath() + "/";
 								auth.password(s.password);
-								auth.authStore = aks.open();
+								auth.authStore = aks2.open();
 								break;
 							}
 						}
@@ -668,7 +670,9 @@ public class CCRemoteLogin extends JDialog {
 					}
 					for (AdvanceKeyStore aks : keystores) {
 						if (aks.name.equals(s.verify)) {
-							auth.certStore = aks.open();
+							AdvanceKeyStore aks2 = aks.copy();
+							aks2.locationPrefix = workingDirectory.getAbsolutePath() + "/";
+							auth.certStore = aks2.open();
 							break;
 						}
 					}

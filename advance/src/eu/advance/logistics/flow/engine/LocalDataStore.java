@@ -125,6 +125,15 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 	public final Map<String, Map<String, XNElement>> blockStates = Maps.newHashMap();
 	/** The email boxes. */
 	public final Map<String, AdvanceEmailBox> emailBoxes = Maps.newHashMap();
+	/** The working directory for the keystores. */
+	public final String workDir;
+	/**
+	 * Constructor, sets the keystore's working directory.
+	 * @param workDir the working directory
+	 */
+	public LocalDataStore(String workDir) {
+		this.workDir = workDir;
+	}
 	/** Clear all records from the maps. */
 	protected void clear() {
 		users.clear();
@@ -845,16 +854,17 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 	public void updateKeyStore(AdvanceKeyStore keyStore) throws IOException,
 			AdvanceControlException {
 		Map<String, AdvanceKeyStore> keystores = this.keystores;
-		updateKeyStore(keyStore, keystores);
+		updateKeyStore(keyStore, keystores, workDir);
 	}
 	/**
 	 * Update the properties of the given keystore.
 	 * @param keyStore the new keystore settings
 	 * @param keystores the map of keystores
+	 * @param workDir working directory for the keystores
 	 * @throws AdvanceControlException on error
 	 */
 	public static void updateKeyStore(AdvanceKeyStore keyStore,
-			Map<String, AdvanceKeyStore> keystores)
+			Map<String, AdvanceKeyStore> keystores, String workDir)
 			throws AdvanceControlException {
 		synchronized (keystores) {
 			AdvanceKeyStore e = keystores.get(keyStore.name);
@@ -870,16 +880,16 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 					e.modifiedAt = new Date();
 					e.modifiedBy = keyStore.modifiedBy;
 
-					File f = new File(e.location);
+					File f = new File(workDir, e.location);
 					if (f.canRead()) {
 						try {
-							mgr.load(e.location, e.password());
+							mgr.load(workDir + "/" + e.location, e.password());
 						} catch (KeystoreFault ex) {
 							throw new AdvanceControlException("Keystore exists but could not load: " + e.location);
 						}
 					} else {
 						mgr.create();
-						mgr.save(e.location, e.password());
+						mgr.save(workDir + "/" + e.location, e.password());
 					}					
 					keystores.put(e.name, e);
 				} else {
@@ -887,9 +897,9 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 					if (e.location.equals(keyStore.location) && keyStore.password() == null) {
 						return;
 					}
-					File f = new File(e.location);
+					File f = new File(workDir, e.location);
 					if (f.exists()) {
-						mgr.load(e.location, e.password());
+						mgr.load(workDir + "/" + e.location, e.password());
 						if (!f.delete()) {
 							LOG.warn("Could not delete keystore " + e.location);
 						}
@@ -905,7 +915,7 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 					e.modifiedAt = new Date();
 					e.modifiedBy = keyStore.modifiedBy;
 
-					mgr.save(e.location, e.password());
+					mgr.save(workDir + "/" + e.location, e.password());
 					
 				}
 			} catch (KeystoreFault ex) {
@@ -920,7 +930,7 @@ public class LocalDataStore implements XNSerializable, AdvanceDataStore {
 		synchronized (keystores) {
 			AdvanceKeyStore e = keystores.get(keyStore);
 			if (e != null) {
-				File f = new File(e.location);
+				File f = new File(workDir + "/" + e.location);
 				if (!f.delete()) {
 					LOG.warn("Could not delete keystore " + e.location);
 				}
