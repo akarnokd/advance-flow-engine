@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<databases xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="db.xsd ">
+	<database id='default'>
+		<driver-class>com.mysql.jdbc.Driver</driver-class>
+		<connection-url>jdbc:mysql://server/advance_db_os</connection-url>
+		<user>user</user>
+		<password encoded="false">password</password>
+		<schema>advance_db_os</schema>
+		<max-connection>10</max-connection>
+	</database>
+</databases>

@@ -1,0 +1,245 @@
+/*
+  Container divs
+*/
+div.duringday-holder {
+    border: 0px solid #D0DD00;
+    text-align: center;
+    display: block;
+    position: relative;
+    padding: 0px;
+    margin: 10px auto;
+    height: auto;
+    width: 990px;
+}
+
+div.duringday-holder div.title {
+	border: 0px solid #34DDEE;
+  display: block;
+	font-size: 24px;
+	font-weight: bold;
+  position: relative;
+  padding-top: 7px;
+  margin: 0px;
+  text-align: left;
+	height: 50px;
+  width: 100%;
+}
+
+div.duringday-holder div.frame {
+    border: 0px solid #34DDEE;
+    display: block;
+    position: relative;
+    padding: 0px;
+    margin: 0px;
+    height: 365px;
+    width: 100%;
+}
+
+div.duringday-holder div.svg-area {
+    border: 0px solid #34DDEE;
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    padding: 0px;
+    margin: 0px;
+    height: 365px;
+    width: 100%;
+}
+
+div.duringday-holder div.cursor-area {
+    border: 0px solid #34DDEE;
+    display: block;
+    position: absolute;
+    left: 20px;
+    top: 0px;
+    padding: 0px;
+    margin: 0px;
+    height: 351px;
+    width: 300px;
+}
+
+div.duringday-holder div.pointer-cursor {
+		cursor: pointer;
+	
+}
+	
+div.duringday-holder div.cursor {
+    border: 0px solid #DD00EE;
+    cursor: pointer;
+    display: block;
+    position: relative;
+    margin: 0px;
+    padding: 0px;   
+    width: 11px;
+    height: 100%;
+}
+
+div.duringday-holder div.details {
+    border: 0px solid #34DDEE;
+    display: block;
+    position: relative;
+    padding: 0px;
+    margin: 0px;
+    height: 180px;
+    width: 100%;
+}
+
+
+/*
+  CSS for SVG area
+*/
+div.duringday-holder g polyline.line-default {
+	fill: none;
+	stroke-width: 2;
+	shape-rendering: geometricPrecision;
+}
+
+div.duringday-holder g polyline.predicted-total {
+	stroke: #000000;
+}
+
+div.duringday-holder g polyline.predicted-visible {
+	stroke: #000000;
+	stroke-dasharray: 4, 4;
+}
+
+div.duringday-holder g polyline.act-horizont {
+	fill: #C0C0C0;
+}
+
+div.duringday-holder g polyline.origin-actual-total {
+	stroke: #CE5E00;
+}
+
+div.duringday-holder g polyline.destin-actual-total,
+div.duringday-holder g polyline.single-actual-total {
+	stroke: #216500;
+}
+
+div.duringday-holder g polyline.area-default {
+	stroke: #660000;
+	stroke-width: 0;
+	shape-rendering: geometricPrecision;
+}
+
+
+/*
+  CSS for Details area
+*/
+div.duringday-holder div.div-cover {
+    border: 0px solid #34DDEE;
+    display: block;
+    padding: 0px;
+    margin: 0px;
+    height: 100%;
+}
+
+div.duringday-holder div.cover-left {
+	position: absolute;
+  left: 10px;
+  top: 0px;
+  width: 446px;
+}
+
+div.duringday-holder div.cover-right {
+	position: absolute;
+  right: 10px;
+  top: 0px;
+	width: 400px;  
+}
+
+
+div.duringday-holder div.details table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	margin: 10px auto auto auto;
+}
+
+div.duringday-holder div.details tr {
+	border: 0px solid #D4EFBB;
+}
+
+div.duringday-holder div.details td {
+	padding: 0px;
+	margin: 0px;
+	height: 30px;
+	vertical-align: middle;
+}
+
+div.duringday-holder div.details .font-legend{
+	color: #000000;
+	font-size: 22px;
+	font-weight: bold;
+}
+	
+
+div.duringday-holder div.details td.icon-cell{
+	border: 0px solid #34DDEE;
+	text-align: center;
+  min-width: 25px;
+  width: 7%;
+}
+
+div.duringday-holder div.details td.descript-cell-left{
+	border: 0px solid #34DDEE;
+	padding-left: 5px;
+	text-align: left;
+  min-width: 180px;
+  width: 55%;
+}
+
+div.duringday-holder div.details td.descript-cell-right{
+	border: 0px solid #34DDEE;
+	padding-left: 5px;
+	text-align: left;
+	min-width: 100px;
+  width: 40%;
+}
+
+div.duringday-holder div.details td.number-cell{
+	border: 0px solid #34DDEE;
+	padding-right: 4px;
+	text-align: right;
+  min-width: 115px;
+  width: 35%;
+}
+
+div.duringday-holder div.details td.cursor-cell{
+	cursor: pointer;
+}
+	
+div.duringday-holder div.details div.pred-total{
+	border-top: 2px solid #000000;
+	margin : 0px auto;
+	width: 16px;
+	height: 1px;
+}
+
+div.duringday-holder div.details div.pred-visible {
+	border-top: 2px dotted #000000;
+	margin : 0px auto;
+	width: 16px;
+	height: 1px;
+}
+
+div.duringday-holder div.details div.act-total {
+	margin : 0px auto;
+	width: 16px;
+	height: 2px;
+}
+
+div.duringday-holder div.details div.act-visible {
+	margin : 0px auto;
+}
+
+div.duringday-holder div.details .act-selected {
+	background-color: #388C00;
+	color: #FFFFFF;
+}
+
+div.duringday-holder div.details div.snip-default {
+	margin: 0px auto;
+	width: 16px;
+	height: 16px;
+}

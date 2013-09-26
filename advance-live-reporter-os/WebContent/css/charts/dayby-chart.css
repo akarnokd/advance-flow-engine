@@ -1,0 +1,150 @@
+/*
+  Container divs
+*/
+div.daybyday-holder {
+	border: 0px solid #D0DD00;
+	text-align: center;
+	display: block;
+	position: relative;
+	padding: 0px;
+	margin: 10px auto;
+	height: auto;
+	width: 990px;
+}
+
+div.daybyday-holder div.frame {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: relative;
+	padding: 0px;
+	margin: 0px;
+	height: 425px;
+	width: 100%;
+}
+
+div.daybyday-holder div.out-details {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: relative;
+	padding: 0px;
+	margin: 0px;
+	height: 180px;
+	width: 100%;
+}
+
+div.daybyday-holder div.legend {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	left: 0px;
+	bottom : 0px;
+	padding: 0px;
+	margin: 0px;
+	height: 120px;
+	width: 140px;
+}
+
+div.daybyday-holder div.details {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	left: 0px;
+	bottom : 0px;
+	padding: 0px;
+	margin: 0px;
+	height: 120px;
+	width: 140px;
+}
+
+div.daybyday-holder div.details-info {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	left: 0px;
+	top : 0px;
+	padding: 0px;
+	margin: 0px;
+	height: 60px;
+	width: 140px;
+}
+
+
+/*
+  CSS for Legends, details
+*/
+div.daybyday-holder .font-info {
+	color: #000000;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+div.daybyday-holder .font-legend {
+	color: #000000;
+	font-size: 24px;
+	font-weight: bold;
+}
+
+div.daybyday-holder div.legend table {
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+
+div.daybyday-holder div.legend tr {
+	border: 0px solid #D4EFBB;
+	text-align: left;
+}
+
+div.daybyday-holder div.legend td {
+	padding: 0px 8px 0px 0px;
+	margin: 0px;
+}
+
+div.daybyday-holder div.details table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	margin: 0px auto;
+}
+
+div.daybyday-holder div.details tr {
+	border: 0px solid #D4EFBB;
+	text-align: right;
+}
+
+div.daybyday-holder div.details td {
+	padding: 0px;
+	margin: 0px;
+}
+
+div.daybyday-holder div.details-info div.day{
+	border: 0px solid #34DDEE;
+	display: block;
+	position: relative;
+	padding: 0px;
+	margin: 0px;
+	text-align: center;
+	height: auto;
+	width: auto;
+}
+
+div.daybyday-holder div.details-info div.info{
+	border: 0px solid #34DDEE;
+	display: block;
+	float: left;
+	position: relative;
+	padding: 5px 0px 0px 0px;
+	margin: 0px;
+	text-align: center;
+	height: auto;
+	width: 50%;
+}
+
+div.daybyday-holder div.legend div.origin-snip {
+	float:right;
+	width: 50%;
+	height: 100%;
+}
+
+div.daybyday-holder div.legend div.snip {
+	width: 16px;
+	height: 16px;
+}

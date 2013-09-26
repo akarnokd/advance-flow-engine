@@ -1,0 +1,178 @@
+/*
+  Container divs
+*/
+div#dialog_um div#um_header {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	margin-left: 0px;
+	padding: 0px;	
+	width: 796px;
+  height: 35px;
+}
+
+div#dialog_um div#um_content {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	overflow-y: scroll;
+	margin: 0px  auto;
+	padding: 0px;	
+	width: 100%;
+  height: 350px;
+}
+
+/*
+  CSS for elements
+*/
+
+div#dialog_um table#um_table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	vertical-align: middle;
+	height: 32px;
+}
+
+div#dialog_um table#um_users,
+div#dialog_um_details table#um_details {
+	table-layout:fixed;
+	border-spacing: 0;
+	border-collapse: collapse;
+	vertical-align: middle;
+	width: 100%;
+}
+
+div#dialog_um table#um_table tr td{
+	border: 1px solid #FFFFFF;
+	background-color: #388C00;
+	color: #FFFFFF;
+	font-weight: bold;
+	text-align: center;
+	vertical-align: middle;
+}
+
+div#dialog_um table#um_users tr {
+	border-bottom: 0px solid #D4EFBB;
+	text-align: left;
+}
+
+div#dialog_um table#um_users tr td{
+	border-left: 1px solid #FFFFFF;
+	border-bottom: 1px solid #D4EFBB;	
+	overflow: hidden;
+	text-align: center;
+	vertical-align: middle;
+	white-space: normal;
+}
+
+div#dialog_um table#um_table td.id-td,
+div#dialog_um table#um_users td.id-td{
+	width: 30px;
+}
+
+div#dialog_um table#um_table td.name-td,
+div#dialog_um table#um_users td.name-td{
+	width: 80px;
+}
+
+div#dialog_um table#um_table td.hub-td,
+div#dialog_um table#um_users td.hub-td{
+	width: 90px;
+}
+
+div#dialog_um table#um_table td.depot-td,
+div#dialog_um table#um_users td.depot-td{
+	width: 160px;
+}
+
+div#dialog_um table#um_table td.admin-td,
+div#dialog_um table#um_users td.admin-td{
+	width: 50px;
+}
+
+div#dialog_um table#um_table td.email-td,
+div#dialog_um table#um_users td.email-td{
+	width: 205px;
+}
+
+div#dialog_um table#um_table td.buttons-td,
+div#dialog_um table#um_users td.buttons-td{
+	width: 160px;
+}
+
+div#dialog_um table#um_users tr td.cell-chkbox {
+	text-align: center;
+}
+
+div#dialog_um .cell-button {
+	border: 1px solid #388C00;
+	color: #388C00;
+	cursor: pointer; 
+	display: block;
+	font-weight: bold;
+	position: relative;
+	padding-top: 4px;
+	margin: 0px  auto;
+	text-align: center;
+	vertical-align: middle;	
+	width: 70px;
+  height: 20px;
+}
+
+div#dialog_um .cell-logged {
+	border: 1px solid #DDDDEE; !important;
+	color: #DDDDEE; !important;
+	cursor: default; !important; 
+}
+
+div#dialog_um_details table#um_details tr {
+	border: 0px solid #D4EFBB;
+	text-align: left;
+	width: 100%;
+}
+
+
+div#dialog_um_details table#um_details tr td {
+	border: 0px solid #D4EFBB;
+	vertical-align: middle;
+	height: 30px;
+}
+
+div#dialog_um_details table#um_details tr td.left {
+	width: 30%;
+}
+
+div#dialog_um_details table#um_details tr td.right {
+	width: 70%;
+}
+
+div#dialog_um_details select.selector {
+	border: 1px solid #388C00;
+	margin: 4px 0px;
+	width: 280px;
+  height: 22px;
+}
+
+div#dialog_um_details table#um_details input {
+	border: 1px solid #388C00;
+	margin: 0px  auto 0px auto;
+	vertical-align: middle;
+	padding-left: 5px;	
+	width: 200px;
+  height: 18px;
+}
+
+div#dialog_um_details img.cursor-pointer {
+	cursor: pointer;
+}
+
+div#dialog_um_details div.info-style {
+	padding-top: 4px;
+	padding-left: 5px;
+}
+
+div#dialog_um_details div.error-style {
+	color: #FF0000;
+	padding-top: 4px;
+	padding-left: 5px;
+}

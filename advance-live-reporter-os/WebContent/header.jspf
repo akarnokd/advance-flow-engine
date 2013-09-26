@@ -1,0 +1,852 @@
+<%@page import="java.text.ParseException"%>
+<%@page import="eu.advance.logistics.live.reporter.model.User"%>
+<%@page import="java.util.List"%>
+<%@page import="eu.advance.logistics.live.reporter.charts.*"%>
+<%@page import='hu.akarnokd.reactive4java.base.*'%>
+<%@page import='eu.advance.logistics.live.reporter.model.*'%>
+<%@page import='eu.advance.logistics.live.reporter.db.*'%>
+<%@page import='hu.akarnokd.utils.lang.*'%>
+<%
+User user = null;
+HubDepotSwitch hubDepotSwitch = null;
+
+synchronized(session)
+{
+  user = (User)session.getAttribute("USER");
+}
+if(user == null)
+{
+  response.sendRedirect("index.jsp");
+  return;
+}
+else
+{
+  hubDepotSwitch = (HubDepotSwitch)request.getAttribute("HUBDEPOT_SWITCH");
+  if(hubDepotSwitch == null)
+  {
+    try
+    {
+      hubDepotSwitch = new HubDepotSwitch(user.hub, user.name);
+      
+      String storeType = ObjectUtils.nvl(request.getParameter("store_type"), (user.depot == null) ? "HUB" : "DEPOT");
+      String storeId = ObjectUtils.nvl(request.getParameter("store_id"), (user.depot == null) ? "" + user.hub : "" + user.depot);
+      String unit = ObjectUtils.nvl(request.getParameter("unit"), "PRICEUNIT");
+      String dt = ObjectUtils.nvl(request.getParameter("datetime"), hubDepotSwitch.df.format(hubDepotSwitch.getDateTime()));
+      String buffDt = ObjectUtils.nvl(request.getParameter("buff_datetime"), "");
+      String ddOrient = ObjectUtils.nvl(request.getParameter("dd_orient"), "INBD");
+      String ddHorizont = ObjectUtils.nvl(request.getParameter("dd_horizont"), "");
+      String ddSnips = ObjectUtils.nvl(request.getParameter("dd_snips"), "special_priority_standard");
+      String ddCursor = ObjectUtils.nvl(request.getParameter("dd_cursor"), "-1");
+      
+      hubDepotSwitch.setChartView(user);
+      hubDepotSwitch.setHubDepotInfo(storeType, storeId);
+      hubDepotSwitch.setUnit(unit);
+      hubDepotSwitch.setDateTime(dt);
+      hubDepotSwitch.setBuffDateTime(buffDt);
+      hubDepotSwitch.setDuringOrient(ddOrient);
+      hubDepotSwitch.setDuringHorizont(ddHorizont);
+      hubDepotSwitch.setDuringSnips(ddSnips);
+      hubDepotSwitch.setDuringCursor(ddCursor);
+    }
+    catch(ParseException e)
+    {
+    	e.printStackTrace();
+      response.sendRedirect("index.jsp");
+      return;
+    }
+    catch(IllegalArgumentException e)
+    {
+    	e.printStackTrace();
+      response.sendRedirect("index.jsp");
+      return;
+    }
+    catch(NullPointerException e)
+    {
+    	e.printStackTrace();
+      response.sendRedirect("index.jsp");
+      return;
+    }
+  }
+}
+HubDepotInfo hubInfo = MasterDB.getHubSummaryValueMaxes(hubDepotSwitch.hubId(), user.name);
+List<HubDepotInfo> depotsList = MasterDB.getDepotsList(hubDepotSwitch.hubId(), user.name);
+
+
+%>
+
+<div class="modal"></div>
+<div class="error-msgbox">
+	<p id="error_msg">There seems to be a problem with the server.<br/>Please try again later.</p>
+	<div id="error_refresh" class="refresh-button">Refresh</div>
+</div>
+
+<div class="header-div">
+	<div id="handler_settings"></div>
+	
+	<img src="./images/hubdepot/alr_header_alpha.png" />
+	<div id="h_logout" class="header-exit-div">
+		<img src="./images/hubdepot/exit.png" />
+	</div>
+	<div id="h_settings" class="header-settings-div">
+		<img src="./images/hubdepot/settings_inactive.png" />
+	</div>
+	
+	<div id="h_set_details" class="settings-details settings-details-hide">
+	   <div id="baus" class="settings-menu">Business as usual scale</div>
+	   <div id="go_warehouse" class="settings-menu">Go to Warehouses</div>
+	   <div id="warehouse_editor" class="settings-menu">Warehouse Layout Editor</div>
+	   <div id="user_mgmt" class="settings-menu">User Management</div>	   
+	</div>
+	
+	<div id="dialog_baus" title="Settings dialog" class="ui-helper-hidden">
+       <p>Business as usual scale:</p>
+       <input id="baus_value" type="text"></input>
+  </div>
+  
+	<div id="dialog_sle" title="Warehouse Layout Editor" class="ui-helper-hidden">
+ 		<div id="sle_header"></div>
+ 		<div id="sle_header_info">
+ 			<div class="left-line"></div>
+ 			<div class="info">Exit</div>
+ 			<div class="right-line"></div>
+ 		</div>
+ 		<div id="sle_warehouse_header">
+ 			<div class="label-warehouse-head head-depot head-left-d">Depot</div>
+ 			<div class="label-warehouse-head head-capacity head-left-c">Capacity</div>
+ 			<div class="label-warehouse-head head-flags head-left-e">E</div>
+ 			<div class="label-warehouse-head head-flags head-left-p">P</div>
+ 			<div class="label-warehouse-head head-flags head-right-e">E</div>
+ 			<div class="label-warehouse-head head-flags head-right-p">P</div>
+			<div class="label-warehouse-head head-capacity head-right-c">Capacity</div>
+			<div class="label-warehouse-head head-depot">Depot</div>
+ 		</div>
+ 		<div class="sle-middle">
+ 			<div class="sle-up-down up-down-left"></div>
+ 			<div id="sle_content">
+ 				<div id="sle_left" class="depot-table side-left"></div>
+ 				<div id="sle_right" class="depot-table side-right"></div>
+ 			</div>
+ 			<div class="sle-up-down up-down-right"></div>
+ 		</div>
+ 		<div id="sle_footer_info">
+ 			<div class="left-line"></div>
+ 			<div class="info">Entry</div>
+ 			<div class="right-line"></div>
+ 		</div>
+	</div>  
+	
+	<div id="dialog_sle_msg" title="Message" class="ui-helper-hidden">
+		<p id="sle_message"></p>
+	</div>
+	
+	<div id="dialog_sle_choice" title="Message" class="ui-helper-hidden">
+		<p id="sle_choice"></p>
+	</div>
+
+	
+	<div id="dialog_um" title="User Management" class="ui-helper-hidden">
+		<div id="um_header">
+			<table id="um_table">
+				<tr>
+					<td class="id-td">ID</td>
+					<td class="name-td">Name</td>
+					<td class="hub-td">Hub</td>
+					<td class="depot-td">Depot</td>
+					<td class="admin-td">Admin?</td>
+					<td class="email-td">E-mail</td>
+					<td class="buttons-td"></td>
+				</tr>
+			</table>
+		</div>
+		<div id="um_content">
+			<table id="um_users"></table>
+		</div>
+  </div>
+	
+	<div id="dialog_um_details" title="Add/Edit User" class="ui-helper-hidden">
+		<table id="um_details">
+				<tr>
+					<td class="left">Id</td>
+					<td id="um_details_id" class="right" >N/A</td>
+				</tr>
+				<tr>
+					<td>Name</td>
+					<td><input type="text" id="um_details_name" size="18" maxlength="45" /></td>
+				</tr>
+				<tr>
+					<td>Hub</td>
+					<td><select id="um_details_hub" name="um_details_hub" class="selector"> </select></td>
+				</tr>
+				<tr>
+					<td>Depot</td>
+					<td><select id="um_details_depot" name="um_details_depot" class="selector"></select></td>
+				</tr>
+				<tr>
+					<td>Admin</td>
+					<td><img id="um_details_admin" src="./images/hubdepot/dialog_unchecked.png" adv_chk="0" /></td>
+				</tr>
+				<tr>
+					<td>Email</td>
+					<td><input type="text" id="um_details_email" size="18" maxlength="45" /></td>
+				</tr>
+				<tr>
+					<td>Start screen</td>
+					<td><select id="um_details_screen" name="um_details_screen" class="selector">
+						<option value="hub">Hub summary</option>
+						<option value="warehouse">Warehouse summary</option>
+						<option value="cogmod">Cognitive model</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td>Password*</td>
+					<td><input type="password" id="um_details_pwd_1" size="18" /></td>
+				</tr>
+				<tr>
+					<td>Password again*</td>
+					<td><input type="password" id="um_details_pwd_2" size="18" /></td>
+				</tr>
+		</table>
+		<div id="um_pwd_info" class="info-style">*Leave empty to keep the current password</div>
+		<div id="um_details_info" class="error-style"></div>
+	</div>
+
+	<div id="dialog_um_choice" title="Message" class="ui-helper-hidden">
+		<p id="um_choice"></p>
+	</div>
+	
+	<div id="dialog_um_msg" title="Message" class="ui-helper-hidden">
+		<p id="um_message"></p>
+	</div>
+
+
+</div>
+
+<div class="box-container-div">
+	<div class="menu-container-div">
+		<div id="m_summary"
+			class="switch-box-div switch-box-inactive main-menu">Summary</div>
+		<div id="m_next_days"
+			class="switch-box-div switch-box-inactive main-menu">Next days</div>
+		<div id="m_during_day"
+			class="switch-box-div switch-box-inactive main-menu">During day</div>
+		
+		<form id="hd_form" method="post" action="" accept-charset="UTF-8">
+			<input type="hidden" name="store_type" value="">
+      <input type="hidden" name="store_id" value="">
+      <input type="hidden" name="unit" value="">
+      <input type="hidden" name="datetime" value="">
+      <input type="hidden" name="puff_datetime" value="">
+      <input type="hidden" name="dd_orient" value="">
+      <input type="hidden" name="dd_horizont" value="">
+      <input type="hidden" name="dd_snips" value="">
+      <input type="hidden" name="dd_cursor" value="">      
+		</form>	
+	</div>
+	
+	<div class="real-time-div">
+		<div class="time-img-div">
+			<img id="real_time_chk" src="./images/hubdepot/dialog_unchecked.png" adv_chk="0"/>
+		</div>
+		<div class="time-label-div">Real time</div>
+	</div>
+	
+	<div id="timer_container" class="timer-container-div">
+		<div id="date_time_minus" class="timer-div switch-box-inactive">-1h</div>
+		<div id="date_time_plus" class="timer-div switch-box-inactive">+1h</div>
+		<div class="date-time-div">
+			<input id="date_time" class="date-time" type="text" value=""/>
+		</div>
+		<div class="timer-disabled"></div>
+	</div>
+	
+	<div class="option-container-div">
+		<div id="f_store"></div>
+		<div id="f_unit"></div>
+		<div id="f_orient"></div>
+		<div id="f_date_time"></div>
+		
+		<div id="unit_priceunit" class="switch-box-div switch-box-inactive option-menu">Price</div>
+		<div id="unit_itemcount" class="switch-box-div switch-box-inactive option-menu">Count</div>
+		<div id="unit_floorspace" class="switch-box-div switch-box-inactive option-menu">Floor</div>
+		<br/>
+		<div id="orient_inbd" class="switch-box-div switch-box-inactive option-menu">Inbd</div>
+		<div id="orient_outbd" class="switch-box-div switch-box-inactive option-menu">Outbd</div>
+	</div>
+	
+	<select id="store_selector">
+		<option value="<%= TypeStatus.HUB.getInfo()%>_<%= hubInfo.id%>">Hub overall</option>
+			<%
+				for(HubDepotInfo infoItem : depotsList)
+				{
+				  out.print(String.format("<option value=\"%s_%s\">%s</option>%n",
+				      TypeStatus.DEPOT.getInfo(),
+				      infoItem.id,
+				      infoItem.getHubDepotInfo()));
+				}
+		 %>
+ </select>
+	
+</div>
+
+<script type="text/javascript">
+	//Utility
+	if (typeof Object.create !== 'function')
+	{
+		Object.create = function(o)
+		{
+			if (arguments.length > 1)
+			{
+				throw new Error(
+						"Object.create implementation only accepts the first parameter.");
+			}
+			function F()
+			{
+			}
+			F.prototype = o;
+			return new F();
+		};
+	}
+
+	// Default: Every button has inactive class, the toggleClass is the active class
+	(function($, window, document, undefined)
+	{
+		var option = {};
+		option = {
+			actClass : "switch-box-active",
+			hideClass : "switch-box-hide",
+			checked : ["./images/hubdepot/dialog_unchecked.png", "./images/hubdepot/dialog_checked.png"],
+			active : {},
+			atPage : "",
+			isAdmin : <%= (user.admin == true) ? 1 : 0 %>,
+			chartView : "<%= hubDepotSwitch.getChartView().name().toLowerCase() %>",
+
+			// Initialize the header
+			init : function(param)
+			{
+				var mySelf = this;
+				var active = mySelf.active;
+				
+				mySelf.atPage = param;
+				
+				active.store = "<%= hubDepotSwitch.getSelectorValue() %>";
+				active.unit = "<%= hubDepotSwitch.getUnitValue() %>";
+				active.date = "<%= hubDepotSwitch.getDateTimeString() %>";
+				active.puff_date = "<%= hubDepotSwitch.getPuffDateTime() %>";
+				active.dd_orient = "<%= hubDepotSwitch.getDuringOrient() %>";
+				active.dd_horizont = "<%= hubDepotSwitch.getDuringHorizont() %>";
+				active.dd_snips = "<%= hubDepotSwitch.getDuringSnips() %>";
+				active.dd_cursor = "<%= hubDepotSwitch.getDuringCursor() %>";
+				
+				// Setter functions
+				mySelf.setSelectedMenu();
+				mySelf.setSelectedOptions();
+				mySelf.setStoreSelector();
+				mySelf.setDateTimeSection();
+				mySelf.setChartView();
+				
+				// Listener functions
+				mySelf.menuSelectHandler();
+				mySelf.realTimeChkHandler();
+				mySelf.refreshButtonHander();
+				mySelf.unitButtonHandler();
+				mySelf.orientButtonHandler();
+				mySelf.settingsIconHandler();
+			},
+			
+			// Set the selected every options
+			setSelectedOptions : function()
+			{
+				var mySelf = this;
+				var active = mySelf.active;
+				
+				$("#store_selector").val(active.store);
+				$('div[id^="unit"]').toggleClass(mySelf.actClass, false);
+				$("#unit_" + active.unit).toggleClass(mySelf.actClass);
+				$('div[id^="orient"]').toggleClass(mySelf.actClass, false);
+				$("#orient_" + active.dd_orient).toggleClass(mySelf.actClass);
+				
+				if(mySelf.atPage == "during")
+				{
+					$('input[id^="during_horizont"]').val(active.dd_horizont);
+					$('input[id^="during_snips"]').val(active.dd_snips);
+					$('input[id^="during_cursor"]').val(active.dd_cursor);
+				}
+			},
+			
+			// Set the design of the store pull-down menu
+			setStoreSelector : function()
+			{
+				var mySelf = this;
+				
+				$("#store_selector").jqTransform(
+				{
+					"change": function(value)
+					{
+						var splAdv_x = value.split("_"),  store = {};
+						store.type = splAdv_x[0];
+						store.id = splAdv_x[1];
+						
+						if((mySelf.atPage == "during") && (store.type == "depot"))
+						{
+							$('div[id^="orient"]').toggleClass(mySelf.hideClass, false);
+						}
+						else
+						{
+							$('div[id^="orient"]').toggleClass(mySelf.hideClass, true);
+						}
+						
+						// Start trigger to the div
+						$("#f_store").triggerHandler({
+							type : "change.store",
+							active : store,
+						}); 
+					}
+				});
+				
+			},
+			
+			// Set the real time checkbox, the plusz/minus timer and the date time picker and the handler of them
+			setDateTimeSection : function()
+			{
+				var mySelf = this;
+				var active = mySelf.active;
+				var pickerDate; 
+				
+				if(active.puff_date == "")
+				{
+					pickerDate = active.date;
+					$("img#real_time_chk").attr("src", mySelf.checked[0]).attr("adv_chk", "0");
+					$("div#timer_container").toggleClass("real-modal-lock", false);
+				}
+				else
+				{
+					pickerDate = active.puff_date;
+					$("img#real_time_chk").attr("src", mySelf.checked[1]).attr("adv_chk", "1");
+					$("div#timer_container").toggleClass("real-modal-lock", true);
+				}
+				
+				$("#date_time").datetimepicker({
+					firstDay : "1",
+					dateFormat: "yy-mm-dd",
+					separator: " ",
+					timeFormat: "HH:mm",
+					onClose: function(dateText) {
+						$("#f_date_time").triggerHandler({
+							type : "change.datetime",
+							active : dateText,
+						});
+					}
+				});
+
+		    var datetime = new Date(moment(pickerDate, "YYYY-MM-DD HH:mm"));
+		    $("#date_time").datetimepicker("setDate", (datetime) );
+		    
+		    $("#date_time_minus").on("click", function(event) {
+					var dt = mySelf.getDateTimePicker();
+					var subDT = new Date(moment(dt, "YYYY-MM-DD HH:mm").subtract("hours", 1));
+					$("#date_time").datetimepicker("setDate", (subDT) );
+					
+					$("#f_date_time").triggerHandler({
+						type : "change.datetime",
+						active : mySelf.getDateTimePicker(),
+					});
+		    
+		    });
+		    
+		    $("#date_time_plus").on("click", function(event) {
+					var dt = mySelf.getDateTimePicker();
+					var addDT = new Date(moment(dt, "YYYY-MM-DD HH:mm").add("hours", 1));
+					$("#date_time").datetimepicker("setDate", (addDT) );
+					
+					$("#f_date_time").triggerHandler({
+						type : "change.datetime",
+						active : mySelf.getDateTimePicker(),
+					});
+					
+		    });
+				
+			},
+			
+			// Set the header based on the hub or depot user
+			setChartView : function()
+			{
+				var mySelf = this;
+				
+				if(mySelf.isAdmin == 0)
+				{
+					$("div#h_set_details div#user_mgmt").hide();
+				}
+				
+				if(mySelf.chartView == "depot_user")
+				{
+					$("div#h_set_details div#go_warehouse").hide();
+					$("div#h_set_details div#warehouse_editor").hide();
+					$("#store_selector").jqTransform({"setEnabled" : false});
+				}
+			},
+			
+			// Set the selected menu
+			setSelectedMenu : function()
+			{
+				var mySelf = this;
+				var menuName = "";
+				
+				if(mySelf.atPage == "summary")
+				{
+					menuName = "m_summary";
+				}
+				else if(mySelf.atPage == "dayby")
+				{
+					menuName = "m_next_days";
+				}
+				else if(mySelf.atPage == "during")
+				{
+					menuName = "m_during_day";
+				}
+				
+				$('div[id^="m_"]').toggleClass(mySelf.actClass, false);
+				$("#" + menuName).toggleClass(mySelf.actClass);
+
+			},
+
+			// Handler/Trigger for selecting the menu 
+			menuSelectHandler : function()
+			{
+				var mySelf = this;
+				
+				$("#m_summary").on("click", function(event){
+					mySelf.formSelector("summary.jsp");
+				});
+				
+				$("#m_next_days").on("click", function(event){
+					mySelf.formSelector("daybyday.jsp");
+				});
+				
+				$("#m_during_day").on("click", function(event){
+					mySelf.formSelector("duringday.jsp");
+				});
+				
+				$("#h_logout").on("click", function(event){
+					$(location).attr("href", "logout.jsp");
+				});
+			},
+			
+			// Real time checkbox handler
+			realTimeChkHandler : function()
+			{
+				var mySelf = this;
+				
+				$("img#real_time_chk").on("click", function(event){
+					var isChk = $(event.target).attr("adv_chk") * 1.0;
+					var updChk = (isChk + 1) % 2;
+					
+					$(event.target).attr("src", mySelf.checked[updChk]).attr("adv_chk", updChk);
+					$("div#timer_container").toggleClass("real-modal-lock", (updChk == 0) ? false: true);
+					
+					$("#f_date_time").triggerHandler({
+						type : "change.datetime",
+						active : mySelf.getActualDate(),
+					});
+				});
+			},
+			
+			// Refresh the complete actual page (called after clicing onto the error refresh button) 
+			refreshButtonHander : function()
+			{
+				var mySelf = this;
+				var pageUrl = "";
+				
+				$("div.error-msgbox div#error_refresh").on("click", function(event)
+				{
+					if(mySelf.atPage == "summary")
+					{
+						pageUrl = "summary.jsp";
+					}
+					else if(mySelf.atPage == "dayby")
+					{
+						pageUrl = "daybyday.jsp";
+					}
+					else if(mySelf.atPage == "during")
+					{
+						pageUrl = "duringday.jsp";
+					}
+					
+					mySelf.formSelector(pageUrl);
+				});
+			},
+			
+			// Helper when selecting a menu: this is the dynamic form handler
+			formSelector : function(actionURL)
+			{
+				var mySelf = this;
+				var store = mySelf.getActiveStore();
+				
+				$("#hd_form").attr("action", actionURL);
+				$('#hd_form input[name="store_type"]').val(store.type);
+				$('#hd_form input[name="store_id"]').val(store.id);
+				$('#hd_form input[name="unit"]').val(mySelf.getActiveUnit());
+				
+				if($("img#real_time_chk").attr("adv_chk") == "0")
+				{
+					$('#hd_form input[name="datetime"]').val(mySelf.getDateTimePicker());
+					$('#hd_form input[name="puff_datetime"]').val("");
+				}
+				else
+				{
+					$('#hd_form input[name="datetime"]').val(mySelf.getNow());
+					$('#hd_form input[name="puff_datetime"]').val(mySelf.getDateTimePicker());
+				}
+				
+				if(mySelf.atPage == "during")
+				{
+					var ddHorizont = $('input[id^="during_horizont"]').val();
+					var ddSnips  = $('input[id^="during_snips"]').val();
+					var ddCursor = $('input[id^="during_cursor"]').val();
+					
+					$('#hd_form input[name="dd_orient"]').val(mySelf.getActiveOrient());
+					$('#hd_form input[name="dd_horizont"]').val(ddHorizont);
+					$('#hd_form input[name="dd_snips"]').val(ddSnips);
+					$('#hd_form input[name="dd_cursor"]').val(ddCursor);
+				}
+				else
+				{
+					$('#hd_form input[name="dd_orient"]').val(mySelf.getActiveOrient());
+					$('#hd_form input[name="dd_horizont"]').val(mySelf.active.dd_horizont);
+					$('#hd_form input[name="dd_snips"]').val(mySelf.active.dd_snips);
+					$('#hd_form input[name="dd_cursor"]').val(mySelf.active.dd_cursor);
+				}
+				
+				$("#hd_form").submit();
+			},
+			
+			
+			// Handler for selecting a unit button
+			unitButtonHandler : function()
+			{
+				var mySelf = this;
+				$('div[id^="unit"]').on("click", function(event)
+				{
+					var isChanged = true;
+
+					if ($("#" + event.target.id).hasClass(mySelf.actClass) == false)
+					{
+						$('div[id^="unit"]').toggleClass(mySelf.actClass, false);
+						$("#" + event.target.id).toggleClass(mySelf.actClass);
+					} else
+					{
+						isChanged = false;
+					}
+
+					if (isChanged)
+					{
+						$("#f_unit").triggerHandler({
+							type : "click.unit",
+							active : mySelf.getActiveUnit(),
+						});
+					}
+
+				});
+			},
+			
+			// Handler for selecting an orient button
+			orientButtonHandler : function()
+			{
+				var mySelf = this;
+				$('div[id^="orient"]').on("click", function(event)
+				{
+					var isChanged = true;
+
+					if ($("#" + event.target.id).hasClass(mySelf.actClass) == false)
+					{
+						$('div[id^="orient"]').toggleClass(mySelf.actClass, false);
+						$("#" + event.target.id).toggleClass(mySelf.actClass);
+					} else
+					{
+						isChanged = false;
+					}
+
+					if (isChanged)
+					{
+						$("#f_orient").triggerHandler({
+							type : "click.orient",
+							active : mySelf.getActiveOrient(),
+						});
+					}
+					
+				});
+				
+			},
+			
+			// Handler when clicking onto the settings icon and select a submenu
+			settingsIconHandler : function()
+			{
+				var mySelf = this;
+				
+				$("#h_settings").on("click", function(event){
+					//$("#h_set_details").toggleClass("settings-details-show");
+					
+					event.stopPropagation();
+					$("#h_set_details").slideToggle("fast", function() { });
+				});
+				
+				$("#h_set_details #baus").on("click", function(event){
+					//$("#h_set_details").toggleClass("settings-details-show");
+					
+					event.stopPropagation();
+					$("#h_set_details").slideToggle("fast", function() {
+						var store = mySelf.getActiveStore();
+						$.ajax({
+							url: "api-baus.jsp",
+							type : "POST",
+							dataType : "json",
+							data : {
+								mode : "fetch",
+								store_type: store.type,
+								store_id : store.id,
+								unit : mySelf.getActiveUnit(),
+								datetime : mySelf.getDateTimePicker(),
+							},
+							success: function(result)
+							{
+								if(result.baus !== undefined)
+								{
+									$.dialogbaus("callDialogBaus",
+									{
+										bausValue : result.baus,
+										store : store,
+										unit : mySelf.getActiveUnit(),
+										datetime : mySelf.getDateTimePicker()
+									});
+									
+								}							
+							}						
+						});
+						
+					});
+					
+				});
+
+				$("#h_set_details #go_warehouse").on("click", function(event) {
+					event.stopPropagation();
+					$("#h_set_details").slideToggle("fast", function() {
+						$(location).attr("href", "warehouse-l1.jsp");
+					});
+				});
+
+				$("#h_set_details #warehouse_editor").on("click", function(event) {
+					event.stopPropagation();
+					$("#h_set_details").slideToggle("fast", function() {
+						$.dialogsle("callDialogSle", "");
+					});
+				});
+				
+				$("#h_set_details #user_mgmt").on("click", function(event) {
+					event.stopPropagation();
+					$("#h_set_details").slideToggle("fast", function() {
+						$.dialogum("callDialogUm");
+					});
+				});
+
+				$(document).on("click", function(event) {
+					$("#h_set_details").attr("style", "display: none");
+				});
+				
+			},
+			
+			// Get the active store selection from the pull-down
+			getActiveStore : function(event)
+			{
+				var value, splValue;
+				
+				value = $("div#design-selector span#active-select").attr("adv_x");
+				splValue = value.split("_");
+				
+				var store = {};
+				store.type = splValue[0];
+				store.id = splValue[1];
+				
+				return store;
+			},
+
+			// Get the active unit button
+			getActiveUnit : function()
+			{
+				var mySelf = this;
+				var filterArray = new Array();
+
+				$('div[id^="unit"]').each(function(index, element)
+				{
+					if ($(element).hasClass(mySelf.actClass))
+					{
+						var id = $(element).attr("id").split("_");
+						filterArray.push(id[1]);
+					}
+				});
+
+				return filterArray.join("_");
+			},
+
+			// Get the active orient button
+			getActiveOrient : function()
+			{
+				var mySelf = this;
+				var filterArray = new Array();
+
+				$('div[id^="orient"]').each(function(index, element)
+				{
+					if ($(element).hasClass(mySelf.actClass))
+					{
+						var id = $(element).attr("id").split("_");
+						filterArray.push(id[1]);
+					}
+				});
+
+				return filterArray.join("_");
+			},
+			
+			// Get the datetime from the date time picker 
+			getDateTimePicker : function()
+			{
+				var getD = $("#date_time").datetimepicker("getDate");
+				var k = moment(getD);
+				return k.format("YYYY-MM-DD HH:mm");
+			},
+			
+			// Get now
+			getNow : function()
+			{
+				var n = moment(new Date());
+				return n.format("YYYY-MM-DD HH:mm");
+			},
+			
+			// Get the actual used date time
+			getActualDate : function()
+			{
+				var mySelf = this;
+				
+				return ($("img#real_time_chk").attr("adv_chk") == "0") ? mySelf.getDateTimePicker() : mySelf.getNow();
+			}
+
+		};
+
+		$.headoption = function(method, param)
+		{
+			var op = Object.create(option);
+			
+			if (method === "init")
+				op[method](param);
+			else if (method === "setSelectedMenu")
+				return op[method](param);
+			else if (method === "getActiveStore")
+				return op[method]();
+			else if (method === "getActiveUnit")
+				return op[method]();
+			else if (method === "getActiveOrient")
+				return op[method]();
+		  else if (method === "getActualDate")
+		    return op[method]();
+		};
+
+	})(jQuery, window, document);
+
+</script>

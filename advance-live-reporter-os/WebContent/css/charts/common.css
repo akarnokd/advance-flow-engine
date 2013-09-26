@@ -1,0 +1,275 @@
+/*
+  Loading modal dialog
+*/
+.modal {
+	background: rgba(255, 255, 255, .8) url("../../images/loading.gif") 50% 50% no-repeat;
+	display: none;
+	position: fixed;
+	z-index: 1000;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+}
+
+BODY.loading {
+}
+
+BODY.loading .modal {
+	display: block;
+}
+
+
+/*
+  Error message box
+*/
+.error-msgbox {
+	border: 1px solid #FF0000;
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top : -100px;
+	margin-left: -200px;
+	z-index: 200;
+	text-align: center;
+	height: 200px;
+	width: 400px;
+}
+
+.error-msgbox .refresh-button{
+	border: 1px solid #FF0000;
+	background-color: #FF0000;
+	color: #FFFFFF;
+	cursor: pointer;
+	display: block;
+	position: absolute;
+	left: 150px;
+	bottom: 20px;
+	text-align: center;
+	z-index: 200;
+	height: 24px;
+	width: 100px;
+}
+	
+BODY.show-error {
+}
+
+BODY.show-error .error-msgbox {
+	display: block;
+}
+
+
+/*
+  Container divs
+*/
+div.warehouse-l1-holder,
+div.warehouse-l2-holder,
+div.warehouse-l3-holder {
+	border: 0px solid #DDDDEE;
+	text-align: center;
+	display: block;
+	position: relative;
+	margin: 10px 18px;
+	padding: 0px;
+	overflow-y: scroll;
+	height: 400px;
+	width: 700px;
+}
+
+
+/*
+  CSS for SVG area
+*/
+line.coord {
+	stroke: #000000;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+
+text.title {
+	font-size: 24px;
+	font-weight: bold;
+	fill: #000000;
+	kerning: 2;
+	letter-spacing: 2;
+}
+
+text.write {
+	font-size: 14px;
+	font-weight: normal;
+	fill: #000000;
+	kerning: 2;
+	letter-spacing: 2;
+}
+
+circle.default {
+	stroke: #660000;
+	stroke-width: 0;
+	shape-rendering: geometricPrecision;
+}
+
+rect.default {
+	stroke: #660000;
+	stroke-width: 0;
+	shape-rendering: crispEdges;
+}
+
+rect.zeroArea {
+	fill: #D4EFBB;
+}
+
+rect.left_hub {
+	fill: #388C00;
+}
+
+rect.at_hub {
+	fill: #FF8000;
+}
+
+rect.declared {
+	fill: #AA6000;
+}
+
+rect.scanned {
+	fill: #856400;
+}
+
+rect.created {
+	fill: #969696;
+}
+
+rect.predicted {
+	fill: #FFFFFF;
+}
+
+polyline.contourDash,path.contourDash {
+	fill: none;
+	stroke: black;
+	stroke-width: 1px;
+	stroke-dasharray: 4, 4;
+	shape-rendering: crispEdges;
+}
+
+div.daybyday-holder rect.origin-standard,
+div.duringday-holder g polyline.origin-standard {
+	fill: #CE5E00;
+}
+
+div.daybyday-holder rect.origin-priority,
+div.duringday-holder g polyline.origin-priority {
+	fill: #FFC800;
+}
+
+div.daybyday-holder rect.origin-special,
+div.duringday-holder g polyline.origin-special {
+	fill: #FF8000;
+}
+
+div.daybyday-holder rect.destin-standard,
+div.daybyday-holder rect.single-standard,
+div.duringday-holder g polyline.destin-standard,
+div.duringday-holder g polyline.single-standard {
+	fill: #216500;
+}
+
+div.daybyday-holder rect.destin-priority,
+div.daybyday-holder rect.single-priority,
+div.duringday-holder g polyline.destin-priority,
+div.duringday-holder g polyline.single-priority {
+	fill: #5FCD00;
+}
+
+div.daybyday-holder rect.destin-special,
+div.daybyday-holder rect.single-special,
+div.duringday-holder g polyline.destin-special,
+div.duringday-holder g polyline.single-special {
+	fill: #388C00;
+}
+
+
+
+/*
+  CSS for Details area
+*/
+div.left_hub {
+	border: 2px solid #D4EFBB;
+	background-color: #388C00;
+	width: 12px;
+	height: 12px;
+}
+
+div.at_hub,
+div.warehouse-l3-holder div.warehouse_a,
+div.warehouse-l3-holder div.warehouse_b {
+	background-color: #FF8000;
+	width: 16px;
+	height: 16px;
+}
+
+div.declared {
+	background-color: #AA6000;
+	width: 16px;
+	height: 16px;
+}
+
+div.scanned {
+	background-color: #856400;
+	width: 16px;
+	height: 16px;
+}
+
+div.created {
+	background-color: #969696;
+	width: 16px;
+	height: 16px;
+}
+
+div.predicted {
+	border: 1px dashed #000000;
+	background-color: #FFFFFF;
+	width: 12px;
+	height: 12px;
+}
+
+div.daybyday-holder div.legend div.origin-all {
+	background-color: #FFFFFF;
+}
+
+div.daybyday-holder div.legend div.origin-special,
+div.duringday-holder div.details div.origin-special {
+	background-color: #FF8000;
+}
+
+div.daybyday-holder div.legend div.origin-priority,
+div.duringday-holder div.details div.origin-priority {
+	background-color: #FFC800;
+}
+
+div.daybyday-holder div.legend div.origin-standard,
+div.duringday-holder div.details div.origin-standard {
+	background-color: #CE5E00;
+}
+
+div.daybyday-holder div.legend div.all {
+	background-color: #FFFFFF;
+}
+
+div.daybyday-holder div.legend div.special,
+div.duringday-holder div.details div.destin-special,
+div.duringday-holder div.details div.single-special {
+	background-color: #388C00;
+}
+
+div.daybyday-holder div.legend div.priority,
+div.duringday-holder div.details div.destin-priority,
+div.duringday-holder div.details div.single-priority {
+	background-color: #5FCD00;
+}
+
+div.daybyday-holder div.legend div.standard,
+div.duringday-holder div.details div.destin-standard,
+div.duringday-holder div.details div.single-standard {
+	background-color: #216500;
+}
+
