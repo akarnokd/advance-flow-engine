@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<crontab>
+<!-- 
+	<task id='ARXRunner' months='*' days='*' weekdays='1' hours='0' minutes='0' 
+	class='eu.advance.logistics.live.reporter.prediction.arx.ARXRunnerTask'>
+		<param name='days' value='365'/>
+		<param name='use-blacklist' value='true'/>
+		<param name='hub' value='1'/>
+		<param name='shift-start' value='5'/>
+		<param name='horizon' value='3'/>
+	</task>
+	<task id='MLLearner' months='*' days='*' weekdays='1' hours='0' minutes='0'
+	class='eu.advance.logistics.live.reporter.prediction.ml.MLLearnerTask'>
+		<param name='days' value='365'/>
+		<param name='use-blacklist' value='true'/>
+		<param name='holiday-gap' value='5'/>
+		<param name='hub' value='1'/>
+		<param name='max-attributes' value='10'/>
+		<param name='max-workdays' value='6'/>
+		<param name='min-timepoint-hour' value='9'/>
+		<param name='max-timepoint-hour' value='20'/>
+		<param name='timepoint-minute-step' value='15'/>
+
+		<!- - 		
+		<param name='exact-timepoints' value='12:00,15:00,17:00,19:00'/>
+		<param name='depots' value='2,3,4'/>
+		 - ->
+		<param name='service-level-mode' value='15'/>
+		<param name='unit-mode' value='7'/>
+		<param name='direction-mode' value='3'/>
+	</task>
+	<task id='MLPredictor' months='*' days='*' weekdays='*' 
+	hours='9,10,11,12,13,14,15,16,17,18,19,20' minutes='0,15,30,45'
+	class='eu.advance.logistics.live.reporter.prediction.ml.MLPredictorTask'>
+		<param name='days' value='30'/>
+		<param name='use-blacklist' value='true'/>
+		<param name='holiday-gap' value='5'/>
+		<param name='hub' value='1'/>
+		<param name='max-workdays' value='6'/>
+		<param name='min-timepoint-hour' value='9'/>
+		<param name='max-timepoint-hour' value='20'/>
+		<param name='timepoint-minute-step' value='15'/>
+		<param name='ignore-runs-at' value='20:15,20:30,20:45'/>
+		<!- - 		
+		<param name='exact-timepoints' value='12:00,15:00,17:00,19:00'/>
+		<param name='depots' value='2,3,4'/>
+		 - ->
+		<param name='service-level-mode' value='15'/>
+		<param name='unit-mode' value='7'/>
+		<param name='direction-mode' value='3'/>
+	</task>
+	<task id='MLGASOvernight' months='*' days='*' weekdays='*' 
+	hours='5' minutes='0'
+	class='eu.advance.logistics.live.reporter.server.GASOvernightTask'>
+		<param name='hub' value='1'/>
+	</task>
+	<task id='MLTimePoint' months='*' days='*' weekdays='*' 
+	hours='9,10,11,12,13,14,15,16,17,18,19,20' minutes='0,15,30,45'
+	class='eu.advance.logistics.live.reporter.prediction.ml.MLTimePointTask'>
+		<param name='days' value='30'/>
+		<param name='use-blacklist' value='true'/>
+		<param name='holiday-gap' value='5'/>
+		<param name='hub' value='1'/>
+		<param name='max-workdays' value='6'/>
+		<param name='min-timepoint-hour' value='9'/>
+		<param name='max-timepoint-hour' value='20'/>
+		<param name='timepoint-minute-step' value='15'/>
+		<param name='ignore-runs-at' value='20:15,20:30,20:45'/>
+		<!- - 		
+		<param name='exact-timepoints' value='12:00,15:00,17:00,19:00'/>
+		<param name='depots' value='2,3,4'/>
+		 - ->
+		<param name='service-level-mode' value='15'/>
+		<param name='unit-mode' value='7'/>
+		<param name='direction-mode' value='3'/>
+	</task>
+	 -->
+</crontab>

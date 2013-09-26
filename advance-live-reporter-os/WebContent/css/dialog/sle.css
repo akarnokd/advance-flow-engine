@@ -1,0 +1,293 @@
+/*
+  Container divs
+*/
+div#dialog_sle div#sle_header {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	margin: 4px 16px 0px 0px;
+	padding: 0px;	
+	width: auto;
+  height: 40px;
+}
+
+div#dialog_sle div#sle_header_info {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	margin: 0px 16px 0px 0px;
+	padding: 0px;	
+	width: auto;
+  height: 20px;
+}
+
+div#dialog_sle div#sle_warehouse_header {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	margin: 0px auto 0px 0px;
+	padding: 0px;	
+	width: 795px;
+  height: 35px;
+}
+
+div#dialog_sle div.sle-middle {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	margin: 0px  auto;
+	padding: 0px;	
+	width: 100%;
+  height: 350px;
+}
+
+div#dialog_sle div.sle-up-down {
+	border: 0px solid #DDDDEE;
+	display: block;
+	margin: 0px  auto;
+	padding: 0px;
+	text-align: center;
+	width: 40px;
+  height: 100px;
+}
+
+div#dialog_sle div.sle-middle .up-down-left {
+	position: absolute;
+  left: 0px;
+  top: 35%;
+}
+
+div#dialog_sle div.sle-middle .up-down-right {
+	position: absolute;
+  right: 0px;
+  top: 35%;
+}
+
+div#dialog_sle img#sle_up_left, 
+div#dialog_sle img#sle_up_right {
+	width: 38px;
+	height: 38px;
+	margin-bottom: 10px;
+}
+
+div#dialog_sle img#sle_down_left, 
+div#dialog_sle img#sle_down_right {
+	margin-top: 10px;
+	width: 38px;
+	height: 38px;
+}
+
+div#dialog_sle div#sle_content {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	overflow-y: scroll;
+	margin: 0px  auto;
+	padding: 0px;	
+	width: 760px;
+  height: 350px;
+}
+
+div#dialog_sle div#sle_footer_info {
+	border: 0px solid #DDDDEE;
+	display: block;
+	position: relative;
+	margin: 2px 16px 0px 0px;
+	padding: 0px;	
+	width: auto;
+  height: 20px;
+}
+
+
+/*
+  CSS for elements
+*/
+
+div#dialog_sle div.label-head {
+	border: 0px solid #DDDDEE;
+	display: inline-block;
+	font-weight: bold;
+	position: relative;
+	margin: 4px auto;
+	padding-top: 4px;
+	text-align: center;
+	vertical-align: middle;
+	width: 40px;
+  height: 22px;
+}
+
+div#dialog_sle div.label-hub {
+	margin-left: 30px;	
+}
+
+div#dialog_sle div.label-warehouse {
+	margin-left: 140px;
+}
+
+div#dialog_sle select.selector {
+	border: 1px solid #388C00;
+	margin: 4px 30px;
+	width: 200px;
+  height: 26px;
+}
+
+div#dialog_sle div.label-warehouse-head {
+	border: 3px solid #388C00;
+	background-color: #388C00;
+	color : #FFFFFF;
+	display: inline-block;
+	font-weight: bold;
+	position: relative;
+	margin: 0px auto;
+	padding-top: 4px;
+	text-align: center;
+	vertical-align: middle;
+  height: 20px;
+}
+
+div#dialog_sle div.head-depot,
+div#dialog_sle div.head-capacity {
+	width: 92px;
+}
+
+div#dialog_sle div.head-flags {
+	width: 20px;	
+}
+
+div#dialog_sle div.head-left-d {
+	margin-left: 64px;
+	margin-right: 24px;
+}
+
+div#dialog_sle div.head-left-c {
+	margin-right: 13px; !important;
+}
+
+div#dialog_sle div.head-left-e {
+	margin-right: 3px;
+}
+
+div#dialog_sle div.head-left-p {
+	margin-right: 115px;
+}
+
+div#dialog_sle div.head-right-e {
+	margin-right: 4px;
+}
+
+div#dialog_sle div.head-right-p {
+	margin-right: 12px;
+}
+
+div#dialog_sle div.head-right-c {
+	margin-right: 22px;
+}
+
+div#dialog_sle div#sle_content .depot-table {
+	border: 0px solid #DDDDEE;
+	display: table;
+	margin: 0px  auto;
+	padding: 0px;	
+	width: 350px;
+  height: auto;
+}
+
+div#dialog_sle div#sle_content .side-left {
+	position: absolute;
+  left: 0px;
+  top: 0px;
+}
+
+div#dialog_sle div#sle_content .side-right {
+	position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+div#dialog_sle div#sle_content .depot-row {
+	display: table-row;
+	margin: 0px  auto;
+	padding: 0px;	
+	width: 100%;
+  height: auto;
+}
+
+div#dialog_sle div#sle_content .selected-row {
+	background-color: #D4EFBB;
+}
+	
+
+div#dialog_sle div#sle_content .depot-cell {
+	border: 0px solid #385D8A;
+	display: table-cell;
+	position: relative;
+	margin: 0px  auto;
+	padding: 0px;	
+	text-align:center;
+	vertical-align: middle;
+	width: auto;
+  height: 30px;
+}
+
+div#dialog_sle div.sle-middle img {
+	cursor: pointer;
+}
+	
+div#dialog_sle div#sle_content .depot-input {
+	border: 1px solid #388C00;
+	margin: 0px  auto 0px auto;
+	vertical-align: middle;
+	padding-left: 5px;	
+	width: 90px;
+  height: 20px;
+}
+
+
+div#dialog_sle div#sle_header_info .left-line,
+div#dialog_sle div#sle_footer_info .left-line {
+	border: 1px solid #388C00;
+	position: absolute;
+  left: 20px;
+  bottom: 10px;
+	width: 350px;
+  height: 0px;
+}
+
+div#dialog_sle div#sle_header_info .right-line,
+div#dialog_sle div#sle_footer_info .right-line {
+	border: 1px solid #388C00;
+	position: absolute;
+  right: 18px;
+  bottom: 10px;
+	width: 350px;
+  height: 0px;
+}
+
+div#dialog_sle div#sle_header_info .info,
+div#dialog_sle div#sle_footer_info .info {
+	border: 0px solid #0C5086;
+	display: block;
+	font-size: 14px;
+	position: relative;
+	margin: 0px auto;
+	padding: 0px;
+	text-align: center;	
+	width: 40px;
+  height: auto;
+}
+
+
+/*
+  CSS for jQuery dialog
+*/
+.ui-dialog-buttonset .sle-left {
+	margin-right: 270px !important;
+	margin-bottom: 30px !important;
+}
+
+.ui-dialog-buttonset .sle-right {
+	margin-left: 250px !important;
+	margin-right: 60px !important;
+	margin-bottom: 30px !important;
+}
+

@@ -4,6 +4,6 @@
   version="2.0">
   <endpoint
       name="importdata"
-      implementation="eu.advance.logistics.live.reporter.importdata.ImportSEI"
+      implementation="eu.advance.logistics.live.reporter.ws.ImportSEI"
       url-pattern="/importdata"/>
 </endpoints>

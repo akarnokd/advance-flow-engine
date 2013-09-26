@@ -1,0 +1,151 @@
+BODY {
+	border: 0px solid #DDDDEE;
+	color: #000000;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	margin: 16px;
+	padding: 0px;
+	overflow-y: hidden;
+}
+
+div.warehouse-menu {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: relative;
+	margin: 0px 16px;
+	padding: 0px;
+	height: 150px;
+	min-width: 700px;
+}
+
+div.warehouse-menu div.warehouse-selector {
+	border: 0px solid #388C00;
+	background: url("../images/warehouse/warehouse-logo.png") no-repeat center top;	
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	margin: 0px;
+	height: 145px;
+	width: 180px;
+}
+
+div.warehouse-menu div.warehouse-up-down{
+	border: 0px solid #388C00;
+	cursor: pointer;	
+	display: block;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	height: 90px;
+	width: 180px;
+}
+
+div.warehouse-menu div.warehouse-page-refresh{
+	border: 0px solid #388C00;
+	cursor: pointer;	
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	height: 57px;
+	width: 171px;
+}
+
+div.warehouse-menu div.warehouse-up{
+	background: url("../images/warehouse/warehouse-up.png") no-repeat center bottom;
+}
+
+div.warehouse-menu div.warehouse-down{
+	background: url("../images/warehouse/warehouse-down.png") no-repeat center bottom;
+}
+
+div.warehouse-menu div.option-container {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	margin: 0px 12px 0px 0px;
+	height: 145px;
+	width: 481px;
+}
+
+div.warehouse-menu div.option-inner {
+	border: 0px solid #388C00;
+	display: block;
+	float: left;
+	position: relative;
+	height: 100%;
+}
+
+div.warehouse-menu .warehouse-width {
+	margin: 0px auto;
+	width: 160px;
+}
+
+div.warehouse-menu .option-width {
+	margin: 0px 0px 0px 10px;
+	width: 200px;
+}
+
+div.warehouse-menu .order-width {
+	margin: 0px 0px 0px 10px;
+	width: 100px;
+}
+
+div.warehouse-menu .warehouse-width table,
+div.warehouse-menu .option-width table,
+div.warehouse-menu .order-width table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	width: 100%;
+	height: 100%;
+}
+
+div.warehouse-menu .warehouse-width tr,
+div.warehouse-menu .option-width tr {
+	color: #000000;
+	border: 0px solid #D4EFBB;
+	width: 100%;
+	height: 50%;
+}
+
+div.warehouse-menu .order-width tr {
+	color: #000000;
+	border: 0px solid #D4EFBB;
+	width: 100%;
+	height: 33%%;
+}
+
+div.warehouse-menu .warehouse-width td,
+div.warehouse-menu .option-width td {
+	border: 1px solid #388C00;	
+	font-size: 52px;
+	font-weight: bold;
+	padding: 0px;
+	margin: 0px;
+	text-align:center;
+	vertical-align: middle;
+}
+
+div.warehouse-menu .order-width td {
+	border: 1px solid #388C00;
+	font-size: 32px;
+	font-weight: bold;
+	padding: 0px;
+	margin: 0px;
+	text-align:center;
+	vertical-align: middle;
+}
+
+div.warehouse-menu td.inactive {
+	background-color: #FFFFFF;
+	color : #388C00;
+	cursor: pointer;
+}
+
+div.warehouse-menu td.active {
+	background-color: #388C00;  ! important;
+	color : #FFFFFF;  ! important;
+}

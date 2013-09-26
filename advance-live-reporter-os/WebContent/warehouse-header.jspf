@@ -1,0 +1,414 @@
+<%@page import="java.util.Date"%>
+<%@page import="eu.advance.logistics.live.reporter.charts.*"%>
+<%@page import="eu.advance.logistics.live.reporter.model.*"%>
+<%
+User user = null;
+HubDepotSwitch hubDepotSwitch = null;
+WarehouseSwitch warehouseSwitch = null;
+
+synchronized(session)
+{
+  user = (User)session.getAttribute("USER");
+}
+if(user == null)
+{
+  response.sendRedirect("index.jsp");
+  return;    
+}
+else if(user.depot != null)
+{
+  response.sendRedirect("index.jsp");
+  return;    
+}
+else
+{
+  warehouseSwitch = (WarehouseSwitch)request.getAttribute("WAREHOUSE_SWITCH");
+  if (warehouseSwitch == null ) {
+    try {
+        if (request.getParameter("warehouse_name") != null) {
+        	warehouseSwitch = new WarehouseSwitch(user.hub, request.getParameter("warehouse_name"), user.name);
+    	  warehouseSwitch.setL2WarehouseOption(request.getParameter("warehouse_option"));
+    	  warehouseSwitch.setStorageAreaOrder(request.getParameter("storage_order"));
+    	  warehouseSwitch.setL3WarehouseOption(request.getParameter("warehouse_l3_option"));
+	      if (request.getParameter("warehouse_l3_storage_id") != null) {
+	    	  warehouseSwitch.setL3SelectedStorageId(Long.parseLong(request.getParameter("warehouse_l3_storage_id")));
+	      }
+      }
+    }
+    catch(IllegalArgumentException e)
+    {
+      response.sendRedirect("index.jsp");
+      return;
+    }
+    catch(NullPointerException e)
+    {
+      response.sendRedirect("index.jsp");
+      return;
+    }
+  }
+}
+%>
+
+<div class="modal"></div>
+<div class="error-msgbox">
+	<p id="error_msg">There seems to be a problem with the server.<br/>Please try again later.</p>
+	<div id="error_refresh" class="refresh-button">Refresh</div>
+</div>
+
+<div class="warehouse-menu">
+	<div class="warehouse-selector">
+		<div id="warehouse-page-refresh" class="warehouse-page-refresh"></div>
+		<div id="warehouse-up-down" class="warehouse-up-down"></div>
+
+		<form id="warehouse_form" method="post" action="" accept-charset="UTF-8">
+			<input type="hidden" name="warehouse_name" value=""> <input
+				type="hidden" name="warehouse_option" value=""> <input
+				type="hidden" name="storage_order" value=""> <input
+				type="hidden" name="warehouse_l3_option" value="">
+		</form>
+	</div>
+	<div class="option-container">
+		<div id="hand_warehouse"></div>
+		<div id="hand_option"></div>
+		<div id="hand_order"></div>
+
+		<div id="selector_warehouse" class="option-inner warehouse-width">
+			<table>
+				<tr>
+					<td id="warehouse_1" class="inactive">1</td>
+				</tr>
+				<tr>
+					<td id="warehouse_2" class="inactive">2</td>
+				</tr>
+			</table>
+		</div>
+		<div id="selector_option" class="option-inner option-width">
+			<table>
+				<tr>
+					<td id="option_a" class="inactive">A</td>
+					<td id="option_b" class="inactive">B</td>
+				</tr>
+				<tr>
+					<td id="option_left" class="inactive">L</td>
+					<td id="option_right" class="inactive">R</td>
+				</tr>
+			</table>
+		</div>
+		<div id="selector_order" class="option-inner order-width">
+			<table>
+				<tr>
+					<td id="order_physical" class="inactive" title="Physical order">=</td>
+				</tr>
+				<tr>
+					<td id="order_relative" class="inactive" title="Relative order">%</td>
+				</tr>
+				<tr>
+					<td id="order_number" class="inactive" title="Order by number">#</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	
+	<div id="dialog_general" title="Message" class="ui-helper-hidden">
+		<p id="general_message"></p>
+	</div>
+	
+</div>
+
+<script type="text/javascript">
+//Utility
+if (typeof Object.create !== 'function')
+{
+	Object.create = function(o)
+	{
+		if (arguments.length > 1)
+		{
+			throw new Error(
+					'Object.create implementation only accepts the first parameter.');
+		}
+		function F()
+		{
+		}
+		F.prototype = o;
+		return new F();
+	};
+}
+
+// Default: Every button has inactive class, the toggleClass is the "active" class
+(function($, window, document, undefined)
+{
+	var warehouseMenu = {
+		actClass : "active",
+		active : {},
+		atPage : "",
+
+		// Initialize the header
+		init : function(param)
+		{
+			var mySelf = this;
+			mySelf.atPage = param;
+			
+			mySelf.active.warehouse = "warehouse_<%= warehouseSwitch.getWarehouse().toLowerCase()%>";
+			mySelf.active.option = "option_<%= warehouseSwitch.getL2WarehouseOption().name().toLowerCase()%>";
+			mySelf.active.order = "order_<%= warehouseSwitch.getStorageOrder().name().toLowerCase()%>";
+			mySelf.active.l3option = "option_<%= warehouseSwitch.getL3WarehouseOption().name().toLowerCase()%>";
+			
+			if(param == "l1")
+			{
+				mySelf.setUpDown("warehouse-down", "warehouse-l2.jsp");
+				
+				mySelf.setInitMenu("warehouse");
+				mySelf.buttonGroupHandler("warehouse");
+				$("#selector_option").hide();
+				$("#selector_order").hide();
+			}
+			else if(param == "l2")
+			{
+				mySelf.setUpDown("warehouse-up", "warehouse-l1.jsp");
+				
+				mySelf.setInitMenu("warehouse");
+
+				mySelf.setInitMenu("option");
+				mySelf.buttonGroupHandler("option");
+				mySelf.setInitMenu("order");
+				mySelf.buttonGroupHandler("order");
+			}
+			else if(param == "l3")
+			{
+				mySelf.setUpDown("warehouse-up", "warehouse-l2.jsp");
+				
+				mySelf.setInitMenu("warehouse");
+
+				mySelf.setInitMenu("option", "l3");
+				mySelf.buttonGroupHandler("option");
+				mySelf.setInitMenu("order");
+				mySelf.buttonGroupHandler("order");
+				$("#option_a").hide();
+				$("#option_b").hide();
+			}
+			mySelf.refreshButtonHander();
+		},
+		
+		
+		// Refresh the complete actual page (called after clicing onto the error refresh button)
+		refreshButtonHander : function()
+		{
+			var mySelf = this;
+			var pageUrl = "";
+			
+			$("div.error-msgbox div#error_refresh").on("click", function(event)
+			{
+				if(mySelf.atPage == "l1")
+				{
+					pageUrl = "warehouse-l1.jsp";
+				}
+				else if(mySelf.atPage == "l2")
+				{
+					pageUrl = "warehouse-l2.jsp";
+				}
+				else if(mySelf.atPage == "l3")
+				{
+					pageUrl = "warehouse-l3.jsp";
+				}
+				
+				var active = mySelf.getAllEnumMenu();
+
+				$("#warehouse_form").attr("action", pageUrl);
+				$('#warehouse_form input[name="warehouse_name"]').val(active.warehouse);
+				$('#warehouse_form input[name="warehouse_option"]').val(active.option);
+				$('#warehouse_form input[name="storage_order"]').val(active.order);
+				$('#warehouse_form input[name="warehouse_l3_option"]').val(active.l3option);
+				
+				$("#warehouse_form").submit();
+			});
+			
+		},
+		
+		// Set the layer up or dwon icon
+		setUpDown : function(imgCSS, actionURL)
+		{
+			var mySelf = this;
+			
+			$("#warehouse-up-down").addClass(imgCSS);
+			$("#warehouse-up-down").on("click", function(event)
+			{
+				var active = mySelf.getAllEnumMenu();
+
+				$("#warehouse_form").attr("action", actionURL);
+				$('#warehouse_form input[name="warehouse_name"]').val(active.warehouse);
+				$('#warehouse_form input[name="warehouse_option"]').val(active.option);
+				$('#warehouse_form input[name="storage_order"]').val(active.order);
+				$('#warehouse_form input[name="warehouse_l3_option"]').val(active.l3option);
+				
+				$("#warehouse_form").submit();
+			});
+		},
+		
+		// Set the switchboard menu based on the mySelf.active and the level 
+		setInitMenu : function(group, level)
+		{
+			var mySelf = this;
+			var active = mySelf.active;
+			var ss = 'td[id^="' + group + '_"]';
+			
+			$(ss).toggleClass(mySelf.actClass, false);
+			
+			if( (level === undefined) || (level == null) )
+				$("#" + active[group]).toggleClass(mySelf.actClass);
+			else
+				$("#" + active.l3option).toggleClass(mySelf.actClass);
+		},
+		
+		// Common button group handler, based on the group name
+		buttonGroupHandler : function(group)
+		{
+			var mySelf = this;
+			var ss = 'td[id^="' + group + '_"]';
+			
+			$(ss).on("click", function(event)
+			{
+				var isChanged = true;
+
+				if ($("#" + event.target.id).hasClass(mySelf.actClass) == false)
+				{
+					$(ss).toggleClass(mySelf.actClass, false);
+					$("#" + event.target.id).toggleClass(mySelf.actClass);
+				} else
+				{
+					isChanged = false;
+				}
+
+				if (isChanged)
+				{
+					var t = "click." + group;
+					
+					$("#hand_" + group).triggerHandler({
+						type : t,
+						active : event.target.id,
+					});
+				}
+
+			});
+			
+		},
+		
+		// Get the active button from the button groups
+		getActiveMenu : function()
+		{
+			var active = {};
+			
+			active.warehouse = $('td[id^="warehouse_"].active').attr("id");
+			active.option = $('td[id^="option_"].active').attr("id");
+			active.order = $('td[id^="order_"].active').attr("id");
+			
+			return active;
+		},
+		
+		// Refresh the mySelf.active object based on the mySelf.atPage
+		getAllEnumMenu : function()
+		{
+			var mySelf = this;
+			var active = {};
+			
+			if(mySelf.atPage == "l1")
+			{
+				var s = $('td[id^="warehouse_"].active').attr("id").split("_");
+				active.warehouse = s[1];
+				
+				var o = mySelf.active.option.split("_");
+				active.option = o[1];
+				
+				var r = mySelf.active.order.split("_");
+				active.order = r[1];
+				
+				var l3o = mySelf.active.l3option.split("_");
+				active.l3option = l3o[1];
+			}
+			else if(mySelf.atPage == "l2")
+			{
+				var s = $('td[id^="warehouse_"].active').attr("id").split("_");
+				active.warehouse = s[1];
+				
+				var o = $('td[id^="option_"].active').attr("id").split("_");
+				active.option = o[1];
+				
+				var r = $('td[id^="order_"].active').attr("id").split("_");
+				active.order = r[1];
+				
+				var l3o = mySelf.active.l3option.split("_");
+				active.l3option = l3o[1];
+			}
+			else if(mySelf.atPage == "l3")
+			{
+				var s = $('td[id^="warehouse_"].active').attr("id").split("_");
+				active.warehouse = s[1];
+				
+				var o = mySelf.active.option.split("_");
+				active.option = o[1];
+				
+				var r = $('td[id^="order_"].active').attr("id").split("_");
+				active.order = r[1];
+				
+				var l3o = $('td[id^="option_"].active').attr("id").split("_");
+				active.l3option = l3o[1];
+			}
+			
+			return active;
+		},
+		
+		// Error message dialog box
+		showErrorMessage : function(param)
+		{
+			var defaultMsg = "There seems to be a problem with the server.<br/>Please try again later.";
+			$("div.warehouse-menu div#dialog_general").dialog(
+			{
+        autoOpen: true,
+        modal: true,
+        width: 300,
+        height: 200,
+        resizable: false,
+        
+        open : function(event, ui)
+        {
+        	if(param !== undefined)
+        	{	
+          	$("div#dialog_general p#general_message").html("");
+          	$("div#dialog_general p#general_message").html(param);
+        	}
+        	else
+        	{
+          	$("div#dialog_general p#general_message").html("");
+          	$("div#dialog_general p#general_message").html(defaultMsg);
+        	}
+        },
+        buttons:
+        {
+        	Ok: function()
+        	{
+        		$( this ).dialog( "close" );
+        	}
+        },
+        close : function()
+        {
+        	$(location).attr("href", "logout.jsp");
+        }
+			});
+			
+		}
+
+	};
+
+	$.warehousemenu = function(method, param)
+	{
+		var op = Object.create(warehouseMenu);
+		
+		if (method === "init")
+			op[method](param);
+		else if (method === "getActiveMenu")
+			return op[method]();
+		else if (method === "showErrorMessage")
+			return op[method](param);
+	};
+
+})(jQuery, window, document);
+</script>

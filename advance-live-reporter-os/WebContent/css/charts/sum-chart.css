@@ -1,0 +1,139 @@
+/*
+  Container divs
+*/
+div.summary-holder {
+	border: 0px solid #DDDDEE;
+	text-align: center;
+	display: block;
+	position: relative;
+	padding: 0px;
+	margin: 10px auto;
+	height: auto;
+	width: 990px;
+}
+
+div.summary-holder div.hub-frame {
+	border: 0px solid #34DDEE;
+	display: inline-block;
+	position: relative;
+	padding: 0px;
+	margin: 0px auto 10px auto;
+	vertical-align: top;
+	height: 160px;
+	width: 735px;
+}
+
+div.summary-holder div.hub-out-details {
+	border: 0px solid #34DDEE;
+	display: inline-block;
+	position: relative;
+	padding: 0px;
+	margin: 0px 0px 10px 10px;
+	vertical-align: top;
+	height: 160px;
+	width: 238px;
+}
+
+div.summary-holder div.hub-details {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	padding: 0px;
+	margin: 0px;
+	height: 160px;
+	width: 100%;
+}
+
+div.summary-holder div.hub-out-details div.single{
+	left: 0px;
+	top: 0px;
+}
+
+div.summary-holder div.depot-frame {
+	border: 0px solid #34DDEE;
+	display: inline-block;
+	position: relative;
+	padding: 0px;
+	margin: 0px auto;
+	vertical-align: bottom;
+	height: 250px;
+	width: 830px;
+}
+
+div.summary-holder div.depot-out-details {
+	border: 0px solid #34DDEE;
+	display: inline-block;
+	position: relative;
+	padding: 0px;
+	margin: 0px 0px 0px 10px;
+	vertical-align: bottom;
+	height: 250px;
+	width: 140px;
+}
+
+div.summary-holder div.depot-details {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	padding: 0px;
+	margin: 0px;
+	height: 110px;
+	width: 100%;
+}
+
+div.summary-holder div.depot-out-details div.origin{
+	left: 0px;
+	top: 15px;
+}
+
+div.summary-holder div.depot-out-details div.destin{
+	left: 0px;
+	bottom: 0px;
+}
+
+
+/*
+  CSS for Details area
+*/
+div.summary-holder div.hub-details table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+div.summary-holder div.hub-details tr {
+	color: #000000;
+	border: 0px solid #D4EFBB;
+	font-size: 22px;
+	font-weight: bold;
+	text-align: left;
+}
+
+div.summary-holder div.hub-details td {
+	padding: 0px 10px 0px 2px;
+	margin: 0px;
+}
+
+div.summary-holder div.depot-details table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+div.summary-holder div.depot-details tr {
+	color: #000000;
+	border: 0px solid #D4EFBB;
+	font-size: 14px;
+	font-weight: bold;
+	text-align: left;
+}
+
+div.summary-holder div.depot-details td {
+	padding: 0px 4px 0px 0px;
+	margin: 0px;
+}
+
+div.summary-holder table tr td.details-right {
+	text-align: right;
+	padding : 0px;
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<duringday xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:noNamespaceSchemaLocation="duringday.xsd">
+	<firstTime>09:00:00</firstTime>
+	<lastTime>20:00:00</lastTime>
+	<timeSlot>4</timeSlot>
+</duringday>

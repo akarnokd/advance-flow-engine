@@ -1,0 +1,96 @@
+/*
+ Selects
+*/
+.jqTransformSelectWrapper {
+	border: 1px solid #388C00;
+    color: #388C00;
+	position:absolute;
+	top: 0px;
+	right: 170px;
+	text-align : left;
+	height: 24px;
+	width: 45px;
+	
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.jqTransformSelectWrapper div.disabled {
+	display: none;
+	position: absolute;
+	z-index: 20;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+}
+
+.jqTransformSelectWrapper.modal-lock div.disabled {
+	display: block;
+}
+	
+	
+.jqTransformSelectWrapper div span {
+	border: 0px solid #CCCCCC;	
+	cursor:pointer;
+	float: none;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	height: 20px;
+	line-height: 15px;
+	padding: 3px 0 0 6px;
+	overflow: hidden;
+	white-space: nowrap;	
+}
+
+.jqTransformSelectWrapper  a.jqTransformSelectOpen {
+	display: block;
+	position: absolute;
+	right: 0px;
+	width: 31px;
+	height: 25px;
+	background: url("../../images/hubdepot/selector-arrow.png") no-repeat right center;
+}
+
+.jqTransformSelectWrapper ul {
+	background-color: #FFF;
+	border: solid 1px #388C00;
+	position: absolute;
+	width: 43px;
+	top: 30px;
+	left: 0px;
+	list-style: none;
+	display: none;
+	margin: 0px;
+	padding: 0px;
+	height: 150px;
+  overflow: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+	z-index:10;
+}
+
+.jqTransformSelectWrapper ul a {
+	background-color: #FFF;
+	color: #388C00;
+	display: block;
+	padding: 5px;
+	text-decoration: none;
+}
+
+.jqTransformSelectWrapper ul a.selected {
+	background: #EDEDED;
+	color: #333;
+}
+
+.jqTransformSelectWrapper ul a:hover, .jqTransformSelectWrapper ul a.selected:hover {
+	background:#388C00;
+	color: #FFFFFF;
+}
+
+/*
+ Hidden - used to hide the original form elements
+*/
+.jqTransformHidden {display: none;}

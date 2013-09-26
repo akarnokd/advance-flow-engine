@@ -1,0 +1,317 @@
+BODY {
+	border: 0px solid #DDDDEE;
+	color: #000000;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	margin: 16px;
+	padding: 0px;
+	overflow-y: scroll;
+}
+
+.default-green {
+	color: #388C00;
+}
+
+/*
+  CSS for Login
+*/
+.login-div {
+	border: 0px solid #34DDEE;
+	background: url("../images/hubdepot/login_textonly.png") no-repeat center;
+	display: block;
+	position: relative;
+	margin: 60px auto;
+	height: 400px;
+	width: 600px;
+}
+
+.login-div .login-input {
+	border: 1px solid #388C00;
+	display: block;
+	font-family: "Trebuchet MS";
+	font-size: 20px;
+	font-weight: bold;
+	width: 280px;
+	height: 33px;
+}
+
+.login-div .login-user {
+	position: absolute;
+	top: 162px;
+	right: 10px;
+}
+
+.login-div .login-pwd {
+	position: absolute;
+	top: 210px;
+	right: 10px;
+}
+
+.login-div .login-submit {
+	border: 0px solid #388C00;
+	background-color: white;
+	background: url("../images/hubdepot/login_submit.png") no-repeat center;
+	width: 160px;
+	height: 60px;
+	position: absolute;
+	top: 305px;
+	right: 10px;
+}
+
+.login-div .login-submit:hover {
+	border: 1px solid #388C00;
+}
+
+.failed-login-div {
+	color : red;
+}
+
+
+/*
+  CSS for header of main app
+*/
+.header-div {
+	border: 0px solid #34DDEE;
+	background: url("../images/hubdepot/alr_headbg.png") repeat center;
+	display: block;
+	position: relative;
+	margin: 0px auto;
+	text-align: left;
+	height: 96px;
+	min-width: 1220px;
+}
+
+.header-div .header-exit-div {
+	cursor: pointer;
+	display: block;
+	position: absolute;
+	top: 8px;
+	right: 0px;
+}
+
+.header-div .header-settings-div {
+	cursor: pointer;
+	display: block;
+	position: absolute;
+	top: 42px;
+	right: 0px;
+}
+
+.header-div div.settings-details {
+	background-color : #FFFFFF;
+	border: 1px solid #388C00;
+  position: absolute;
+  top: 78px;
+  right: 0px;
+  height: auto;
+	width: 200px;
+	z-index: 100;
+}
+
+.header-div .settings-details-hide {
+    display: none;
+}
+.header-div .settings-details-show {
+    display: block; !important;
+}
+
+.header-div div.settings-menu {
+    background-color : #FFFFFF;
+    border: 0px solid #388C00;
+    color : #388C00;
+    cursor: pointer;
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    padding-left: 3px;
+    position: relative;
+    vertical-align: middle;
+    text-align: left;
+    height: 24px;
+    width: auto;
+}
+
+.header-div div.settings-menu:hover {
+	background-color : #388C00;
+	color : #FFFFFF;
+}
+
+.box-container-div {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: relative;
+	margin: 11px 0px;
+	height: 80px;
+	min-width: 1220px;	
+}
+
+.box-container-div .menu-container-div {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	margin: 0px;
+	text-align: left;
+	width: 300px;
+}
+
+.box-container-div .real-time-div {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 300px;
+	margin: 0px;
+	text-align: left;
+	width: 115px;
+}
+
+.box-container-div .timer-container-div {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 415px;
+	margin: 0px;
+	text-align: left;
+	width: 260px;
+}
+
+.box-container-div .option-container-div {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	margin: 0px;
+	text-align: right;
+	width: 170px;
+}
+
+.box-container-div .real-time-div .time-img-div{
+	border: 0px solid #34DDEE;
+	display: block;
+	float: left;
+	width: 26px;
+	height: 26px;
+}
+
+.box-container-div .real-time-div .time-label-div{
+	border: 0px solid #34DDEE;
+	color: #388C00;
+	display: block;
+	font-size: 14;
+	font-weight: bold;
+	float: left;
+	padding-top: 2px;
+	text-align: center;
+	vertical-align: middle;
+	width: 80px;
+	height: 26px;
+}
+
+
+.box-container-div .real-time-div img{
+	cursor: pointer;
+	vertical-align: middle;
+	width: 100%;
+	height: 100%;
+}
+
+.box-container-div select#store_selector {
+	height: 24px;
+	width: 330px;
+}
+
+.box-container-div .timer-container-div .timer-div {
+	border: 1px solid #388C00;
+	display: inline-block;
+	position: relative;
+	margin: 0px 2px 0px 0px;
+	height: 24px;
+	text-align: center;
+	width: 45px;
+}
+
+.box-container-div .timer-container-div .date-time-div {
+	border: 1px solid #388C00;
+	display: inline-block;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	margin: 0px;
+	height: 24px;
+	width: 150px;
+}
+
+.box-container-div .timer-container-div.real-modal-lock .timer-div,
+.box-container-div .timer-container-div.real-modal-lock .date-time-div {
+	border: 1px solid #C0C0C0;
+	color: #C0C0C0;
+}
+
+.box-container-div .timer-container-div .date-time {
+	border: 0px solid #388C00;
+	color: #388C00;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;	
+	font-size: 14px;
+	font-weight: bold;
+	padding-bottom : 2px;
+	text-align: center;
+	height: 20px;
+	width: 100%;
+}
+
+.box-container-div .timer-container-div.real-modal-lock .date-time {
+	color: #C0C0C0;
+}
+
+.box-container-div .timer-container-div .timer-disabled {
+	display: none;
+	position: absolute;
+	z-index: 20;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+}
+
+.box-container-div .timer-container-div.real-modal-lock .timer-disabled {
+	display: block;
+}
+
+.switch-box-div {
+	border: 1px solid #388C00;
+	display: inline-block;
+	position: relative;
+	margin: 0px 2px 6px 0px;
+	height: 24px;
+}
+
+.switch-box-hide {
+	left: -10000px;
+}
+
+.switch-box-inactive {
+	background-color: #FFFFFF;
+	cursor: pointer;
+	color: #388C00;
+	font-size: 14;
+	font-weight: bold;
+}
+
+.switch-box-active {
+	background-color: #388C00; ! important;
+	color: #FFFFFF;	!	important;
+}
+
+.main-menu {
+	text-align: center;
+	width: 90px;
+}
+
+.option-menu {
+	text-align: center;
+	vertical-align: middle;
+	width: 48px;
+}

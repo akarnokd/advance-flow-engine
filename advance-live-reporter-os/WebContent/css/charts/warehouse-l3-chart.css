@@ -1,0 +1,140 @@
+/*
+  Container divs
+*/
+div.warehouse-l3-holder div.chart {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: relative;
+	padding: 0px;
+	margin: 0px auto;
+	height: 720px;
+	width: 100%;
+}
+
+div.warehouse-l3-holder div.title {
+	background-color : #388C00;
+	border: 0px solid #34DDEE;
+	color : #FFFFFF;
+	font-size: 18px;
+	font-weight : bold;
+	display: block;
+	position: relative;
+	padding: 18px 0px 0px 10px;
+	margin: 0px 12px 0px 0px;
+	text-align : left;
+	vertical-align : middle;
+	height: 45px;
+	width: auto;
+	
+}
+
+div.warehouse-l3-holder div.frame {
+	border: 0px solid #34DDEE;
+	display: inline-block;
+	position: relative;
+	padding: 0px;
+	margin: 0px auto;
+	vertical-align: bottom;
+	height: 215px;
+	width: 470px;
+}
+
+div.warehouse-l3-holder div.out-details {
+	border: 0px solid #34DDEE;
+	display: inline-block;
+	position: relative;
+	padding: 0px;
+	margin: 0px 10px 0px 7px;
+	vertical-align: bottom;
+	height: 215px;
+	width: 120px;
+}
+
+div.warehouse-l3-holder div.details {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: absolute;
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+
+div.warehouse-l3-holder div.out-details div.future{
+	left: 0px;
+	top: 20px;
+	height: 35%;	
+}
+
+div.warehouse-l3-holder div.out-details div.athub{
+	left: 0px;
+	bottom: 0px;
+	height: 52%;	
+}
+
+
+/*
+  CSS for Details area
+*/
+div.warehouse-l3-holder div.future table,
+div.warehouse-l3-holder div.athub table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+div.warehouse-l3-holder div.future tr,
+div.warehouse-l3-holder div.athub tr {
+	color: #000000;
+	border: 0px solid #D4EFBB;
+	font-size: 12px;
+	font-weight: bold;
+	text-align: left;
+}
+
+div.warehouse-l3-holder div.future td{
+	padding: 0px 4px 0px 0px;
+	margin: auto;
+	height: 18px;
+	vertical-align: middle;
+}
+
+div.warehouse-l3-holder div.athub td {
+	padding: 0px 4px 0px 0px;
+	margin: auto;
+	height: 40px;
+	vertical-align: top;
+}
+
+div.warehouse-l3-holder div.future td.legend,
+div.warehouse-l3-holder div.athub td.legend {
+	width: 16px;
+}
+
+div.warehouse-l3-holder div.future td.details-right {
+	text-align: right;
+	padding : 0px;
+}
+
+div.warehouse-l3-holder div.athub td.details-right {
+	text-align: right;
+}
+
+div.declared {
+	width: 14px; !important;
+	height: 14px; !important;
+}
+
+div.scanned {
+	width: 14px; !important;
+	height: 14px; !important;
+}
+
+div.created {
+	width: 14px; !important;
+	height: 14px; !important;
+}
+
+div.predicted {
+	width: 12px; !important;
+	height: 12px; !important;
+}

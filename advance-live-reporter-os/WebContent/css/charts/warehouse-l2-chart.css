@@ -1,0 +1,104 @@
+/*
+  Header Title divs
+*/
+div.head-title div.side-title,
+div.head-title div.back-title {
+	border: 0px solid #34DDEE;
+	background-color: #388C00;
+	height: 20px;
+	width : 100px;
+}
+
+div.head-title div.side-title_0{
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: -1px;
+}
+
+div.head-title div.side-title_1{
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 1px;
+}
+
+div.head-title div.back-title_0{
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 1px;
+}
+
+div.head-title div.back-title_1{
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+div.head-title div.column {
+	border: 0px solid #34FFEE;
+	background-color: #388C00;
+	color : #FFFFFF;
+	font-size: 14px;
+	font-weight: bold;
+	display: block;
+	float: left;
+	position: relative;
+	padding: 0px 2px;
+	margin: 0px;
+	vertical-align :middle;
+	height: 20px;
+	width: 50px;
+}
+
+/*
+  Container divs
+*/
+div.warehouse-l2-holder div.frame {
+	border: 0px solid #34DDEE;
+	display: inline-block;
+	position: relative;
+	padding: 0px;
+	margin: 0px auto;
+	vertical-align: bottom;
+	height: 700px;
+	width: 340px;
+}
+
+div.head-title {
+	border: 0px solid #34DDEE;
+	display: block;
+	position: relative;
+	padding: 0px;
+	margin: 0px auto;
+	height: 20px;
+	width: 400px;
+}
+
+/*
+  CSS for SVG area
+*/
+div.warehouse-l2-holder text.write-info {
+	font-size: 14px;
+	font-weight: bold;
+	fill: #000000;
+	kerning: 2;
+	letter-spacing: 2;
+}
+
+div.warehouse-l2-holder path.contour {
+	fill: none;
+	stroke: white;
+	stroke-width: 3px;
+	shape-rendering: crispEdges;
+}
+
+div.warehouse-l2-holder rect.silent {
+	cursor : pointer;
+	stroke: #660000;
+	stroke-width: 0;
+	fill: #D4EFBB;
+	fill-opacity: 0.0;
+}
