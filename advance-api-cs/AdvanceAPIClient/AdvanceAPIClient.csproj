@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{72C550F8-9690-4965-A128-AF63735C9D31}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AdvanceAPIClient</RootNamespace>
+    <AssemblyName>AdvanceAPIClient</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto">
+      <HintPath>C:\Documents and Settings\Biri\My Documents\Downloads\bccrypto-net-1.7-bin\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Reactive.Testing, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Microsoft Reactive Extensions SDK\v1.0.10621\Binaries\.NETFramework\v4.0\Microsoft.Reactive.Testing.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Microsoft Reactive Extensions SDK\v1.0.10621\Binaries\.NETFramework\v4.0\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Providers, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Microsoft Reactive Extensions SDK\v1.0.10621\Binaries\.NETFramework\v4.0\System.Reactive.Providers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Forms, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Microsoft Reactive Extensions SDK\v1.0.10621\Binaries\.NETFramework\v4.0\System.Reactive.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Microsoft Reactive Extensions SDK\v1.0.10621\Binaries\.NETFramework\v4.0\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\AdvanceFlow.cs" />
+    <Compile Include="Classes\AdvanceNotificationGroup.cs" />
+    <Compile Include="Classes\Model\Error\CompilationErrorBase.cs" />
+    <Compile Include="Classes\Model\Error\CombinedTypeError.cs" />
+    <Compile Include="Classes\Model\Error\ConcreteVsParametricTypeError.cs" />
+    <Compile Include="Classes\Model\Error\ConstantOutputError.cs" />
+    <Compile Include="Classes\Model\Error\SourceToCompositeOutputError.cs" />
+    <Compile Include="Classes\Model\Error\SourceToCompositeInputError.cs" />
+    <Compile Include="Classes\Model\Error\SourceToInputBindingError.cs" />
+    <Compile Include="Classes\Model\Error\TypeArgumentCountError.cs" />
+    <Compile Include="Classes\Model\Error\MissingVarargsError.cs" />
+    <Compile Include="Classes\Model\Error\NonVarargsError.cs" />
+    <Compile Include="Classes\Model\Error\UnsetVarargsError.cs" />
+    <Compile Include="Classes\Model\Error\UnsetInputError.cs" />
+    <Compile Include="Classes\Model\Error\MissingSourcePortError.cs" />
+    <Compile Include="Classes\Model\Error\MissingDestinationError.cs" />
+    <Compile Include="Classes\Model\Error\MissingDestinationPortError.cs" />
+    <Compile Include="Classes\Model\Error\MissingBlockError.cs" />
+    <Compile Include="Classes\Model\Error\MissingSourceError.cs" />
+    <Compile Include="Classes\Model\Error\IncompatibleTypesError.cs" />
+    <Compile Include="Classes\Model\Error\DestinationToOutputError.cs" />
+    <Compile Include="Classes\Model\Error\IncompatibleBaseTypesError.cs" />
+    <Compile Include="Classes\Model\Error\DestinationToCompositeOutputError.cs" />
+    <Compile Include="Classes\Model\Error\DestinationToCompositeInputError.cs" />
+    <Compile Include="Classes\Model\Error\IHasBinding.cs" />
+    <Compile Include="Classes\Model\Error\IHasTypes.cs" />
+    <Compile Include="Classes\Model\AdvanceBlockBind.cs" />
+    <Compile Include="Classes\Model\AdvanceCompositeBlock.cs" />
+    <Compile Include="Classes\Model\AdvanceCompositeBlockParameterDescription.cs" />
+    <Compile Include="Classes\Model\AdvanceConstantBlock.cs" />
+    <Compile Include="Classes\Model\AdvanceCreateModifyInfo.cs" />
+    <Compile Include="Communication\AbstractResponse.cs" />
+    <Compile Include="Core\XmlObjectSerializer.cs" />
+    <Compile Include="Communication\HttpResponse.cs" />
+    <Compile Include="Communication\XmlNodeTracker.cs" />
+    <Compile Include="Core\DistinguishedName.cs" />
+    <Compile Include="Implementation\AbstractRemoteDataStore.cs" />
+    <Compile Include="Classes\Model\AdvanceBlockParameterDescription.cs" />
+    <Compile Include="Classes\AdvanceCompilationResult.cs" />
+    <Compile Include="Classes\AdvanceEmailBox.cs" />
+    <Compile Include="Classes\AdvanceFTPDataSource.cs" />
+    <Compile Include="Classes\AdvanceJDBCDataSource.cs" />
+    <Compile Include="Classes\AdvanceJMSEndpoint.cs" />
+    <Compile Include="Classes\AdvanceKeyStore.cs" />
+    <Compile Include="Classes\AdvanceLocalFileDataSource.cs" />
+    <Compile Include="Classes\AdvanceRealm.cs" />
+    <Compile Include="Classes\AdvanceSOAPEndpoint.cs" />
+    <Compile Include="Classes\Model\AdvanceBlockReference.cs" />
+    <Compile Include="Classes\Model\AdvanceBlockVisuals.cs" />
+    <Compile Include="Classes\Model\AdvanceType.cs" />
+    <Compile Include="Classes\Model\AdvanceTypeVariable.cs" />
+    <Compile Include="Classes\AdvanceWebDataSource.cs" />
+    <Compile Include="Classes\Model\AdvanceBlockDescription.cs" />
+    <Compile Include="Core\Log.cs" />
+    <Compile Include="Interfaces\IXComparable.cs" />
+    <Compile Include="Classes\Typesystem\XCapability.cs" />
+    <Compile Include="Classes\Typesystem\XName.cs" />
+    <Compile Include="Interfaces\IXSemantics.cs" />
+    <Compile Include="Classes\Typesystem\XType.cs" />
+    <Compile Include="Classes\Typesystem\XTypeRecursionTracker.cs" />
+    <Compile Include="Communication\HttpAuthentication.cs" />
+    <Compile Include="Implementation\AbstractRemoteEngineControl.cs" />
+    <Compile Include="Interfaces\IType.cs" />
+    <Compile Include="Implementation\HttpRemoteDataStore.cs" />
+    <Compile Include="IDataStore.cs" />
+    <Compile Include="IDataStoreUpdate.cs" />
+    <Compile Include="Implementation\HttpRemoteEngineControl.cs" />
+    <Compile Include="Core\AdvanceControlException.cs" />
+    <Compile Include="Classes\AdvanceEngineVersion.cs" />
+    <Compile Include="Classes\AdvanceGenerateKey.cs" />
+    <Compile Include="Classes\AdvanceKeyEntry.cs" />
+    <Compile Include="Classes\AdvanceKeyStoreExport.cs" />
+    <Compile Include="Classes\AdvancePortSpecification.cs" />
+    <Compile Include="Classes\AdvanceSchemaRegistryEntry.cs" />
+    <Compile Include="Classes\AdvanceUser.cs" />
+    <Compile Include="Classes\Runtime\BlockDiagnostic.cs" />
+    <Compile Include="Communication\HttpCommunicator.cs" />
+    <Compile Include="Communication\AbstractXmlCommunicator.cs" />
+    <Compile Include="Core\AdvanceXMLException.cs" />
+    <Compile Include="Core\AdvanceEnums.cs" />
+    <Compile Include="Core\AdvanceIOException.cs" />
+    <Compile Include="Core\Utils.cs" />
+    <Compile Include="Core\XmlReadWrite.cs" />
+    <Compile Include="Interfaces\ICopiable.cs" />
+    <Compile Include="Classes\Runtime\PortDiagnostic.cs" />
+    <Compile Include="IAdvanceEngineControl.cs" />
+    <Compile Include="Interfaces\IIdentifiable.cs" />
+    <Compile Include="Interfaces\IPassword.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Classes\Runtime\BlockRegistryEntry.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
