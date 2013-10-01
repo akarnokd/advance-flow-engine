@@ -20,6 +20,11 @@
  */
 package eu.advance.logistics.live.reporter.model;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import hu.akarnokd.utils.database.SQLResult;
+
 /**
  * A postcode record class.
  * @author karnokd, 2013.09.23.
@@ -31,4 +36,15 @@ public class Postcode {
 	public String code;
 	/** The grouping of the postcode. */
 	public String group;
+	/** Default select. */
+	public static final SQLResult<Postcode> SELECT = new SQLResult<Postcode>() {
+		@Override
+		public Postcode invoke(ResultSet t) throws SQLException {
+			Postcode r = new Postcode();
+			r.id = t.getLong(1);
+			r.code = t.getString(2);
+			r.group = t.getString(3);
+			return r;
+		}
+	};
 }
