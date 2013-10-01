@@ -36,6 +36,8 @@ public class Consignment {
 	/** When the consignment was declared. */
 	@Nullable
 	public DateTime declared;
+	/** The target hub. */
+	public long hub;
 	/** Collection depot. */
 	public long collectionDepot;
 	/** Collection postcode. */

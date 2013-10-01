@@ -20,6 +20,12 @@
  */
 package eu.advance.logistics.live.reporter.model;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import hu.akarnokd.utils.database.DB;
+import hu.akarnokd.utils.database.SQLResult;
+
 /**
  * A vehicle record class.
  * @author karnokd, 2013.09.23.
@@ -43,4 +49,23 @@ public class Vehicle {
 	public double length;
 	/** Storage weight. */
 	public double weight;
+	/** Default select. */
+	public static final SQLResult<Vehicle> SELECT = new SQLResult<Vehicle>() {
+		@Override
+		public Vehicle invoke(ResultSet t) throws SQLException {
+			Vehicle r = new Vehicle();
+			
+			r.vehicleId = t.getString(1);
+			r.depot = t.getLong(2);
+			r.currentJob = DB.getLong(t, 3);
+			r.currentPosition = DB.getInt(t, 4);
+			r.capacity = t.getInt(5);
+			r.width = t.getDouble(6);
+			r.height = t.getDouble(7);
+			r.length = t.getDouble(8);
+			r.weight = t.getDouble(9);
+			
+			return r;
+		}
+	};
 }
