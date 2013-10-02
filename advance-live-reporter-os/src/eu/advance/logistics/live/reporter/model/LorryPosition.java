@@ -20,6 +20,11 @@
  */
 package eu.advance.logistics.live.reporter.model;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import hu.akarnokd.utils.database.SQLResult;
+
 /**
  * Lorry load/unload position in a warehouse.
  * @author karnokd, 2013.09.23.
@@ -29,6 +34,8 @@ public class LorryPosition {
 	public long hub;
 	/** Warehouse. */
 	public String warehouse;
+	/** The position index. */
+	public int index;
 	/** X coordinate. */
 	public double x;
 	/** Y coordinate. */
@@ -41,4 +48,23 @@ public class LorryPosition {
 	public int enterTime;
 	/** Seconds to leave the position and the warehouse. */
 	public int leaveTime;
+	/** Default select. */
+	public static final SQLResult<LorryPosition> SELECT = new SQLResult<LorryPosition>() {
+		@Override
+		public LorryPosition invoke(ResultSet t) throws SQLException {
+			LorryPosition r = new LorryPosition();
+			
+			r.hub = t.getLong(1);
+			r.warehouse = t.getString(2);
+			r.index = t.getInt(3);
+			r.x = t.getDouble(4);
+			r.y = t.getDouble(5);
+			r.width = t.getDouble(6);
+			r.height = t.getDouble(7);
+			r.enterTime = t.getInt(8);
+			r.leaveTime = t.getInt(9);
+			
+			return r;
+		}
+	};
 }
