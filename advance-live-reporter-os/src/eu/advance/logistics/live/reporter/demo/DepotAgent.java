@@ -21,12 +21,7 @@
 package eu.advance.logistics.live.reporter.demo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import org.joda.time.DateTime;
-
-import eu.advance.logistics.live.reporter.model.ItemEventType;
 
 /**
  * A depot manager "agent".
@@ -42,54 +37,4 @@ public class DepotAgent {
 	public final List<VehicleAgent> vehicles = new ArrayList<>();
 	/** The vehicles on site. */
 	public final List<VehicleAgent> onSite = new ArrayList<>();
-	/** The environment. */
-	private EnvironmentAgent env;
-	/**
-	 * Constructor, sets the environment.
-	 * @param env the environment
-	 */
-	public DepotAgent(EnvironmentAgent env) {
-		this.env = env;
-	}
-	/**
-	 * Item arrived from the collection postcode.
-	 * @param now the current time
-	 * @param item the item
-	 */
-	public void itemArrived(DateTime now, ConsItem item) {
-		toDeliver.add(item);
-		checkLoadVehicle(now);
-	}
-	/**
-	 * Vehicle arrived at the depot.
-	 * @param now the arrival time
-	 * @param va the vehicle
-	 */
-	public void vehicleArrived(DateTime now, VehicleAgent va) {
-		for (ConsItem item : va.contents) {
-			env.event(item.id, item.consignmentId, now, ItemEventType.DESTINATION_SCAN);
-		}
-		va.contents.clear();
-		va.targetHub = null;
-		va.atDepot = true;
-		onSite.add(va);
-		checkLoadVehicle(now);
-	}
-	/**
-	 * Check if vehicles can be loaded.
-	 * @param now the current time
-	 */
-	public void checkLoadVehicle(DateTime now) {
-		if (!onSite.isEmpty()) {
-			for (ConsItem ci : new ArrayList<>(toDeliver)) {
-				List<VehicleAgent> vas = new ArrayList<>(onSite);
-				Collections.sort(vas, VehicleAgent.CAPACITY);
-				for (VehicleAgent va : vas) {
-					if (va.tryLoadInDepot(now, ci)) {
-						toDeliver.remove(ci);
-					}
-				}
-			}
-		}
-	}
 }

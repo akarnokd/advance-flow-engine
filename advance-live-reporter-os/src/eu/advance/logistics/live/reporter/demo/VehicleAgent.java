@@ -20,15 +20,11 @@
  */
 package eu.advance.logistics.live.reporter.demo;
 
-import hu.akarnokd.reactive4java.base.Action0;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.joda.time.DateTime;
-
-import eu.advance.logistics.live.reporter.model.ItemEventType;
+import eu.advance.logistics.live.reporter.model.LorryPosition;
 
 /**
  * A vehicle delivering items to and from hub.
@@ -38,17 +34,21 @@ public class VehicleAgent {
 	/** The id. */
 	public String id;
 	/** The owner/target depot. */
-	public long depot;
+	public long depotId;
+	/** The owner depot. */
+	public DepotAgent depot;
 	/** The vehicle capacity. */
 	public int capacity;
 	/** The target hub, if moving towards it. */
-	public Long targetHub;
+	public Long hubId;
+	/** The hub where the vehicle is at. */
+	public HubAgent hub;
 	/** The session identifier. */
 	public String sessionId;
 	/** In a warehouse if not null. */
-	public String warehouse;
+	public WarehouseAgent warehouse;
 	/** In a lorry position if not null. */
-	public Integer position;
+	public LorryPosition position;
 	/** Vehicle is at a hub. */
 	public boolean atHub;
 	/** Vehicle is at a depot. */
@@ -62,77 +62,50 @@ public class VehicleAgent {
 			return Integer.compare(o1.capacity, o2.capacity);
 		}
 	};
-	/** The environment. */
-	private EnvironmentAgent env;
+	/** Capacity comparator. */
+	public static final Comparator<VehicleAgent> CAPACITY_CONTENTS = new Comparator<VehicleAgent>() {
+		@Override
+		public int compare(VehicleAgent o1, VehicleAgent o2) {
+			int c = Integer.compare(o1.capacity, o2.capacity);
+			if (c == 0) {
+				c = Integer.compare(o1.contents.size(), o2.contents.size());
+			}
+			return c;
+		}
+	};
 	/**
-	 * Constructor, sets the environment.
-	 * @param env the environment
+	 * Check if the vehicle is full.
+	 * @return true if vehicle is full
 	 */
-	public VehicleAgent(EnvironmentAgent env) {
-		this.env = env;
+	public boolean isFull() {
+		return contents.size() >= capacity;
 	}
 	/**
-	 * Try loading a consignment item into the vehicle at the depot.
-	 * @param now the current time
-	 * @param item the item to load
-	 * @return true if loaded successfully
+	 * Check if vehicle is empty.
+	 * @return true if empty
 	 */
-	public boolean tryLoadInDepot(DateTime now, ConsItem item) {
-		if (atDepot) {
-			if (targetHub == null) {
-				targetHub = item.consignment.hub;
-				add(now, item);
-				if (contents.size() >= capacity) {
-					departToHub(now);
-				}
+	public boolean isEmpty() {
+		return contents.isEmpty();
+	}
+	/**
+	 * Check if the vehicle contains items from the source depot.
+	 * @return true if source content is present
+	 */
+	public boolean sourceContent() {
+		for (ConsItem ci : contents) {
+			if (ci.consignment.collectionDepot == depotId) {
 				return true;
-			} else
-			if (targetHub == item.consignment.hub) {
-				if (contents.size() < capacity) {
-					add(now, item);
-					if (contents.size() >= capacity) {
-						departToHub(now);
-					}
-					return true;
-				}
 			}
 		}
 		return false;
 	}
 	/**
-	 * Depart the vehicle towards the hub.
-	 * @param now the time
+	 * Check if the vehicle contains items for the destination depot.
+	 * @return true if destination content is present
 	 */
-	public void departToHub(DateTime now) {
-		atDepot = false;
+	public boolean destinationContent() {
 		for (ConsItem ci : contents) {
-			env.event(ci.id, ci.consignmentId, now, ItemEventType.DECLARED);
-			env.declare(id, now, ci.externalId);
-		}
-		final DateTime hubArrive = env.depotHubTravel(now, depot, targetHub);
-		env.add(hubArrive, new Action0() {
-			@Override
-			public void invoke() {
-				env.hubArrive(hubArrive, targetHub, VehicleAgent.this);
-			}
-		});
-	}
-	/**
-	 * Add a consignment item.
-	 * @param now the current time
-	 * @param item the item to add
-	 */
-	public void add(DateTime now, ConsItem item) {
-		contents.add(item);
-		env.collectionScan(id, now, item);
-	}
-	/**
-	 * Check if the vehicle contains items from the collection depot.
-	 * @return true if contains items from collection depot
-	 */
-	public boolean needsUnload() {
-		for (ConsItem ci : contents) {
-			if (ci.consignment.collectionDepot == depot) {
+			if (ci.consignment.deliveryDepot == depotId) {
 				return true;
 			}
 		}

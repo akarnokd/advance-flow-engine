@@ -52,7 +52,7 @@ public class L1OverallData {
 	 * @return EnumSet of the used item statuses
 	 */
 	public static EnumSet<ItemStatus> getDisplayItems()	{
-		EnumSet<ItemStatus> result = EnumSet.of(ItemStatus.LEFT_HUB,
+		EnumSet<ItemStatus> result = EnumSet.of(ItemStatus.LEFT_HUB_TODAY,
 				ItemStatus.AT_HUB,
 				ItemStatus.DECLARED,
 				ItemStatus.SCANNED,

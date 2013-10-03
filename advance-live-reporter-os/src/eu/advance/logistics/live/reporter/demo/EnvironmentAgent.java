@@ -36,17 +36,22 @@ import hu.akarnokd.utils.database.DB;
 
 import java.awt.Point;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The base environment for the agents.
  * @author karnokd, 2013.10.02.
  */
 public class EnvironmentAgent {
+	/** The log. */
+	private static final Logger LOG = LoggerFactory.getLogger(EnvironmentAgent.class);
 	/** The database connection. */
 	protected final DB db;
 	/** The map of depots. */
@@ -70,9 +75,18 @@ public class EnvironmentAgent {
 	 * The event loop.
 	 */
 	public void eventLoop() {
+		int i = 1;
 		while (!events.isEmpty()) {
 			Pair<DateTime, Action0> e = events.remove();
 			e.second.invoke();
+			if (i % 1000 == 0) {
+				try {
+					db.commit();
+				} catch (SQLException ex) {
+					LOG.error(ex.toString(), ex);
+				}
+			}
+			i++;
 		}
 	}
 	/**
@@ -90,7 +104,7 @@ public class EnvironmentAgent {
 	public void setHubs(Iterable<Hub> hubs) {
 		hubAgents.clear();
 		for (Hub h : hubs) {
-			HubAgent ha = new HubAgent(this);
+			HubAgent ha = new HubAgent();
 			ha.id = h.id;
 			hubAgents.put(ha.id, ha);
 		}
@@ -104,7 +118,7 @@ public class EnvironmentAgent {
 		for (Warehouse wh : warehouses) {
 			HubAgent ha = hubAgents.get(wh.hub);
 			
-			WarehouseAgent wa = new WarehouseAgent(this);
+			WarehouseAgent wa = new WarehouseAgent();
 			wa.hub = wh.hub;
 			wa.warehouse = wh.warehouse;
 			
@@ -131,7 +145,7 @@ public class EnvironmentAgent {
 	public void setDepots(Iterable<Depot> depots) {
 		depotAgents.clear();
 		for (Depot d : depots) {
-			DepotAgent da = new DepotAgent(this);
+			DepotAgent da = new DepotAgent();
 			da.id = d.id;
 			
 			depotAgents.put(da.id, da);
@@ -147,9 +161,10 @@ public class EnvironmentAgent {
 		for (Vehicle v : vehicles) {
 			DepotAgent da = depotAgents.get(v.depot);
 			
-			VehicleAgent va = new VehicleAgent(this);
+			VehicleAgent va = new VehicleAgent();
 			va.id = v.vehicleId;
-			va.depot = v.depot;
+			va.depotId = v.depot;
+			va.depot = da;
 			va.capacity = v.capacity;
 			
 			da.onSite.add(va);
@@ -166,20 +181,6 @@ public class EnvironmentAgent {
 		for (LorryPosition lp : lorryPositions) {
 			WarehouseAgent wa = warehouseAgents.get(lp.warehouse);
 			wa.positions.add(lp);
-		}
-	}
-	/**
-	 * Stores an event for a particulare item.
-	 * @param itemId the item identifier
-	 * @param consignmentId the parent consignment id
-	 * @param timestamp the event timestamp
-	 * @param event the event
-	 */
-	public void event(long itemId, long consignmentId, DateTime timestamp, ItemEventType event) {
-		try {
-			db.update("INSERT INGORE INTO events VALUES (?, ?, ?, ?)", itemId, consignmentId, timestamp, event.ordinal());
-		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
 		}
 	}
 	/**
@@ -259,120 +260,308 @@ public class EnvironmentAgent {
 		return now.plusSeconds((int)d);
 	}
 	/**
+	 * Stores an event for a particulare item.
+	 * @param itemId the item identifier
+	 * @param consignmentId the parent consignment id
+	 * @param timestamp the event timestamp
+	 * @param event the event
+	 */
+	public void event(long itemId, long consignmentId, DateTime timestamp, ItemEventType event) {
+		try {
+			db.update("INSERT IGNORE INTO `events` VALUES (?, ?, ?, ?)", 
+					consignmentId, itemId, timestamp, event.ordinal());
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	/**
+	 * Record a scan onto vehicle event in the database tables.
+	 * @param va the vehicle agent
+	 * @param item the consignment item
+	 * @param when the current time
+	 * @param onto scan onto the vehicle
+	 */
+	public void depotScanVehicle(VehicleAgent va, ConsItem item, DateTime when, boolean onto) {
+		ItemEventType iet = onto ? ItemEventType.SOURCE_SCAN : ItemEventType.DESTINATION_SCAN;
+		event(item.id, item.consignmentId, when, iet);
+		try {
+			ScanType st = onto ? ScanType.SOURCE : ScanType.DESTINATION;
+			db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?)",
+					item.consignmentId, item.id, st.ordinal(),
+					va.depot, when, va.id
+			);
+			db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?)",
+					item.consignmentId, item.id, st.ordinal(),
+					va.depot, when, va.id
+			);
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	/**
+	 * Declare the contents of the entire vehicle.
+	 * @param va the vehicle
+	 * @param when the current time
+	 */
+	public void declare(VehicleAgent va, DateTime when) {
+		try {
+			for (ConsItem ci : va.contents) {
+				event(ci.id, ci.consignmentId, when, ItemEventType.DECLARED);
+				
+				db.update("UPDATE consignments SET declared = ? WHERE id = ? ", when, ci.consignmentId);
+				
+				db.update("UPDATE consignments_history SET declared = ? WHERE id = ? ", when, ci.consignmentId);
+				
+				db.update("INSERT INGORE INTO vehicle_declared VALUES (?, ?, ?)", va.id, when, ci.externalId);
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	/**
+	 * Record a vehicle enter-leave the hub.
+	 * @param va the vehicle
+	 * @param when the current time
+	 * @param enter enter?
+	 */
+	public void hubVehicleEnterLeave(VehicleAgent va, DateTime when, boolean enter) {
+		try {
+			for (ConsItem ci : va.contents) {
+				event(ci.id, ci.consignmentId, when, enter ? ItemEventType.HUB_ARRIVE : ItemEventType.HUB_LEAVE);
+			}
+			if (enter) {
+				va.sessionId = va.hub + "_" + when.toString("yyyyMMdd'_'HHmmss") + "_" + va.id;
+
+				db.update("INSERT IGNORE INTO vehicle_sessions VALUES (?, ?, ?, ?, ?)",
+						va.sessionId, va.id, va.hub, when, DateTime.class);
+			} else {
+				db.update("UPDATE vehicle_sessions SET leave_timestamp = ? WHERE session_id = ? ", when, va.sessionId);
+			}
+			
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	/**
+	 * Record a vehicle enter/leave a warehouse.
+	 * @param va the vehicle
+	 * @param when the current time
+	 * @param enter is enter?
+	 */
+	public void warehouseEnterLeave(VehicleAgent va, DateTime when, boolean enter) {
+		try {
+			long scanId = db.insertAuto("INSERT INTO vehicle_scan (session_id, scan_timestamp, warehouse, entry) VALUES (?, ?, ?, ?)",
+					va.sessionId, when, va.warehouse, enter);
+			
+			for (ConsItem ci : va.contents) {
+				event(ci.id, ci.consignmentId, when, enter ? ItemEventType.WAREHOUSE_ENTER : ItemEventType.WAREHOUSE_LEAVE);
+				
+				db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?)",
+						ci.consignmentId, ci.id, enter ? ScanType.WAREHOUSE_ENTER : ScanType.WAREHOUSE_LEAVE,
+						va.hub + " " + va.warehouse, when, va.id);
+
+				db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?)",
+						ci.consignmentId, ci.id, enter ? ScanType.WAREHOUSE_ENTER : ScanType.WAREHOUSE_LEAVE,
+						va.hub + " " + va.warehouse, when, va.id);
+				
+				db.update("INSERT IGNORE INTO vehicle_items VALUES (?, ?)", scanId, ci.externalId);
+			}
+			
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}		
+	}
+	/**
+	 * Record the scan of the item onto/off a vehicle.
+	 * @param va the vehicle
+	 * @param ci the item
+	 * @param when the current time
+	 * @param onto the direction
+	 */
+	public void warehouseItemScan(VehicleAgent va, ConsItem ci, DateTime when, boolean onto) {
+		try {
+			event(ci.id, ci.consignmentId, when, onto ? ItemEventType.SCAN_ON : ItemEventType.SCAN_OFF);
+			
+			db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?)",
+					ci.consignmentId, ci.id, onto ? ScanType.WAREHOUSE_MANUAL_LOAD : ScanType.WAREHOUSE_MANUAL_UNLOAD,
+					va.hub + " " + va.warehouse, when, va.id);
+
+			db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?)",
+					ci.consignmentId, ci.id, onto ? ScanType.WAREHOUSE_MANUAL_LOAD : ScanType.WAREHOUSE_MANUAL_UNLOAD,
+					va.hub + " " + va.warehouse, when, va.id);
+			
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}		
+		
+	}
+	/**
 	 * Add a new item.
 	 * @param item the item
 	 */
 	public void newItem(final ConsItem item) {
-		
-		event(item.id, item.consignmentId, item.consignment.created, ItemEventType.CREATED);
-		
-		final DateTime depotArrive = postcodeDepotTravel(item.consignment.created, item.consignment.collectionPostcode, item.consignment.collectionDepot);
-		
-		final DepotAgent da = depotAgents.get(item.consignment.collectionDepot);
-		
-		add(depotArrive, new Action0() {
+		DepotAgent da = depotAgents.get(item.consignment.collectionDepot);
+		da.toDeliver.add(item);
+		DateTime when = item.consignment.created;
+		event(item.id, item.consignmentId, when, ItemEventType.CREATED);
+
+		if (!da.onSite.isEmpty()) {
+			VehicleAgent va = Collections.max(da.onSite, VehicleAgent.CAPACITY_CONTENTS);
+			va.hubId = item.consignment.hub;
+			va.contents.add(item);
+			depotScanVehicle(va, item, when, true);
+
+			if (va.isFull()) {
+				leaveForHub(va, when);
+			}
+		}
+	}
+	/**
+	 * Leave for the hub.
+	 * @param va the vehicle
+	 * @param when the current time
+	 */
+	public void leaveForHub(final VehicleAgent va, DateTime when) {
+		va.atDepot = false;
+		va.depot.onSite.remove(va);
+		final DateTime arrive = depotHubTravel(when, va.depotId, va.hubId);
+		add(arrive, new Action0() {
 			@Override
 			public void invoke() {
-				da.itemArrived(depotArrive, item);
+				enterHub(va, arrive);
 			}
 		});
 	}
 	/**
-	 * Register a collection scan.
-	 * @param vehicleId the vehicle identifier
-	 * @param when the scan time
-	 * @param item the item
+	 * Enter the hub.
+	 * @param va the vehicle.
+	 * @param when the current time
 	 */
-	public void collectionScan(String vehicleId, DateTime when, ConsItem item) {
-		event(item.id, item.consignmentId, when, ItemEventType.SOURCE_SCAN);
-	
-		try {
-			db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?, ?)",
-					item.consignmentId, item.id, ScanType.SOURCE.ordinal(),
-					item.consignment.collectionDepot, true, when, vehicleId);
-
-			db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?, ?)",
-					item.consignmentId, item.id, ScanType.SOURCE.ordinal(),
-					item.consignment.collectionDepot, true, when, vehicleId);
-		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-	/**
-	 * Declare a pallet on a vehicle.
-	 * @param vehicleId the vehicle identifier
-	 * @param when the time of the declaration
-	 * @param externalItemId the item identifier
-	 */
-	public void declare(String vehicleId, DateTime when, String externalItemId) {
-		int iidx = externalItemId.indexOf("I");
-		long consId = Long.parseLong(externalItemId.substring(1, iidx));
-//		long itemId = Long.parseLong(externalItemId.substring(iidx + 1));
-		
-		try {
-			db.update("INSERT IGNORE INTO vehicle_declared VALUES (?, ?, ?)", vehicleId, when, externalItemId);
-			db.update("UPDATE consignments SET declared = ? WHERE id = ?", when, consId);
-			db.update("UPDATE consignments_history SET declared = ? WHERE id = ?", when, consId);
-		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-	/**
-	 * Vehicle arrived at hub.
-	 * @param now the current time
-	 * @param hub the hub
-	 * @param va the vehicle
-	 */
-	public void hubArrive(final DateTime now, final long hub, final VehicleAgent va) {
-		va.sessionId = hub + "_" + now.toString("yyyyMMdd'_'HHmmss") + "_" + va.id;
+	public void enterHub(VehicleAgent va, DateTime when) {
 		va.atHub = true;
+		va.hub = hubAgents.get(va.hubId);
+		va.hub.onSite.add(va);
 		
-		for (ConsItem ci : va.contents) {
-			event(ci.id, ci.consignmentId, now, ItemEventType.HUB_ARRIVE);
-		}
+		hubVehicleEnterLeave(va, when, true);
 		
-		HubAgent ha = hubAgents.get(va.targetHub);
-		ha.vehiclesOnSite.add(va);
-		ha.loadUnload(now);
+		dispatchVehicle(va, when);
 	}
 	/**
-	 * Register the contents of the vehicle entering/leaving its warehouse.
+	 * Dispatch a vehicle based on its contents.
 	 * @param va the vehicle
-	 * @param now the current time
-	 * @param enter is enter?
+	 * @param when the current time
 	 */
-	public void warehouseScan(VehicleAgent va, DateTime now, boolean enter) {
-		try {
-			long sid = db.insertAuto("INSERT INTO vehicle_scan (session_id, scan_timestamp, warehouse, entry) VALUES (?, ?, ?, ?)",
-					va.sessionId, now, va.warehouse, enter
-			);
-			for (ConsItem ci : va.contents) {
-				event(ci.id, ci.consignmentId, now, ItemEventType.WAREHOUSE_ENTER);
-				db.update("INSERT INTO vehicle_items VALUES (?, ?) ", sid, ci.externalId);
-				
-				ScanType st = enter ? ScanType.WAREHOUSE_ENTER : ScanType.WAREHOUSE_LEAVE;
-				
-				db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?)",
-						ci.consignmentId, ci.id, st,
-						va.targetHub + " " + va.warehouse, now, va.id);
-
-				db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?)",
-						ci.consignmentId, ci.id, st,
-						va.targetHub + " " + va.warehouse, now, va.id);
-
+	public void dispatchVehicle(final VehicleAgent va, final DateTime when) {
+		if (va.sourceContent()) {
+			WarehouseAgent wa = findUnloadWarehouse(va);
+			if (wa != null) {
+				enterWarehouse(va, wa, when);
+				unload(va, when);
+			} else {
+				// try again later
+				final DateTime next = when.plusMinutes(1);
+				add(next, new Action0() {
+					@Override
+					public void invoke() {
+						dispatchVehicle(va, next);
+					}
+				});
 			}
-		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-	/**
-	 * Indicate that no more consignments will appear on the given day.
-	 * @param now the current time
-	 */
-	public void consignmentsEnd(DateTime now) {
-		// TODO
-		for (DepotAgent da : depotAgents.valueCollection()) {
+		} else
+		if (va.destinationContent()) {
+			
+		} else
+		if (va.isEmpty()) {
 			
 		}
+	}
+	/**
+	 * Enter the warehouse.
+	 * @param va the vehicle
+	 * @param wa the warehouse
+	 * @param when the current time
+	 */
+	public void enterWarehouse(VehicleAgent va, WarehouseAgent wa, DateTime when) {
+		va.warehouse = wa;
+		va.position = wa.freeSlot();
+		wa.vehicles.add(va);
+		
+		warehouseEnterLeave(va, when, true);
+	}
+	/**
+	 * Schedule the unloading of items.
+	 * @param va the vehicle
+	 * @param when current time
+	 */
+	public void unload(final VehicleAgent va, DateTime when) {
+		DateTime first = when.plusSeconds(va.position.enterTime);
+		for (final ConsItem ci : va.contents) {
+			if (va.warehouse.depots.contains(ci.consignment.deliveryDepot)) {
+				
+				final DateTime dt = first;
+				add(first, new Action0() {
+					@Override
+					public void invoke() {
+						va.warehouse.storageAreas.put(ci.consignment.deliveryDepot, ci);
+						va.contents.remove(ci);
+						
+						warehouseItemScan(va, ci, dt, false);
+					}
+				});
+				
+				first = first.plusSeconds(10);
+			}
+		}
+		final DateTime dt = first;
+		add(first, new Action0() {
+			@Override
+			public void invoke() {
+				unloadComplete(va, dt);
+			}
+		});
+	}
+	/**
+	 * Called when the vehicle was unloaded successfully.
+	 * @param va the vehicle
+	 * @param dt the current time
+	 */
+	public void unloadComplete(final VehicleAgent va, DateTime dt) {
+		
+	}
+	/**
+	 * Find a warehouse which can accept most of the contents of the vehicle.
+	 * @param va the vehicle
+	 * @return the best warehouse, null if all are occupied
+	 */
+	public WarehouseAgent findUnloadWarehouse(VehicleAgent va) {
+
+		WarehouseAgent wres = null;
+		int bestWres = 0;
+		
+		for (WarehouseAgent wa : va.hub.warehouses) {
+			if (wa.vehicles.size() < wa.positions.size()) {
+				int contentThere = 0;
+				int contentVa = 0;
+				for (ConsItem ci : va.contents) {
+					contentThere += wa.storageAreas.get(ci.consignment.deliveryDepot).size();
+					contentVa += wa.depots.contains(ci.consignment.deliveryDepot) ? 1 : 0;
+				}
+				
+				if (contentVa > 0) {
+					if (wres == null || bestWres > contentThere) {
+						wres = wa;
+						bestWres = contentThere;
+					}
+				}
+			}
+		}
+		
+		return wres;
+	}
+	/**
+	 * Indicate that no more consignments will be created.
+	 */
+	public void consignmentsEnd() {
+		// TODO 
 	}
 }

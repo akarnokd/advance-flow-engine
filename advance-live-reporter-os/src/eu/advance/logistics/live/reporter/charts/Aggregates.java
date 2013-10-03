@@ -47,11 +47,11 @@ public class Aggregates {
 	@NonNull
 	public LinkedHashMap<ItemStatus, BarData> create() {
 		LinkedHashMap<ItemStatus, BarData> p = new LinkedHashMap<>();
-		p.put(ItemStatus.LEFT_HUB, new BarData(lefthub));
-		p.put(ItemStatus.AT_HUB, new BarData(athub));
-		p.put(ItemStatus.DECLARED, new BarData(declared));
-		p.put(ItemStatus.SCANNED, new BarData(scanned));
+		p.put(ItemStatus.LEFT_HUB_TODAY, new BarData(lefthub));
 		p.put(ItemStatus.CREATED, new BarData(created));
+		p.put(ItemStatus.SCANNED, new BarData(scanned));
+		p.put(ItemStatus.DECLARED, new BarData(declared));
+		p.put(ItemStatus.AT_HUB, new BarData(athub));
 		p.put(ItemStatus.PREDICTED, new BarData(predicted));
 		return p;
 	}
@@ -69,7 +69,8 @@ public class Aggregates {
 		case CREATED:
 			value = created;
 			break;
-		case LEFT_HUB:
+//		case LEFT_HUB:
+		case LEFT_HUB_TODAY:
 			value = lefthub;
 			break;
 		case DECLARED:

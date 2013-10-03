@@ -207,8 +207,8 @@ public class ConsignmentCreator {
 	 * @throws SQLException ingored
 	 */
 	public void run() throws SQLException {
-		DateMidnight startDay = new DateMidnight(2013, 7, 1);
-		DateMidnight endDay = new DateMidnight(2013, 12, 31);
+		DateMidnight startDay = new DateMidnight(2013, 9, 30);
+		DateMidnight endDay = new DateMidnight(2013, 9, 30);
 		
 		DateMidnight day = startDay;
 		
@@ -218,20 +218,14 @@ public class ConsignmentCreator {
 				if (dow != DateTimeConstants.SATURDAY && dow != DateTimeConstants.SUNDAY) {
 					System.out.printf("Day: %s%n", day);
 					List<Cons> cons = generate(day);
-					DateTime max = saveCons(cons);
+					saveCons(cons);
 					db.commit();
-					
-					if (max != null) {
-						env.consignmentsEnd(max);
-					}
 				}
 			}
 			
 			day = day.plusDays(1);
-
-			env.eventLoop();
-			db.commit();
 		}
+		env.consignmentsEnd();
 		env.eventLoop();
 		db.commit();
 	}
@@ -243,11 +237,12 @@ public class ConsignmentCreator {
 	 */
 	List<Cons> generate(DateMidnight day) throws SQLException {
 		List<Cons> r = new ArrayList<>();
-		LocalTime lt = new LocalTime(7, 0);
+		int lt = new LocalTime(7, 0).getMillisOfDay() / 1000;
 		int dy = day.getDayOfYear();
 		int dm = day.getDayOfMonth();
 		int dw = day.getDayOfWeek();
 		int k = 0;
+		int seconds = 0;
 		for (Postcode pc : postcodes) {
 			if (pc.id % 5 != dw - 1) {
 				int nf = 0;
@@ -273,7 +268,7 @@ public class ConsignmentCreator {
 				Cons cs = new Cons();
 				r.add(cs);
 				cs.id = ++consId;
-				cs.created = day.toDateTime().withTime(lt.getHourOfDay(), lt.getMinuteOfHour(), lt.getSecondOfMinute(), lt.getMillisOfSecond());
+				cs.created = day.toDateTime().plusSeconds(lt + seconds);
 				cs.itemCount = nf + nh + nq;
 				cs.collectionPostcode = pc.id;
 				cs.collectionDepot = postcodeClosestDepot.get(pc.id).id;
@@ -282,7 +277,7 @@ public class ConsignmentCreator {
 				cs.deliveryDepot = postcodeClosestDepot.get(dpc.id).id;
 				cs.externalId = "C" + cs.id;
 				
-				int sli = ((dm + k) % 30);
+				int sli = ((dm + k) % 29);
 				if (sli == 0) {
 					cs.service = ServiceLevel.SPECIAL;
 				} else
@@ -305,6 +300,7 @@ public class ConsignmentCreator {
 					ConsItem item = new ConsItem();
 					item.consignment = cs;
 					item.id = ++itemId;
+					item.consignmentId = cs.id;
 					item.length = 1;
 					item.width = 1;
 					item.height = 1;
@@ -315,6 +311,7 @@ public class ConsignmentCreator {
 					ConsItem item = new ConsItem();
 					item.consignment = cs;
 					item.id = ++itemId;
+					item.consignmentId = cs.id;
 					item.length = 1;
 					item.width = 1;
 					item.height = 0.5;
@@ -325,6 +322,7 @@ public class ConsignmentCreator {
 					ConsItem item = new ConsItem();
 					item.consignment = cs;
 					item.id = ++itemId;
+					item.consignmentId = cs.id;
 					item.length = 1;
 					item.width = 1;
 					item.height = 0.25;
@@ -338,8 +336,9 @@ public class ConsignmentCreator {
 			}
 			
 			
-			
-			lt = lt.plusSeconds(15);
+			seconds = (seconds + 20);
+
+
 			k++;
 		}
 		return r;
