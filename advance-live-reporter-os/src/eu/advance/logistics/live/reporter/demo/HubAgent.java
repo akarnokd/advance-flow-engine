@@ -23,8 +23,6 @@ package eu.advance.logistics.live.reporter.demo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
-
 /**
  * The hub agent.
  * @author karnokd, 2013.10.01.
@@ -33,33 +31,7 @@ public class HubAgent {
 	/** Identifier. */
 	public long id;
 	/** List of vehicles on site. */
-	public final List<VehicleAgent> vehiclesOnSite = new ArrayList<>();
+	public final List<VehicleAgent> onSite = new ArrayList<>();
 	/** List of vehicles. */
 	public final List<WarehouseAgent> warehouses = new ArrayList<>();
-	/** The environment. */
-	private EnvironmentAgent env;
-	/**
-	 * Constructor, sets the environment.
-	 * @param env the environment
-	 */
-	public HubAgent(EnvironmentAgent env) {
-		this.env = env;
-	}
-	/**
-	 * Schedule the loading and unloading vehicles.
-	 * @param now the current time
-	 */
-	public void loadUnload(DateTime now) {
-		for (VehicleAgent va : vehiclesOnSite) {
-			if (va.warehouse == null) {
-				if (va.needsUnload()) {
-					for (WarehouseAgent wa : warehouses) {
-						if (wa.tryEnter(now, va)) {
-							
-						}
-					}
-				}
-			}
-		}
-	}
 }

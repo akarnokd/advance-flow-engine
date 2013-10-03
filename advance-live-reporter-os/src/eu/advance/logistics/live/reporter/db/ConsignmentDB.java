@@ -483,7 +483,7 @@ public final class ConsignmentDB {
 			
 			for (TLongCollection ids : TroveUtils.split(consMap.keySet(), 1000)) {
 				sql.setLength(0);
-				sql.append("SELECT consingment_id, width, height, length FROM items ")
+				sql.append("SELECT consignment_id, width, height, length FROM items ")
 				.append("WHERE consignment_id IN (");
 				TroveUtils.join(ids, ",", sql);
 				sql.append(")");

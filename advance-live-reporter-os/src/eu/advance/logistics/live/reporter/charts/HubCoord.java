@@ -58,7 +58,7 @@ public class HubCoord extends BarCoordinate {
 	private void setNoOfTotalTick(ServiceLevel snip, SumData sumData) {
 		// Count: (totalCoord - sumData.maxLeftHub() + leftHub) DIV (tickUnit * scale)
 		int total = super.totalCoord.subtract(sumData.maxLeftHub(true))
-				.add(sumData.items.get(snip).get(OrientStatus.SINGLE).get(ItemStatus.LEFT_HUB).value).intValue();
+				.add(sumData.items.get(snip).get(OrientStatus.SINGLE).get(ItemStatus.LEFT_HUB_TODAY).value).intValue();
 		int tickScale = super.getTickScale().intValue();
 		this.noOfTotalTick.put(snip, new GraphDecimal((total / tickScale)));
 	}

@@ -27,12 +27,12 @@ package eu.advance.logistics.live.reporter.model;
 public enum ScanType {
 	/** Scan at the collection depot. */
 	SOURCE,
-	/** Manual scan at the hub off a vehicle. */
-	HUB_MANUAL_UNLOAD,
-	/** Manual scan at the hub onto a vehicle. */
-	HUB_MANUAL_LOAD,
 	/** Automatic warehouse scan on enter. */
 	WAREHOUSE_ENTER,
+	/** Manual scan at the warehouse off a vehicle. */
+	WAREHOUSE_MANUAL_UNLOAD,
+	/** Manual scan at the warehouse onto a vehicle. */
+	WAREHOUSE_MANUAL_LOAD,
 	/** Automatic warehouse scan on leave. */
 	WAREHOUSE_LEAVE,
 	/** Scan at the delivery depot. */

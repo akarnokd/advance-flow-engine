@@ -63,7 +63,7 @@ public final class Demo {
 	 */
 	private static void createMaster(DB db) throws SQLException {
 		// create hubs
-		int nHubs = 2;
+		int nHubs = 1;
 		for (int i = 1; i <= nHubs; i++) {
 			db.update("INSERT IGNORE INTO hubs VALUES (?, ?, ?, ?)", i, "Hub " + i, 1000, 1000);
 		}
@@ -73,7 +73,7 @@ public final class Demo {
 		for (int i = 1; i <= nDepots; i++) {
 			db.update("INSERT IGNORE INTO depots VALUES (?, ?) ", i, "Depot " + i);
 			
-			int nVehicles = (int)Math.ceil(5d * i / nDepots);
+			int nVehicles = 1 + (int)Math.ceil(5d * i / nDepots);
 			
 			for (int j = 1; j <= nVehicles; j++) {
 				db.update("INSERT IGNORE INTO vehicles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -96,7 +96,7 @@ public final class Demo {
 				db.update("INSERT IGNORE INTO warehouses VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
 						i, "Warehouse " + wi, x, y, 60, 100, 0, rnd.nextInt(5) + 5, "Warehouse " + (wi % 2 == 0 ? wi - 1 : wi + 1));
 				
-				int sa = (nDepots / 2) * ((j - 1) / 2);
+				int sa = ((j - 1) / 2) * (nDepots / 2);
 				for (int k = 0; k < nDepots / 2; k++) {
 					db.update("INSERT IGNORE INTO storage_areas VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 							i, "Warehouse " + wi, k % 2, k / 2, sa + k + 1, 20, 1.5, 0, 30
