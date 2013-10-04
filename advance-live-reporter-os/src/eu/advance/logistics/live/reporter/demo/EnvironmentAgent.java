@@ -36,12 +36,17 @@ import hu.akarnokd.utils.database.DB;
 
 import java.awt.Point;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +69,18 @@ public class EnvironmentAgent {
 	private final TLongObjectMap<HubAgent> hubAgents = new TLongObjectHashMap<>();
 	/** The event sequence. */
 	private final PriorityQueue<Pair<DateTime, Action0>> events = new PriorityQueue<>(256, new CompareFirst());
+	/** Time to load one item. */
+	public static final int LOAD_SECONDS = 10;
+	/** Time to unload one item. */
+	public static final int UNLOAD_SECONDS = 10;
+	/** Max wait in seconds in case of an empty hub/depot. */
+	public static final int MAX_LOAD_WAIT = 60 * 60;
+	/** The idle wait in seconds. */
+	public static final int IDLE_WAIT = 5 * 60;
+	/** Indication that no further consignments will be created. */
+	public boolean endOfConsignments;
+	/** Consignments not introduced yet. */
+	public final Set<ConsItem> pendingConsignments = new HashSet<>();
 	/**
 	 * Constructor.
 	 * @param db the database
@@ -120,11 +137,11 @@ public class EnvironmentAgent {
 			
 			WarehouseAgent wa = new WarehouseAgent();
 			wa.hub = wh.hub;
-			wa.warehouse = wh.warehouse;
+			wa.id = wh.warehouse;
 			
 			ha.warehouses.add(wa);
 			
-			warehouseAgents.put(wa.warehouse, wa);
+			warehouseAgents.put(wa.id, wa);
 		}
 	}
 	/**
@@ -163,7 +180,6 @@ public class EnvironmentAgent {
 			
 			VehicleAgent va = new VehicleAgent();
 			va.id = v.vehicleId;
-			va.depotId = v.depot;
 			va.depot = da;
 			va.capacity = v.capacity;
 			
@@ -285,14 +301,14 @@ public class EnvironmentAgent {
 		ItemEventType iet = onto ? ItemEventType.SOURCE_SCAN : ItemEventType.DESTINATION_SCAN;
 		event(item.id, item.consignmentId, when, iet);
 		try {
-			ScanType st = onto ? ScanType.SOURCE : ScanType.DESTINATION;
+			int st = (onto ? ScanType.SOURCE : ScanType.DESTINATION).ordinal();
 			db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?)",
-					item.consignmentId, item.id, st.ordinal(),
-					va.depot, when, va.id
+					item.consignmentId, item.id, st,
+					va.depot.id, when, va.id
 			);
 			db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?)",
-					item.consignmentId, item.id, st.ordinal(),
-					va.depot, when, va.id
+					item.consignmentId, item.id, st,
+					va.depot.id, when, va.id
 			);
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
@@ -312,7 +328,7 @@ public class EnvironmentAgent {
 				
 				db.update("UPDATE consignments_history SET declared = ? WHERE id = ? ", when, ci.consignmentId);
 				
-				db.update("INSERT INGORE INTO vehicle_declared VALUES (?, ?, ?)", va.id, when, ci.externalId);
+				db.update("INSERT IGNORE INTO vehicle_declared VALUES (?, ?, ?)", va.id, when, ci.externalId);
 			}
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
@@ -330,10 +346,10 @@ public class EnvironmentAgent {
 				event(ci.id, ci.consignmentId, when, enter ? ItemEventType.HUB_ARRIVE : ItemEventType.HUB_LEAVE);
 			}
 			if (enter) {
-				va.sessionId = va.hub + "_" + when.toString("yyyyMMdd'_'HHmmss") + "_" + va.id;
+				va.sessionId = va.hub.id + "_" + when.toString("yyyyMMdd'_'HHmmss") + "_" + va.id;
 
 				db.update("INSERT IGNORE INTO vehicle_sessions VALUES (?, ?, ?, ?, ?)",
-						va.sessionId, va.id, va.hub, when, DateTime.class);
+						va.sessionId, va.id, va.hub.id, when, DateTime.class);
 			} else {
 				db.update("UPDATE vehicle_sessions SET leave_timestamp = ? WHERE session_id = ? ", when, va.sessionId);
 			}
@@ -351,18 +367,19 @@ public class EnvironmentAgent {
 	public void warehouseEnterLeave(VehicleAgent va, DateTime when, boolean enter) {
 		try {
 			long scanId = db.insertAuto("INSERT INTO vehicle_scan (session_id, scan_timestamp, warehouse, entry) VALUES (?, ?, ?, ?)",
-					va.sessionId, when, va.warehouse, enter);
+					va.sessionId, when, va.warehouse.id, enter);
 			
 			for (ConsItem ci : va.contents) {
 				event(ci.id, ci.consignmentId, when, enter ? ItemEventType.WAREHOUSE_ENTER : ItemEventType.WAREHOUSE_LEAVE);
 				
+				int st = (enter ? ScanType.WAREHOUSE_ENTER : ScanType.WAREHOUSE_LEAVE).ordinal();
 				db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?)",
-						ci.consignmentId, ci.id, enter ? ScanType.WAREHOUSE_ENTER : ScanType.WAREHOUSE_LEAVE,
-						va.hub + " " + va.warehouse, when, va.id);
+						ci.consignmentId, ci.id, st,
+						va.hub.id + " " + va.warehouse.id, when, va.id);
 
 				db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?)",
-						ci.consignmentId, ci.id, enter ? ScanType.WAREHOUSE_ENTER : ScanType.WAREHOUSE_LEAVE,
-						va.hub + " " + va.warehouse, when, va.id);
+						ci.consignmentId, ci.id, st,
+						va.hub.id + " " + va.warehouse.id, when, va.id);
 				
 				db.update("INSERT IGNORE INTO vehicle_items VALUES (?, ?)", scanId, ci.externalId);
 			}
@@ -382,13 +399,14 @@ public class EnvironmentAgent {
 		try {
 			event(ci.id, ci.consignmentId, when, onto ? ItemEventType.SCAN_ON : ItemEventType.SCAN_OFF);
 			
+			int st = (onto ? ScanType.WAREHOUSE_MANUAL_LOAD : ScanType.WAREHOUSE_MANUAL_UNLOAD).ordinal();
 			db.update("INSERT IGNORE INTO scans VALUES (?, ?, ?, ?, ?, ?)",
-					ci.consignmentId, ci.id, onto ? ScanType.WAREHOUSE_MANUAL_LOAD : ScanType.WAREHOUSE_MANUAL_UNLOAD,
-					va.hub + " " + va.warehouse, when, va.id);
+					ci.consignmentId, ci.id, st,
+					va.hub.id + " " + va.warehouse.id, when, va.id);
 
 			db.update("INSERT IGNORE INTO scans_history VALUES (?, ?, ?, ?, ?, ?)",
-					ci.consignmentId, ci.id, onto ? ScanType.WAREHOUSE_MANUAL_LOAD : ScanType.WAREHOUSE_MANUAL_UNLOAD,
-					va.hub + " " + va.warehouse, when, va.id);
+					ci.consignmentId, ci.id, st,
+					va.hub.id + " " + va.warehouse.id, when, va.id);
 			
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
@@ -400,21 +418,21 @@ public class EnvironmentAgent {
 	 * @param item the item
 	 */
 	public void newItem(final ConsItem item) {
-		DepotAgent da = depotAgents.get(item.consignment.collectionDepot);
-		da.toDeliver.add(item);
-		DateTime when = item.consignment.created;
-		event(item.id, item.consignmentId, when, ItemEventType.CREATED);
-
-		if (!da.onSite.isEmpty()) {
-			VehicleAgent va = Collections.max(da.onSite, VehicleAgent.CAPACITY_CONTENTS);
-			va.hubId = item.consignment.hub;
-			va.contents.add(item);
-			depotScanVehicle(va, item, when, true);
-
-			if (va.isFull()) {
-				leaveForHub(va, when);
+		pendingConsignments.add(item);
+		final DateTime when = item.consignment.created;
+		add(when, new Action0() {
+			@Override
+			public void invoke() {
+				pendingConsignments.remove(item);
+				final DepotAgent da = depotAgents.get(item.consignment.collectionDepot);
+				da.toDeliver.add(item);
+				event(item.id, item.consignmentId, when, ItemEventType.CREATED);
+				if (!da.onSite.isEmpty()) {
+					VehicleAgent va = Collections.max(da.onSite, VehicleAgent.CAPACITY_CONTENTS);
+					dispatchDepotVehicle(va, when);
+				}
 			}
-		}
+		});
 	}
 	/**
 	 * Leave for the hub.
@@ -422,9 +440,12 @@ public class EnvironmentAgent {
 	 * @param when the current time
 	 */
 	public void leaveForHub(final VehicleAgent va, DateTime when) {
+		LOG.info(va.id + " DEPOT " + va.depot.id + " LEAVE [" + va.contents.size() + "] @ " + when.toString("yyyy-MM-dd HH:mm:ss"));
+		declare(va, when);
 		va.atDepot = false;
+		va.waiting = null;
 		va.depot.onSite.remove(va);
-		final DateTime arrive = depotHubTravel(when, va.depotId, va.hubId);
+		final DateTime arrive = depotHubTravel(when, va.depot.id, va.hubId);
 		add(arrive, new Action0() {
 			@Override
 			public void invoke() {
@@ -438,20 +459,21 @@ public class EnvironmentAgent {
 	 * @param when the current time
 	 */
 	public void enterHub(VehicleAgent va, DateTime when) {
+		LOG.info(va.id + " HUB ENTER [" + va.contents.size() + "] @ " + when.toString("yyyy-MM-dd HH:mm:ss"));
 		va.atHub = true;
 		va.hub = hubAgents.get(va.hubId);
 		va.hub.onSite.add(va);
 		
 		hubVehicleEnterLeave(va, when, true);
 		
-		dispatchVehicle(va, when);
+		dispatchHubVehicle(va, when);
 	}
 	/**
 	 * Dispatch a vehicle based on its contents.
 	 * @param va the vehicle
 	 * @param when the current time
 	 */
-	public void dispatchVehicle(final VehicleAgent va, final DateTime when) {
+	public void dispatchHubVehicle(final VehicleAgent va, final DateTime when) {
 		if (va.sourceContent()) {
 			WarehouseAgent wa = findUnloadWarehouse(va);
 			if (wa != null) {
@@ -459,21 +481,172 @@ public class EnvironmentAgent {
 				unload(va, when);
 			} else {
 				// try again later
-				final DateTime next = when.plusMinutes(1);
-				add(next, new Action0() {
-					@Override
-					public void invoke() {
-						dispatchVehicle(va, next);
-					}
-				});
+				final DateTime next = when.plusSeconds(IDLE_WAIT);
+				dispatchHubWait(va, next);
 			}
 		} else
-		if (va.destinationContent()) {
-			
+		if (va.destinationContent() && va.isFull()) {
+			leaveHub(va, when);
 		} else
-		if (va.isEmpty()) {
-			
+		if (va.destinationContent() || va.isEmpty()) {
+			WarehouseAgent wa = findLoadWarehouse(va);
+			if (wa != null) {
+				enterWarehouse(va, wa, when);
+				load(va, when, true);
+			} else {
+				if (va.waiting == null) {
+					va.waiting = when;
+				}
+				if (Seconds.secondsBetween(va.waiting, when).getSeconds() > MAX_LOAD_WAIT) {
+					va.waiting = null;
+					leaveHub(va, when);
+				} else {
+					final DateTime next = when.plusSeconds(IDLE_WAIT);
+					dispatchHubWait(va, next);
+				}
+			}
 		}
+	}
+	/**
+	 * Leave the hub.
+	 * @param va the vehicle
+	 * @param when the current time
+	 */
+	public void leaveHub(final VehicleAgent va, final DateTime when) {
+		LOG.info(va.id + " HUB LEAVE [" + va.contents.size() + "] @ " + when.toString("yyyy-MM-dd HH:mm:ss"));
+		hubVehicleEnterLeave(va, when, false);
+
+		final DateTime depotArrive = depotHubTravel(when, va.depot.id, va.hub.id);
+
+		va.hub.onSite.remove(va);
+		
+		va.hub = null;
+		va.atHub = false;
+		va.sessionId = null;
+		
+		add(depotArrive, new Action0() {
+			@Override
+			public void invoke() {
+				depotArrive(va, depotArrive);
+			}
+		});
+	}
+	/**
+	 * Vehicle arrived at a depot.
+	 * @param va the vehicle
+	 * @param when the time
+	 */
+	public void depotArrive(VehicleAgent va, DateTime when) {
+		LOG.info(va.id + " DEPOT " + va.depot.id + " ENTER [" + va.contents.size() + "] @ " + when.toString("yyyy-MM-dd HH:mm:ss"));
+		va.atDepot = true;
+		va.depot.onSite.add(va);
+		
+		for (ConsItem ci : va.contents) {
+			depotScanVehicle(va, ci, when, false);
+		}
+		va.contents.clear();
+		
+		dispatchDepotVehicle(va, when);
+	}
+	/**
+	 * Dispatch the depot vehicle.
+	 * @param va the vehicle
+	 * @param when the current time
+	 */
+	public void dispatchDepotVehicle(final VehicleAgent va, DateTime when) {
+		if (!va.atDepot) {
+			return;
+		} else
+		if (va.isFull()) {
+			leaveForHub(va, when);
+		} else
+		if (!va.depot.toDeliver.isEmpty()) {
+			int limit = va.limit();
+			for (ConsItem ci : new ArrayList<>(va.depot.toDeliver)) {
+				if (limit > 0) {
+					va.hubId = ci.consignment.hub;
+					va.contents.add(ci);
+					va.depot.toDeliver.remove(ci);
+					depotScanVehicle(va, ci, when, true);
+					limit--;
+				}
+			}
+			final DateTime wait = when.plusSeconds(LOAD_SECONDS);
+			dispatchDepotWait(va, wait);
+		} else
+		if (itemsForDepotExist(va.depot.id) || va.sourceContent()) {
+			if (va.waiting == null) {
+				va.waiting = when;
+			}
+			if (endOfConsignments || Seconds.secondsBetween(va.waiting, when).getSeconds() > MAX_LOAD_WAIT) {
+				leaveForHub(va, when);
+			} else {
+				final DateTime wait = when.plusSeconds(IDLE_WAIT);
+				dispatchDepotWait(va, wait);
+			}
+		} else
+		if (!endOfConsignments) {
+			final DateTime wait = when.plusSeconds(IDLE_WAIT);
+			dispatchDepotWait(va, wait);
+		}
+	}
+	/**
+	 * Wait for some time and run a dispatch in the depot.
+	 * @param va the vehicle
+	 * @param wait the time to wait
+	 */
+	protected void dispatchDepotWait(final VehicleAgent va, final DateTime wait) {
+		add(wait, new Action0() {
+			@Override
+			public void invoke() {
+				dispatchDepotVehicle(va, wait);
+			}
+		});
+	}
+	/**
+	 * Check if other depots, in-transit vehicles or the hub contains items for the target depot.
+	 * @param depot the target depot
+	 * @return true if items need to be fetched from hub
+	 */
+	public boolean itemsForDepotExist(long depot) {
+		for (ConsItem ci : pendingConsignments) {
+			if (ci.consignment.deliveryDepot == depot) {
+				return true;
+			}
+		}
+		for (DepotAgent da : depotAgents.valueCollection()) {
+			for (ConsItem ci : da.toDeliver) {
+				if (ci.consignment.deliveryDepot == depot) {
+					return true;
+				}
+			}
+		}
+		for (VehicleAgent va : vehicleAgents.values()) {
+			for (ConsItem ci : va.contents) {
+				if (ci.consignment.deliveryDepot == depot) {
+					return true;
+				}
+			}
+		}
+		for (WarehouseAgent wa : warehouseAgents.values()) {
+			if (wa.storageAreas.containsKey(depot)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * Wait until the given time and dispatch the vehicle again.
+	 * @param va the vehicle
+	 * @param next the wait end time
+	 */
+	protected void dispatchHubWait(final VehicleAgent va, final DateTime next) {
+		add(next, new Action0() {
+			@Override
+			public void invoke() {
+				dispatchHubVehicle(va, next);
+			}
+		});
 	}
 	/**
 	 * Enter the warehouse.
@@ -487,6 +660,7 @@ public class EnvironmentAgent {
 		wa.vehicles.add(va);
 		
 		warehouseEnterLeave(va, when, true);
+		LOG.debug(va.id + " WAREHOUSE " + wa.id + " ENTER [" + va.contents.size() + "] @ " + when.toString("yyyy-MM-dd HH:mm:ss"));
 	}
 	/**
 	 * Schedule the unloading of items.
@@ -509,7 +683,7 @@ public class EnvironmentAgent {
 					}
 				});
 				
-				first = first.plusSeconds(10);
+				first = first.plusSeconds(UNLOAD_SECONDS);
 			}
 		}
 		final DateTime dt = first;
@@ -526,7 +700,63 @@ public class EnvironmentAgent {
 	 * @param dt the current time
 	 */
 	public void unloadComplete(final VehicleAgent va, DateTime dt) {
-		
+		if (!va.sourceContent() && va.warehouse.storageAreas.containsKey(va.depot.id)) {
+			load(va, dt, false);
+		} else {
+			leaveWarehouse(va, dt);
+		}
+	}
+	/**
+	 * Leave the warehouse.
+	 * @param va the vehicle
+	 * @param when the time
+	 */
+	protected void leaveWarehouse(final VehicleAgent va, DateTime when) {
+		final DateTime leave = when.plusSeconds(va.position.leaveTime);
+		add(leave, new Action0() {
+			@Override
+			public void invoke() {
+				LOG.debug(va.id + " WAREHOUSE " + va.warehouse.id + " LEAVE [" + va.contents.size() + "] @ " + leave.toString("yyyy-MM-dd HH:mm:ss"));
+				warehouseEnterLeave(va, leave, false);
+
+				va.warehouse.vehicles.remove(va);
+				va.warehouse = null;
+				va.position = null;
+				
+				dispatchHubVehicle(va, leave);
+			}
+		});
+	}
+	/**
+	 * Load onto the vehicle.
+	 * @param va the vehicle
+	 * @param when the current time
+	 * @param waitEnter wait for vehicle enter?
+	 */
+	public void load(final VehicleAgent va, DateTime when, boolean waitEnter) {
+		DateTime dt = when;
+		if (waitEnter) {
+			dt = dt.plusSeconds(va.position.enterTime);
+		}
+		Collection<ConsItem> cs = va.warehouse.storageAreas.get(va.depot.id);
+		int limit = va.limit();
+		if (limit == 0 || cs.isEmpty()) {
+			leaveWarehouse(va, dt);
+		} else {
+			final ConsItem ci = cs.iterator().next();
+			if (va.warehouse.storageAreas.remove(va.depot.id, ci)) {
+				dt = dt.plusSeconds(LOAD_SECONDS);
+				final DateTime fdt = dt;
+				add(dt, new Action0() {
+					@Override
+					public void invoke() {
+						warehouseItemScan(va, ci, fdt, true);
+						va.contents.add(ci);
+						load(va, fdt, false);
+					}
+				});
+			}
+		}
 	}
 	/**
 	 * Find a warehouse which can accept most of the contents of the vehicle.
@@ -559,9 +789,54 @@ public class EnvironmentAgent {
 		return wres;
 	}
 	/**
+	 * Find a warehouse with the most content.
+	 * @param va the vehicle
+	 * @return the warehouse or null if no item can be found
+	 */
+	public WarehouseAgent findLoadWarehouse(VehicleAgent va) {
+		WarehouseAgent result = null;
+		int fill = 0;
+		for (WarehouseAgent wa : va.hub.warehouses) {
+			if (wa.vehicles.size() < wa.positions.size()) {
+				int cnt = wa.storageAreas.get(va.depot.id).size();
+				if (cnt > 0 && (result == null || cnt > fill)) {
+					fill = cnt;
+					result = wa;
+				}
+			}
+		}
+		return result;
+	}
+	/**
 	 * Indicate that no more consignments will be created.
 	 */
 	public void consignmentsEnd() {
-		// TODO 
+		endOfConsignments = true;
+	}
+	/**
+	 * Check if unprocessed items remained.
+	 * @return true if unprocessed items remained
+	 */
+	public boolean hasUnporcessed() {
+		boolean r = false;
+		for (WarehouseAgent wa : warehouseAgents.values()) {
+			if (!wa.storageAreas.isEmpty()) {
+				LOG.warn(wa.id + ": " + wa.storageAreas.size());
+				r = true;
+			}
+		}
+		for (DepotAgent da : depotAgents.valueCollection()) {
+			if (!da.toDeliver.isEmpty()) {
+				LOG.warn(da.id + ": " + da.toDeliver.size());
+				r = true;
+			}
+		}
+		for (VehicleAgent va : vehicleAgents.values()) {
+			if (!va.isEmpty()) {
+				LOG.warn(va.id + ": " + va.contents.size());
+				r = true;
+			}
+		}
+		return r;
 	}
 }
