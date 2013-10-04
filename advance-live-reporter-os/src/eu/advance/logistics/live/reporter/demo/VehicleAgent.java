@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import eu.advance.logistics.live.reporter.model.LorryPosition;
 
 /**
@@ -33,8 +35,6 @@ import eu.advance.logistics.live.reporter.model.LorryPosition;
 public class VehicleAgent {
 	/** The id. */
 	public String id;
-	/** The owner/target depot. */
-	public long depotId;
 	/** The owner depot. */
 	public DepotAgent depot;
 	/** The vehicle capacity. */
@@ -53,6 +53,8 @@ public class VehicleAgent {
 	public boolean atHub;
 	/** Vehicle is at a depot. */
 	public boolean atDepot = true;
+	/** The time when entered into a waiting state. */
+	public DateTime waiting;
 	/** The contents. */
 	public final List<ConsItem> contents = new ArrayList<>();
 	/** Capacity comparator. */
@@ -68,7 +70,7 @@ public class VehicleAgent {
 		public int compare(VehicleAgent o1, VehicleAgent o2) {
 			int c = Integer.compare(o1.capacity, o2.capacity);
 			if (c == 0) {
-				c = Integer.compare(o1.contents.size(), o2.contents.size());
+				c = Integer.compare(o2.contents.size(), o1.contents.size());
 			}
 			return c;
 		}
@@ -93,7 +95,7 @@ public class VehicleAgent {
 	 */
 	public boolean sourceContent() {
 		for (ConsItem ci : contents) {
-			if (ci.consignment.collectionDepot == depotId) {
+			if (ci.consignment.collectionDepot == depot.id) {
 				return true;
 			}
 		}
@@ -105,10 +107,17 @@ public class VehicleAgent {
 	 */
 	public boolean destinationContent() {
 		for (ConsItem ci : contents) {
-			if (ci.consignment.deliveryDepot == depotId) {
+			if (ci.consignment.deliveryDepot == depot.id) {
 				return true;
 			}
 		}
 		return false;
+	}
+	/**
+	 * The number of items that can be loaded onto the vehicle.
+	 * @return the load limit
+	 */
+	public int limit() {
+		return capacity - contents.size();
 	}
 }

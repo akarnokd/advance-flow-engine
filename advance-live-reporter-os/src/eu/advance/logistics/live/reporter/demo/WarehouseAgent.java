@@ -38,7 +38,7 @@ public class WarehouseAgent {
 	/** The hub. */
 	public long hub;
 	/** The warehouse. */
-	public String warehouse;
+	public String id;
 	/** The depots and the current contents. */
 	public final Multimap<Long, ConsItem> storageAreas = HashMultimap.create();
 	/** The target depots maintained by the warehouse. */

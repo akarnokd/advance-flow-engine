@@ -36,6 +36,8 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -56,6 +58,8 @@ import eu.advance.logistics.live.reporter.model.Warehouse;
  *
  */
 public class ConsignmentCreator {
+	/** The logger. */
+	private static final Logger LOG = LoggerFactory.getLogger(ConsignmentCreator.class);
 	/** The database connection. */
 	DB db;
 	/** Field. */
@@ -227,6 +231,9 @@ public class ConsignmentCreator {
 		}
 		env.consignmentsEnd();
 		env.eventLoop();
+		if (env.hasUnporcessed()) {
+			LOG.error("Items remained!");
+		}
 		db.commit();
 	}
 	/**
