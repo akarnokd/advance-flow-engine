@@ -1,14 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <crontab>
-<!-- 
 	<task id='ARXRunner' months='*' days='*' weekdays='1' hours='0' minutes='0' 
-	class='eu.advance.logistics.live.reporter.prediction.arx.ARXRunnerTask'>
+	class='eu.advance.logistics.live.reporter.cron.ArxRunnerTask'>
+		<param name="model-order" value="10"/>
 		<param name='days' value='365'/>
 		<param name='use-blacklist' value='true'/>
 		<param name='hub' value='1'/>
 		<param name='shift-start' value='5'/>
 		<param name='horizon' value='3'/>
 	</task>
+<!-- 
 	<task id='MLLearner' months='*' days='*' weekdays='1' hours='0' minutes='0'
 	class='eu.advance.logistics.live.reporter.prediction.ml.MLLearnerTask'>
 		<param name='days' value='365'/>
