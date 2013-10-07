@@ -29,7 +29,7 @@ public enum ServiceLevel {
 	STANDARD("Standard"),
 	/** Priority level. */
 	PRIORITY("Priority"),
-	/** Special levle. */
+	/** Special level. */
 	SPECIAL("Special"),
 	/** Used by the screens to indicate aggregation. */
 	ALL("All services");
