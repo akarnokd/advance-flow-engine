@@ -71,6 +71,24 @@ public final class SumChart {
 		return result;
 	}
 
+  /** The relevant service levels. */
+  private static final ServiceLevel[] SERVICE_LEVELS = {
+    ServiceLevel.ALL,
+    ServiceLevel.STANDARD,
+    ServiceLevel.PRIORITY,
+    ServiceLevel.SPECIAL
+  };
+  
+  /** The relevant item statuses. */
+  private static final ItemStatus[] ITEM_STATUSES = {
+    ItemStatus.LEFT_HUB_TODAY,
+    ItemStatus.AT_HUB,
+    ItemStatus.DECLARED,
+    ItemStatus.SCANNED,
+    ItemStatus.CREATED,
+    ItemStatus.PREDICTED
+  };
+	
 	/**
 	 * Create the direction JSON object.
 	 * @param sumData the data source
@@ -116,7 +134,7 @@ public final class SumChart {
 		switch(sumData.type) {
 		case HUB:
 			JSONArray tickArray = new JSONArray();
-			for (ServiceLevel sKey : ServiceLevel.values())	{
+			for (ServiceLevel sKey : SERVICE_LEVELS)	{
 				tickArray.add(((HubCoord)coord).noOfTotalTick.get(sKey).toPlainString());
 			}
 			result.put("noOfTotalTick", tickArray);
@@ -135,16 +153,7 @@ public final class SumChart {
 
 		return result; 
 	}
-	/** The relevant item statuses. */
-	private static final ItemStatus[] ITEM_STATUSES = {
-		ItemStatus.CREATED,
-		ItemStatus.SCANNED,
-		ItemStatus.DECLARED,
-		ItemStatus.AT_HUB,
-		ItemStatus.LEFT_HUB_TODAY,
-		ItemStatus.PREDICTED
-	};
-
+	
 	/**
 	 * Create the status JSON array.
 	 * @return the created JSON array
@@ -162,6 +171,7 @@ public final class SumChart {
 		return resultArray;
 	}
 
+	
 	/**
 	 * Create the bars JSON array.
 	 * @param coord the coordinate object
@@ -176,7 +186,7 @@ public final class SumChart {
 		JSONArray orientRec;
 		EnumSet<OrientStatus> orientKeys = bar.getOrientKeys();
 
-		for (ServiceLevel uKey: ServiceLevel.values()) {
+		for (ServiceLevel uKey: SERVICE_LEVELS) {
 			typeRec = new JSONObject();
 			typeRec.put("unit", uKey.getMessage());
 			typeRec.put("name", bar.name);

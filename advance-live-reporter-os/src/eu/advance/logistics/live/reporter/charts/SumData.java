@@ -124,10 +124,12 @@ public class SumData {
 	 */
 	public void checkBaus() {
 		GraphDecimal value = new GraphDecimal(0);
+		// Widest range case: login at hub and selected any depot.
+		ItemStatus[] statuses = {ItemStatus.AT_HUB, ItemStatus.DECLARED, ItemStatus.SCANNED, ItemStatus.CREATED, ItemStatus.PREDICTED};
 
 		for (OrientStatus oKey : this.getOrientKeys()) {
-			GraphDecimal inner = new GraphDecimal(0);
-			for (ItemStatus pKey : ItemStatus.values()) {
+			GraphDecimal inner = this.maxLeftHub(true);
+			for (ItemStatus pKey : statuses) {
 				BarData bd = this.items.get(ServiceLevel.ALL).get(oKey).get(pKey);
 				if (bd != null) {
 					inner = inner.add(new GraphDecimal(bd.value));
