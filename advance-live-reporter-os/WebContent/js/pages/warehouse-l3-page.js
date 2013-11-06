@@ -81,7 +81,7 @@
 			callChart : function(modeType)
 			{
 				var mySelf = this;
-				var s = mySelf.active.warehouse.split("_");
+				var s = mySelf.active.warehouse;
 				var o = mySelf.active.option.split("_");
 				var r = mySelf.active.order.split("_");
 				var storageId = 0;
@@ -101,10 +101,10 @@
 				  url : "api-warehouse-l3.jsp",
 				  data : {
 				  	mode : modeType,
-				  	warehouse_name : s[1],
+				  	warehouse_name : s,
 				  	warehouse_l3_option : o[1],
 				  	storage_order : r[1],
-					warehouse_l3_storage_id : storageId
+				  	warehouse_l3_storage_id : storageId
 				  }
 				});
 			}

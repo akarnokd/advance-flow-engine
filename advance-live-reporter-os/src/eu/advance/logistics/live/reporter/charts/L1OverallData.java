@@ -84,7 +84,7 @@ public class L1OverallData {
 	public void checkBaus()	{
 		GraphDecimal value = new GraphDecimal(0);
 
-		for (ItemStatus pKey : ItemStatus.values()) {
+		for (ItemStatus pKey : L1OverallData.getDisplayItems()) {
 			value = value.add(new GraphDecimal(this.items.get(WarehouseServiceLevel.ALL).get(pKey).value));
 		}
 

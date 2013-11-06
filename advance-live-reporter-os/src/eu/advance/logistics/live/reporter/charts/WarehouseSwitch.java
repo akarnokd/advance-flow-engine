@@ -52,26 +52,95 @@ public class WarehouseSwitch {
 	private WarehouseOption l3warehouseOption;
 	/** Level 3 selected storage area ID. */
 	private long l3SelectedStorageId;
+	
 	/** The hub id. */
 	private final long hubId;
 	/** The user. */
 	private final String user;
+  /** The map of warehouse pairs. */
+  private final Map<String, String> warehousePairMap;
+	
 	/**
 	 * Constructor.
 	 * @param hubId the hub
 	 * @param warehouse the starting warehouse
 	 * @param user the user name
 	 */
-	public WarehouseSwitch(long hubId, String warehouse, String user) {
+	public WarehouseSwitch(long hubId, String user) {
 		this.hubId = hubId;
-		this.warehouse = warehouse;
-		this.user = user;
-		this.l2warehouseOption = WarehouseOption.A;
+    this.user = user;
+    this.warehousePairMap = this.getWarehousePairMap();
+    this.warehouse = this.getFirstWarehousePairTop();
+		
+    this.l2warehouseOption = WarehouseOption.A;
 		this.storageOrder = StorageAreaOrder.PHYSICAL;
 
 		this.l3warehouseOption = WarehouseOption.LEFT;    
 		this.l3SelectedStorageId = 0;
 	}
+	
+	private Map<String, String> getWarehousePairMap()
+	{
+    Map<String, String> wPair = new LinkedHashMap<>();
+    List<Warehouse> list = MasterDB.warehouses(1);
+    
+    if(list.isEmpty() == false)
+    {
+      for(Warehouse item: list)
+      {
+        if( (wPair.containsKey(item.warehouse) == false) && (wPair.containsValue(item.warehouse) == false))
+        {
+          wPair.put(item.warehouse, item.pair);
+        }
+      }
+    }
+    
+	  return wPair;
+	}
+	
+	public String getFirstWarehousePairTop()
+	{
+	  return this.warehousePairMap.keySet().iterator().next();
+	}
+	
+	public String getWarehousePairTop()
+	{
+	  String res = "";
+	  
+	  if(warehousePairMap.containsKey(this.warehouse))
+	  {
+	    res = this.warehouse;
+	  }
+	  else if(warehousePairMap.containsValue(this.warehouse))
+	  {
+	    for(String keyItem : warehousePairMap.keySet())
+	    {
+	      if(warehousePairMap.get(keyItem).equals(this.warehouse))
+	      {
+	        res = keyItem;
+	      }
+	    }
+	  }
+	  
+	  return res;
+	}
+	
+	public String getWarehousePairBottom()
+	{
+	  String res = "";
+	  
+	  if(this.warehousePairMap.containsKey(this.warehouse))
+	  {
+	    res = this.warehousePairMap.get(this.warehouse);
+	  }
+	  else if(this.warehousePairMap.containsValue(this.warehouse))
+	  {
+	    res = this.warehouse;
+	  }
+	  
+	  return res;
+	}
+	
 	/**
 	 * Returns the hub of this warehouse.
 	 * @return the hub id
@@ -79,6 +148,12 @@ public class WarehouseSwitch {
 	public long hubId() {
 		return hubId;
 	}
+	
+	public void setWarehouse(String warehouse)
+	{
+	  this.warehouse = warehouse;
+	}
+	
 	/**
 	 * Set the level 2 warehouse option.
 	 * @param option the option

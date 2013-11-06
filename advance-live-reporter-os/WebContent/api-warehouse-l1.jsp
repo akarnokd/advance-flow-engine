@@ -27,7 +27,8 @@
       HubDepotSwitch hubDepotSwitch = new HubDepotSwitch(user.hub, user.name);
       hubDepotSwitch.setDateTime(new Date());
       
-      WarehouseSwitch warehouseSwitch = new WarehouseSwitch(user.hub, request.getParameter("warehouse_name"), user.name);
+      WarehouseSwitch warehouseSwitch = new WarehouseSwitch(user.hub, user.name);
+      warehouseSwitch.setWarehouse(request.getParameter("warehouse_name"));
       
       L1OverallData overallData = new L1OverallData(warehouseSwitch);
       L1AtHubData atHubData = new L1AtHubData(warehouseSwitch);

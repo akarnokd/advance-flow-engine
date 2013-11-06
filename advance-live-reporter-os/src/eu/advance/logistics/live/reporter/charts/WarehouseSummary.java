@@ -168,7 +168,9 @@ public final class WarehouseSummary {
 		
 		double d = 0;
 		for (WarehouseSide sKey : WarehouseSide.values()) {
-			d += warehouseCapacityMap.get(warehouse).get(sKey);
+		  // FIXME somehow!
+			d += warehouseCapacityMap.get(warehouse + WarehouseType.A).get(sKey);
+			d += warehouseCapacityMap.get(warehouse + WarehouseType.B).get(sKey);
 		}
 		return d;
 		

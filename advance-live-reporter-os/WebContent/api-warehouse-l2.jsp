@@ -30,7 +30,8 @@ else
     HubDepotSwitch hubDepotSwitch = new HubDepotSwitch(user.hub, user.name);
     hubDepotSwitch.setDateTime(new Date());
     
-    WarehouseSwitch warehouseSwitch = new WarehouseSwitch(user.hub, request.getParameter("warehouse_name"), user.name);
+    WarehouseSwitch warehouseSwitch = new WarehouseSwitch(user.hub, user.name);
+    warehouseSwitch.setWarehouse(request.getParameter("warehouse_name"));
     warehouseSwitch.setL2WarehouseOption(request.getParameter("warehouse_option"));
     warehouseSwitch.setStorageAreaOrder(request.getParameter("storage_order"));
     

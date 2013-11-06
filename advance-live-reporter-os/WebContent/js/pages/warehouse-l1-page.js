@@ -78,13 +78,13 @@
 			callChart : function()
 			{
 				var mySelf = this;
-				var s = mySelf.active.warehouse.split("_");
+				var s = mySelf.active.warehouse;
 				
 				$("div#k2").warehousel1chart("clearBar");
 				$("div#k2").warehousel1chart("warehouseL1Bar", {
 				  url : "api-warehouse-l1.jsp",
 				  data : {
-					  warehouse_name : s[1]
+					  warehouse_name : s
 				    }
 				});
 			}

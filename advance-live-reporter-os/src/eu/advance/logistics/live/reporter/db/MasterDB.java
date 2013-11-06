@@ -398,6 +398,7 @@ public final class MasterDB {
 				map.put(sd, new ArrayList<StorageAreaInfo>());
 			}
 		}
+		
 		TLongObjectMap<StorageSide> depotSide = new TLongObjectHashMap<>();
 		for (Warehouse wh : warehouses) {
 			String sn = wh.warehouse;
@@ -446,6 +447,7 @@ public final class MasterDB {
 				Collections.sort(l);
 			}
 		}
+		
 		return result;
 	}
 	/**
@@ -484,6 +486,10 @@ public final class MasterDB {
 			for (WarehouseType stype : WarehouseType.values()) {
 	 			Map<WarehouseSide, Double> sd = new LinkedHashMap<>();
 	 			String key = snKey.toString() + stype.toString();
+	 			
+	 			// FIXME somehow!
+	 			System.out.println("X3 " + key);
+	 			
 				result.put(key, sd);
 				for (WarehouseSide ssKey : WarehouseSide.values()) {
 					double count = 0;
@@ -494,6 +500,7 @@ public final class MasterDB {
 				}
 			}
 		}
+		
 		return result;
 	}
 }
