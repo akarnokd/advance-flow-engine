@@ -1,9 +1,9 @@
+<%@page import="hu.akarnokd.utils.lang.*"%>
 <%@page import="java.util.Date"%>
 <%@page import="eu.advance.logistics.live.reporter.charts.*"%>
 <%@page import="eu.advance.logistics.live.reporter.model.*"%>
 <%
 User user = null;
-HubDepotSwitch hubDepotSwitch = null;
 WarehouseSwitch warehouseSwitch = null;
 
 synchronized(session)
@@ -23,17 +23,35 @@ else if(user.depot != null)
 else
 {
   warehouseSwitch = (WarehouseSwitch)request.getAttribute("WAREHOUSE_SWITCH");
-  if (warehouseSwitch == null ) {
-    try {
-        if (request.getParameter("warehouse_name") != null) {
-        	warehouseSwitch = new WarehouseSwitch(user.hub, request.getParameter("warehouse_name"), user.name);
-    	  warehouseSwitch.setL2WarehouseOption(request.getParameter("warehouse_option"));
-    	  warehouseSwitch.setStorageAreaOrder(request.getParameter("storage_order"));
-    	  warehouseSwitch.setL3WarehouseOption(request.getParameter("warehouse_l3_option"));
-	      if (request.getParameter("warehouse_l3_storage_id") != null) {
-	    	  warehouseSwitch.setL3SelectedStorageId(Long.parseLong(request.getParameter("warehouse_l3_storage_id")));
-	      }
-      }
+  if (warehouseSwitch == null )
+  {
+    try
+    {
+      warehouseSwitch = new WarehouseSwitch(user.hub, user.name);
+      
+      String whName = ObjectUtils.nvl(request.getParameter("warehouse_name"), warehouseSwitch.getFirstWarehousePairTop());
+      String whOption = ObjectUtils.nvl(request.getParameter("warehouse_option"), "A");
+      String stOrder = ObjectUtils.nvl(request.getParameter("storage_order"), "PHYSICAL");
+      String whL3Option = ObjectUtils.nvl(request.getParameter("warehouse_l3_option"), "LEFT");
+      
+      String whL3StId = ObjectUtils.nvl(request.getParameter("warehouse_l3_storage_id"), "0");
+      
+      warehouseSwitch.setWarehouse(whName);
+      warehouseSwitch.setL2WarehouseOption(whOption);
+      warehouseSwitch.setStorageAreaOrder(stOrder);
+      warehouseSwitch.setL3WarehouseOption(whL3Option);
+      warehouseSwitch.setL3SelectedStorageId(Long.parseLong(whL3StId));
+      
+      
+      /*
+	  	warehouseSwitch.setL2WarehouseOption(request.getParameter("warehouse_option"));
+	  	warehouseSwitch.setStorageAreaOrder(request.getParameter("storage_order"));
+	  	warehouseSwitch.setL3WarehouseOption(request.getParameter("warehouse_l3_option"));
+    	if (request.getParameter("warehouse_l3_storage_id") != null) {
+  	  	warehouseSwitch.setL3SelectedStorageId(Long.parseLong(request.getParameter("warehouse_l3_storage_id")));
+    	}
+    	*/
+      
     }
     catch(IllegalArgumentException e)
     {
@@ -61,10 +79,10 @@ else
 		<div id="warehouse-up-down" class="warehouse-up-down"></div>
 
 		<form id="warehouse_form" method="post" action="" accept-charset="UTF-8">
-			<input type="hidden" name="warehouse_name" value=""> <input
-				type="hidden" name="warehouse_option" value=""> <input
-				type="hidden" name="storage_order" value=""> <input
-				type="hidden" name="warehouse_l3_option" value="">
+			<input type="hidden" name="warehouse_name" value="">
+			<input type="hidden" name="warehouse_option" value="">
+			<input type="hidden" name="storage_order" value="">
+			<input type="hidden" name="warehouse_l3_option" value="">
 		</form>
 	</div>
 	<div class="option-container">
@@ -75,10 +93,10 @@ else
 		<div id="selector_warehouse" class="option-inner warehouse-width">
 			<table>
 				<tr>
-					<td id="warehouse_1" class="inactive">1</td>
+					<td id="warehouse_top" class="inactive"><%= warehouseSwitch.getWarehousePairTop()%></td>
 				</tr>
 				<tr>
-					<td id="warehouse_2" class="inactive">2</td>
+					<td id="warehouse_bottom" class="inactive"><%= warehouseSwitch.getWarehousePairBottom()%></td>
 				</tr>
 			</table>
 		</div>
@@ -148,7 +166,7 @@ if (typeof Object.create !== 'function')
 			var mySelf = this;
 			mySelf.atPage = param;
 			
-			mySelf.active.warehouse = "warehouse_<%= warehouseSwitch.getWarehouse().toLowerCase()%>";
+			mySelf.active.warehouse = "<%= warehouseSwitch.getWarehouse()%>";
 			mySelf.active.option = "option_<%= warehouseSwitch.getL2WarehouseOption().name().toLowerCase()%>";
 			mySelf.active.order = "order_<%= warehouseSwitch.getStorageOrder().name().toLowerCase()%>";
 			mySelf.active.l3option = "option_<%= warehouseSwitch.getL3WarehouseOption().name().toLowerCase()%>";
@@ -157,8 +175,9 @@ if (typeof Object.create !== 'function')
 			{
 				mySelf.setUpDown("warehouse-down", "warehouse-l2.jsp");
 				
-				mySelf.setInitMenu("warehouse");
-				mySelf.buttonGroupHandler("warehouse");
+				mySelf.setWarehouseMenu();
+				mySelf.buttonWarehouseHandler();
+				
 				$("#selector_option").hide();
 				$("#selector_order").hide();
 			}
@@ -166,7 +185,7 @@ if (typeof Object.create !== 'function')
 			{
 				mySelf.setUpDown("warehouse-up", "warehouse-l1.jsp");
 				
-				mySelf.setInitMenu("warehouse");
+				mySelf.setWarehouseMenu();
 
 				mySelf.setInitMenu("option");
 				mySelf.buttonGroupHandler("option");
@@ -177,7 +196,7 @@ if (typeof Object.create !== 'function')
 			{
 				mySelf.setUpDown("warehouse-up", "warehouse-l2.jsp");
 				
-				mySelf.setInitMenu("warehouse");
+				mySelf.setWarehouseMenu();
 
 				mySelf.setInitMenu("option", "l3");
 				mySelf.buttonGroupHandler("option");
@@ -235,13 +254,65 @@ if (typeof Object.create !== 'function')
 				var active = mySelf.getAllEnumMenu();
 
 				$("#warehouse_form").attr("action", actionURL);
-				$('#warehouse_form input[name="warehouse_name"]').val(active.warehouse);
+				$('#warehouse_form input[name="warehouse_name"]').val(active.warehouse);				
 				$('#warehouse_form input[name="warehouse_option"]').val(active.option);
 				$('#warehouse_form input[name="storage_order"]').val(active.order);
 				$('#warehouse_form input[name="warehouse_l3_option"]').val(active.l3option);
 				
 				$("#warehouse_form").submit();
 			});
+		},
+		
+		// Set the warehouse menu based on mySelf.active
+		setWarehouseMenu : function()
+		{
+			var mySelf = this;
+			var active = mySelf.active;
+			var ss = 'td[id^="warehouse_"]';
+			
+			$(ss).toggleClass(mySelf.actClass, false);
+			if($('td[id="warehouse_top"]').text() == active.warehouse)
+			{
+				$('td[id="warehouse_top"]').toggleClass(mySelf.actClass);
+			}
+			else if($('td[id="warehouse_bottom"]').text() == active.warehouse)
+			{
+				$('td[id="warehouse_bottom"]').toggleClass(mySelf.actClass);
+			}
+		},
+		
+		// Warehouse button group handler
+		buttonWarehouseHandler : function()
+		{
+			var mySelf = this;
+			var ss = 'td[id^="warehouse_"]';
+			
+			$(ss).on("click", function(event)
+			{
+				var isChanged = true;
+
+				if ($("#" + event.target.id).hasClass(mySelf.actClass) == false)
+				{
+					$(ss).toggleClass(mySelf.actClass, false);
+					$("#" + event.target.id).toggleClass(mySelf.actClass);
+				} else
+				{
+					isChanged = false;
+				}
+
+				if (isChanged)
+				{
+					var t = "click.warehouse";
+					var actValue = $('td[id="' + event.target.id + '"]').text();
+					
+					$("#hand_warehouse").triggerHandler({
+						type : t,
+						active : actValue,
+					});
+				}
+
+			});
+			
 		},
 		
 		// Set the switchboard menu based on the mySelf.active and the level 
@@ -297,7 +368,7 @@ if (typeof Object.create !== 'function')
 		{
 			var active = {};
 			
-			active.warehouse = $('td[id^="warehouse_"].active').attr("id");
+			active.warehouse = $('td[id^="warehouse_"].active').text();
 			active.option = $('td[id^="option_"].active').attr("id");
 			active.order = $('td[id^="order_"].active').attr("id");
 			
@@ -312,8 +383,7 @@ if (typeof Object.create !== 'function')
 			
 			if(mySelf.atPage == "l1")
 			{
-				var s = $('td[id^="warehouse_"].active').attr("id").split("_");
-				active.warehouse = s[1];
+				active.warehouse = $('td[id^="warehouse_"].active').text();
 				
 				var o = mySelf.active.option.split("_");
 				active.option = o[1];
@@ -326,8 +396,7 @@ if (typeof Object.create !== 'function')
 			}
 			else if(mySelf.atPage == "l2")
 			{
-				var s = $('td[id^="warehouse_"].active').attr("id").split("_");
-				active.warehouse = s[1];
+				active.warehouse = $('td[id^="warehouse_"].active').text();
 				
 				var o = $('td[id^="option_"].active').attr("id").split("_");
 				active.option = o[1];
@@ -340,8 +409,7 @@ if (typeof Object.create !== 'function')
 			}
 			else if(mySelf.atPage == "l3")
 			{
-				var s = $('td[id^="warehouse_"].active').attr("id").split("_");
-				active.warehouse = s[1];
+				active.warehouse = $('td[id^="warehouse_"].active').text();				
 				
 				var o = mySelf.active.option.split("_");
 				active.option = o[1];

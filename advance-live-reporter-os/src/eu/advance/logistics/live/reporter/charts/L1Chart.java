@@ -69,11 +69,13 @@ public final class L1Chart {
 		JSONObject result = new JSONObject();
 
 		JSONArray inner = new JSONArray();
+		int ordinal = 0;
 		for (ItemStatus keyItem : L1OverallData.getDisplayItems()) {
 			JSONObject statusRecord = new JSONObject();
 			statusRecord.put("info", keyItem.getInfo());
 			statusRecord.put("message", keyItem.getMessage());
-			inner.add(keyItem.ordinal(), statusRecord);      
+			inner.add(ordinal, statusRecord);
+			ordinal++;
 		}
 		result.put("overall", inner);
 

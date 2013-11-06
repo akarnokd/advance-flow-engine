@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<paramWeight xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="l2params.xsd">
+	<timeState id="now_at_hub">
+		<tau>0.85</tau>
+		<lambda>0.85</lambda>
+		<delta>1.2</delta>
+	</timeState>
+	<timeState id="coming_up">
+		<tau>0.85</tau>
+		<lambda>0.85</lambda>
+		<delta>1.2</delta>
+		<wm>0.6</wm>
+		<ws>0.3</ws>
+		<we>0.1</we>
+	</timeState>
+	<timeState id="overall">
+		<lambda>0.85</lambda>
+		<delta>1.2</delta>
+		<wn>0.75</wn>
+		<wp>0.25</wp>
+	</timeState>
+</paramWeight>
