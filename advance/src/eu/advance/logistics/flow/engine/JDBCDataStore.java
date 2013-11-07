@@ -27,6 +27,7 @@ import hu.akarnokd.utils.database.DB;
 import hu.akarnokd.utils.database.SQLInvoke;
 import hu.akarnokd.utils.database.SQLResult;
 import hu.akarnokd.utils.mix.XNUtils;
+import hu.akarnokd.utils.pool.Pool;
 import hu.akarnokd.utils.sequence.SequenceUtils;
 import hu.akarnokd.utils.xml.XNElement;
 
@@ -47,7 +48,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.Pool;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStoreUpdate;

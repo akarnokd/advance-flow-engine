@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.comm;
 
 import hu.akarnokd.utils.crypto.KeystoreFault;
 import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.pool.PoolManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -58,7 +59,6 @@ import com.sshtools.j2ssh.transport.TransportProtocolException;
 import com.sshtools.j2ssh.transport.publickey.SshPublicKey;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.PoolManager;
 import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceFTPDataSource;

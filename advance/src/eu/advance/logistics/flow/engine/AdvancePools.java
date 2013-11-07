@@ -22,20 +22,18 @@
 package eu.advance.logistics.flow.engine;
 
 import hu.akarnokd.reactive4java.base.Func2;
+import hu.akarnokd.reactive4java.base.MultiIOException;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.pool.Pool;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import eu.advance.logistics.flow.engine.api.Pool;
-import eu.advance.logistics.flow.engine.api.core.MultiIOException;
 
 /**
  * A common pool for various communication pools.
@@ -93,21 +91,21 @@ public class AdvancePools implements Closeable {
 	}
 	@Override
 	public void close() throws IOException {
-		List<IOException> exc = Lists.newArrayList();
+		MultiIOException exc = null;
 		synchronized (pools) {
 			for (Map<String, Pool<?>> e : pools.values()) {
 				for (Pool<?> p : e.values()) {
 					try {
 						p.close();
 					} catch (IOException ex) {
-						exc.add(ex);
+						exc = MultiIOException.createOrAdd(exc, ex);
 					}
 				}
 			}
 			pools.clear();
 		}
-		if (!exc.isEmpty()) {
-			throw new MultiIOException(exc);
+		if (exc != null) {
+			throw exc;
 		}
 	}
 }

@@ -22,6 +22,7 @@
 package eu.advance.logistics.flow.engine.comm;
 
 import hu.akarnokd.utils.database.DB;
+import hu.akarnokd.utils.pool.PoolManager;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.PoolManager;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;
 
 /**

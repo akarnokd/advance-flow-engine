@@ -24,6 +24,7 @@ package eu.advance.logistics.flow.engine.cc;
 import hu.akarnokd.reactive4java.base.Action0;
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Option;
+import hu.akarnokd.utils.xml.XNAppender;
 import hu.akarnokd.utils.xml.XNElement;
 import hu.akarnokd.utils.xml.XNElement.XAttributeName;
 import hu.akarnokd.utils.xml.XNElement.XRepresentationRecord;
@@ -278,8 +279,19 @@ public class CCValueDialog extends JFrame {
 		}
 		final XNElement e = (XNElement)o;
 		
-		StringBuilder b = new StringBuilder();
-		e.toStringRep("", new HashMap<String, String>(), b, new Action1<XRepresentationRecord>() {
+		final StringBuilder b = new StringBuilder();
+		e.toStringRep("", new HashMap<String, String>(), 
+				new XNAppender() {
+			@Override
+			public XNAppender append(Object o) {
+				b.append(o);
+				return this;
+			}
+			@Override
+			public int length() {
+				return b.length();
+			}
+		}, new Action1<XRepresentationRecord>() {
 			@Override
 			public void invoke(XRepresentationRecord value) {
 				switch (value.state) {
