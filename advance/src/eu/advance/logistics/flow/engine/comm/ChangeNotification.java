@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.comm;
 
 import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.util.DefaultObservable;
+import hu.akarnokd.utils.pool.Pool;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -35,8 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import eu.advance.logistics.flow.engine.api.Pool;
 
 /**
  * A poll based local or remote file change notifier.

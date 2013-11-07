@@ -21,8 +21,11 @@
 
 package eu.advance.logistics.flow.engine.comm;
 
+import hu.akarnokd.reactive4java.base.MultiIOException;
+import hu.akarnokd.utils.pool.PoolManager;
+
+import java.io.IOException;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -39,11 +42,7 @@ import javax.naming.directory.InitialDirContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.PoolManager;
-import eu.advance.logistics.flow.engine.api.core.MultiIOException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJMSEndpoint;
 
 
@@ -113,24 +112,24 @@ public class JMSPoolManager implements PoolManager<JMSConnection> {
 
 	@Override
 	public void close(JMSConnection obj) throws Exception {
-		List<Throwable> lst = Lists.newArrayList();
+		MultiIOException exc = null;
 		try {
 			obj.session().close();
 		} catch (JMSException ex) {
-			lst.add(ex);
+			exc = MultiIOException.createOrAdd(exc, new IOException(ex));
 		}
 		try {
 			obj.connection().close();
 		} catch (JMSException ex) {
-			lst.add(ex);
+			exc = MultiIOException.createOrAdd(exc, new IOException(ex));
 		}
 		try {
 			obj.context().close();
 		} catch (NamingException ex) {
-			lst.add(ex);
+			exc = MultiIOException.createOrAdd(exc, new IOException(ex));
 		}
-		if (!lst.isEmpty()) {
-			throw new MultiIOException(lst);
+		if (exc != null) {
+			throw exc;
 		}
 	}
 	/**

@@ -25,6 +25,7 @@ import hu.akarnokd.reactive4java.base.Scheduler;
 import hu.akarnokd.reactive4java.scheduler.DefaultScheduler;
 import hu.akarnokd.reactive4java.util.Closeables;
 import hu.akarnokd.utils.crypto.KeystoreManager;
+import hu.akarnokd.utils.pool.BoundedPool;
 import hu.akarnokd.utils.xml.XNElement;
 
 import java.io.Closeable;
@@ -50,7 +51,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu.advance.logistics.flow.engine.api.BoundedPool;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceCreateModifyInfo;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceDataStore;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceJDBCDataSource;

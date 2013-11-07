@@ -23,6 +23,7 @@ package eu.advance.logistics.flow.engine.block.db;
 
 import hu.akarnokd.reactive4java.base.Action1;
 import hu.akarnokd.reactive4java.base.Observer;
+import hu.akarnokd.utils.pool.Pool;
 import hu.akarnokd.utils.xml.XNElement;
 
 import java.sql.PreparedStatement;
@@ -36,7 +37,6 @@ import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.AdvanceBlock;
 import eu.advance.logistics.flow.engine.AdvanceData;
-import eu.advance.logistics.flow.engine.api.Pool;
 import eu.advance.logistics.flow.engine.comm.JDBCConnection;
 
 /**

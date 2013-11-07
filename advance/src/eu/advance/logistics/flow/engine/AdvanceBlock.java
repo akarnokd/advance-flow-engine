@@ -21,10 +21,10 @@
 
 package eu.advance.logistics.flow.engine;
 
+import hu.akarnokd.utils.pool.Pool;
 import hu.akarnokd.utils.xml.XNElement;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import eu.advance.logistics.flow.engine.api.Pool;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
 import eu.advance.logistics.flow.engine.runtime.Block;
 

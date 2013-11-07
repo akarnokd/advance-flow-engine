@@ -22,12 +22,12 @@ package eu.advance.logistics.flow.engine.block.file;
 
 import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.reactive.Reactive;
+import hu.akarnokd.utils.pool.Pool;
 import hu.akarnokd.utils.xml.XNElement;
 import eu.advance.logistics.annotations.Block;
 import eu.advance.logistics.annotations.Input;
 import eu.advance.logistics.annotations.Output;
 import eu.advance.logistics.flow.engine.AdvanceBlock;
-import eu.advance.logistics.flow.engine.api.Pool;
 import eu.advance.logistics.flow.engine.comm.LocalConnection;
 
 /**
