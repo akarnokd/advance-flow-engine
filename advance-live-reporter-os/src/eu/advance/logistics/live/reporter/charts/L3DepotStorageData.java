@@ -54,6 +54,14 @@ public class L3DepotStorageData {
 	public final Map<WarehouseServiceLevel, Map<ItemStatus, BarData>> futureItems;
 	/** HashMap for at hub items separate to A and B warehouse. */
 	public final Map<WarehouseServiceLevel, Map<WarehouseType, BarData>> atHubItems;
+
+	/**Future item statuses which are displayed.*/
+	public static final ItemStatus[] DISPLAY_FUTURE_STATUS = {
+	  ItemStatus.DECLARED,
+	  ItemStatus.SCANNED,
+    ItemStatus.CREATED
+	};
+	
 	/**
 	 * Constructor.
 	 * @param warehouseSwitch the warehouse switch
@@ -66,31 +74,6 @@ public class L3DepotStorageData {
 
 		this.futureItems = new LinkedHashMap<>();
 		this.atHubItems = new LinkedHashMap<>();
-	}
-
-	/**
-	 * Get that future item statuses which are used in this class.
-	 * @return EnumSet of the used item statuses
-	 */
-	public static EnumSet<ItemStatus> getFuturePStatus() {
-		EnumSet<ItemStatus> result = EnumSet.of(ItemStatus.DECLARED,
-				ItemStatus.SCANNED,
-				ItemStatus.CREATED,
-				ItemStatus.PREDICTED);
-
-		return result;
-	}
-
-	/**
-	 * Get that future item statuses which are displayed by change request.
-	 * @return EnumSet of the used item statuses
-	 */
-	public static EnumSet<ItemStatus> displayedPStatus() {
-		EnumSet<ItemStatus> result = EnumSet.of(ItemStatus.DECLARED,
-				ItemStatus.SCANNED,
-				ItemStatus.CREATED);
-
-		return result;
 	}
 
 	/**
@@ -128,7 +111,7 @@ public class L3DepotStorageData {
 		for (WarehouseServiceLevel sKey : WarehouseServiceLevel.values())	{
 			// For future items: count the warehouse type + warehouse service level specific capacity.
 			capacity = new GraphDecimal(this.getStorageCapacity(EnumSet.of(WarehouseType.A, WarehouseType.B), sKey));
-			for (ItemStatus pKey : L3DepotStorageData.displayedPStatus()) {
+			for (ItemStatus pKey : L3DepotStorageData.DISPLAY_FUTURE_STATUS) {
 				this.futureItems.get(sKey).get(pKey).normalizeWarehouseL3(capacity, coord.normalScale);
 			}
 

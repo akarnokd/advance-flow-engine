@@ -68,7 +68,7 @@ div.warehouse-menu div.option-container {
 	right: 0px;
 	margin: 0px 12px 0px 0px;
 	height: 145px;
-	width: 481px;
+	width: 540px;
 }
 
 div.warehouse-menu div.option-inner {
@@ -79,21 +79,35 @@ div.warehouse-menu div.option-inner {
 	height: 100%;
 }
 
-div.warehouse-menu .warehouse-width {
+div.warehouse-menu td.updown-up{
+	background: url("../images/warehouse/warehouse-sel-up.png") no-repeat center center;
+}
+
+div.warehouse-menu td.updown-down{
+	background: url("../images/warehouse/warehouse-sel-down.png") no-repeat center center;
+}
+
+div.warehouse-menu .updown-width {
 	margin: 0px auto;
+	width: 40px;
+}
+
+div.warehouse-menu .warehouse-width {
+	margin: 0px 0px 0px 7px;
 	width: 160px;
 }
 
 div.warehouse-menu .option-width {
-	margin: 0px 0px 0px 10px;
+	margin: 0px 0px 0px 7px;
 	width: 200px;
 }
 
 div.warehouse-menu .order-width {
-	margin: 0px 0px 0px 10px;
+	margin: 0px 0px 0px 7px;
 	width: 100px;
 }
 
+div.warehouse-menu .updown-width table,
 div.warehouse-menu .warehouse-width table,
 div.warehouse-menu .option-width table,
 div.warehouse-menu .order-width table {
@@ -103,6 +117,7 @@ div.warehouse-menu .order-width table {
 	height: 100%;
 }
 
+div.warehouse-menu .updown-width tr,
 div.warehouse-menu .warehouse-width tr,
 div.warehouse-menu .option-width tr {
 	color: #000000;
@@ -118,20 +133,12 @@ div.warehouse-menu .order-width tr {
 	height: 33%%;
 }
 
+div.warehouse-menu .updown-width td,
 div.warehouse-menu .warehouse-width td,
-div.warehouse-menu .option-width td {
+div.warehouse-menu .option-width td,
+div.warehouse-menu .order-width td {
 	border: 1px solid #388C00;	
 	font-size: 20px;
-	font-weight: bold;
-	padding: 0px;
-	margin: 0px;
-	text-align:center;
-	vertical-align: middle;
-}
-
-div.warehouse-menu .order-width td {
-	border: 1px solid #388C00;
-	font-size: 32px;
 	font-weight: bold;
 	padding: 0px;
 	margin: 0px;

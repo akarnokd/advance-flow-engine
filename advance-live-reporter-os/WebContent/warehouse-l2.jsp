@@ -14,7 +14,6 @@
 
 
 <script src="js/lib/jquery-1.8.1.js" type="text/javascript"></script>
-<script src="js/lib/jquery-ui-1.10.3.js" type="text/javascript"></script>
 
 <script src="js/charts/warehouse-l2-chart.js" type="text/javascript"></script>
 <script src="js/pages/warehouse-l2-page.js" type="text/javascript"></script>

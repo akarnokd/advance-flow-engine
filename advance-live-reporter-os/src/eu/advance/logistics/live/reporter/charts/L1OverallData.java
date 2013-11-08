@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.live.reporter.charts;
 
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -37,6 +36,16 @@ public class L1OverallData {
 	public int busAsUsSc;
 	/** HashMap for items. */
 	public final Map<WarehouseServiceLevel, Map<ItemStatus, BarData>> items;
+	/**item statuses which are displayed in the UI.*/
+  public static final ItemStatus[] DISPLAY_ITEMS = {
+    ItemStatus.LEFT_HUB_TODAY,
+    ItemStatus.AT_HUB,
+    ItemStatus.DECLARED,
+    ItemStatus.SCANNED,
+    ItemStatus.CREATED    
+  };
+	
+	
 	/**
 	 * Constructor, initializes the fields.
 	 * @param warehouseSwitch the warehouse switch
@@ -45,20 +54,6 @@ public class L1OverallData {
 		this.warehouse = warehouseSwitch.getWarehouse();
 		this.busAsUsSc = warehouseSwitch.getFloorspaceScale();
 		this.items = new LinkedHashMap<>();
-	}
-
-	/**
-	 * Get that item statuses which are displayed in the UI.
-	 * @return EnumSet of the used item statuses
-	 */
-	public static EnumSet<ItemStatus> getDisplayItems()	{
-		EnumSet<ItemStatus> result = EnumSet.of(ItemStatus.LEFT_HUB_TODAY,
-				ItemStatus.AT_HUB,
-				ItemStatus.DECLARED,
-				ItemStatus.SCANNED,
-				ItemStatus.CREATED);
-
-		return result;
 	}
 
 	/**
@@ -84,7 +79,7 @@ public class L1OverallData {
 	public void checkBaus()	{
 		GraphDecimal value = new GraphDecimal(0);
 
-		for (ItemStatus pKey : L1OverallData.getDisplayItems()) {
+		for (ItemStatus pKey : L1OverallData.DISPLAY_ITEMS) {
 			value = value.add(new GraphDecimal(this.items.get(WarehouseServiceLevel.ALL).get(pKey).value));
 		}
 

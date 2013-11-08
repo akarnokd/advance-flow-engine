@@ -486,10 +486,6 @@ public final class MasterDB {
 			for (WarehouseType stype : WarehouseType.values()) {
 	 			Map<WarehouseSide, Double> sd = new LinkedHashMap<>();
 	 			String key = snKey.toString() + stype.toString();
-	 			
-	 			// FIXME somehow!
-	 			System.out.println("X3 " + key);
-	 			
 				result.put(key, sd);
 				for (WarehouseSide ssKey : WarehouseSide.values()) {
 					double count = 0;

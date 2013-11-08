@@ -28,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Strings;
+
 import eu.advance.logistics.live.reporter.db.MasterDB;
 import eu.advance.logistics.live.reporter.model.HubDepotInfo;
 import eu.advance.logistics.live.reporter.model.UOM;
@@ -69,7 +71,7 @@ public class WarehouseSwitch {
 	public WarehouseSwitch(long hubId, String user) {
 		this.hubId = hubId;
     this.user = user;
-    this.warehousePairMap = this.getWarehousePairMap();
+    this.warehousePairMap = this.createWarehousePairMap();
     this.warehouse = this.getFirstWarehousePairTop();
 		
     this.l2warehouseOption = WarehouseOption.A;
@@ -79,7 +81,11 @@ public class WarehouseSwitch {
 		this.l3SelectedStorageId = 0;
 	}
 	
-	private Map<String, String> getWarehousePairMap()
+	/**
+	 * Creates map for the warehouse pairs.
+	 * @return map of the warehouse pairs
+	 */
+	private Map<String, String> createWarehousePairMap()
 	{
     Map<String, String> wPair = new LinkedHashMap<>();
     List<Warehouse> list = MasterDB.warehouses(1);
@@ -90,7 +96,8 @@ public class WarehouseSwitch {
       {
         if( (wPair.containsKey(item.warehouse) == false) && (wPair.containsValue(item.warehouse) == false))
         {
-          wPair.put(item.warehouse, item.pair);
+          String pair = Strings.isNullOrEmpty(item.pair) ? "" : item.pair;
+          wPair.put(item.warehouse, pair);
         }
       }
     }
@@ -98,11 +105,28 @@ public class WarehouseSwitch {
 	  return wPair;
 	}
 	
+	/**
+	 * Returns the map of the warehouse pairs.
+	 * @return the map of the warehouse pairs
+	 */
+	public Map<String, String> getWarehousePairMap()
+	{
+	  return this.warehousePairMap;
+	}
+	
+	/**
+	 * Returns the top member of the first warehouse pair. 
+	 * @return the top member of the first warehouse pair
+	 */
 	public String getFirstWarehousePairTop()
 	{
 	  return this.warehousePairMap.keySet().iterator().next();
 	}
 	
+	/**
+	 * Returns the top member of the actual warehouse pair.
+	 * @return the top member of the actual warehouse pair
+	 */
 	public String getWarehousePairTop()
 	{
 	  String res = "";
@@ -125,6 +149,10 @@ public class WarehouseSwitch {
 	  return res;
 	}
 	
+  /**
+   * Returns the bottom member of the actual warehouse pair.
+   * @return the bottom member of the actual warehouse pair
+   */
 	public String getWarehousePairBottom()
 	{
 	  String res = "";
@@ -149,6 +177,10 @@ public class WarehouseSwitch {
 		return hubId;
 	}
 	
+	/**
+	 * Sets the actual warehosue.
+	 * @param warehouse the actual warehosue
+	 */
 	public void setWarehouse(String warehouse)
 	{
 	  this.warehouse = warehouse;
