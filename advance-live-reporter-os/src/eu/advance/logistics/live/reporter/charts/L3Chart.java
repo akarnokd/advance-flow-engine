@@ -115,7 +115,7 @@ public final class L3Chart {
 		result.put("jumpStorageId", ws.getL3SelectedStorageId());
 
 		JSONArray inner = new JSONArray();
-		for (ItemStatus keyItem : L3DepotStorageData.displayedPStatus()) {
+		for (ItemStatus keyItem : L3DepotStorageData.DISPLAY_FUTURE_STATUS) {
 			JSONObject statusRecord = new JSONObject();
 			statusRecord.put("info", keyItem.getInfo());
 			statusRecord.put("message", keyItem.getMessage());
@@ -179,7 +179,7 @@ public final class L3Chart {
 
 			// Generate for Future
 			innerArr = new JSONArray();
-			for (ItemStatus pKey: L3DepotStorageData.displayedPStatus()) {
+			for (ItemStatus pKey: L3DepotStorageData.DISPLAY_FUTURE_STATUS) {
 				itemRec = new JSONObject();
 				itemRec.put("info", pKey.getInfo());
 				itemRec.put("value", data.futureItems.get(sKey).get(pKey).value.toPlainString());

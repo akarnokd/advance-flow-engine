@@ -33,7 +33,6 @@ else
       String whOption = ObjectUtils.nvl(request.getParameter("warehouse_option"), "A");
       String stOrder = ObjectUtils.nvl(request.getParameter("storage_order"), "PHYSICAL");
       String whL3Option = ObjectUtils.nvl(request.getParameter("warehouse_l3_option"), "LEFT");
-      
       String whL3StId = ObjectUtils.nvl(request.getParameter("warehouse_l3_storage_id"), "0");
       
       warehouseSwitch.setWarehouse(whName);
@@ -41,17 +40,6 @@ else
       warehouseSwitch.setStorageAreaOrder(stOrder);
       warehouseSwitch.setL3WarehouseOption(whL3Option);
       warehouseSwitch.setL3SelectedStorageId(Long.parseLong(whL3StId));
-      
-      
-      /*
-	  	warehouseSwitch.setL2WarehouseOption(request.getParameter("warehouse_option"));
-	  	warehouseSwitch.setStorageAreaOrder(request.getParameter("storage_order"));
-	  	warehouseSwitch.setL3WarehouseOption(request.getParameter("warehouse_l3_option"));
-    	if (request.getParameter("warehouse_l3_storage_id") != null) {
-  	  	warehouseSwitch.setL3SelectedStorageId(Long.parseLong(request.getParameter("warehouse_l3_storage_id")));
-    	}
-    	*/
-      
     }
     catch(IllegalArgumentException e)
     {
@@ -90,6 +78,16 @@ else
 		<div id="hand_option"></div>
 		<div id="hand_order"></div>
 
+		<div id="updown_warehouse" class="option-inner updown-width">
+			<table>
+				<tr>
+					<td id="updown_up" class="inactive updown-up"></td>
+				</tr>
+				<tr>
+					<td id="updown_down" class="inactive updown-down"></td>
+				</tr>
+			</table>
+		</div>
 		<div id="selector_warehouse" class="option-inner warehouse-width">
 			<table>
 				<tr>
@@ -176,6 +174,7 @@ if (typeof Object.create !== 'function')
 				mySelf.setUpDown("warehouse-down", "warehouse-l2.jsp");
 				
 				mySelf.setWarehouseMenu();
+				mySelf.upDownWarehouseHandler();
 				mySelf.buttonWarehouseHandler();
 				
 				$("#selector_option").hide();
@@ -268,9 +267,8 @@ if (typeof Object.create !== 'function')
 		{
 			var mySelf = this;
 			var active = mySelf.active;
-			var ss = 'td[id^="warehouse_"]';
 			
-			$(ss).toggleClass(mySelf.actClass, false);
+			$('td[id^="warehouse_"]').toggleClass(mySelf.actClass, false);
 			if($('td[id="warehouse_top"]').text() == active.warehouse)
 			{
 				$('td[id="warehouse_top"]').toggleClass(mySelf.actClass);
@@ -279,6 +277,74 @@ if (typeof Object.create !== 'function')
 			{
 				$('td[id="warehouse_bottom"]').toggleClass(mySelf.actClass);
 			}
+		},
+		
+		// Get the warehouse pair and set the click handler
+		upDownWarehouseHandler : function()
+		{
+			var mySelf = this;
+			var pos = 0;
+			
+			$.ajax({
+				url : "api-updown-wh.jsp",
+				type : "POST",
+				data : {
+					warehouse_name : mySelf.active.warehouse
+				},
+				dataType : "json",
+				success : function(result)
+				{
+					if ((result.size !== undefined) &&
+							(result.position !== undefined) &&
+							(result.dataList !== undefined))
+					{
+						pos = result.position * 1.0;
+						
+						$("td#updown_up").on("click", function(event)
+						{
+							pos = ( pos == 0) ? result.size - 1 : pos - 1;  
+							mySelf.upDownSetWarehouse(pos, result);
+						});
+						
+						$("td#updown_down").on("click", function(event)
+						{
+							pos = ( pos == result.size - 1) ? 0 : pos + 1;
+							mySelf.upDownSetWarehouse(pos, result);
+						});
+						
+					} else if (result.error !== undefined)
+					{
+						var v = "";
+						$.each(result.error, function(key, value){ v = value; });
+						$("div.error-msgbox p#error_msg").html(v);
+						$("body").addClass("show-error");
+					}
+				}
+			});
+			
+		},
+		
+		// Set the active warehouse based on up-down button
+		upDownSetWarehouse : function(pos, result)
+		{
+			var mySelf = this;
+			
+			$("td#warehouse_top").text(result.dataList[pos].top);
+			$("td#warehouse_bottom").text(result.dataList[pos].bottom);
+			
+			if( $('td[id^="warehouse_"].active').text() === "")
+			{
+				$('td[id^="warehouse_"]').toggleClass(mySelf.actClass, false);
+				$("td#warehouse_top").toggleClass(mySelf.actClass);
+			}
+			
+			var actValue = $('td[id^="warehouse_"].active').text();							
+			$("#hand_warehouse").triggerHandler(
+			{
+				type : "click.warehouse",
+				active : actValue,
+			});
+			
 		},
 		
 		// Warehouse button group handler
@@ -291,7 +357,8 @@ if (typeof Object.create !== 'function')
 			{
 				var isChanged = true;
 
-				if ($("#" + event.target.id).hasClass(mySelf.actClass) == false)
+				if (($("#" + event.target.id).hasClass(mySelf.actClass) == false) &&
+						($("#" + event.target.id).text() !== "")) 
 				{
 					$(ss).toggleClass(mySelf.actClass, false);
 					$("#" + event.target.id).toggleClass(mySelf.actClass);
@@ -302,11 +369,10 @@ if (typeof Object.create !== 'function')
 
 				if (isChanged)
 				{
-					var t = "click.warehouse";
 					var actValue = $('td[id="' + event.target.id + '"]').text();
 					
 					$("#hand_warehouse").triggerHandler({
-						type : t,
+						type : "click.warehouse",
 						active : actValue,
 					});
 				}
@@ -422,46 +488,6 @@ if (typeof Object.create !== 'function')
 			}
 			
 			return active;
-		},
-		
-		// Error message dialog box
-		showErrorMessage : function(param)
-		{
-			var defaultMsg = "There seems to be a problem with the server.<br/>Please try again later.";
-			$("div.warehouse-menu div#dialog_general").dialog(
-			{
-        autoOpen: true,
-        modal: true,
-        width: 300,
-        height: 200,
-        resizable: false,
-        
-        open : function(event, ui)
-        {
-        	if(param !== undefined)
-        	{	
-          	$("div#dialog_general p#general_message").html("");
-          	$("div#dialog_general p#general_message").html(param);
-        	}
-        	else
-        	{
-          	$("div#dialog_general p#general_message").html("");
-          	$("div#dialog_general p#general_message").html(defaultMsg);
-        	}
-        },
-        buttons:
-        {
-        	Ok: function()
-        	{
-        		$( this ).dialog( "close" );
-        	}
-        },
-        close : function()
-        {
-        	$(location).attr("href", "logout.jsp");
-        }
-			});
-			
 		}
 
 	};

@@ -69,13 +69,11 @@ public final class L1Chart {
 		JSONObject result = new JSONObject();
 
 		JSONArray inner = new JSONArray();
-		int ordinal = 0;
-		for (ItemStatus keyItem : L1OverallData.getDisplayItems()) {
-			JSONObject statusRecord = new JSONObject();
+		for (ItemStatus keyItem : L1OverallData.DISPLAY_ITEMS) {
+		  JSONObject statusRecord = new JSONObject();
 			statusRecord.put("info", keyItem.getInfo());
 			statusRecord.put("message", keyItem.getMessage());
-			inner.add(ordinal, statusRecord);
-			ordinal++;
+			inner.add(statusRecord);
 		}
 		result.put("overall", inner);
 
@@ -84,7 +82,7 @@ public final class L1Chart {
 			JSONObject statusRecord = new JSONObject();
 			statusRecord.put("info", keyItem.name().toLowerCase());
 			statusRecord.put("message", keyItem.getMessage());
-			inner.add(keyItem.ordinal(), statusRecord);      
+			inner.add(statusRecord);      
 		}
 		result.put("athub", inner);
 
@@ -138,7 +136,7 @@ public final class L1Chart {
 
 			// Generate for Overall
 			innerArr = new JSONArray();
-			for (ItemStatus pKey: L1OverallData.getDisplayItems()) {
+			for (ItemStatus pKey: L1OverallData.DISPLAY_ITEMS) {
 				itemRec = new JSONObject();
 				itemRec.put("info", pKey.getInfo());
 				itemRec.put("value", overData.items.get(sKey).get(pKey).value.toPlainString());
