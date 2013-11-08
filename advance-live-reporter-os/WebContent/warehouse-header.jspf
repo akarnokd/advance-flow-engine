@@ -286,7 +286,7 @@ if (typeof Object.create !== 'function')
 			var pos = 0;
 			
 			$.ajax({
-				url : "api-updown-wh.jsp",
+				url : "api-warehouse-updown.jsp",
 				type : "POST",
 				data : {
 					warehouse_name : mySelf.active.warehouse
