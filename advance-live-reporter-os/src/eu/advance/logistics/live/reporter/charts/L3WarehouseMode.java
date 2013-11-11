@@ -30,8 +30,8 @@ public enum L3WarehouseMode {
 	INIT,
 	/** Orientation. */
 	ORIENT,
-	/** Layer 3 option. */
-	L3OPTION,
+	/** Option. */
+	OPTION,
 	/** Order. */
 	ORDER;
 }

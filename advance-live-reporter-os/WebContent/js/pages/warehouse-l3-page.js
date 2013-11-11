@@ -37,8 +37,8 @@
 				$.warehousemenu("init", "l3");
 				mySelf.active = $.warehousemenu("getActiveMenu");
 				
-				mySelf.handlerForL3Option();
-				mySelf.handlerForOrder();
+				mySelf.handlerFor("option");
+				mySelf.handlerFor("order");
 				mySelf.refreshPage();
 				
 				$(window).on("orientationchange", function()
@@ -58,27 +58,15 @@
 				
 			},
 			
-			handlerForL3Option : function()
+			handlerFor : function(group)
 			{
 				var mySelf = this;
-				var cl = "click.option";
+				var cl = "click." + group;
 				
-				$("#hand_option").on(cl, function(event)
+				$("#hand_" + group).on(cl, function(event)
 				{
-					mySelf.active.option = event.active;
-					mySelf.callChart("l3option");
-				});
-			},
-			
-			handlerForOrder : function()
-			{
-				var mySelf = this;
-				var cl = "click.order";
-				
-				$("#hand_order").on(cl, function(event)
-				{
-					mySelf.active.order = event.active;
-					mySelf.callChart("order");
+					mySelf.active[group] = event.active;
+					mySelf.callChart(group);
 				});
 			},
 			
@@ -94,10 +82,11 @@
 			{
 				var mySelf = this;
 				var s = mySelf.active.warehouse;
+				var l3o = mySelf.active.option.split("_");				
 				var r = mySelf.active.order.split("_");
-				var l3o = mySelf.active.option.split("_");
 				var storageId = 0;
 				var l3Warehouse = $('input[id="warehouse_l3_name"]').val();
+
 				
 				if(modeType == "init")
 				{
@@ -115,8 +104,8 @@
 				  data : {
 				  	mode : modeType,
 				  	warehouse_name : s,
-				  	storage_order : r[1],
 				  	warehouse_l3_option : l3o[1],
+				  	storage_order : r[1],
 				  	warehouse_l3_storage_id : storageId,
 				  	warehouse_l3_name : l3Warehouse
 				  }
