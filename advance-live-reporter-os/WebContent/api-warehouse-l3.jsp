@@ -44,7 +44,7 @@ else
     	  warehouseSwitch.setL3SelectedStorageId(Integer.parseInt(request.getParameter("warehouse_l3_storage_id")));
         break;
       }
-      case L3OPTION:
+      case OPTION:
       {
     		int atStorageId = Integer.parseInt(request.getParameter("warehouse_l3_storage_id"));
     		
