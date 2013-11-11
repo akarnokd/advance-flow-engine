@@ -94,8 +94,9 @@
 					$('#l2_l3_form input[name="warehouse_name"]').val(s);
 					$('#l2_l3_form input[name="warehouse_option"]').val(o[1]);
 					$('#l2_l3_form input[name="storage_order"]').val(r[1]);
-					$('#l2_l3_form input[name="warehouse_l3_option"]').val(l3o[2]);
+					$('#l2_l3_form input[name="warehouse_l3_option"]').val(l3o[1]);
 					$('#l2_l3_form input[name="warehouse_l3_storage_id"]').val(event.storage_id);
+					$('#l2_l3_form input[name="warehouse_l3_name"]').val(event.displayed_wh);
 					
 					$("#l2_l3_form").submit();
 				});

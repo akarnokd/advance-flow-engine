@@ -50,10 +50,13 @@ public class WarehouseSwitch {
 	private WarehouseOption l2warehouseOption;
 	/** The storage area order. */
 	private StorageAreaOrder storageOrder;
+	
 	/** Level 3 warehouse display mode option. */
 	private WarehouseOption l3warehouseOption;
 	/** Level 3 selected storage area ID. */
 	private long l3SelectedStorageId;
+  /** Level 3 warehouse name. */
+  private String l3warehouse;
 	
 	/** The hub id. */
 	private final long hubId;
@@ -79,6 +82,7 @@ public class WarehouseSwitch {
 
 		this.l3warehouseOption = WarehouseOption.LEFT;    
 		this.l3SelectedStorageId = 0;
+		this.l3warehouse = this.warehouse;
 	}
 	
 	/**
@@ -88,7 +92,7 @@ public class WarehouseSwitch {
 	private Map<String, String> createWarehousePairMap()
 	{
     Map<String, String> wPair = new LinkedHashMap<>();
-    List<Warehouse> list = MasterDB.warehouses(1);
+    List<Warehouse> list = MasterDB.warehouses(this.hubId);
     
     if(list.isEmpty() == false)
     {
@@ -112,6 +116,32 @@ public class WarehouseSwitch {
 	public Map<String, String> getWarehousePairMap()
 	{
 	  return this.warehousePairMap;
+	}
+	
+	/**
+	 * Returns the pair of the warehouse.
+	 * @return the pair of the warehouse
+	 */
+	public String getPair()
+	{
+	   String res = "";
+	    
+	    if(warehousePairMap.containsKey(this.warehouse))
+	    {
+	      res = warehousePairMap.get(this.warehouse);
+	    }
+	    else if(warehousePairMap.containsValue(this.warehouse))
+	    {
+	      for(String keyItem : warehousePairMap.keySet())
+	      {
+	        if(warehousePairMap.get(keyItem).equals(this.warehouse))
+	        {
+	          res = keyItem;
+	        }
+	      }
+	    }
+	    
+	    return res;
 	}
 	
 	/**
@@ -215,6 +245,16 @@ public class WarehouseSwitch {
 	public void setL3SelectedStorageId(long storageId) {
 		this.l3SelectedStorageId = storageId;
 	}
+	
+	/**
+	 * Sets the level 3 warehouse.
+	 * @param warehouse the level 3 warehouse
+	 */
+	public void setL3Warehouse(String warehouse)
+	{
+	  this.l3warehouse = warehouse;
+	}
+	
 	/**
 	 * @return the warehouse
 	 */
@@ -316,6 +356,16 @@ public class WarehouseSwitch {
 	public long getL3SelectedStorageId() {
 		return this.l3SelectedStorageId;
 	}
+	
+	/**
+	 * Returns the Level 3 warehouse.
+	 * @return the Level 3 warehouse
+	 */
+	public String getL3Warehouse()
+	{
+	  return this.l3warehouse;
+	}
+	
 	/**
 	 * Returns the default floorspace scale.
 	 * @return the default floorspace scale
@@ -358,22 +408,33 @@ public class WarehouseSwitch {
 
 			for (StorageAreaInfo storageInfoItem : storageInfoList) {
 				L2StorageRawData storageRaw = new L2StorageRawData();
-				storageRaw.warehouse = warehouse;
 
 				switch(sOption) {
 				case A:
+				{
+				  storageRaw.warehouse = warehouse;
+          storageRaw.type = getWarehouseType();
+          storageRaw.side = WarehouseSide.values()[displaySide.ordinal()];
+				  break;
+				}
 				case B:
-					storageRaw.type = getWarehouseType();
-					storageRaw.side = WarehouseSide.values()[displaySide.ordinal()];
-					break;
+				{
+				  storageRaw.warehouse = wh.pair;
+          storageRaw.type = getWarehouseType();
+          storageRaw.side = WarehouseSide.values()[displaySide.ordinal()];
+          break;
+				}
 				case LEFT:
-				case RIGHT:
-					storageRaw.type = WarehouseType.values()[displaySide.ordinal()];
-					storageRaw.side = getL2WarehouseSide();
-					break;
+				case RIGHT:  
+				{
+				  storageRaw.warehouse = (displaySide == L2DisplaySide.LEFT) ? warehouse : wh.pair;
+          storageRaw.type = WarehouseType.values()[displaySide.ordinal()];
+          storageRaw.side = getL2WarehouseSide();
+				  break;
+				}
 				default:
 				}
-
+				
 				storageRaw.id = storageInfoItem.id;
 
 				for (WarehouseType st : WarehouseType.values()) {
@@ -402,7 +463,7 @@ public class WarehouseSwitch {
 
 		Map<String, Map<WarehouseSide, List<StorageAreaInfo>>> warehouseLayoutMap = MasterDB.getWarehouseLayoutMap(hubId);
 		
-		List<StorageAreaInfo> storageInfoList = warehouseLayoutMap.get(warehouse).get(getL3WarehouseSide());
+		List<StorageAreaInfo> storageInfoList = warehouseLayoutMap.get(l3warehouse).get(getL3WarehouseSide());
 		for (StorageAreaInfo storageInfoItem : storageInfoList) {
 			HubDepotInfo depotInfo = MasterDB.getDepotSummaryValueMaxes(hubId, storageInfoItem.id, user);
 			if (depotInfo != null) {
@@ -439,10 +500,10 @@ public class WarehouseSwitch {
 		long result = 0;
 
 		Map<String, Map<WarehouseSide, List<StorageAreaInfo>>> warehouseLayoutMap = MasterDB.getWarehouseLayoutMap(hubId);
-
+		
 		// If the storageId from the request is real..
 		if (storageId != 0)	{
-			List<StorageAreaInfo> prevStorageInfoList = warehouseLayoutMap.get(warehouse).get(prevWarehouseSide);
+			List<StorageAreaInfo> prevStorageInfoList = warehouseLayoutMap.get(l3warehouse).get(prevWarehouseSide);
 			int ordinal = -1;
 
 			// Find the ordinal of this storageId
@@ -454,7 +515,7 @@ public class WarehouseSwitch {
 
 			// If the storageId is found, get the opposite storageId from the actual side
 			if (ordinal > -1) {
-				List<StorageAreaInfo> actualStorageInfoList =  warehouseLayoutMap.get(warehouse).get(getL3WarehouseSide());
+				List<StorageAreaInfo> actualStorageInfoList =  warehouseLayoutMap.get(l3warehouse).get(getL3WarehouseSide());
 				// If the size of this actual side is less than the previous one..
 				if (actualStorageInfoList.size() < ordinal) {
 					result = actualStorageInfoList.get(actualStorageInfoList.size() - 1).id;

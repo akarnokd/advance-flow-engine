@@ -34,12 +34,14 @@ else
       String stOrder = ObjectUtils.nvl(request.getParameter("storage_order"), "PHYSICAL");
       String whL3Option = ObjectUtils.nvl(request.getParameter("warehouse_l3_option"), "LEFT");
       String whL3StId = ObjectUtils.nvl(request.getParameter("warehouse_l3_storage_id"), "0");
+      String whL3Name = ObjectUtils.nvl(request.getParameter("warehouse_l3_name"), warehouseSwitch.getFirstWarehousePairTop());
       
       warehouseSwitch.setWarehouse(whName);
       warehouseSwitch.setL2WarehouseOption(whOption);
       warehouseSwitch.setStorageAreaOrder(stOrder);
       warehouseSwitch.setL3WarehouseOption(whL3Option);
       warehouseSwitch.setL3SelectedStorageId(Long.parseLong(whL3StId));
+      warehouseSwitch.setL3Warehouse(whL3Name);
     }
     catch(IllegalArgumentException e)
     {
@@ -433,7 +435,6 @@ if (typeof Object.create !== 'function')
 		getActiveMenu : function()
 		{
 			var active = {};
-			
 			active.warehouse = $('td[id^="warehouse_"].active').text();
 			active.option = $('td[id^="option_"].active').attr("id");
 			active.order = $('td[id^="order_"].active').attr("id");
@@ -499,8 +500,6 @@ if (typeof Object.create !== 'function')
 		if (method === "init")
 			op[method](param);
 		else if (method === "getActiveMenu")
-			return op[method]();
-		else if (method === "showErrorMessage")
 			return op[method](param);
 	};
 

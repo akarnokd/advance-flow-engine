@@ -31,8 +31,9 @@ else
 
     WarehouseSwitch warehouseSwitch = new WarehouseSwitch(user.hub, user.name);
     warehouseSwitch.setWarehouse(request.getParameter("warehouse_name"));
-    warehouseSwitch.setL3WarehouseOption(request.getParameter("warehouse_l3_option"));
     warehouseSwitch.setStorageAreaOrder(request.getParameter("storage_order"));
+    warehouseSwitch.setL3WarehouseOption(request.getParameter("warehouse_l3_option"));
+    warehouseSwitch.setL3Warehouse(request.getParameter("warehouse_l3_name"));
     
     switch(L3WarehouseMode.valueOf(request.getParameter("mode").toUpperCase()))
     {
@@ -43,7 +44,7 @@ else
     	  warehouseSwitch.setL3SelectedStorageId(Integer.parseInt(request.getParameter("warehouse_l3_storage_id")));
         break;
       }
-      case OPTION:
+      case L3OPTION:
       {
     		int atStorageId = Integer.parseInt(request.getParameter("warehouse_l3_storage_id"));
     		

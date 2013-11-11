@@ -34,6 +34,7 @@
 		<input type="hidden" name="storage_order" value="">
 		<input type="hidden" name="warehouse_l3_option" value="">
 		<input type="hidden" name="warehouse_l3_storage_id" value="">
+		<input type="hidden" name="warehouse_l3_name" value="">
 	</form>
 </center>
 </body>

@@ -27,6 +27,7 @@
 	<div id="k2"></div>
 	
 	<input id="warehouse_l3_storage_id" type="hidden" name="warehouse_l3_storage_id" value="<%= warehouseSwitch.getL3SelectedStorageId()%>">
+	<input id="warehouse_l3_name" type="hidden" name="warehouse_l3_name" value="<%= warehouseSwitch.getL3Warehouse()%>">
 </center>
 </body>
 

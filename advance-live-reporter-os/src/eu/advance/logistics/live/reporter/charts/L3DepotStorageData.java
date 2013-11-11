@@ -33,7 +33,7 @@ import eu.advance.logistics.live.reporter.model.ItemStatus;
  */
 public class L3DepotStorageData {
 
-	/** Name of the warehouse. */
+	/** Name of the layer 3 warehouse. */
 	public String warehouse;
 	/** Side of the warehouse. */
 	public WarehouseSide side;
@@ -67,7 +67,7 @@ public class L3DepotStorageData {
 	 * @param warehouseSwitch the warehouse switch
 	 */
 	public L3DepotStorageData(WarehouseSwitch warehouseSwitch) {
-		this.warehouse = warehouseSwitch.getWarehouse();
+		this.warehouse = warehouseSwitch.getL3Warehouse();
 		this.side = warehouseSwitch.getL3WarehouseSide();
 
 		this.storageCapacityMap = new HashMap<>();

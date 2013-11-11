@@ -112,6 +112,7 @@ public final class L3Chart {
 	private static JSONObject createStatusJSON(WarehouseSwitch ws) {
 		JSONObject result = new JSONObject();
 
+		result.put("displayedWarehouse", ws.getL3Warehouse());
 		result.put("jumpStorageId", ws.getL3SelectedStorageId());
 
 		JSONArray inner = new JSONArray();
