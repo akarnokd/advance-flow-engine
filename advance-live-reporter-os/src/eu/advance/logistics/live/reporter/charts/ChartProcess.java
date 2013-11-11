@@ -132,12 +132,12 @@ public final class ChartProcess {
 		HashMap<L2TimeState, Double> maxInput = new LinkedHashMap<L2TimeState, Double>();
 
 		// I.) For NOW_AT_HUB & COMING_UP
-		for (L2TimeState timeState : L2StorageChartData.getUsedBarTime()) {
+		for (L2TimeState timeState : L2StorageChartData.USED_BAR_TIME) {
 			// 1.) Count bar length...
 			Map<WarehouseServiceLevel, L2StorageChartData.BarLength> lengthMap = new LinkedHashMap<>();
 			Map<WarehouseServiceLevel, Double> weightInput = ChartProcess.getWeightInput(timeState, storageRaw);      
 			//.. for STANDARD & PRIORITY
-			for (WarehouseServiceLevel wsl : L2StorageChartData.getUsedServices()) {
+			for (WarehouseServiceLevel wsl : L2StorageChartData.USED_SERVICES) {
 				L2StorageChartData.BarLength barLength = new L2StorageChartData.BarLength();
 				barLength.setLength(ChartProcess.countBarLength(timeState, weightInput.get(wsl).doubleValue()));
 				lengthMap.put(wsl, barLength);
@@ -166,7 +166,7 @@ public final class ChartProcess {
 
 	// 
 	/**
-	 * Count weighted input for barLength(), maximum() at STANDARD & PRIORITY.
+	 * Count weighted input for barLength(), maximum() at STANDARD & PRIORITY at level 2.
 	 * @param timeState the time state
 	 * @param storageRaw the raw data
 	 * @return the state map
@@ -178,14 +178,14 @@ public final class ChartProcess {
 		switch(timeState) {
 		case NOW_AT_HUB:
 			// for STANDARD & PRIORITY
-			for (WarehouseServiceLevel wsl : L2StorageChartData.getUsedServices()) {
+			for (WarehouseServiceLevel wsl : L2StorageChartData.USED_SERVICES) {
 				double x = storageRaw.items.get(wsl).get(ItemStatus.AT_HUB).normalValue.doubleValue();
 				weightInput.put(wsl, x);
 
 			}
 			break;
 		case COMING_UP:
-			for (WarehouseServiceLevel wsl : L2StorageChartData.getUsedServices()) {
+			for (WarehouseServiceLevel wsl : L2StorageChartData.USED_SERVICES) {
 				double m = ChartProcess.PW_VALUES.get(timeState).wm 
 						* storageRaw.items.get(wsl).get(ItemStatus.DECLARED).normalValue.doubleValue();
 				double s = ChartProcess.PW_VALUES.get(timeState).ws 
@@ -205,7 +205,7 @@ public final class ChartProcess {
 
 
 	/**
-	 * Count the maximum value of weighted input map.
+	 * Count the maximum value of weighted input map for level 2 and 3.
 	 * @param weightInput the weight map
 	 * @return maximum
 	 */
@@ -218,7 +218,7 @@ public final class ChartProcess {
 	}
 
 	/**
-	 * Count bar length.
+	 * Count bar length for level 2.
 	 * @param timeState the time state
 	 * @param x the X coordinate
 	 * @return the bar length
@@ -230,7 +230,7 @@ public final class ChartProcess {
 	}
 
 	/**
-	 * Count bar color.
+	 * Count bar color for level 2.
 	 * @param timeState time state
 	 * @param x value
 	 * @return list of color components
@@ -284,7 +284,7 @@ public final class ChartProcess {
 		depotStorageData.relFullness = (wX0SA + wX0SB + wX1);
 	}
 	/**
-	 * Get weight input.
+	 * Count the weight input for level 3.
 	 * @param timeState the time state
 	 * @param type the warehouse type
 	 * @param depotStorageData the data

@@ -20,7 +20,6 @@
  */
 package eu.advance.logistics.live.reporter.charts;
 
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,30 +39,24 @@ public class L2StorageChartData {
 	public final Map<L2TimeState, Map<WarehouseServiceLevel, BarLength>> barLength;
 	/** HashMap for background color of chart. */
 	public final Map<L2TimeState, BgColor>  bgColor;
+	
+	/**Time states which are used in this class.*/
+	public static final L2TimeState[] USED_BAR_TIME = {
+	  L2TimeState.NOW_AT_HUB,
+	  L2TimeState.COMING_UP
+	};
+	/**Warehouse services which are used in this class.*/
+	public static final WarehouseServiceLevel[] USED_SERVICES = {
+	  WarehouseServiceLevel.STANDARD,
+	  WarehouseServiceLevel.PRIORITY_SPECIAL
+	};
+	
 	/**
 	 * Constructor, initializes the fields.
 	 */
 	public L2StorageChartData() {
 		this.barLength = new LinkedHashMap<>();
 		this.bgColor = new LinkedHashMap<>();
-	}
-
-	/**
-	 * Get that time states which are used in this class: NOW_AT_HUB, COMING_UP.
-	 * @return EnumSet of the used time states
-	 */
-	public static EnumSet<L2TimeState> getUsedBarTime()	{
-		EnumSet<L2TimeState> result = EnumSet.of(L2TimeState.NOW_AT_HUB, L2TimeState.COMING_UP);
-		return result;
-	}
-
-	/**
-	 * Get that warehouse services which are used in this class.
-	 * @return EnumSet of the used warehouse service levels
-	 */
-	public static EnumSet<WarehouseServiceLevel> getUsedServices() {
-		EnumSet<WarehouseServiceLevel> result = EnumSet.of(WarehouseServiceLevel.STANDARD, WarehouseServiceLevel.PRIORITY_SPECIAL);
-		return result;
 	}
 
 	/**
