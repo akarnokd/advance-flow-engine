@@ -289,7 +289,7 @@ public final class L2Chart {
 			storageRecord.put("id", storageChart.id);
 			storageRecord.put("overColor", storageChart.bgColor.get(L2TimeState.OVERALL).getColor());
 
-			for (L2TimeState timeState : L2StorageChartData.getUsedBarTime()) {
+			for (L2TimeState timeState : L2StorageChartData.USED_BAR_TIME) {
 				JSONObject timeRecord = new JSONObject();
 				timeRecord.put("standardNormal",  storageChart.barLength.get(timeState).get(WarehouseServiceLevel.STANDARD).getLength().toPlainString());
 				timeRecord.put("priorityNormal", storageChart.barLength.get(timeState).get(WarehouseServiceLevel.PRIORITY_SPECIAL).getLength().toPlainString());
