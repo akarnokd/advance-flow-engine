@@ -151,6 +151,7 @@ if (typeof Object.create !== 'function')
 											var rect = $(event.target);
 											$("#" + settings.handSilentRect).triggerHandler({
 												type : "click.silent",
+												displayed_wh : rect.attr("displayed_wh"),
 												storage_id : rect.attr("storage_id"),
 												storage_info: rect.attr("storage_info")
 											});
@@ -301,6 +302,7 @@ if (typeof Object.create !== 'function')
 				myRect.setAttributeNS(null, "y", zeroY);
 				myRect.setAttributeNS(null, "width", columnInfo.width.circle + columnInfo.width.text);
 				myRect.setAttributeNS(null, "height", columnInfo.height);
+				myRect.setAttribute("displayed_wh", storageData.displayedWarehouse);
 				myRect.setAttribute("storage_info", storageData.warehouseLayout);
 				myRect.setAttribute("storage_id", storageData.id);
 				document.getElementById(appendId).appendChild(myRect);

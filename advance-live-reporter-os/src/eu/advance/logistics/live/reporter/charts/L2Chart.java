@@ -113,7 +113,7 @@ public final class L2Chart {
 		JSONObject result = new JSONObject();
 		result.put("direction", L2Chart.createDirectionJSON(ws));
 		for (L2DisplaySide dsKey : L2DisplaySide.values()) {
-			result.put(dsKey.getInfo(),  L2Chart.createDisplaySideJSON(storageRawMap.get(dsKey), storageChartMap.get(dsKey)));
+			result.put(dsKey.getInfo(),  L2Chart.createDisplaySideJSON(L2Chart.getDisplayedWarehouse(dsKey, ws), storageRawMap.get(dsKey), storageChartMap.get(dsKey)));
 		}
 
 		return result;
@@ -195,18 +195,35 @@ public final class L2Chart {
 			JSONObject dsRecord = new JSONObject();
 			switch (ws.getL2WarehouseOption()) {
 			case A:
+			{
+        dsRecord.put("align", WarehouseSide.values()[dsKey.ordinal()].name().toLowerCase());
+        dsRecord.put("warehouseName", ws.getWarehouse());
+        dsRecord.put("warehouseInfo", ws.getWarehouseType().name());
+        break;
+			}
 			case B:
-				dsRecord.put("align", WarehouseSide.values()[dsKey.ordinal()].name().toLowerCase());
-				dsRecord.put("warehouseInfo", ws.getWarehouse() + ws.getWarehouseType().name());
-				break;
+			{
+        dsRecord.put("align", WarehouseSide.values()[dsKey.ordinal()].name().toLowerCase());
+        dsRecord.put("warehouseName", ws.getPair());
+        dsRecord.put("warehouseInfo", ws.getWarehouseType().name());
+        break;
+			}
 			case LEFT:
-				dsRecord.put("align", WarehouseSide.LEFT.toString().toLowerCase());
-				dsRecord.put("warehouseInfo", ws.getWarehouse() + WarehouseType.values()[dsKey.ordinal()].name());
-				break;
+			{
+        dsRecord.put("align", WarehouseSide.LEFT.toString().toLowerCase());
+        String wh = (dsKey == L2DisplaySide.LEFT) ? ws.getWarehouse() : ws.getPair();
+        dsRecord.put("warehouseName", wh);
+        dsRecord.put("warehouseInfo", WarehouseType.values()[dsKey.ordinal()].name());
+        break;
+			}
 			case RIGHT:
-				dsRecord.put("align", WarehouseSide.RIGHT.toString().toLowerCase());
-				dsRecord.put("warehouseInfo", ws.getWarehouse() + WarehouseType.values()[dsKey.ordinal()].name());
-				break;
+			{
+        dsRecord.put("align", WarehouseSide.RIGHT.toString().toLowerCase());
+        String wh = (dsKey == L2DisplaySide.LEFT) ? ws.getWarehouse() : ws.getPair();
+        dsRecord.put("warehouseName", wh);
+        dsRecord.put("warehouseInfo", WarehouseType.values()[dsKey.ordinal()].name());
+        break;
+			}
 			default:
 			}
 			dsRecord.put("at_hub", L2TimeState.NOW_AT_HUB.getMessage());
@@ -219,14 +236,46 @@ public final class L2Chart {
 	}
 
 	/**
+	 * Returns the displayed warehouse based on the display side and the warehouse switch.
+	 * @param ds the dislay side
+	 * @param ws the warehouse switch
+	 * @return the displayed warehouse
+	 */
+	private static String getDisplayedWarehouse(L2DisplaySide ds, WarehouseSwitch ws)
+	{
+	  String res = "";
+	  
+	  switch(ws.getL2WarehouseOption())
+	  {
+	    case A:
+	    {
+	      res = ws.getWarehouse();
+	      break;
+	    }
+	    case B:
+	    {
+	      res = ws.getPair();
+	      break;
+	    }
+	    case LEFT:
+	    case RIGHT:  
+	    {
+	      res = (ds == L2DisplaySide.LEFT) ? ws.getWarehouse() : ws.getPair();
+	      break;
+	    }
+	  }
+	  
+	  return res;
+	}
+	
+	/**
 	 * Create a display side JSON array.
 	 * @param storageRawList the raw list
 	 * @param storageChartList the storage chart
 	 * @return the JSON array
 	 */
-	private static JSONArray createDisplaySideJSON(
-			List<L2StorageRawData> storageRawList, 
-			List<L2StorageChartData> storageChartList) {
+	private static JSONArray createDisplaySideJSON(String displayedWarehouse, List<L2StorageRawData> storageRawList, List<L2StorageChartData> storageChartList)
+	{
 		JSONArray result = new JSONArray();
 		int i = 0;
 
@@ -234,7 +283,8 @@ public final class L2Chart {
 			JSONObject storageRecord = new JSONObject();
 
 			L2StorageRawData storageRaw = storageRawList.get(i);
-			String ss = storageRaw.warehouse + "_" + storageRaw.type + "_" + storageRaw.side.name();
+			storageRecord.put("displayedWarehouse", displayedWarehouse);
+			String ss = storageRaw.type + "_" + storageRaw.side.name();
 			storageRecord.put("warehouseLayout", ss.toLowerCase());
 			storageRecord.put("id", storageChart.id);
 			storageRecord.put("overColor", storageChart.bgColor.get(L2TimeState.OVERALL).getColor());
