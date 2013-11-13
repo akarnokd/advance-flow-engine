@@ -145,12 +145,18 @@ public class WarehouseSwitch {
 	}
 	
 	/**
-	 * Returns the top member of the first warehouse pair. 
+	 * Returns the top member of the first warehouse pair to initialize the warehouse. 
 	 * @return the top member of the first warehouse pair
 	 */
 	public String getFirstWarehousePairTop()
 	{
-	  return this.warehousePairMap.keySet().iterator().next();
+	  String res = "";
+	  if(this.warehousePairMap.isEmpty() == false)
+	  {
+	    res = this.warehousePairMap.keySet().iterator().next();
+	  }
+	  
+	  return res;
 	}
 	
 	/**
