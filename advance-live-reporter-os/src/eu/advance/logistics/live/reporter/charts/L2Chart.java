@@ -194,36 +194,19 @@ public final class L2Chart {
 		for (L2DisplaySide dsKey : L2DisplaySide.values()) {
 			JSONObject dsRecord = new JSONObject();
 			switch (ws.getL2WarehouseOption()) {
-			case A:
-			{
-        dsRecord.put("align", WarehouseSide.values()[dsKey.ordinal()].name().toLowerCase());
-        dsRecord.put("warehouseName", ws.getWarehouse());
-        dsRecord.put("warehouseInfo", ws.getWarehouseType().name());
-        break;
-			}
+      case A:			
 			case B:
-			{
         dsRecord.put("align", WarehouseSide.values()[dsKey.ordinal()].name().toLowerCase());
-        dsRecord.put("warehouseName", ws.getPair());
         dsRecord.put("warehouseInfo", ws.getWarehouseType().name());
         break;
-			}
 			case LEFT:
-			{
         dsRecord.put("align", WarehouseSide.LEFT.toString().toLowerCase());
-        String wh = (dsKey == L2DisplaySide.LEFT) ? ws.getWarehouse() : ws.getPair();
-        dsRecord.put("warehouseName", wh);
         dsRecord.put("warehouseInfo", WarehouseType.values()[dsKey.ordinal()].name());
         break;
-			}
 			case RIGHT:
-			{
         dsRecord.put("align", WarehouseSide.RIGHT.toString().toLowerCase());
-        String wh = (dsKey == L2DisplaySide.LEFT) ? ws.getWarehouse() : ws.getPair();
-        dsRecord.put("warehouseName", wh);
         dsRecord.put("warehouseInfo", WarehouseType.values()[dsKey.ordinal()].name());
         break;
-			}
 			default:
 			}
 			dsRecord.put("at_hub", L2TimeState.NOW_AT_HUB.getMessage());
@@ -245,24 +228,18 @@ public final class L2Chart {
 	{
 	  String res = "";
 	  
-	  switch(ws.getL2WarehouseOption())
-	  {
+	  switch(ws.getL2WarehouseOption()) {
 	    case A:
-	    {
 	      res = ws.getWarehouse();
 	      break;
-	    }
 	    case B:
-	    {
 	      res = ws.getPair();
 	      break;
-	    }
 	    case LEFT:
 	    case RIGHT:  
-	    {
 	      res = (ds == L2DisplaySide.LEFT) ? ws.getWarehouse() : ws.getPair();
 	      break;
-	    }
+	    default:	      
 	  }
 	  
 	  return res;
