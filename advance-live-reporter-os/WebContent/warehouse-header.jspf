@@ -32,6 +32,7 @@ else
       String whName = ObjectUtils.nvl(request.getParameter("warehouse_name"), warehouseSwitch.getFirstWarehousePairTop());
       String whOption = ObjectUtils.nvl(request.getParameter("warehouse_option"), "A");
       String stOrder = ObjectUtils.nvl(request.getParameter("storage_order"), "PHYSICAL");
+      //Real values are set by l2_l3 form at the l2 jsp page.
       String whL3Option = ObjectUtils.nvl(request.getParameter("warehouse_l3_option"), "LEFT");
       String whL3StId = ObjectUtils.nvl(request.getParameter("warehouse_l3_storage_id"), "0");
       String whL3Name = ObjectUtils.nvl(request.getParameter("warehouse_l3_name"), warehouseSwitch.getFirstWarehousePairTop());
