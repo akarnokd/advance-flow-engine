@@ -433,11 +433,11 @@ public final class WarehouseSummary {
 				EnumMap<WarehouseServiceLevel, Aggregates> forDepot = depotLevelAggregates.get((short)storageRawItem.id);
 				
 				// Fill the concrete storageRawItem
-				for (WarehouseServiceLevel sKey : L2StorageRawData.getUsedServices()) {
+				for (WarehouseServiceLevel sKey : L2StorageRawData.USED_SERVICES) {
 					Aggregates a = forDepot.get(sKey);
 					
 					Map<ItemStatus, BarData> items = new LinkedHashMap<ItemStatus, BarData>();
-					for (ItemStatus pKey : L2StorageRawData.getUsedItemStatus()) {
+					for (ItemStatus pKey : L2StorageRawData.USED_ITEMS) {
 						if (pKey == ItemStatus.AT_HUB) {
 							double v = getInStorageFloorspace(levelTypeDepotSum, storageRawItem.type, storageRawItem.id, sKey);
 							items.put(pKey, new BarData(v));

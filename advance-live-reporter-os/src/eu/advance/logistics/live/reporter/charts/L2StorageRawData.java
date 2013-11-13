@@ -43,9 +43,22 @@ public class L2StorageRawData {
 	/** Storage area capacity based on the warehouse type and the warehouse service level. */
 	public final Map<WarehouseType, Map<WarehouseServiceLevel, Double>> storageCapacityMap;
 
-
 	/** HashMap for items. */
 	public final Map<WarehouseServiceLevel, Map<ItemStatus, BarData>> items;
+	
+	/**Warehouse services which are used in this level.*/
+	public static final WarehouseServiceLevel[] USED_SERVICES = {
+	  WarehouseServiceLevel.STANDARD,
+	  WarehouseServiceLevel.PRIORITY_SPECIAL
+	};
+	/**Item statuses which are used in this level.*/
+	public static final ItemStatus[] USED_ITEMS = {
+	  ItemStatus.AT_HUB,
+    ItemStatus.DECLARED,
+    ItemStatus.SCANNED,
+    ItemStatus.CREATED
+	};
+	
 	/**
 	 * Constructor.
 	 */
@@ -55,34 +68,13 @@ public class L2StorageRawData {
 	}
 
 	/**
-	 * Get that warehouse service levels which are used in this class: STANDARD, PRIORITY_SPECIAL.
-	 * @return EnumSet of the used warehouse service levels
-	 */
-	public static EnumSet<WarehouseServiceLevel> getUsedServices() {
-		EnumSet<WarehouseServiceLevel> result = EnumSet.of(WarehouseServiceLevel.STANDARD, WarehouseServiceLevel.PRIORITY_SPECIAL);
-		return result;
-	}
-
-	/**
-	 * Get that item statuses which are used in this class.
-	 * @return EnumSet of the used items statuses
-	 */
-	public static EnumSet<ItemStatus> getUsedItemStatus() {
-		EnumSet<ItemStatus> result = EnumSet.of(ItemStatus.AT_HUB,
-				ItemStatus.DECLARED,
-				ItemStatus.SCANNED,
-				ItemStatus.CREATED);
-		return result;
-	}
-
-	/**
 	 * Normalize items data based on the floorspace capacity of the storage.
 	 */
 	public void normalizeByCap() {
 		BarData bd;
 		double capacity;
 
-		for (WarehouseServiceLevel sKey : L2StorageRawData.getUsedServices()) {
+		for (WarehouseServiceLevel sKey : L2StorageRawData.USED_SERVICES) {
 			// For at_hub: count the warehouse type + warehouse snip specific capacity.
 			bd = this.items.get(sKey).get(ItemStatus.AT_HUB);
 			capacity = this.storageCapacityMap.get(this.type).get(sKey);
