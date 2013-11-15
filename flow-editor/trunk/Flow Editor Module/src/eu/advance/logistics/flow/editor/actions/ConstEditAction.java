@@ -30,10 +30,10 @@ import org.openide.util.NbBundle;
 import eu.advance.logistics.flow.editor.model.ConstantBlock;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockChanged;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceData;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 import java.net.URISyntaxException;
 import org.openide.util.Exceptions;
 
@@ -58,9 +58,9 @@ public class ConstEditAction extends AbstractAction {
         AdvanceConstantBlock newConstant;
         AdvanceConstantBlock currentConstant = target.getConstant();
         try {
-            AdvanceType at = currentConstant.getAdvanecType();
+            AdvanceType at = currentConstant.getAdvanceType();
             if (AdvanceData.TYPE.equals(at.typeURI)) {
-                XElement value = EditType.edit(currentConstant.value);
+                XNElement value = EditType.edit(currentConstant.value);
                 if (value == null) {
                     return;
                 }
@@ -88,7 +88,7 @@ public class ConstEditAction extends AbstractAction {
 
     private static AdvanceConstantBlock clone(AdvanceConstantBlock source) {
         AdvanceConstantBlock cloned = new AdvanceConstantBlock();
-        XElement temp = new XElement("constant");
+        XNElement temp = new XNElement("constant");
         source.save(temp);
         cloned.load(temp);
         return cloned;

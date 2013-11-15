@@ -23,7 +23,6 @@ package eu.advance.logistics.flow.editor.actions;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.net.URI;
 
 import javax.swing.AbstractAction;
 
@@ -41,12 +40,12 @@ import eu.advance.logistics.flow.editor.undo.BlockMoved;
 import eu.advance.logistics.flow.editor.undo.CompositeEdit;
 import eu.advance.logistics.flow.editor.undo.ConstantBlockAdded;
 import eu.advance.logistics.flow.editor.undo.UndoRedoSupport;
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceData;
 import eu.advance.logistics.flow.engine.inference.TypeKind;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 import java.net.URISyntaxException;
 import org.openide.util.Exceptions;
 
@@ -128,7 +127,7 @@ public class ConstAddAction extends AbstractAction {
             }
         }
         try {
-            AdvanceType at = c.getAdvanecType();
+            AdvanceType at = c.getAdvanceType();
             if (c.type != null) {
                 c.type = BlockRegistry.getInstance().resolveSchema(at.typeURI);
             }
@@ -140,7 +139,7 @@ public class ConstAddAction extends AbstractAction {
                     return c;
                 }
             } else {
-                c.value = new XElement(at.typeURI.getSchemeSpecificPart());
+                c.value = new XNElement(at.typeURI.getSchemeSpecificPart());
                 c.value.content = "";
                 c.value.content = EditSupport.edit(c.value.content, at.typeURI);
                 return c.value.content != null ? c : null;
@@ -151,7 +150,7 @@ public class ConstAddAction extends AbstractAction {
         return null;
     }
     public static String convertToXml(AdvanceConstantBlock c) {
-        XElement temp = new XElement("constant");
+        XNElement temp = new XNElement("constant");
         c.save(temp);
         return temp.toString();
     }

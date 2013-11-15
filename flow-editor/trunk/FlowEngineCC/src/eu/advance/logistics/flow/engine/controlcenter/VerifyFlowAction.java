@@ -46,7 +46,7 @@ import eu.advance.logistics.flow.engine.cc.LabelManager;
 import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 @ActionID(category = "RemoteFlowEngine",
 id = "eu.advance.logistics.flow.engine.controlcenter.VerifyFlowAction")
@@ -125,7 +125,7 @@ public final class VerifyFlowAction implements ActionListener {
         CCDebugRow dr = new CCDebugRow();
         dr.watch = new CCWatchSettings();
         dr.timestamp = new Date();
-        XElement e = new XElement("advance-compilation-result");
+        XNElement e = new XNElement("advance-compilation-result");
         result.save(e);
         dr.value = Option.some(e);
         dr.watch.block = "";

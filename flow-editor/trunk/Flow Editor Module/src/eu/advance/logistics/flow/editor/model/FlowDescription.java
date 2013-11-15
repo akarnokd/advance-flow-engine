@@ -35,7 +35,7 @@ import com.google.common.io.Closeables;
 
 import eu.advance.logistics.flow.engine.compiler.AdvanceCompilationResult;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 /**
  *
@@ -92,7 +92,7 @@ public class FlowDescription extends CompositeBlock {
     }
 
     public static void save(OutputStream s, AdvanceCompositeBlock compositeBlock) throws IOException {
-        XElement root = AdvanceCompositeBlock.serializeFlow(compositeBlock);
+        XNElement root = AdvanceCompositeBlock.serializeFlow(compositeBlock);
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new OutputStreamWriter(s));
@@ -114,11 +114,11 @@ public class FlowDescription extends CompositeBlock {
     }
 
     public static AdvanceCompositeBlock load(InputStream s) throws IOException {
-        XElement root = null;
+        XNElement root = null;
         InputStream in = null;
         try {
             in = new BufferedInputStream(s);
-            root = XElement.parseXML(in);
+            root = XNElement.parseXML(in);
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         } finally {

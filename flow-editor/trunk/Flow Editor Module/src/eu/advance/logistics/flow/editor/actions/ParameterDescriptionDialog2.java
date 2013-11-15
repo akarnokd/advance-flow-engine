@@ -32,7 +32,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.windows.WindowManager;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 /**
  *
@@ -98,7 +98,7 @@ public class ParameterDescriptionDialog2 extends javax.swing.JDialog {
     }
 
     private String convertToText(AdvanceBlockParameterDescription d) {
-        XElement temp = new XElement(tag);
+        XNElement temp = new XNElement(tag);
         d.save(temp);
         return temp.toString();
     }
@@ -138,7 +138,7 @@ public class ParameterDescriptionDialog2 extends javax.swing.JDialog {
     private AdvanceBlockParameterDescription createFromText(String xml) {
         if (xml != null && xml.length() > 0) {
             try {
-                XElement temp = XElement.parseXML(new StringReader(xml));
+                XNElement temp = XNElement.parseXML(new StringReader(xml));
                 AdvanceBlockParameterDescription d = new AdvanceBlockParameterDescription();
                 d.load(temp);
                 return d;
