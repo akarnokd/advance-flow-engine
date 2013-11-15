@@ -22,7 +22,7 @@ package eu.advance.logistics.flow.editor.model;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceConstantBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 /**
  * <b>ConstantBlock</b>
@@ -98,7 +98,7 @@ public class ConstantBlock extends AbstractBlock {
     }
 
     private static AdvanceConstantBlock clone(AdvanceConstantBlock src) {
-        XElement temp = new XElement("temp");
+        XNElement temp = new XNElement("temp");
         src.save(temp);
         AdvanceConstantBlock cloned  = new AdvanceConstantBlock();
         cloned.load(temp);

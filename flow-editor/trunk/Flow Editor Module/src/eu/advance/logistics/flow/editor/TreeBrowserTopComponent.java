@@ -38,7 +38,7 @@ import eu.advance.logistics.flow.editor.tree.CompositeBlockNode.CompositeBlockCh
 import eu.advance.logistics.flow.editor.tree.FlowDescriptionNode;
 import eu.advance.logistics.flow.editor.tree.SimpleBlockNode;
 import eu.advance.logistics.flow.editor.util.Util;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -116,7 +116,7 @@ public final class TreeBrowserTopComponent extends TopComponent implements Explo
                         Node n = nodes[0];
                         if (n instanceof SimpleBlockNode) {
                             SimpleBlockNode bn = (SimpleBlockNode)n;
-                            blockTip.setText("<html><p>" + XElement.sanitize(bn.getBlock().getTooltip()) + "</p></html>");
+                            blockTip.setText("<html><p>" + XNElement.sanitize(bn.getBlock().getTooltip()) + "</p></html>");
                             blockTip.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
                             blockTip.setVisible(true);
                             return;

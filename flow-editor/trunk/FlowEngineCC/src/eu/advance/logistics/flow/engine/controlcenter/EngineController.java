@@ -40,7 +40,7 @@ import eu.advance.logistics.flow.engine.api.AdvanceHttpAuthentication;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceLoginType;
 import eu.advance.logistics.flow.engine.api.impl.HttpRemoteEngineControl;
 import eu.advance.logistics.flow.engine.test.BasicLocalEngine;
-import eu.advance.logistics.flow.engine.util.KeystoreManager;
+import hu.akarnokd.utils.crypto.KeystoreManager;
 
 /**
  *

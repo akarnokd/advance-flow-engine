@@ -53,7 +53,7 @@ import eu.advance.logistics.flow.engine.api.core.AdvanceControlException;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceRealm;
 import eu.advance.logistics.flow.engine.api.ds.AdvanceUserRealmRights;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceCompositeBlock;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 //@ActionID(category = "RemoteFlowEngine",
 //id = "eu.advance.logistics.flow.engine.controlcenter.DownloadFlowAction")
@@ -118,7 +118,7 @@ public final class DownloadFlowAction extends AbstractAction {
                     AdvanceCompositeBlock flow = null;
                     try {
                         Commons.fixRights(engine, realm, AdvanceUserRealmRights.READ);
-                        XElement root = engine.datastore().queryFlow(realm.name);
+                        XNElement root = engine.datastore().queryFlow(realm.name);
                         if (root != null) {
                             flow = AdvanceCompositeBlock.parseFlow(root);
                         } else {

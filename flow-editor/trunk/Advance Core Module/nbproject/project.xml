@@ -107,7 +107,6 @@
                 <package>eu.advance.logistics.flow.engine.test</package>
                 <package>eu.advance.logistics.flow.engine.typesystem</package>
                 <package>eu.advance.logistics.flow.engine.util</package>
-                <package>eu.advance.logistics.flow.engine.xml</package>
                 <package>eu.advance.logistics.prediction.support</package>
                 <package>eu.advance.logistics.prediction.support.attributes</package>
                 <package>eu.advance.logistics.prediction.support.collections</package>
@@ -125,6 +124,18 @@
                 <package>hu.akarnokd.reactive4java.test</package>
                 <package>hu.akarnokd.reactive4java.test.old</package>
                 <package>hu.akarnokd.reactive4java.util</package>
+                <package>hu.akarnokd.utils</package>
+                <package>hu.akarnokd.utils.collection</package>
+                <package>hu.akarnokd.utils.concurrent</package>
+                <package>hu.akarnokd.utils.crypto</package>
+                <package>hu.akarnokd.utils.database</package>
+                <package>hu.akarnokd.utils.io</package>
+                <package>hu.akarnokd.utils.lang</package>
+                <package>hu.akarnokd.utils.math</package>
+                <package>hu.akarnokd.utils.mix</package>
+                <package>hu.akarnokd.utils.sequence</package>
+                <package>hu.akarnokd.utils.trove</package>
+                <package>hu.akarnokd.utils.xml</package>
                 <package>javax.annotation</package>
                 <package>javax.annotation.concurrent</package>
                 <package>javax.annotation.meta</package>
@@ -483,6 +494,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/j2ssh-0.2.9.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/j2ssh-0.2.9.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/akarnokd_tools.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/akarnokd_tools.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

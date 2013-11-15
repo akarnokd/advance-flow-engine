@@ -30,7 +30,7 @@ import org.openide.windows.WindowManager;
 import eu.advance.logistics.flow.editor.BlockRegistry;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockParameterDescription;
 import eu.advance.logistics.flow.engine.model.fd.AdvanceType;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 /**
  *
@@ -82,7 +82,7 @@ public class ParameterDescriptionDialog extends javax.swing.JDialog {
             paramDesc.displayName = jTextField1.getText();
             paramDesc.documentation = jTextPane1.getText();
             paramDesc.type = type;
-            XElement temp = new XElement(tag);
+            XNElement temp = new XNElement(tag);
             paramDesc.save(temp);
             customTypeText.setText(temp.toString());
         } else {

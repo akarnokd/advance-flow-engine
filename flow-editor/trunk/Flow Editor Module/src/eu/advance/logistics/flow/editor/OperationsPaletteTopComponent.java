@@ -44,7 +44,7 @@ import org.openide.windows.TopComponent;
 import eu.advance.logistics.flow.editor.palette.PaletteRootChildren;
 import eu.advance.logistics.flow.editor.util.Util;
 import eu.advance.logistics.flow.engine.runtime.BlockRegistryEntry;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -141,7 +141,7 @@ public final class OperationsPaletteTopComponent extends TopComponent implements
                         Node n = nodes[0];
                         if (n instanceof BlockNode) {
                             BlockNode bn = (BlockNode)n;
-                            blockTip.setText("<html><p>" + XElement.sanitize(bn.blockDesc()) + "</p></html>");
+                            blockTip.setText("<html><p>" + XNElement.sanitize(bn.blockDesc()) + "</p></html>");
                             blockTip.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
                             blockTip.setVisible(true);
                             return;

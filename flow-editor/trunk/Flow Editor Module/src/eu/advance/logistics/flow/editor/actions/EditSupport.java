@@ -1,6 +1,6 @@
 package eu.advance.logistics.flow.editor.actions;
 
-import eu.advance.logistics.flow.engine.block.AdvanceData;
+import eu.advance.logistics.flow.engine.AdvanceData;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.lang.reflect.InvocationTargetException;

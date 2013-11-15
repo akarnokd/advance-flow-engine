@@ -43,7 +43,7 @@ import org.openide.util.NbBundle;
 import com.google.common.io.Closeables;
 
 import eu.advance.logistics.flow.engine.model.fd.AdvanceBlockDescription;
-import eu.advance.logistics.flow.engine.xml.XElement;
+import hu.akarnokd.utils.xml.XNElement;
 
 public class BlockRegistryDataObject extends MultiDataObject {
     /** */
@@ -86,9 +86,9 @@ public class BlockRegistryDataObject extends MultiDataObject {
     }
 
     public static void read(InputStream in) {
-        XElement root = null;
+        XNElement root = null;
         try {
-            root = XElement.parseXML(in);
+            root = XNElement.parseXML(in);
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         } finally {
