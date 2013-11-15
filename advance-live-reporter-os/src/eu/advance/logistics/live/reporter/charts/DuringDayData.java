@@ -25,6 +25,7 @@ import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.utils.collection.AggregatorHashMap4;
 import hu.akarnokd.utils.collection.AggregatorMap1;
 import hu.akarnokd.utils.collection.AggregatorMap4;
+import hu.akarnokd.utils.xml.XElement;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +40,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 import com.google.common.collect.Iterables;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.live.reporter.model.ChartView;
 import eu.advance.logistics.live.reporter.model.DuringAmountStatus;
 import eu.advance.logistics.live.reporter.model.ServiceLevel;
