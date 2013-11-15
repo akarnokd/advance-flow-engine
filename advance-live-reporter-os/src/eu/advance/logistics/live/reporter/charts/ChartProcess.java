@@ -20,6 +20,8 @@
  */
 package eu.advance.logistics.live.reporter.charts;
 
+import hu.akarnokd.utils.xml.XElement;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -30,7 +32,6 @@ import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 
-import eu.advance.logistics.flow.engine.xml.XElement;
 import eu.advance.logistics.live.reporter.model.ItemStatus;
 
 /**
