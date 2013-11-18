@@ -28,7 +28,6 @@ else
   try
   {
     HubDepotSwitch hubDepotSwitch = new HubDepotSwitch(user.hub, user.name);
-    hubDepotSwitch.setDateTime(new Date());
     
     WarehouseSwitch warehouseSwitch = new WarehouseSwitch(user.hub, user.name);
     warehouseSwitch.setWarehouse(request.getParameter("warehouse_name"));
@@ -39,8 +38,8 @@ else
 	WarehouseSummary.warehouseDetails(storageRawMap, warehouseSwitch.hubId(),
 	new DateTime(hubDepotSwitch.getDateTime()), warehouseSwitch.getWarehouse(),
 	HubDepotDataCache.get(session.getServletContext()));
-
-    result = L2Chart.getJSONtoChart(warehouseSwitch, storageRawMap);
+    
+	  result = L2Chart.getJSONtoChart(warehouseSwitch, storageRawMap);
     
   }
   catch(IllegalArgumentException e)
