@@ -27,7 +27,6 @@ else
   try
   {
     HubDepotSwitch hubDepotSwitch = new HubDepotSwitch(user.hub, user.name);
-    hubDepotSwitch.setDateTime(new Date());
 
     WarehouseSwitch warehouseSwitch = new WarehouseSwitch(user.hub, user.name);
     warehouseSwitch.setWarehouse(request.getParameter("warehouse_name"));
