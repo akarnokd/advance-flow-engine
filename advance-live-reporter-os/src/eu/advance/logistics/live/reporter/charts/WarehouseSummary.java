@@ -284,11 +284,23 @@ public final class WarehouseSummary {
 				TLongObjectMap<EnumMap<ServiceLevel, TLongSet>> out1 = cache.getItemsInWarehouse(hubId, s.warehouse, when);
 				warehouseTypeMap.put(WarehouseType.A, out1);
 				whs.add(Pair.of(s.warehouse, WarehouseType.A));
+				// extract all item ids
+				for (EnumMap<ServiceLevel, TLongSet> m1 : out1.valueCollection()) {
+					for (TLongSet m2 : m1.values()) {
+						itemIds.addAll(m2);
+					}
+				}
 
 				if (s.pair != null) {
 					TLongObjectMap<EnumMap<ServiceLevel, TLongSet>> out2 = cache.getItemsInWarehouse(hubId, s.pair, when);
 					warehouseTypeMap.put(WarehouseType.B, out2);
 					whs.add(Pair.of(s.pair, WarehouseType.B));
+					// extract all item ids
+					for (EnumMap<ServiceLevel, TLongSet> m1 : out2.valueCollection()) {
+						for (TLongSet m2 : m1.values()) {
+							itemIds.addAll(m2);
+						}
+					}
 				} else {
 					warehouseTypeMap.put(WarehouseType.B, new TLongObjectHashMap<EnumMap<ServiceLevel, TLongSet>>());
 				}
@@ -304,12 +316,6 @@ public final class WarehouseSummary {
 						}
 						for (WarehouseServiceLevel sn : ssn) {
 							levelTypeDepotCapacity.get(sn).get(wh.second).adjustOrPutValue((short)b.depot, b.capacity, b.capacity);
-						}
-					}
-					// extract all item ids
-					for (EnumMap<ServiceLevel, TLongSet> m1 : out1.valueCollection()) {
-						for (TLongSet m2 : m1.values()) {
-							itemIds.addAll(m2);
 						}
 					}
 				}				
@@ -410,17 +416,16 @@ public final class WarehouseSummary {
 	 * @param hubId the hub id
 	 * @param when the current time
 	 * @param warehouse the current warehouse name
+	 * @param wtype the warehouse type.
 	 * @param cache the data cache
 	 */
 	public static void warehouseDetails(
 			Map<L2DisplaySide, List<L2StorageRawData>> storageRawMap,
-			long hubId, ReadableDateTime when, String warehouse,
+			long hubId, ReadableDateTime when, String warehouse, WarehouseType wtype,
 			HubDepotDataCache cache) {
 		
 		final EnumMap<WarehouseServiceLevel, TObjectDoubleMap<WarehouseType>> levelTypeSum = new EnumMap<>(WarehouseServiceLevel.class);
 		EnumMap<WarehouseServiceLevel, EnumMap<WarehouseType, TLongIntMap>> levelTypeDepotCapacity = new EnumMap<>(WarehouseServiceLevel.class);
-
-		
 		final EnumMap<WarehouseServiceLevel, EnumMap<WarehouseType, TLongDoubleMap>> levelTypeDepotSum = new EnumMap<>(WarehouseServiceLevel.class);
 		TLongObjectMap<EnumMap<WarehouseServiceLevel, Aggregates>> depotLevelAggregates = new TLongObjectHashMap<>();
 

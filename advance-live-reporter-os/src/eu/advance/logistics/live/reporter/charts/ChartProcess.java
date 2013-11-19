@@ -180,7 +180,8 @@ public final class ChartProcess {
 		case NOW_AT_HUB:
 			// for STANDARD & PRIORITY
 			for (WarehouseServiceLevel wsl : L2StorageChartData.USED_SERVICES) {
-				double x = storageRaw.items.get(wsl).get(ItemStatus.AT_HUB).normalValue.doubleValue();
+				BarData bd = storageRaw.items.get(wsl).get(ItemStatus.AT_HUB);
+				double x = bd.normalValue.doubleValue();
 				weightInput.put(wsl, x);
 
 			}

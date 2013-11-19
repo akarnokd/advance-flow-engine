@@ -440,6 +440,7 @@ public final class MasterDB {
 					}
 				}
 				mergeInto(list, b.depot, b.capacity, WarehouseType.A, sl, b.index);
+				mergeInto(list, b.depot, b.capacity, WarehouseType.B, sl, b.index);
 			}
 		}
 		for (Map<WarehouseSide, List<StorageAreaInfo>> m : result.values()) {

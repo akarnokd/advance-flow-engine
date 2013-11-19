@@ -90,4 +90,13 @@ public class L2StorageRawData {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "L2StorageRawData [warehouse=" + warehouse + ", type=" + type
+				+ ", side=" + side + ", id=" + id + "]";
+	}
+	
 }

@@ -393,7 +393,8 @@ public class WarehouseSwitch {
 				break;
 			case B:
 				if (wh.pair != null) {
-					storageInfoList = warehouseLayoutMap.get(wh.pair).get(WarehouseSide.values()[displaySide.ordinal()]);
+					Map<WarehouseSide, List<StorageAreaInfo>> map = warehouseLayoutMap.get(wh.pair);
+					storageInfoList = map.get(WarehouseSide.values()[displaySide.ordinal()]);
 				} else {
 					storageInfoList = new ArrayList<>();
 				}
