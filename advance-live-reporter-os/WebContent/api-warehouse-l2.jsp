@@ -37,8 +37,8 @@ else
     Map<L2DisplaySide, List<L2StorageRawData>> storageRawMap = warehouseSwitch.getL2StorageRawMap();
 	WarehouseSummary.warehouseDetails(storageRawMap, warehouseSwitch.hubId(),
 	new DateTime(hubDepotSwitch.getDateTime()), warehouseSwitch.getWarehouse(),
-	HubDepotDataCache.get(session.getServletContext()));
-    
+	warehouseSwitch.getWarehouseType(),	HubDepotDataCache.get(session.getServletContext()));
+	
 	  result = L2Chart.getJSONtoChart(warehouseSwitch, storageRawMap);
     
   }
