@@ -58,6 +58,8 @@ import org.joda.time.ReadableDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 /**
  * Data provider for the warehouse summary and detail views.
  * @author karnokd, 2013.04.29.
@@ -385,6 +387,7 @@ public final class WarehouseSummary {
 		serviceToSnip.get(ServiceLevel.PRIORITY).addAll(Arrays.asList(WarehouseServiceLevel.PRIORITY_SPECIAL));
 		serviceToSnip.get(ServiceLevel.SPECIAL).addAll(Arrays.asList(WarehouseServiceLevel.PRIORITY_SPECIAL));
 		
+		Warehouse wh = MasterDB.warehouse(hubId, warehouse);
 		for (ConsignmentSummary cs : consignmentStatus.valueCollection()) {
 			
 			double cscreated = 0;
@@ -400,14 +403,16 @@ public final class WarehouseSummary {
 			cscreated = cs.floorspace(ItemStatus.CREATED);
 			
 			EnumMap<WarehouseServiceLevel, Aggregates> perLevel = out.get(cs.deliveryDepot);
-			
-			for (WarehouseServiceLevel s : serviceToSnip.get(cs.level)) {
-				perLevel.get(s).created += cscreated;
-				perLevel.get(s).scanned += csscanned;
-				perLevel.get(s).declared += csdeclared;
-				perLevel.get(s).athub += csathub;
-				perLevel.get(s).lefthub += cslefthub;
-			}
+
+      if(Strings.isNullOrEmpty(wh.pair) == false) {
+        for (WarehouseServiceLevel s : serviceToSnip.get(cs.level)) {
+          perLevel.get(s).created += cscreated;
+          perLevel.get(s).scanned += csscanned;
+          perLevel.get(s).declared += csdeclared;
+          perLevel.get(s).athub += csathub;
+          perLevel.get(s).lefthub += cslefthub;
+        }
+      }
 		}
 	}
 	/**
