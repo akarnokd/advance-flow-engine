@@ -74,10 +74,30 @@ $(document).ready(function(){
                 if(typeOfContent === 'graph'){
                     if(confirm('Do you want to record MI?')){
                         $('#node-editor-toolbar button.record-values').click();
+                    }else{
+                        if(isValidContent()){
+                
+                            if(typeOfGraph == 2 && areTabsUnchecked()){
+                                return false;
+                            }else{
+                                switchNode();
+                            }
+                    
+                        }        
                     }
                 }else if(typeOfContent === 'slider'){
                     if(confirm('Do you want to record RI?')){
                         $('#node-editor-toolbar button.record-values').click();
+                    }else{
+                        if(isValidContent()){
+                
+                            if(typeOfGraph == 2 && areTabsUnchecked()){
+                                return false;
+                            }else{
+                                switchNode();
+                            }
+                    
+                        }
                     }
                 }
             }else{
@@ -696,7 +716,7 @@ var generateXmlTree = function(xmlNode, liTag){
  */
 var isValidContent = function(){
     var isValid = false;
-    var message = 'Data cannot be saved.';
+    var message = 'Data are not valid.';
     if(typeOfContent === 'graph' && typeOfGraph > 0 && typeOfGraph < 3){
         var isValidMaxY = false;
         var isValidMinY = true;
@@ -903,10 +923,13 @@ var defineGraphType = function(node){
     var valueMG = node.attr('value-mg');
     
     if(values == 'integer'){
-        if(genericType == 'g'){
-            typeOfGraph = 1; // value-mg="((-20 1)(0 0.2)(5 0))"
-        }else if(genericType == 'gd'){
+        //        if(genericType == 'g'){
+        //            typeOfGraph = 1; // value-mg="((-20 1)(0 0.2)(5 0))"
+        //        }else 
+        if(genericType == 'gd'){
             typeOfGraph = 2; //value-mg="(([tab1] ((-20 1)(0 0.2)(5 0))) (([tab2] ((-20 1)(0 0.2)(5 0)))"
+        }else{
+            typeOfGraph = 1; // value-mg="((-20 1)(0 0.2)(5 0))"
         }
     }else if(values == 'nominal'){
         typeOfGraph = 3; // value-mg="(none 0) (a-few 0.2) (moderate-number 0.3) (quite-a-lot 0.6) (many 0.9) (loads 1))"
@@ -995,14 +1018,12 @@ var defineGraphType = function(node){
     }
 }
 
-/**
-* 
-*/
-var getCoordinates = function(valueMG, coordinatesArray){
     /*
- * Thanks to Ben Nadel & Giovanni Dal Maso
+ * Thanks to Ben Nadel http://www.bennadel.com/blog/1742-Using-Regular-Expressions-In-Javascript-A-General-Overview-.htm
+ * & Giovanni Dal Maso
  * Create an array of point coordinates from the XML node's values
  */
+var getCoordinates = function(valueMG, coordinatesArray){
     var pattern = /\(([-+]?[0-9]*\.?[0-9]+) ([-+]?[0-9]*\.?[0-9]+)\)/g;
     while ((matches = pattern.exec(valueMG))){
         var x = Number(matches[1]);
@@ -1117,7 +1138,6 @@ var switchNode = function(){
             
     // Sets the node editor header text and insert it into the DOM
     pageTitle = nodeEditor.prev();
-    //                pageTitle.children('p').text(node.attr('label').charAt(0).toUpperCase() + node.attr('label').slice(1, 49));
 
     nodeEditor.empty().removeClass('padded').height('83%'); //Remove elements from nodeEditor
 

@@ -124,14 +124,13 @@ button{cursor: pointer;}
     #page-header .logo#logo-1 img{width: 98%;}
     #page-header #logo-2{display: none;}
 
-    #content #page-title p{font-size: 2em;}
     #content .toolbar form button{font-size: 2em;}
 
     #footer p a{text-decoration: none;}
 }
 
 /* WVGA */
-@media only screen
+/*@media only screen
 and (max-device-width : 800px) {
     html, body{
         width: 100%; min-width: 100%; max-width: 100%; min-height: 100%;
@@ -143,7 +142,7 @@ and (max-device-width : 800px) {
         box-shadow: none;}
 
     #content .toolbar{position: absolute; bottom: 2%;}
-}
+}*/
 
 /* SMARTPHONES */
 @media only screen
@@ -162,10 +161,17 @@ and (max-device-width : 480px) {
     #page-header .logo#logo-1 img{width: 98%;}
     #page-header #logo-2{display: none;}
 
-    #content #page-title p{font-size: 2em;}
+    #content{
+        background-color: red;
+    }
+    #content .page-title p #title{padding-top: 0.5em; font-size: 1.6em;}
+    #content .toolbar{position: absolute; bottom: 3%;}
     #content .toolbar form button{font-size: 1.2em;}
 
-    #footer p a{text-decoration: none;}
+    #footer p{font-size: 0.8em;}
+    #footer p a{
+        text-decoration: none;
+    }
 
     #upload-box{left: 5%; top: 30%; width: 90%;}
 }

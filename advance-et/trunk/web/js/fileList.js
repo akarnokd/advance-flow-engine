@@ -203,7 +203,6 @@ var updateList = function(){
         type: 'post',
         dataType: 'xml',
         error: function(jqXHR, textStatus, errorThrown){
-            alert('Si è verificato un\'errore');
         },
         success: function(data, textStatus, jqXHR){
             var xml = $(data);
@@ -214,12 +213,12 @@ var updateList = function(){
             
             $.each(xml.find('file'), function(){
                 var file = $(this);
-                console.log(file.attr('user'));
                 var user = $.trim(file.attr('user'));
+                var newElement;
                 if(user !== undefined && user !== null && user.length > 0){
-                    var newElement = $('<div>' + file.attr('filename') + '</div>').append($('<img>').attr('src', '../images/locked.png')).append($('<span>').text(user + ' is editing'));
+                    newElement = $('<div>' + file.attr('filename') + '</div>').append($('<img>').attr('src', '../images/locked.png')).append($('<span>').text(user + ' is editing'));
                 }else{
-                    var newElement = $('<a>').attr('href', '#').text(file.attr('filename'));
+                    newElement = $('<a>').attr('href', '#').text(file.attr('filename'));
                 }
                 newElement.addClass('file');
                 temporaryContainer.append(liElement.clone().append(newElement));
