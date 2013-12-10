@@ -58,10 +58,10 @@
                         <c:forEach var="fileItem" items="${pageScope.fileList}">
                             <li>
                                 <c:choose>
-                                    <c:when test="${fileItem.user == userBean.name || fileItem.user == null}">
+                                    <c:when test="${fileItem.user == null}">
                                         <a href="#" class="file">${fileItem.filename}</a>
                                     </c:when>
-                                    <c:when test="${fileItem.user != null}">
+                                    <c:otherwise>
                                         <div class="file" title="File is under editing">
                                             ${fileItem.filename}
                                             <img src="../images/locked.png">
@@ -69,7 +69,7 @@
                                                 ${fileItem.user} is editing
                                             </span>
                                         </div>
-                                    </c:when>
+                                    </c:otherwise>
                                 </c:choose>
                             </li>
                         </c:forEach>

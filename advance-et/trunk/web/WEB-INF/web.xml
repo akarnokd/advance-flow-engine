@@ -65,6 +65,14 @@
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/doc/*</url-pattern>
     </filter-mapping>
+    <listener>
+        <description>HttpSessionListener</description>
+        <listener-class>com.ttsnetwork.elicitationtool.SessionServletListener</listener-class>
+    </listener>
+    <listener>
+        <description>ServletContextListener</description>
+        <listener-class>com.ttsnetwork.elicitationtool.ServletContextListener</listener-class>
+    </listener>
     <servlet>
         <servlet-name>SaveXmlServlet</servlet-name>
         <servlet-class>com.ttsnetwork.elicitationtool.SaveXmlServlet</servlet-class>
@@ -123,6 +131,10 @@
         <servlet-name>GetFileListServlet</servlet-name>
         <servlet-class>com.ttsnetwork.elicitationtool.GetFileListServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DestroySessionServlet</servlet-name>
+        <servlet-class>com.ttsnetwork.elicitationtool.DestroySessionServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SaveXmlServlet</servlet-name>
         <url-pattern>*.saveXml</url-pattern>
@@ -163,10 +175,12 @@
         <servlet-name>GetFileListServlet</servlet-name>
         <url-pattern>*.getFileList</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DestroySessionServlet</servlet-name>
+        <url-pattern>*.destroySession</url-pattern>
+    </servlet-mapping>
     <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
+        <session-timeout>15</session-timeout>
     </session-config>
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

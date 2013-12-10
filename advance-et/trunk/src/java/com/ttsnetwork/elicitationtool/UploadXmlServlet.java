@@ -84,7 +84,7 @@ public class UploadXmlServlet extends HttpServlet {
                                 validateXml(doc, validationErrorMessages);
 //                                System.out.println("Error messages: " + validationErrorMessages);
 
-                                if (validationErrorMessages.isEmpty()) {
+//                                if (validationErrorMessages.isEmpty()) {
                                     FileWriter writer = new FileWriter(xml);
                                     new XMLOutputter(Format.getPrettyFormat()).output(doc, writer);
                                     writer.close();
@@ -95,15 +95,15 @@ public class UploadXmlServlet extends HttpServlet {
                                             + "id=\"success-message\">"
                                             + item.getName() + "</p>");
                                     FileManager.getInstance().add(xml);
-                                } else {
-
-                                    StringBuilder sb = new StringBuilder();
-                                    for (String s : validationErrorMessages) {
-                                        sb.append(s).append("\n");
-                                    }
-                                    errorMessage = sb.toString();
-
-                                }
+//                                } else {
+//
+//                                    StringBuilder sb = new StringBuilder();
+//                                    for (String s : validationErrorMessages) {
+//                                        sb.append(s).append("\n");
+//                                    }
+//                                    errorMessage = sb.toString();
+//
+//                                }
 
 
                             } else {

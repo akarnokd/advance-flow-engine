@@ -1,3 +1,8 @@
+body{
+    margin: 15px auto;
+    padding: 0 !important;
+}
+
 #wrapper{min-width: 60em;}
 
 #page-header{border-bottom: 1px solid #808080;}
@@ -7,7 +12,7 @@
 #content .container, #content #separator{
     float: left; height: 100%; margin: 0; padding: 0;}
 #content .container#tree-container{width: 36.46%; /* 350px */}
-#content .container#node-editor-container{width: 61.98%; /* 595px */}
+#content .container#node-editor-container{width: 61.97%; /* 595px */}
 #content #separator{
     width: 1.5625%; /* 15px */
     border-width: 0px 1px; border-style: solid; border-color: #808080;
@@ -164,49 +169,52 @@
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px){
 
     html, body{
-        /*width: 100%;*/ min-width: 100%; max-width: none; min-height: 100%;
+        width: 100%; min-width: 100%; max-width: none; min-height: 100%;
         margin: 0; padding: 0;
-        -webkit-text-size-adjust: none;}
+        -webkit-text-size-adjust: none;
+    }
 
     #wrapper{
         position: relative;
-        /*min-width: 100%;*/ width: 100%; min-height: 100%;
+        width: 100%; height: 100%; max-width: 100%;
         margin: 0; padding: 0;
         box-shadow: none;
     }
 
-    #page-header #logo-2{display: none;}
+    #content{
+        height: 83%;
+    }
 
-    #node-editor-toolbar button{font-size: 1.8em;}
+    #content .container{
+        height: 100%;
 }
 
-/* WVGA */
-@media only screen
-and (max-device-width : 800px) {
-    html, body{
-        /*width: 100%;*/ min-width: 100%; max-width: none; min-height: 100%;
-        margin: 0; padding: 0;
-        -webkit-text-size-adjust: none;}
-
-    #wrapper{
-        /*        position: relative;*/
-        /*min-width: 100%;*/ width: 100%; min-height: 100%;
-        margin: 0; padding: 0;
-        box-shadow: none;
+    #content .container #tree{
+        height: 90.2%;
+        padding-bottom: 1em;
     }
-
-    #content{height: 100%; min-height: 100%; background-color: red;}
-
-    .toolbar{position: absolute; bottom: 2%;}
-    #content .container .toolbar#tree-toolbar{
-        width: 36.46%;
-    }
-    #content #node-editor-toolbar{width: 61.98%;}
-    #separator{background-color: yellowgreen;}
 
     #page-header #logo-2{display: none;}
 
+    #content .container .toolbar#tree-toolbar{
+        position: static;
+    }
     #node-editor-toolbar button{font-size: 1.8em;}
+
+    #footer{
+        position: static;
+    }
+}
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px)
+and (orientation:landscape){
+    #page-header, #footer{
+        height: auto;
+    }
+
+    #content{height: 48.5em;}
+    #content .container #tree{height: 83%;}
+    #content .container #node-editor{height: 90%;}
 }
 
 /* SMARTPHONES */
@@ -221,30 +229,34 @@ and (max-device-width : 480px) {
 
     #wrapper{
         position: relative;
-        /*min-width: 100%;*/ width: 100%; min-height: 100%;
+        /*min-width: 100%;*/ width: 100%; min-height: 100%; max-width: 100%;
         margin: 0; padding: 0;
         box-shadow: none;
     }
 
+    #content, #separator{
+        min-height: 48.5em; height: auto;
+    }
+
+    #content .container{
+        height: 48.5em;
+    }
+
+    #content .container #tree, #content .container #node-editor{
+        min-height: 40.5em;
+        padding-bottom: 1em;
+    }
+
     #page-header #logo-2{display: none;}
 
+    #content .container .toolbar#tree-toolbar{
+        position: static;
+    }
     #node-editor-toolbar button{font-size: 1.8em;}
-    /*
     
-        #content{min-height: 100%; height: auto; overflow: auto;}
-    
-        #content .container#node-editor-container, #content #separator{display: none;}
-        #content .container#tree-container{
-            float: left; width: 100%;}
-    
-        #tree-container #tree, #node-editor-container #node-editor{
-            background-image: none; padding-bottom: 18.5%;}
-        #tree-container .toolbar#tree-toolbar,
-        #node-editor-container .toolbar#node-editor-toolbar{
-            position: absolute; bottom: 0.8em;}
-    
-        #footer p{font-size: 0.8em;}
-        #footer p a{text-decoration: none;}*/
+    #footer{
+        position: static;
+    }
 }
 
 /* QVGA */
@@ -252,33 +264,38 @@ and (max-device-width : 480px) {
 and (max-device-width : 240px) {
 
     html, body{
-        width: 100%; min-width: 100%; max-width: none; min-height: 100%;
+        /*width: 100%;*/ min-width: 100%; max-width: none; min-height: 100%;
         margin: 0; padding: 0;
         -webkit-text-size-adjust: none;}
 
     #wrapper{
         position: relative;
-        min-width: 100%; width: 100%; min-height: 100%; height: auto;
+        /*min-width: 100%;*/ width: 100%; min-height: 100%;
         margin: 0; padding: 0;
         box-shadow: none;
-        background: url(../images/editor_bg.png);}
+    }
 
+    #content{
+        min-height: 48.5em; height: auto;
+    }
+    
+    #content .container{
+        height: auto;
+    }
+    
+    #content .container #tree{
+        min-height: 40.5em; height: auto;
+        padding-bottom: 1em;
+    }
+    
     #page-header #logo-2{display: none;}
-    /*
     
-        #content{min-height: 100%; height: auto; overflow: auto;}
+    #content .container .toolbar#tree-toolbar{
+        position: static;
+    }
+    #node-editor-toolbar button{font-size: 1.8em;}
     
-        #content .container#node-editor-container, 
-        #content #separator{display: none;}
-        #content .container#tree-container{
-            position: absolute; top: 0; left: 0;
-            float: none; width: 100%; min-height: 100%;}
-    
-        #tree-container #tree{background-image: none; padding-bottom: 18%;}
-        #tree-container #tree-toolbar{position: absolute; bottom: 0.8em;}
-    
-        #node-editor #jxgbox{width: 100%; height: 100%; background-color: #fff;}
-    
-        #footer p{font-size: 0.8em;}
-        #footer p a{text-decoration: none;}*/
+    #footer{
+        position: static;
+    }
 }

@@ -85,7 +85,14 @@ public class LoginServlet extends HttpServlet {
                 }
 
                 if (userBean != null) {
+
+                    UserNameListManager userNameListManager = ((UserNameListManager) getServletContext().getAttribute("userNameListManager"));
+
+                    if (!userNameListManager.userNameExists(userBean.getName())) {
+                        userNameListManager.addUserName(userBean.getName());
                     request.getSession().setAttribute("userBean", userBean);
+                    }
+
                 }
 
             } catch (JDOMException ex) {

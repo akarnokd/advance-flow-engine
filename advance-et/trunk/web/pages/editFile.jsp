@@ -14,13 +14,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <%-- <meta name="viewport" content="target-densitydpi=device-dpi, user-scalable=no, initial-scale=1.0, width=device-width" /> --%>
-
+        <!--<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width" />--> 
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
         <script type="text/javascript" src="http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js"></script>
         <script type="text/javascript" src="../js/editFile.js"></script>
-<!--        <link rel="stylesheet" type="text/css" href="../css/jquery-ui-1.8.18.custom.css">-->
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="../css/jquery-ui-1.9.0.custom.min.css">
         <link rel="stylesheet" type="text/css" href="../css/general.css">
